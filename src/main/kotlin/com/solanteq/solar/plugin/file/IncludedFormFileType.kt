@@ -6,19 +6,19 @@ import com.intellij.openapi.fileTypes.ex.FileTypeIdentifiableByVirtualFile
 import com.intellij.openapi.vfs.VirtualFile
 import com.solanteq.solar.plugin.asset.Assets
 
-object FormFileType : LanguageFileType(JsonLanguage.INSTANCE), FileTypeIdentifiableByVirtualFile {
+object IncludedFormFileType : LanguageFileType(JsonLanguage.INSTANCE), FileTypeIdentifiableByVirtualFile {
 
-    override fun getName() = "AIR Form"
+    override fun getName() = "Included AIR Form"
 
-    override fun getDescription() = "SOLAR AIR form"
+    override fun getDescription() = "Included SOLAR AIR form"
 
     override fun getDefaultExtension() = ""
 
-    override fun getIcon() = Assets.FORM_ICON
+    override fun getIcon() = Assets.INCLUDED_FORM_ICON
 
     override fun getDisplayName() = name
 
     override fun isMyFileType(file: VirtualFile) =
-        file.path.contains("/src/main/resources/config/forms")
+        file.path.contains("/src/main/resources/config/includes/forms")
 
 }

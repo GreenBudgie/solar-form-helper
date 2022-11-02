@@ -16,6 +16,7 @@ import javax.swing.Icon
 object Assets {
 
     val FORM_ICON = loadIcon("/assets/icons/form.png")
+    val INCLUDED_FORM_ICON = loadIcon("/assets/icons/included_form.png")
 
     private fun loadIcon(path: String): Icon {
         return IconLoader.getIcon(path, Assets::class.java)
