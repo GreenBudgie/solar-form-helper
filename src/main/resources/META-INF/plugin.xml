@@ -26,6 +26,15 @@
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
-        <fileType name="AIR Form" language="JSON" implementationClass="com.solanteq.solar.plugin.file.FormFileType" fieldName="INSTANCE" />
+        <fileType name="AIR Form"
+                  language="JSON"
+                  implementationClass="com.solanteq.solar.plugin.file.FormFileType"
+                  fieldName="INSTANCE" />
+
+        <fileType name="Included AIR Form"
+                  language="JSON"
+                  implementationClass="com.solanteq.solar.plugin.file.IncludedFormFileType"
+                  fieldName="INSTANCE" />
+
     </extensions>
 </idea-plugin>
