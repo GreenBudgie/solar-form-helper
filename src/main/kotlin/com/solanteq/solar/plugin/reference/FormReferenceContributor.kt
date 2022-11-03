@@ -2,14 +2,11 @@ package com.solanteq.solar.plugin.reference
 
 import com.intellij.json.psi.*
 import com.intellij.patterns.PatternCondition
-import com.intellij.patterns.PlatformPatterns
 import com.intellij.patterns.PsiElementPattern
-import com.intellij.patterns.StandardPatterns
 import com.intellij.psi.PsiReferenceContributor
 import com.intellij.psi.PsiReferenceRegistrar
 import com.intellij.util.ProcessingContext
-import com.solanteq.solar.plugin.file.FormFileType
-import com.solanteq.solar.plugin.file.IncludedFormFileType
+import com.solanteq.solar.plugin.reference.request.RequestReferenceProvider
 import com.solanteq.solar.plugin.util.inFormFilePattern
 
 class FormReferenceContributor : PsiReferenceContributor() {
