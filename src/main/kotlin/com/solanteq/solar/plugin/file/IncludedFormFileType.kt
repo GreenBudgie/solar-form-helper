@@ -1,12 +1,9 @@
 package com.solanteq.solar.plugin.file
 
-import com.intellij.json.JsonLanguage
-import com.intellij.openapi.fileTypes.LanguageFileType
-import com.intellij.openapi.fileTypes.ex.FileTypeIdentifiableByVirtualFile
 import com.intellij.openapi.vfs.VirtualFile
 import com.solanteq.solar.plugin.asset.Assets
 
-object IncludedFormFileType : LanguageFileType(JsonLanguage.INSTANCE), FileTypeIdentifiableByVirtualFile {
+object IncludedFormFileType : AbstractFormFileType() {
 
     override fun getName() = "Included AIR Form"
 
