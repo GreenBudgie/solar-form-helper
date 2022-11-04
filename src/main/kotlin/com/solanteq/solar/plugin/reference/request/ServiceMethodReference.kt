@@ -11,6 +11,9 @@ import org.jetbrains.kotlin.psi.KtValueArgumentList
 import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
+import org.jetbrains.uast.UAnnotation
+import org.jetbrains.uast.UClass
+import org.jetbrains.uast.namePsiElement
 
 class ServiceMethodReference(
     element: JsonStringLiteral,
@@ -18,20 +21,7 @@ class ServiceMethodReference(
     requestData: RequestData
 ) : AbstractServiceReference(element, range, requestData) {
 
-    override fun findKotlinReference(element: KtNameReferenceExpression): PsiElement? {
-        val annotationEntry = element.getParentOfType<KtAnnotationEntry>(false) ?: return null
-        val argumentList = annotationEntry.getChildOfType<KtValueArgumentList>() ?: return null
-        val serviceNameArgument = argumentList.arguments.firstOrNull() ?: return null
-
-        if(!serviceNameArgument.text.contains(requestData.serviceName)) return null
-
-        return element.containingKtFile.collectDescendantsOfType<KtNamedFunction>().find {
-            it.name == requestData.methodName
-        }
-    }
-
-    override fun findJavaReference(element: PsiIdentifier): PsiElement? {
-        return null
-    }
+    override fun resolveReference(serviceClass: UClass, serviceAnnotation: UAnnotation) =
+        serviceClass.methods.find { it.name == requestData.methodName }
 
 }

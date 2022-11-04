@@ -17,7 +17,7 @@ object RequestReferenceProvider : PsiReferenceProvider() {
         val jsonElement = element as JsonStringLiteral
         val requestData = parseRequestString(jsonElement.value) ?: return emptyArray()
 
-        val delimiterPosition = requestData.serviceName.length + 2
+        val delimiterPosition = requestData.groupName.length + requestData.serviceName.length + 3
 
         val serviceNameReference = ServiceNameReference(
             jsonElement,
