@@ -11,6 +11,9 @@ import org.jetbrains.kotlin.psi.KtValueArgumentList
 import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
+import org.jetbrains.uast.UAnnotation
+import org.jetbrains.uast.UClass
+import org.jetbrains.uast.sourcePsiElement
 
 class ServiceNameReference(
     element: JsonStringLiteral,
@@ -18,19 +21,7 @@ class ServiceNameReference(
     requestData: RequestData
 ) : AbstractServiceReference(element, range, requestData) {
 
-    override fun findKotlinReference(element: KtNameReferenceExpression): PsiElement? {
-        val annotationEntry = element.getParentOfType<KtAnnotationEntry>(false) ?: return null
-        val argumentList = annotationEntry.getChildOfType<KtValueArgumentList>() ?: return null
-        val serviceNameArgument = argumentList.arguments.firstOrNull() ?: return null
-
-        return if(serviceNameArgument.text.contains(requestData.serviceName))
-            serviceNameArgument
-        else
-            null
-    }
-
-    override fun findJavaReference(element: PsiIdentifier): PsiElement? {
-        return null
-    }
+    override fun resolveReference(serviceClass: UClass, serviceAnnotation: UAnnotation) =
+        serviceAnnotation.findAttributeValue("value")?.sourcePsi
 
 }
