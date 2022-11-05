@@ -41,5 +41,8 @@
         <psi.referenceContributor
                 language="JSON"
                 implementation="com.solanteq.solar.plugin.reference.FormReferenceContributor" />
+
+        <useScopeEnlarger implementation="com.solanteq.solar.plugin.reference.request.FormUseScopeEnlarger"/>
+
     </extensions>
 </idea-plugin>

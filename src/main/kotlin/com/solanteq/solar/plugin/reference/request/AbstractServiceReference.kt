@@ -1,13 +1,13 @@
 package com.solanteq.solar.plugin.reference.request
 
 import com.intellij.json.psi.JsonStringLiteral
+import com.intellij.openapi.progress.checkCanceled
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.*
 import com.intellij.psi.search.PsiShortNamesCache
+import com.intellij.psi.search.UseScopeEnlarger
+import com.intellij.psi.search.searches.ReferencesSearch
 import org.jetbrains.kotlin.idea.search.allScope
-import org.jetbrains.kotlin.psi.KtNameReferenceExpression
-import org.jetbrains.uast.UAnnotation
-import org.jetbrains.uast.UAnnotationEx
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.toUElementOfType
 
@@ -31,18 +31,20 @@ abstract class AbstractServiceReference(
         val groupDotServiceName = "${requestData.groupName}.${requestData.serviceName}"
 
         applicableServiceClasses.forEach {
-            val annotation = it.uAnnotations.find { annotation ->
+            val containsValidServiceAnnotation = it.uAnnotations.any { annotation ->
                 annotation.qualifiedName == "org.springframework.stereotype.Service" &&
                         annotation.findAttributeValue("value")?.evaluate() == groupDotServiceName
-            } ?: return@forEach
+            }
 
-            return resolveReference(it, annotation)
+            if(!containsValidServiceAnnotation) return@forEach
+
+            return resolveReference(it)
         }
 
         println("Time2: ${System.currentTimeMillis() - startTime}")
         return null
     }
 
-    abstract fun resolveReference(serviceClass: UClass, serviceAnnotation: UAnnotation): PsiElement?
+    abstract fun resolveReference(serviceClass: UClass): PsiElement?
 
 }
