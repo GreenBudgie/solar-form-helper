@@ -1,7 +1,7 @@
 plugins {
     id("java")
     id("org.jetbrains.kotlin.jvm") version "1.6.20"
-    id("org.jetbrains.intellij") version "1.5.2"
+    id("org.jetbrains.intellij") version "1.9.0"
 }
 
 group = "com.solanteq.solar.plugin"
@@ -13,10 +13,10 @@ repositories {
 
 // Configure Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
 intellij {
-    version.set("2021.2")
+    version.set("2022.2.3")
     type.set("IC") // Target IDE Platform
 
-    plugins.set(listOf("java", "org.jetbrains.kotlin"))
+    plugins.set(listOf("com.intellij.java", "org.jetbrains.kotlin", "PsiViewer:222-SNAPSHOT"))
 }
 
 tasks {
