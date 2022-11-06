@@ -42,7 +42,7 @@
                 language="JSON"
                 implementation="com.solanteq.solar.plugin.reference.FormReferenceContributor" />
 
-        <useScopeEnlarger implementation="com.solanteq.solar.plugin.reference.request.FormUseScopeEnlarger"/>
+        <useScopeEnlarger implementation="com.solanteq.solar.plugin.scope.SolarScopeEnlarger"/>
 
     </extensions>
 </idea-plugin>
