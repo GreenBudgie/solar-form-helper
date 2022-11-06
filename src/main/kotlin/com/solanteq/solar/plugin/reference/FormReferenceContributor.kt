@@ -1,31 +1,36 @@
 package com.solanteq.solar.plugin.reference
 
-import com.intellij.json.psi.*
-import com.intellij.patterns.PatternCondition
-import com.intellij.patterns.PsiElementPattern
+import com.intellij.json.psi.JsonStringLiteral
+import com.intellij.patterns.StandardPatterns
 import com.intellij.psi.PsiReferenceContributor
 import com.intellij.psi.PsiReferenceRegistrar
-import com.intellij.util.ProcessingContext
+import com.intellij.util.containers.toArray
 import com.solanteq.solar.plugin.reference.request.RequestReferenceProvider
-import com.solanteq.solar.plugin.util.inFormFilePattern
+import com.solanteq.solar.plugin.util.inForm
+import com.solanteq.solar.plugin.util.isInsideObjectWithKey
+import com.solanteq.solar.plugin.util.isValueWithKey
 
 class FormReferenceContributor : PsiReferenceContributor() {
 
-    override fun registerReferenceProviders(registrar: PsiReferenceRegistrar) {
-        val pattern = inFormFilePattern(JsonStringLiteral::class.java)
+    private val requestLiterals = arrayOf(
+        "request",
+        "countRequest",
+        "source",
+        "save",
+        "remove"
+    )
 
-        registrar.registerReferenceProvider(pattern.isValueWithKey("request"), RequestReferenceProvider)
+    override fun registerReferenceProviders(registrar: PsiReferenceRegistrar) {
+        val basePattern = inForm(JsonStringLiteral::class.java)
+
+        registrar.registerReferenceProvider(
+            StandardPatterns.or(
+                basePattern.isValueWithKey(*requestLiterals),
+                basePattern.isValueWithKey("name").isInsideObjectWithKey(*requestLiterals)
+            ),
+            RequestReferenceProvider)
     }
 
-    private fun PsiElementPattern.Capture<out JsonStringLiteral>.isValueWithKey(key: String) = with(
-        object : PatternCondition<JsonStringLiteral>("isValueWithKey") {
-            override fun accepts(element: JsonStringLiteral, context: ProcessingContext?): Boolean {
-                if(!JsonPsiUtil.isPropertyValue(element)) return false
-                val parentJsonProperty = element.parent as? JsonProperty ?: return false
-                return parentJsonProperty.name == key
-            }
-        }
-    )
 
 
 }
