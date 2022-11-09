@@ -18,8 +18,6 @@ abstract class AbstractServiceReference(
 ) : PsiReferenceBase<JsonStringLiteral>(element, range, false) {
 
     override fun resolve(): PsiElement? {
-        val startTime = System.currentTimeMillis()
-
         val exactServiceName =
             requestData.serviceName.replaceFirstChar { it.uppercaseChar() } + "Impl"
 
@@ -40,8 +38,6 @@ abstract class AbstractServiceReference(
 
             return resolveReference(it)
         }
-
-        println("Time2: ${System.currentTimeMillis() - startTime}")
         return null
     }
 
