@@ -1,19 +1,16 @@
 package com.solanteq.solar.plugin
 
-import com.intellij.ide.starters.shared.JUNIT_TEST_RUNNER
 import com.intellij.testFramework.RunsInEdt
-import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase4
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase5
-import com.intellij.tests.JUnit5Runner
 import com.solanteq.solar.plugin.reference.request.ServiceMethodReference
-import org.junit.jupiter.api.Test
+import org.jetbrains.uast.UMethod
+import org.jetbrains.uast.toUElement
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
-import org.junit.runner.RunWith
 
 @RunsInEdt
-class FormReferenceTest : LightJavaCodeInsightFixtureTestCase5() {
+class FormReferenceTest : LightJavaCodeInsightFixtureTestCase5(DEFAULT_DESCRIPTOR) {
 
     override fun getTestDataPath() = testDataPathWithSuffix("reference")
 
@@ -25,19 +22,46 @@ class FormReferenceTest : LightJavaCodeInsightFixtureTestCase5() {
         "save",
         "remove"
     ])
-    fun testValidReferenceRightAfterRequestLiteral(requestLiteral: String) {
-        fixture.configureByFile("serviceNameReference/ServiceImpl.kt")
-        fixture.configureByFormText("""
+    fun `test valid reference right after request literal`(requestLiteral: String) {
+        doTest("""
             {
               "$requestLiteral": "test.service.<caret>findData"
             }
         """.trimIndent())
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = [
+        "request",
+        "countRequest",
+        "source",
+        "save",
+        "remove"
+    ])
+    fun `test valid reference inside request object after name literal`(requestLiteral: String) {
+        doTest("""
+            {
+              "$requestLiteral": {
+                "name": "test.service.<caret>findData"
+              }
+            }
+        """.trimIndent())
+    }
+
+    private fun doTest(formText: String) {
+        fixture.configureByFile("serviceNameReference/ServiceImpl.kt")
+        fixture.configureByFormText(formText)
 
         val methodReference = fixture.file.findReferenceAt(fixture.caretOffset)
 
-        val errorMessage = "Reference for request literal \"$requestLiteral\" is invalid or not found"
-        assertNotNull(methodReference, errorMessage)
-        assertTrue(methodReference is ServiceMethodReference, errorMessage)
+        assertNotNull(methodReference)
+        assertTrue(methodReference is ServiceMethodReference)
+
+        val referencedMethod = methodReference!!.resolve().toUElement() as? UMethod
+
+        assertNotNull(referencedMethod)
+        assertTrue(referencedMethod is UMethod)
+        assertEquals("findData", referencedMethod!!.name)
     }
 
 }

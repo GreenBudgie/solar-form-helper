@@ -9,6 +9,7 @@ version = "1.0.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    maven("https://karjala.solanteq.com/content/repositories/releases/")
 }
 
 dependencies {
@@ -35,6 +36,7 @@ tasks {
     }
 
     test {
+        systemProperty("idea.home.path", "/Users/nbundin/Projects/intellij")
         useJUnitPlatform()
     }
 
