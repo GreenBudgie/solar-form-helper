@@ -23,7 +23,8 @@ class FormReferenceTest : LightJavaCodeInsightFixtureTestCase5(DEFAULT_DESCRIPTO
         "remove"
     ])
     fun `test valid reference right after request literal`(requestLiteral: String) {
-        doTest("""
+        doTest("serviceNameReference/ServiceImpl.java",
+            """
             {
               "$requestLiteral": "test.service.<caret>findData"
             }
@@ -39,7 +40,8 @@ class FormReferenceTest : LightJavaCodeInsightFixtureTestCase5(DEFAULT_DESCRIPTO
         "remove"
     ])
     fun `test valid reference inside request object after name literal`(requestLiteral: String) {
-        doTest("""
+        doTest("serviceNameReference/ServiceImpl.kt",
+            """
             {
               "$requestLiteral": {
                 "name": "test.service.<caret>findData"
@@ -48,8 +50,8 @@ class FormReferenceTest : LightJavaCodeInsightFixtureTestCase5(DEFAULT_DESCRIPTO
         """.trimIndent())
     }
 
-    private fun doTest(formText: String) {
-        fixture.configureByFile("serviceNameReference/ServiceImpl.kt")
+    private fun doTest(serviceClassPath: String, formText: String) {
+        fixture.configureByFile(serviceClassPath)
         fixture.configureByFormText(formText)
 
         val methodReference = fixture.file.findReferenceAt(fixture.caretOffset)
