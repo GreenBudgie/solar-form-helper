@@ -8,7 +8,7 @@ import org.jetbrains.uast.UMethod
 fun UMethod.isCallableMethod() = javaPsi.isCallableMethod()
 
 fun PsiMethod.isCallableMethod() =
-    findSuperMethods().any {
+    (findSuperMethods() + arrayOf(this)).any {
         it.hasAnnotation("com.solanteq.solar.commons.annotations.Callable")
     }
 
@@ -21,3 +21,11 @@ fun UClass.isCallableServiceClassImpl() = javaPsi.isCallableServiceClassImpl()
 
 fun PsiClass.isCallableServiceClassImpl() = supers.any { it.isCallableServiceInterface() }
 
+val UClass.callableMethods: List<PsiMethod>
+    get() = javaPsi.callableMethods
+
+val PsiClass.callableMethods: List<PsiMethod>
+    get() = if(isCallableServiceClassImpl())
+        this.methods.filter { it.isCallableMethod() }
+    else
+        listOf()

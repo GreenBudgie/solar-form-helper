@@ -10,6 +10,8 @@ class ServiceNameReference(
     requestData: RequestData
 ) : AbstractServiceReference(element, range, requestData) {
 
-    override fun resolveReference(serviceClass: UClass) = serviceClass
+    override fun getVariantsInService(serviceClass: UClass): Array<Any> = emptyArray()
+
+    override fun resolveReferenceInService(serviceClass: UClass) = serviceClass.sourcePsi
 
 }
