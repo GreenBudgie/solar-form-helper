@@ -42,7 +42,13 @@
                 language="JSON"
                 implementation="com.solanteq.solar.plugin.reference.FormReferenceContributor" />
 
-        <useScopeEnlarger implementation="com.solanteq.solar.plugin.scope.SolarScopeEnlarger"/>
+        <useScopeEnlarger implementation="com.solanteq.solar.plugin.scope.SolarScopeEnlarger" />
+
+<!--        <referencesSearch implementation="com.solanteq.solar.plugin.reference.request.ServiceNameQueryExecutor" />-->
+
+        <lang.findUsagesProvider
+                language="JAVA"
+                implementationClass="com.solanteq.solar.plugin.reference.request.ServiceNameFindUsagesProvider"/>
 
     </extensions>
 </idea-plugin>

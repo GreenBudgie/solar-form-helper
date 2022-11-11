@@ -11,10 +11,12 @@ class ServiceMethodReference(
     requestData: RequestData
 ) : AbstractServiceReference(element, range, requestData) {
 
-    override fun getVariantsInService(serviceClass: UClass): Array<Any> =
-        serviceClass.callableMethods.toTypedArray()
+    override fun getVariants(): Array<Any> {
+        val service = findService() ?: return emptyArray()
+        return service.callableMethods.toTypedArray()
+    }
 
     override fun resolveReferenceInService(serviceClass: UClass) =
-        serviceClass.methods.find { it.name == requestData.methodName }?.sourcePsi
+        serviceClass.methods.find { it.name == requestData?.methodName }?.sourcePsi
 
 }
