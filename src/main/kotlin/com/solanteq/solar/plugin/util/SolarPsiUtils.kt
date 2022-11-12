@@ -4,6 +4,7 @@ import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi.JavaPsiFacade
+import com.intellij.psi.PsiAnnotationMemberValue
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.AnnotatedElementsSearch
@@ -80,3 +81,8 @@ private fun uastModificationTracker(project: Project) =
     PsiModificationTracker.getInstance(project).forLanguages {
         it is KotlinLanguage || it is JavaLanguage
     }
+
+fun PsiAnnotationMemberValue.evaluateToString(): String? {
+    return JavaPsiFacade.getInstance(project)
+        .constantEvaluationHelper.computeConstantExpression(this) as? String ?: return null
+}
