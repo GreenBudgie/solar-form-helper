@@ -21,6 +21,12 @@ const val CALLABLE_ANNOTATION_FQ_NAME = "com.solanteq.solar.commons.annotations.
 private val CALLABLE_SERVICES_KEY = Key<CachedValue<List<PsiClass>>>("solar.callableServices")
 private val CALLABLE_SERVICE_NAMES_KEY = Key<CachedValue<List<String>>>("solar.callableServiceNames")
 
+fun Project.isSolarProject() =
+    JavaPsiFacade.getInstance(this).findClass(
+        "com.solanteq.solar.bridge.Adapter",
+        GlobalSearchScope.allScope(this)
+    ) != null
+
 fun findAllCallableServicesImpl(project: Project): List<PsiClass> {
     return CachedValuesManager.getManager(project).getCachedValue(
         project,
@@ -52,13 +58,13 @@ fun findAllCallableServicesImpl(project: Project): List<PsiClass> {
         false)
 }
 
-fun findAllCallableServicesNames(project: Project): List<String> {
+fun findAllCallableServiceSolarNames(project: Project): List<String> {
     return CachedValuesManager.getManager(project).getCachedValue(
         project,
         CALLABLE_SERVICE_NAMES_KEY,
         {
             val serviceNames = findAllCallableServicesImpl(project).mapNotNull {
-                it.serviceName
+                it.serviceSolarName
             }
 
             CachedValueProvider.Result(

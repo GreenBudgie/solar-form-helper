@@ -1,14 +1,19 @@
 package com.solanteq.solar.plugin.util
 
 import com.intellij.json.psi.*
-import com.intellij.patterns.PatternCondition
-import com.intellij.patterns.PlatformPatterns
-import com.intellij.patterns.PsiElementPattern
-import com.intellij.patterns.StandardPatterns
+import com.intellij.patterns.*
 import com.intellij.psi.util.findParentOfType
 import com.intellij.util.ProcessingContext
 import com.solanteq.solar.plugin.file.FormFileType
 import com.solanteq.solar.plugin.file.IncludedFormFileType
+
+private val REQUEST_LITERALS = arrayOf(
+    "request",
+    "countRequest",
+    "source",
+    "save",
+    "remove"
+)
 
 /**
  * Constructs a pattern to check if the specified json element is inside the form file
@@ -69,6 +74,28 @@ fun PsiElementPattern.Capture<out JsonStringLiteral>.isInsideObjectWithKey(varar
         }
     }
 )
+
+/**
+ * Generates a request value json string literal pattern.
+ *
+ * In the following example the pattern will select elements named "VALUE":
+ * ```
+ * {
+ *  "request": "VALUE",
+ *  "save": {
+ *    "name": "VALUE"
+ *  }
+ * }
+ * ```
+ */
+fun requestValuePattern(): ElementPattern<JsonStringLiteral> {
+    val baseInFormPattern = inForm(JsonStringLiteral::class.java)
+
+    return StandardPatterns.or(
+        baseInFormPattern.isValueWithKey(*REQUEST_LITERALS),
+        baseInFormPattern.isValueWithKey("name").isInsideObjectWithKey(*REQUEST_LITERALS)
+    )
+}
 
 
 

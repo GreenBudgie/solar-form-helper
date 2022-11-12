@@ -44,11 +44,7 @@
 
         <useScopeEnlarger implementation="com.solanteq.solar.plugin.scope.SolarScopeEnlarger" />
 
-<!--        <referencesSearch implementation="com.solanteq.solar.plugin.reference.request.ServiceNameQueryExecutor" />-->
-
-        <lang.findUsagesProvider
-                language="JAVA"
-                implementationClass="com.solanteq.solar.plugin.reference.request.ServiceNameFindUsagesProvider"/>
+        <referencesSearch implementation="com.solanteq.solar.plugin.reference.request.ServiceNameQueryExecutor" />
 
     </extensions>
 </idea-plugin>
