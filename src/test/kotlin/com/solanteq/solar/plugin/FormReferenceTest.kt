@@ -1,7 +1,6 @@
 package com.solanteq.solar.plugin
 
 import com.intellij.testFramework.RunsInEdt
-import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase5
 import com.solanteq.solar.plugin.reference.request.ServiceMethodReference
 import com.solanteq.solar.plugin.reference.request.ServiceNameReference
 import org.jetbrains.uast.UClass
@@ -13,13 +12,11 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
 @RunsInEdt
-class FormReferenceTest : LightJavaCodeInsightFixtureTestCase5(DEFAULT_DESCRIPTOR) {
-
-    override fun getTestDataPath() = testDataPathWithSuffix("reference")
+class FormReferenceTest : FormTestBase() {
 
     @Test
     fun `test valid reference right after request literal with java service`() {
-        doTestMethodReference("serviceNameReference/ServiceImpl.java",
+        doTestMethodReference("ServiceImpl.java",
             """
             {
               "request": "test.service.<caret>findData"
@@ -29,22 +26,12 @@ class FormReferenceTest : LightJavaCodeInsightFixtureTestCase5(DEFAULT_DESCRIPTO
 
     @Test
     fun `test valid reference inside request object after name literal with kotlin service`() {
-        doTestMethodReference("serviceNameReference/ServiceImpl.kt",
+        doTestMethodReference("ServiceImpl.kt",
             """
             {
               "save": {
                 "name": "test.service.<caret>findData"
               }
-            }
-        """.trimIndent())
-    }
-
-    @Test
-    fun `test valid reference right after request literal`() {
-        doTestMethodReference("serviceNameReference/ServiceImpl.java",
-            """
-            {
-              "request": "test.service.<caret>findData"
             }
         """.trimIndent())
     }
@@ -58,7 +45,7 @@ class FormReferenceTest : LightJavaCodeInsightFixtureTestCase5(DEFAULT_DESCRIPTO
         fixture.configureByText("TestService.kt", """
             import com.solanteq.solar.commons.annotations.CallableService
 
-            @CallableService("test.testService")
+            @CallableService
             interface $serviceName {
 
                 @Callable
