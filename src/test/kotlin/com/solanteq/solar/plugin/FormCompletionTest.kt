@@ -9,7 +9,7 @@ import org.junit.jupiter.params.provider.ValueSource
 @RunsInEdt
 class FormCompletionTest : FormTestBase() {
 
-    override fun getTestDataPath() = testDataPathWithSuffix("completion")
+    override fun getTestDataSuffix() = "completion"
 
     @Test
     fun `test service method completion`() {

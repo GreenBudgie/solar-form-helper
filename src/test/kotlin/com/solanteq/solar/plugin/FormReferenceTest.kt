@@ -14,6 +14,8 @@ import org.junit.jupiter.params.provider.ValueSource
 @RunsInEdt
 class FormReferenceTest : FormTestBase() {
 
+    override fun getTestDataSuffix() = "reference"
+
     @Test
     fun `test valid reference right after request literal with java service`() {
         doTestMethodReference("ServiceImpl.java",

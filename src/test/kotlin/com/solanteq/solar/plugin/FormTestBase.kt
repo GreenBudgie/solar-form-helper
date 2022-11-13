@@ -12,7 +12,9 @@ import com.intellij.testFramework.fixtures.MavenDependencyUtil
 
 abstract class FormTestBase : LightJavaCodeInsightFixtureTestCase5(DEFAULT_DESCRIPTOR) {
 
-    override fun getTestDataPath() = "src/test/testData/"
+    final override fun getTestDataPath() = "src/test/testData/${getTestDataSuffix()}"
+
+    open fun getTestDataSuffix() = ""
 
     companion object {
 
