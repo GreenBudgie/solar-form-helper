@@ -9,11 +9,7 @@ object IncludedFormFileType : AbstractFormFileType() {
 
     override fun getDescription() = "Included SOLAR AIR form"
 
-    override fun getDefaultExtension() = ""
-
     override fun getIcon() = Assets.INCLUDED_FORM_ICON
-
-    override fun getDisplayName() = name
 
     override fun isMyFileType(file: VirtualFile) =
         file.path.contains("/src/main/resources/config/includes/forms")
