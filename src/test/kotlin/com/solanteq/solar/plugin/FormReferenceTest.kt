@@ -1,6 +1,8 @@
 package com.solanteq.solar.plugin
 
+import com.intellij.psi.PsiFile
 import com.intellij.testFramework.RunsInEdt
+import com.solanteq.solar.plugin.reference.form.FormReference
 import com.solanteq.solar.plugin.reference.request.ServiceMethodReference
 import com.solanteq.solar.plugin.reference.request.ServiceNameReference
 import org.jetbrains.uast.UClass
@@ -86,6 +88,41 @@ class FormReferenceTest : FormTestBase() {
         assertNotNull(referencedService)
         assertTrue(referencedService is UClass)
         assertEquals("${serviceName}Impl", referencedService!!.javaPsi.name)
+    }
+
+    @Test
+    fun `test form reference with group`() {
+        fixture.createForm(
+            "testFormNoGroup",
+            "{}"
+        )
+        fixture.createForm(
+            "testFormWithGroup",
+            "{}",
+            "test"
+        )
+        fixture.createForm(
+            "testFormWithGroup",
+            "{}",
+            "test2"
+        )
+
+        fixture.configureByFormText("""
+            {
+              "form": "<caret>test.testFormWithGroup"
+            }
+        """.trimIndent()
+        )
+
+        val reference = fixture.file.findReferenceAt(fixture.caretOffset)
+        assertNotNull(reference)
+        assertTrue(reference is FormReference)
+
+        val referencedForm = reference!!.resolve()
+
+        assertNotNull(referencedForm)
+        assertTrue(referencedForm is PsiFile)
+        assertEquals("testFormWithGroup.json", (referencedForm as PsiFile).name)
     }
 
     private fun doTestMethodReference(serviceClassPath: String, formText: String) {
