@@ -9,7 +9,7 @@ import com.solanteq.solar.plugin.util.isCallableMethod
 import com.solanteq.solar.plugin.util.isCallableServiceClassImpl
 import org.jetbrains.kotlin.idea.search.projectScope
 
-class SolarScopeEnlarger : UseScopeEnlarger() {
+class CallableServiceScopeEnlarger : UseScopeEnlarger() {
 
     override fun getAdditionalUseScope(element: PsiElement): SearchScope? = with(element) {
         if(this is PsiClass && isCallableServiceClassImpl()) {

@@ -76,7 +76,6 @@ fun findAllCallableServiceSolarNames(project: Project): List<String> {
         false)
 }
 
-
 private fun uastModificationTracker(project: Project) =
     PsiModificationTracker.getInstance(project).forLanguages {
         it is KotlinLanguage || it is JavaLanguage

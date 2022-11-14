@@ -24,6 +24,22 @@ abstract class AbstractServiceReference(
     }
 
     protected fun findService(): UClass? {
+        tryFindServiceByConventionalName()?.let { return it }
+
+        return tryFindServiceByAnnotation()
+    }
+
+    /**
+     * A fast way to search for applicable service.
+     *
+     * This method tries to find a service by conventional SOLAR service naming:
+     * ```
+     * "test.testService" -> TestServiceImpl
+     * ```
+     * Not all SOLAR services follow this naming rule, so slow method might be used afterward.
+     * No cache is used.
+     */
+    private fun tryFindServiceByConventionalName(): UClass? {
         requestData ?: return null
 
         val exactServiceName =
@@ -40,6 +56,20 @@ abstract class AbstractServiceReference(
             val foundService = findApplicableService(applicableServiceClasses, groupDotServiceName)
             if (foundService != null) return foundService
         }
+
+        return null
+    }
+
+    /**
+     * A slower way to search for applicable service. Used when fast method is failed.
+     *
+     * This method searches for every @Service annotation usage and finds a service by its value.
+     * Uses caching.
+     */
+    private fun tryFindServiceByAnnotation(): UClass? {
+        requestData ?: return null
+
+        val groupDotServiceName = "${requestData.groupName}.${requestData.serviceName}"
 
         val allServices = findAllCallableServicesImpl(element.project).toTypedArray()
 
