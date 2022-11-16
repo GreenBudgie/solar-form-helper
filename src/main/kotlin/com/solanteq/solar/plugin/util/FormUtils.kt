@@ -142,8 +142,8 @@ fun PsiFile.getFormGroup() = virtualFile?.getFormGroup()
  * Gets the form name of this virtual file, or null if this file can't be treated as form
  * @see isForm
  */
-fun VirtualFile.getFormSolarName(): String? {
-    val formGroup = getFormGroup() ?: return null
+fun VirtualFile.getFormSolarName(): String {
+    val formGroup = getFormGroup() ?: return nameWithoutExtension
 
     return "$formGroup.${nameWithoutExtension}"
 }

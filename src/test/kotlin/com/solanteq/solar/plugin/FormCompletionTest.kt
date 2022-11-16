@@ -56,6 +56,45 @@ class FormCompletionTest : FormTestBase() {
         )))
     }
 
+    @Test
+    fun `test form completion`() {
+        fixture.createForm(
+            "testFormNoGroup",
+            "{}"
+        )
+        fixture.createForm(
+            "testFormWithGroup",
+            "{}",
+            "test"
+        )
+        fixture.createForm(
+            "testFormWithGroup",
+            "{}",
+            "test2"
+        )
+
+        fixture.createForm(
+            "includedForm",
+            "{}",
+            "test2",
+            true
+        )
+
+        fixture.configureByFormText("""
+            {
+              "form": "<caret>"
+            }
+        """.trimIndent()
+        )
+
+        val completions = fixture.completeBasic().map { it.lookupString }
+
+        assertTrue("testFormNoGroup" in completions)
+        assertTrue("test.testFormWithGroup" in completions)
+        assertTrue("test2.testFormWithGroup" in completions)
+        assertEquals(3, completions.size)
+    }
+
     private fun configureServices() {
         fixture.configureByFiles(
             "TestService.kt",

@@ -10,19 +10,22 @@ import com.solanteq.solar.plugin.file.FormFileType
  * @param formName Form file name (without .json extension)
  * @param text Text to be placed in a form
  * @param group Form group. The file will be placed inside this directory
+ * @param isIncluded Whether this form must be placed in `/includes` directory
  *
  * @return Created form virtual file
  */
 fun JavaCodeInsightTestFixture.createForm(
     formName: String,
     text: String,
-    group: String? = null
+    group: String? = null,
+    isIncluded: Boolean = false
 ): PsiFile {
     val realFileName = "$formName.json"
-    val groupPath = if (group == null) "" else "$group/"
+    val groupPath = if(group == null) "" else "$group/"
+    val includedPath = if(isIncluded) "includes/" else ""
 
     return addFileToProject(
-        "main/resources/config/forms/$groupPath$realFileName",
+        "main/resources/config/${includedPath}forms/$groupPath$realFileName",
         text
     )
 }
@@ -36,9 +39,10 @@ fun JavaCodeInsightTestFixture.createForm(
 fun JavaCodeInsightTestFixture.createFormAndConfigure(
     formName: String,
     text: String,
-    group: String? = null
+    group: String? = null,
+    isIncluded: Boolean = false
 ): PsiFile {
-    val virtualFormFile = createForm(formName, text, group)
+    val virtualFormFile = createForm(formName, text, group, isIncluded)
     configureFromExistingVirtualFile(virtualFormFile.virtualFile)
     return file
 }

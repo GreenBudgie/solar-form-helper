@@ -6,7 +6,7 @@ import com.intellij.openapi.fileTypes.ex.FileTypeIdentifiableByVirtualFile
 
 abstract class AbstractFormFileType : LanguageFileType(JsonLanguage.INSTANCE), FileTypeIdentifiableByVirtualFile {
 
-    override fun getDefaultExtension() = "json"
+    override fun getDefaultExtension() = ""
 
     override fun getDisplayName() = name
 
