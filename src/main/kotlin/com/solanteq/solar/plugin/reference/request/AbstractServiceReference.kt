@@ -4,6 +4,7 @@ import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.*
 import com.intellij.psi.search.PsiShortNamesCache
+import com.solanteq.solar.plugin.element.FormRequest
 import com.solanteq.solar.plugin.util.SERVICE_ANNOTATION_FQ_NAME
 import com.solanteq.solar.plugin.util.evaluateToString
 import com.solanteq.solar.plugin.util.findAllCallableServicesImpl
@@ -14,7 +15,7 @@ import org.jetbrains.uast.toUElementOfType
 abstract class AbstractServiceReference(
     element: JsonStringLiteral,
     range: TextRange,
-    protected val requestData: RequestData?
+    protected val requestData: FormRequest.RequestData?
 ) : PsiReferenceBase<JsonStringLiteral>(element, range, false) {
 
     override fun resolve(): PsiElement? {

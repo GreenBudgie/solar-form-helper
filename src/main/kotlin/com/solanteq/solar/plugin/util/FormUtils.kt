@@ -24,8 +24,8 @@ import org.jetbrains.kotlin.idea.search.allScope
 /**
  * Constructs a pattern to check if the specified json element is inside the form file
  */
-fun <T : JsonElement> inForm(psiElementClass: Class<out T>): PsiElementPattern.Capture<out T> {
-    val basePattern = PlatformPatterns.psiElement(psiElementClass)
+inline fun <reified T : JsonElement> inForm(): PsiElementPattern.Capture<out T> {
+    val basePattern = PlatformPatterns.psiElement(T::class.java)
     return basePattern.andOr(
         basePattern.inFile(PlatformPatterns.psiFile().withFileType(StandardPatterns.`object`(FormFileType))),
         basePattern.inFile(PlatformPatterns.psiFile().withFileType(StandardPatterns.`object`(IncludedFormFileType)))
