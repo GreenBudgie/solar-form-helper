@@ -14,7 +14,7 @@ abstract class AbstractServiceReference(
 ) : PsiReferenceBase<JsonStringLiteral>(element, range, false) {
 
     override fun resolve(): PsiElement? {
-        val service = requestElement?.findServiceFromRequest() ?: return null
+        val service = requestElement?.serviceFromRequest ?: return null
 
         return resolveReferenceInService(service)
     }
