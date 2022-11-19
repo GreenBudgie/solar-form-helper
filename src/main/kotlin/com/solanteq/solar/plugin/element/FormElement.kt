@@ -9,7 +9,7 @@ import com.intellij.json.psi.JsonElement
  * The main goal of form elements is to provide a pseudo PSI tree for SOLAR forms without
  * actually creating one.
  *
- * It does not inherit [JsonElement], but it contains [sourceElement]
+ * It does not inherit [JsonElement], but does contain [sourceElement]
  * as a link to original field it have been created from.
  *
  * [sourceElement] has a particular json element type for which [toFormElement] must be called.

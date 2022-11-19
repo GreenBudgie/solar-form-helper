@@ -3,6 +3,15 @@ package com.solanteq.solar.plugin.element
 import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
 import com.intellij.json.psi.JsonStringLiteral
+import com.intellij.psi.PsiClass
+import com.intellij.psi.search.PsiShortNamesCache
+import com.solanteq.solar.plugin.util.SERVICE_ANNOTATION_FQ_NAME
+import com.solanteq.solar.plugin.util.evaluateToString
+import com.solanteq.solar.plugin.util.findAllCallableServicesImpl
+import org.jetbrains.kotlin.idea.search.allScope
+import org.jetbrains.uast.UClass
+import org.jetbrains.uast.UMethod
+import org.jetbrains.uast.toUElementOfType
 
 /**
  * Represents request definitions in forms
@@ -28,6 +37,7 @@ import com.intellij.json.psi.JsonStringLiteral
  * }
  * ```
  */
+//TODO fun -> lazy fields?
 class FormRequest(
     sourceElement: JsonProperty
 ) : FormElement<JsonProperty>(sourceElement) {
@@ -75,18 +85,84 @@ class FormRequest(
         return parseRequestString(requestString)
     }
 
-    companion object {
+    fun isRequestValid() = getRequestData() != null
 
-        /**
-         * Parses the given request string and returns its data, or null if request string has invalid format
-         */
-        fun parseRequestString(requestString: String): RequestData? {
-            val requestSplit = requestString.split(".")
-            if(requestSplit.size != 3 || requestSplit.any { it.isEmpty() }) return null
-            val (groupName, serviceName, methodName) = requestSplit
-            return RequestData(groupName, serviceName, methodName)
+    fun findMethodFromRequest(): UMethod? {
+        val methodName = getRequestData()?.methodName ?: return null
+        val service = findServiceFromRequest() ?: return null
+        return service.methods.find { it.name == methodName }
+    }
+
+    fun findServiceFromRequest(): UClass? {
+        tryFindServiceByConventionalName()?.let { return it }
+
+        return tryFindServiceByAnnotation()
+    }
+
+    /**
+     * A fast way to search for applicable service.
+     *
+     * This method tries to find a service by conventional SOLAR service naming:
+     * ```
+     * "test.testService" -> TestServiceImpl
+     * ```
+     * Not all SOLAR services follow this naming rule, so slow method might be used afterward.
+     * No cache is used.
+     */
+    private fun tryFindServiceByConventionalName(): UClass? {
+        val requestData = getRequestData() ?: return null
+
+        val exactServiceName =
+            requestData.serviceName.replaceFirstChar { it.uppercaseChar() } + "Impl"
+
+        val groupDotServiceName = "${requestData.groupName}.${requestData.serviceName}"
+
+        val applicableServiceClasses = PsiShortNamesCache.getInstance(sourceElement.project).getClassesByName(
+            exactServiceName,
+            sourceElement.project.allScope()
+        )
+
+        if(applicableServiceClasses.isNotEmpty()) {
+            val foundService = findApplicableService(applicableServiceClasses, groupDotServiceName)
+            if (foundService != null) return foundService
         }
 
+        return null
+    }
+
+    /**
+     * A slower way to search for applicable service. Used when fast method has failed.
+     *
+     * This method searches for every @Service annotation usage and finds a service by its value.
+     * Uses caching.
+     */
+    private fun tryFindServiceByAnnotation(): UClass? {
+        val requestData = getRequestData() ?: return null
+
+        val groupDotServiceName = "${requestData.groupName}.${requestData.serviceName}"
+
+        val allServices = findAllCallableServicesImpl(sourceElement.project).toTypedArray()
+
+        return findApplicableService(allServices, groupDotServiceName)
+    }
+
+    private fun findApplicableService(services: Array<PsiClass>, serviceName: String): UClass? {
+        return services.find {
+            it
+                .getAnnotation(SERVICE_ANNOTATION_FQ_NAME)
+                ?.findAttributeValue("value")
+                ?.evaluateToString() == serviceName
+        }?.toUElementOfType()
+    }
+
+    /**
+     * Parses the given request string and returns its data, or null if request string has invalid format
+     */
+    private fun parseRequestString(requestString: String): RequestData? {
+        val requestSplit = requestString.split(".")
+        if(requestSplit.size != 3 || requestSplit.any { it.isEmpty() }) return null
+        val (groupName, serviceName, methodName) = requestSplit
+        return RequestData(groupName, serviceName, methodName)
     }
 
     data class RequestData(
