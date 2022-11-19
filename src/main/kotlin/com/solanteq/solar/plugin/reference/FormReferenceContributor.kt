@@ -42,8 +42,11 @@ class FormReferenceContributor : PsiReferenceContributor() {
         val baseInFormPattern = inForm<JsonStringLiteral>()
 
         return StandardPatterns.or(
-            baseInFormPattern.isValueWithKey(*FormRequest.requestLiterals),
-            baseInFormPattern.isValueWithKey("name").isInsideObjectWithKey(*FormRequest.requestLiterals)
+            baseInFormPattern
+                .isValueWithKey(*FormRequest.RequestType.requestLiterals),
+            baseInFormPattern
+                .isValueWithKey("name")
+                .isInsideObjectWithKey(*FormRequest.RequestType.requestLiterals)
         )
     }
 

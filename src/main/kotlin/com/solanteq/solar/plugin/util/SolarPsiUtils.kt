@@ -76,12 +76,12 @@ fun findAllCallableServiceSolarNames(project: Project): List<String> {
         false)
 }
 
-private fun uastModificationTracker(project: Project) =
-    PsiModificationTracker.getInstance(project).forLanguages {
-        it is KotlinLanguage || it is JavaLanguage
-    }
-
 fun PsiAnnotationMemberValue.evaluateToString(): String? {
     return JavaPsiFacade.getInstance(project)
         .constantEvaluationHelper.computeConstantExpression(this) as? String ?: return null
 }
+
+private fun uastModificationTracker(project: Project) =
+    PsiModificationTracker.getInstance(project).forLanguages {
+        it is KotlinLanguage || it is JavaLanguage
+    }

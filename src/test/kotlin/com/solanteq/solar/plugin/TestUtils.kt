@@ -9,7 +9,7 @@ import com.solanteq.solar.plugin.file.FormFileType
  *
  * @param formName Form file name (without .json extension)
  * @param text Text to be placed in a form
- * @param group Form group. The file will be placed inside this directory
+ * @param module Form module. The file will be placed inside this directory
  * @param isIncluded Whether this form must be placed in `/includes` directory
  *
  * @return Created form virtual file
@@ -17,15 +17,15 @@ import com.solanteq.solar.plugin.file.FormFileType
 fun JavaCodeInsightTestFixture.createForm(
     formName: String,
     text: String,
-    group: String? = null,
+    module: String? = null,
     isIncluded: Boolean = false
 ): PsiFile {
     val realFileName = "$formName.json"
-    val groupPath = if(group == null) "" else "$group/"
+    val modulePath = if(module == null) "" else "$module/"
     val includedPath = if(isIncluded) "includes/" else ""
 
     return addFileToProject(
-        "main/resources/config/${includedPath}forms/$groupPath$realFileName",
+        "main/resources/config/${includedPath}forms/$modulePath$realFileName",
         text
     )
 }
@@ -39,10 +39,10 @@ fun JavaCodeInsightTestFixture.createForm(
 fun JavaCodeInsightTestFixture.createFormAndConfigure(
     formName: String,
     text: String,
-    group: String? = null,
+    module: String? = null,
     isIncluded: Boolean = false
 ): PsiFile {
-    val virtualFormFile = createForm(formName, text, group, isIncluded)
+    val virtualFormFile = createForm(formName, text, module, isIncluded)
     configureFromExistingVirtualFile(virtualFormFile.virtualFile)
     return file
 }
@@ -50,10 +50,10 @@ fun JavaCodeInsightTestFixture.createFormAndConfigure(
 /**
  * Copies forms from testData directory to the correct directory and opens the first form in editor
  */
-fun JavaCodeInsightTestFixture.configureByForms(vararg formPaths: String, group: String? = null): PsiFile? {
-    val groupPath = if(group == null) "" else "$group/"
+fun JavaCodeInsightTestFixture.configureByForms(vararg formPaths: String, module: String? = null): PsiFile? {
+    val modulePath = if(module == null) "" else "$module/"
     val virtualFiles = formPaths.map {
-        copyFileToProject(it, "main/resources/config/forms/$groupPath$it")
+        copyFileToProject(it, "main/resources/config/forms/$modulePath$it")
     }
     virtualFiles.firstOrNull()?.let { configureFromExistingVirtualFile(it) }
     return file

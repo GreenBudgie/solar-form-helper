@@ -76,14 +76,6 @@ class FormRequest(
     }
 
     companion object {
-        val requestLiterals = arrayOf(
-            "request",
-            "countRequest",
-            "source",
-            "save",
-            "remove",
-            "createSource"
-        )
 
         /**
          * Parses the given request string and returns its data, or null if request string has invalid format
@@ -94,6 +86,7 @@ class FormRequest(
             val (groupName, serviceName, methodName) = requestSplit
             return RequestData(groupName, serviceName, methodName)
         }
+
     }
 
     data class RequestData(
@@ -101,5 +94,27 @@ class FormRequest(
         val serviceName: String,
         val methodName: String
     )
+
+    enum class RequestType(
+        val requestLiteral: String,
+        val isInlineRequest: Boolean
+    ) {
+
+        SOURCE("source", false),
+        SAVE("save", false),
+        REMOVE("remove", false),
+        CREATE_SOURCE("createSource", false),
+        INLINE_REQUEST("request", true),
+        INLINE_COUNT_REQUEST("countRequest", true);
+
+        companion object {
+
+            val requestLiterals = values().map { it.requestLiteral }.toTypedArray()
+            val formRequests = values().filter { !it.isInlineRequest }.toTypedArray()
+            val inlineRequests = values().filter { it.isInlineRequest }.toTypedArray()
+
+        }
+
+    }
 
 }
