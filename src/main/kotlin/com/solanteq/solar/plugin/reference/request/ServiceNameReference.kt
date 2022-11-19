@@ -10,8 +10,8 @@ import org.jetbrains.uast.UClass
 class ServiceNameReference(
     element: JsonStringLiteral,
     range: TextRange,
-    requestData: FormRequest.RequestData?
-) : AbstractServiceReference(element, range, requestData) {
+    requestElement: FormRequest?
+) : AbstractServiceReference(element, range, requestElement) {
 
     override fun handleElementRename(newElementName: String): PsiElement {
         //Preventing rename of service solar name

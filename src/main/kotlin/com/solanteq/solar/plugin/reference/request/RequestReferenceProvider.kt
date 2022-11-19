@@ -1,5 +1,6 @@
 package com.solanteq.solar.plugin.reference.request
 
+import com.intellij.json.psi.JsonProperty
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
@@ -7,16 +8,19 @@ import com.intellij.psi.PsiReference
 import com.intellij.psi.PsiReferenceProvider
 import com.intellij.util.ProcessingContext
 import com.solanteq.solar.plugin.element.FormRequest
+import com.solanteq.solar.plugin.element.toFormElement
 
 object RequestReferenceProvider : PsiReferenceProvider() {
 
     override fun getReferencesByElement(element: PsiElement, context: ProcessingContext): Array<PsiReference> {
-        val jsonElement = element as JsonStringLiteral
+        val valueLiteral = element as JsonStringLiteral
 
-        val requestData = FormRequest.parseRequestString(jsonElement.value)
+        val requestElement = getRequestElement(valueLiteral) ?: return emptyArray()
+
+        val requestData = requestElement.getRequestData()
             ?: return arrayOf(
                 ServiceNameReference(
-                    jsonElement,
+                    valueLiteral,
                     TextRange(1, element.textLength - 1),
                     null
                 )
@@ -25,18 +29,29 @@ object RequestReferenceProvider : PsiReferenceProvider() {
         val delimiterPosition = requestData.groupName.length + requestData.serviceName.length + 3
 
         val serviceNameReference = ServiceNameReference(
-            jsonElement,
+            valueLiteral,
             TextRange(1, delimiterPosition - 1),
-            requestData
+            requestElement
         )
 
         val serviceMethodReference = ServiceMethodReference(
-            jsonElement,
+            valueLiteral,
             TextRange(delimiterPosition, delimiterPosition + requestData.methodName.length),
-            requestData
+            requestElement
         )
 
+        println(requestElement.getRequestString())
+
         return arrayOf(serviceNameReference, serviceMethodReference)
+    }
+
+    private fun getRequestElement(valueElement: JsonStringLiteral): FormRequest? {
+        val parentProperty = valueElement.parent as? JsonProperty ?: return null
+        val requestProperty = if (parentProperty.name == "name") {
+            parentProperty.parent?.parent as? JsonProperty ?: return null
+        } else parentProperty
+
+        return requestProperty.toFormElement()
     }
 
 }
