@@ -2,7 +2,6 @@ package com.solanteq.solar.plugin.element
 
 import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonFile
-import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
 import com.solanteq.solar.plugin.file.FormFileType
 import com.solanteq.solar.plugin.util.isForm
@@ -26,8 +25,7 @@ inline fun <reified T : FormElement<*>> JsonElement?.toFormElement(): T? {
         FormFile::class -> {
             val jsonFile = this as? JsonFile ?: return null
             if(jsonFile.fileType == FormFileType) {
-                val topLevelObject = jsonFile.topLevelValue as? JsonObject ?: return null
-                return FormFile(jsonFile, topLevelObject) as T
+                return FormFile(jsonFile) as T
             }
             return null
         }

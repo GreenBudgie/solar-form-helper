@@ -56,7 +56,7 @@ class FormRequest(
 
     /**
      * Returns request string, or null if there is no request string.
-     * This method only returns the text after "name" literal (if it's not inline)
+     * This property only returns the text after "name" literal (if it's not inline)
      * or after request literal (if it's inline), so returned string might be invalid in terms of request pattern.
      *
      * If you need a parsed request, use [requestData]
@@ -84,12 +84,13 @@ class FormRequest(
     }
 
     /**
-     * TODO
+     * Whether this request has a valid request data (contains service and method names)
      */
     val isRequestValid by lazy { requestData != null }
 
     /**
-     * TODO
+     * Returns UAST method to which the request points to,
+     * or null if request is invalid or no method/service is found
      */
     val methodFromRequest by lazy {
         val methodName = requestData?.methodName ?: return@lazy null
@@ -98,7 +99,8 @@ class FormRequest(
     }
 
     /**
-     * TODO
+     * Returns UAST service to which the request points to,
+     * or null if request is invalid or no service is found
      */
     val serviceFromRequest by lazy {
         tryFindServiceByConventionalName()?.let { return@lazy it }
@@ -163,7 +165,8 @@ class FormRequest(
     }
 
     /**
-     * Parses the given request string and returns its data, or null if request string has invalid format
+     * Parses the given request string and returns its data,
+     * or null if request string has invalid format
      */
     private fun parseRequestString(requestString: String): RequestData? {
         val requestSplit = requestString.split(".")
