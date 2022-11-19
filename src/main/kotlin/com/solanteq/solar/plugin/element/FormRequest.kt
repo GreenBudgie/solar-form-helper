@@ -10,7 +10,6 @@ import com.solanteq.solar.plugin.util.evaluateToString
 import com.solanteq.solar.plugin.util.findAllCallableServicesImpl
 import org.jetbrains.kotlin.idea.search.allScope
 import org.jetbrains.uast.UClass
-import org.jetbrains.uast.UMethod
 import org.jetbrains.uast.toUElementOfType
 
 /**
@@ -37,7 +36,6 @@ import org.jetbrains.uast.toUElementOfType
  * }
  * ```
  */
-//TODO fun -> lazy fields?
 class FormRequest(
     sourceElement: JsonProperty
 ) : FormElement<JsonProperty>(sourceElement) {
@@ -54,49 +52,58 @@ class FormRequest(
      * }
      * ```
      */
-    fun isInline() = sourceElement.value is JsonStringLiteral
+    val isInline by lazy { sourceElement.value is JsonStringLiteral }
 
     /**
      * Returns request string, or null if there is no request string.
      * This method only returns the text after "name" literal (if it's not inline)
      * or after request literal (if it's inline), so returned string might be invalid in terms of request pattern.
      *
-     * If you need a parsed request, use [getRequestData]
+     * If you need a parsed request, use [requestData]
      *
      * @see isInline
      */
-    fun getRequestString(): String? {
-        if(isInline()) {
-            val stringLiteral = sourceElement.value as? JsonStringLiteral ?: return null
-            return stringLiteral.value
+    val requestString by lazy {
+        if(isInline) {
+            val stringLiteral = sourceElement.value as? JsonStringLiteral ?: return@lazy null
+            return@lazy stringLiteral.value
         }
-        val jsonObject = sourceElement.value as? JsonObject ?: return null
-        val requestNameElement = jsonObject.propertyList.find { it.name == "name" } ?: return null
-        val requestNameValue = requestNameElement.value as? JsonStringLiteral ?: return null
-        return requestNameValue.value
+        val jsonObject = sourceElement.value as? JsonObject ?: return@lazy null
+        val requestNameElement = jsonObject.propertyList.find { it.name == "name" } ?: return@lazy null
+        val requestNameValue = requestNameElement.value as? JsonStringLiteral ?: return@lazy null
+        return@lazy requestNameValue.value
     }
 
     /**
      * Parses the request string and returns the valid data,
      * or null if there is no request string or request is invalid
      */
-    fun getRequestData(): RequestData? {
-        val requestString = getRequestString() ?: return null
-        return parseRequestString(requestString)
+    val requestData by lazy {
+        val requestString = requestString ?: return@lazy null
+        return@lazy parseRequestString(requestString)
     }
 
-    fun isRequestValid() = getRequestData() != null
+    /**
+     * TODO
+     */
+    val isRequestValid by lazy { requestData != null }
 
-    fun findMethodFromRequest(): UMethod? {
-        val methodName = getRequestData()?.methodName ?: return null
-        val service = findServiceFromRequest() ?: return null
-        return service.methods.find { it.name == methodName }
+    /**
+     * TODO
+     */
+    val methodFromRequest by lazy {
+        val methodName = requestData?.methodName ?: return@lazy null
+        val service = serviceFromRequest ?: return@lazy null
+        return@lazy service.methods.find { it.name == methodName }
     }
 
-    fun findServiceFromRequest(): UClass? {
-        tryFindServiceByConventionalName()?.let { return it }
+    /**
+     * TODO
+     */
+    val serviceFromRequest by lazy {
+        tryFindServiceByConventionalName()?.let { return@lazy it }
 
-        return tryFindServiceByAnnotation()
+        return@lazy tryFindServiceByAnnotation()
     }
 
     /**
@@ -110,7 +117,7 @@ class FormRequest(
      * No cache is used.
      */
     private fun tryFindServiceByConventionalName(): UClass? {
-        val requestData = getRequestData() ?: return null
+        val requestData = requestData ?: return null
 
         val exactServiceName =
             requestData.serviceName.replaceFirstChar { it.uppercaseChar() } + "Impl"
@@ -137,7 +144,7 @@ class FormRequest(
      * Uses caching.
      */
     private fun tryFindServiceByAnnotation(): UClass? {
-        val requestData = getRequestData() ?: return null
+        val requestData = requestData ?: return null
 
         val groupDotServiceName = "${requestData.groupName}.${requestData.serviceName}"
 

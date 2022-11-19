@@ -17,7 +17,7 @@ object RequestReferenceProvider : PsiReferenceProvider() {
 
         val requestElement = getRequestElement(valueLiteral) ?: return emptyArray()
 
-        val requestData = requestElement.getRequestData()
+        val requestData = requestElement.requestData
             ?: return arrayOf(
                 ServiceNameReference(
                     valueLiteral,
@@ -39,8 +39,6 @@ object RequestReferenceProvider : PsiReferenceProvider() {
             TextRange(delimiterPosition, delimiterPosition + requestData.methodName.length),
             requestElement
         )
-
-        println(requestElement.getRequestString())
 
         return arrayOf(serviceNameReference, serviceMethodReference)
     }

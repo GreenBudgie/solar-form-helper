@@ -14,12 +14,12 @@ class ServiceMethodReference(
 ) : AbstractServiceReference(element, range, requestElement) {
 
     override fun getVariants(): Array<Any> {
-        val service = requestElement?.findServiceFromRequest() ?: return emptyArray()
+        val service = requestElement?.serviceFromRequest ?: return emptyArray()
         return service.callableMethods.toTypedArray()
     }
 
     override fun resolveReferenceInService(serviceClass: UClass): PsiElement? {
-        return requestElement?.findMethodFromRequest()?.sourcePsi
+        return requestElement?.methodFromRequest?.sourcePsi
     }
 
 }
