@@ -113,9 +113,9 @@ fun VirtualFile.isForm() = fileType == FormFileType || fileType == IncludedFormF
 fun PsiFile.isForm() = fileType == FormFileType || fileType == IncludedFormFileType
 
 /**
- * Gets the group of this form, or null if this file can't be treated as form
+ * Gets the module of this form file, or null if this file can't be treated as form
  */
-fun VirtualFile.getFormGroup(): String? {
+fun VirtualFile.getFormModule(): String? {
     if(!isForm()) {
         return null
     }
@@ -134,16 +134,16 @@ fun VirtualFile.getFormGroup(): String? {
 }
 
 /**
- * @see getFormGroup
+ * @see getFormModule
  */
-fun PsiFile.getFormGroup() = virtualFile?.getFormGroup()
+fun PsiFile.getFormModule() = virtualFile?.getFormModule()
 
 /**
  * Gets the form name of this virtual file, or null if this file can't be treated as form
  * @see isForm
  */
 fun VirtualFile.getFormSolarName(): String {
-    val formGroup = getFormGroup() ?: return nameWithoutExtension
+    val formGroup = getFormModule() ?: return nameWithoutExtension
 
     return "$formGroup.${nameWithoutExtension}"
 }
@@ -157,31 +157,31 @@ fun PsiFile.getFormSolarName() = virtualFile?.getFormSolarName()
  * Finds a form by its full name in all scope, or null if not found
  */
 fun findFormByFullName(project: Project, fullName: String): VirtualFile? {
-    val (group, name) = getGroupAndNameByFormName(fullName) ?: return null
-    return findFormByGroupAndName(project, group, name)
+    val (module, name) = getModuleAndNameByFormName(fullName) ?: return null
+    return findFormByModuleAndName(project, module, name)
 }
 
 /**
- * Finds a form by its group and name in all scope, or null if not found
+ * Finds a form by its module and name in all scope, or null if not found
  */
-fun findFormByGroupAndName(project: Project, group: String, name: String): VirtualFile? {
+fun findFormByModuleAndName(project: Project, module: String, name: String): VirtualFile? {
     val applicableFilesByName = FilenameIndex.getVirtualFilesByName("$name.json", project.allScope())
     return applicableFilesByName.firstOrNull {
-        it.getFormSolarName() == "$group.$name"
+        it.getFormSolarName() == "$module.$name"
     }
 }
 
 /**
- * Gets group and name by form full name, or null if the specified name has invalid format.
+ * Gets module and name by form full name, or null if the specified name has invalid format.
  *
  * Example:
  * ```
- * val (group, name) = getGroupAndNameByFormName("test.form") ?: return null
- * -> group = test
+ * val (module, name) = getModuleAndNameByFormName("test.form") ?: return null
+ * -> module = test
  * -> name = form
  * ```
  */
-fun getGroupAndNameByFormName(fullName: String): Pair<String, String>? {
+fun getModuleAndNameByFormName(fullName: String): Pair<String, String>? {
     val splitName = fullName.split(".")
     if(splitName.size != 2) {
         return null
