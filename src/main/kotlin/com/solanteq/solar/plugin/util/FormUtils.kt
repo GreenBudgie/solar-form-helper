@@ -81,6 +81,16 @@ fun PsiElementPattern.Capture<out JsonStringLiteral>.isInsideObjectWithKey(varar
     }
 )
 
+fun PsiElementPattern.Capture<out JsonStringLiteral>.isObjectInArrayWithKey(vararg applicableKeys: String) = with(
+    object : PatternCondition<JsonStringLiteral>("isObjectInArrayWithKey") {
+        override fun accepts(element: JsonStringLiteral, context: ProcessingContext?): Boolean {
+            val firstJsonArrayParent = element.findParentOfType<JsonArray>() ?: return false
+            val jsonArrayProperty = firstJsonArrayParent.parent as? JsonProperty ?: return false
+            return jsonArrayProperty.name in applicableKeys
+        }
+    }
+)
+
 private val NOT_INCLUDED_FORMS_KEY = Key<CachedValue<List<VirtualFile>>>("solar.notIncludedForms")
 private val INCLUDED_FORMS_KEY = Key<CachedValue<List<VirtualFile>>>("solar.includedForms")
 

@@ -183,21 +183,20 @@ class FormRequest(
 
     enum class RequestType(
         val requestLiteral: String,
-        val isInlineRequest: Boolean
+        val isFormRequest: Boolean
     ) {
 
-        SOURCE("source", false),
-        SAVE("save", false),
-        REMOVE("remove", false),
-        CREATE_SOURCE("createSource", false),
-        INLINE_REQUEST("request", true),
-        INLINE_COUNT_REQUEST("countRequest", true);
+        SOURCE("source", true),
+        SAVE("save", true),
+        REMOVE("remove", true),
+        CREATE_SOURCE("createSource", true),
+        INLINE_REQUEST("request", false),
+        INLINE_COUNT_REQUEST("countRequest", false);
 
         companion object {
 
             val requestLiterals = values().map { it.requestLiteral }.toTypedArray()
-            val formRequests = values().filter { !it.isInlineRequest }.toTypedArray()
-            val inlineRequests = values().filter { it.isInlineRequest }.toTypedArray()
+            val formRequests = values().filter { it.isFormRequest }.toTypedArray()
 
         }
 
