@@ -8,5 +8,5 @@ import com.intellij.json.psi.JsonStringLiteral
  */
 fun JsonProperty?.valueAsString(): String? {
     val stringLiteral = this?.value as? JsonStringLiteral ?: return null
-    return stringLiteral.name
+    return stringLiteral.value
 }

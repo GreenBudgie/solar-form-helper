@@ -15,7 +15,7 @@ class ServiceMethodReference(
 
     override fun getVariants(): Array<Any> {
         val service = requestElement?.serviceFromRequest ?: return emptyArray()
-        return service.callableMethods.toTypedArray()
+        return service.callableMethods.distinctBy { it.name }.toTypedArray()
     }
 
     override fun resolveReferenceInService(serviceClass: UClass): PsiElement? {

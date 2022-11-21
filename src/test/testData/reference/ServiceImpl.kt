@@ -1,7 +1,7 @@
 import org.springframework.stereotype.Service
 
 @Service("test.service")
-class ServiceImpl {
+class ServiceImpl : SuperServiceImpl {
 
     override fun findData() {}
 

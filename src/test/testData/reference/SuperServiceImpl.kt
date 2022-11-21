@@ -1,0 +1,5 @@
+class SuperServiceImpl {
+
+    fun superMethod() {}
+
+}

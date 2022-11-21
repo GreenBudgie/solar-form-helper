@@ -125,10 +125,26 @@ class FormReferenceTest : FormTestBase() {
         assertEquals("testFormWithGroup.json", (referencedForm as PsiFile).name)
     }
 
+    @Test
+    fun `test reference to super method`() {
+        fixture.configureByFiles("ServiceImpl.kt", "SuperServiceImpl.kt")
+        fixture.configureByFormText("""
+            {
+              "request": "test.service.<caret>superMethod"
+            }
+        """.trimIndent())
+
+        assertMethodReference("superMethod")
+    }
+
     private fun doTestMethodReference(serviceClassPath: String, formText: String) {
         fixture.configureByFile(serviceClassPath)
         fixture.configureByFormText(formText)
 
+        assertMethodReference("findData")
+    }
+
+    private fun assertMethodReference(methodName: String) {
         val methodReference = fixture.file.findReferenceAt(fixture.caretOffset)
 
         assertNotNull(methodReference)
@@ -138,7 +154,7 @@ class FormReferenceTest : FormTestBase() {
 
         assertNotNull(referencedMethod)
         assertTrue(referencedMethod is UMethod)
-        assertEquals("findData", referencedMethod!!.name)
+        assertEquals(methodName, referencedMethod!!.name)
     }
 
 }
