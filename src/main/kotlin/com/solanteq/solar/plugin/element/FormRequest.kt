@@ -10,6 +10,7 @@ import com.solanteq.solar.plugin.util.evaluateToString
 import com.solanteq.solar.plugin.util.findAllCallableServicesImpl
 import org.jetbrains.kotlin.idea.search.allScope
 import org.jetbrains.uast.UClass
+import org.jetbrains.uast.UMethod
 import org.jetbrains.uast.toUElementOfType
 
 /**
@@ -92,10 +93,10 @@ class FormRequest(
      * Returns UAST method to which the request points to,
      * or null if request is invalid or no method/service is found
      */
-    val methodFromRequest by lazy {
+    val methodFromRequest: UMethod? by lazy {
         val methodName = requestData?.methodName ?: return@lazy null
         val service = serviceFromRequest ?: return@lazy null
-        return@lazy service.methods.find { it.name == methodName }
+        return@lazy service.allMethods.find { it.name == methodName }.toUElementOfType()
     }
 
     /**

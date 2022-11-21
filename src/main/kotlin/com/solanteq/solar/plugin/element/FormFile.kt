@@ -35,7 +35,6 @@ class FormFile(
             sourceRequest,
             saveRequest,
             removeRequest,
-            editRequest,
             createSourceRequest
         )
     }
@@ -43,7 +42,6 @@ class FormFile(
     val sourceRequest by lazy { getRequestByType(FormRequest.RequestType.SOURCE) }
     val saveRequest by lazy { getRequestByType(FormRequest.RequestType.SAVE) }
     val removeRequest by lazy { getRequestByType(FormRequest.RequestType.REMOVE) }
-    val editRequest by lazy { getRequestByType(FormRequest.RequestType.EDIT) }
     val createSourceRequest by lazy { getRequestByType(FormRequest.RequestType.CREATE_SOURCE) }
 
     /**

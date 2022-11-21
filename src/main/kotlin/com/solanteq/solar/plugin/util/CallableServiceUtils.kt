@@ -28,7 +28,7 @@ val UClass.callableMethods: List<PsiMethod>
 
 val PsiClass.callableMethods: List<PsiMethod>
     get() = if(isCallableServiceClassImpl())
-        this.methods.filter { it.isCallableMethod() }
+        this.allMethods.filter { it.isCallableMethod() }
     else
         listOf()
 

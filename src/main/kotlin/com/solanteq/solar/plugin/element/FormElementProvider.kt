@@ -1,5 +1,6 @@
 package com.solanteq.solar.plugin.element
 
+import com.intellij.json.psi.JsonArray
 import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonObject
@@ -32,6 +33,7 @@ fun <T : FormElement<*>> JsonElement?.toFormElement(formElementClass: KClass<out
 
         FormFile::class -> formFile()
         FormRequest::class -> formRequest()
+        FormField::class -> formField()
         else -> null
 
     } as T?
@@ -50,6 +52,16 @@ private fun JsonElement.formRequest(): FormRequest? {
     val jsonProperty = this as? JsonProperty ?: return null
     if(jsonProperty.name in FormRequest.RequestType.requestLiterals) {
         return FormRequest(jsonProperty)
+    }
+    return null
+}
+
+private fun JsonElement.formField(): FormField? {
+    val jsonObject = this as? JsonObject ?: return null
+    val parentArray = jsonObject.parent as? JsonArray ?: return null
+    val fieldProperty = parentArray.parent as? JsonProperty ?: return null
+    if(fieldProperty.name == "fields") {
+        return FormField(jsonObject)
     }
     return null
 }
