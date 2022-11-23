@@ -2,18 +2,19 @@ package com.solanteq.solar.plugin.reference.field
 
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiField
 import com.intellij.psi.PsiReferenceBase
-import com.intellij.psi.ResolveResult
-import org.jetbrains.uast.UField
+import com.solanteq.solar.plugin.element.FormField
 
 class FieldReference(
     element: JsonStringLiteral,
     textRange: TextRange,
-    private val field: PsiElement
+    private val fieldProperty: FormField.FieldProperty
 ) : PsiReferenceBase<JsonStringLiteral>(element, textRange) {
 
-    override fun resolve() = field
+    override fun getVariants(): Array<out Any> {
+        return fieldProperty.containingClass?.javaPsi?.allFields ?: emptyArray()
+    }
+
+    override fun resolve() = fieldProperty.referencedField?.javaPsi
 
 }

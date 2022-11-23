@@ -153,9 +153,9 @@ fun PsiFile.getFormModule() = virtualFile?.getFormModule()
  * @see isForm
  */
 fun VirtualFile.getFormSolarName(): String {
-    val formGroup = getFormModule() ?: return nameWithoutExtension
+    val formModule = getFormModule() ?: return nameWithoutExtension
 
-    return "$formGroup.${nameWithoutExtension}"
+    return "$formModule.${nameWithoutExtension}"
 }
 
 /**
@@ -175,7 +175,10 @@ fun findFormByFullName(project: Project, fullName: String): VirtualFile? {
  * Finds a form by its module and name in all scope, or null if not found
  */
 fun findFormByModuleAndName(project: Project, module: String, name: String): VirtualFile? {
-    val applicableFilesByName = FilenameIndex.getVirtualFilesByName("$name.json", project.allScope())
+    val applicableFilesByName = FilenameIndex.getVirtualFilesByName(
+        "$name.json",
+        project.allScope()
+    )
     return applicableFilesByName.firstOrNull {
         it.getFormSolarName() == "$module.$name"
     }
