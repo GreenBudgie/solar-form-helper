@@ -8,6 +8,9 @@ interface TestService {
     fun findData(): DataClass
 
     @Callable
+    fun findDataClassWithSuperClass(): Cls
+
+    @Callable
     fun findDataWithNestedProperty(): DataClassWithNestedProperty
 
 }

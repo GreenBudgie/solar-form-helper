@@ -2,10 +2,12 @@ package com.solanteq.solar.plugin.element
 
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonObject
+import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiClassType
+import com.intellij.psi.PsiSubstitutor
 import com.intellij.psi.PsiType
+import com.intellij.psi.util.TypeConversionUtil
 import com.solanteq.solar.plugin.util.valueAsString
-import org.jetbrains.kotlin.asJava.namedUnwrappedElement
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UField
 import org.jetbrains.uast.toUElementOfType
@@ -69,25 +71,29 @@ class FormField(
      * ```
      * "fields": [
      *   {
-     *     "name": "property.nestedProperty.nextNestedProperty",
+     *     "name": "property.nestedProperty.nextNestedProperty.",
      *     "fieldSize": 4,
      *     "type": "STRING"
      *   }
      * ]
      * ```
      *
-     * This will return: [
+     * This will return:
+     * ```
+     * [
      *   "property",
      *   "nestedProperty",
-     *   "nextNestedProperty"
+     *   "nextNestedProperty",
+     *   "" //We have an empty string here, because field name ends with a dot
      * ]
+     * ```
      *
      */
     val stringPropertyChain by lazy { name?.split(".") }
 
     /**
-     * A list of properties as a chain from main to nested ones represented as UAST fields.
-     * Works similar to [stringPropertyChain], but returns real data class fields.
+     * A list of [FieldProperty] as a chain from main to nested ones represented as UAST fields.
+     * Works similar to [stringPropertyChain].
      *
      * If any nested property is not resolved, every property to the right won't be resolved too
      * and the returned chain will only contain references to resolved properties.
@@ -97,25 +103,33 @@ class FormField(
      *
      * ```
      * "name": "field1.field2.fieldWithTypo.field4.field5"
-     * -> [field1, field2]
+     * -> [field1, field2, null, null, null]
      * ```
      */
-    val propertyChain: List<UField> by lazy {
+    val propertyChain by lazy {
         val stringPropertyChain = stringPropertyChain ?: return@lazy emptyList()
         if(stringPropertyChain.isEmpty()) {
             return@lazy emptyList()
         }
 
-        val dataClass = dataClass ?: return@lazy emptyList()
-
-        val propertyChain = mutableListOf<UField>()
-
+        val propertyChain = mutableListOf<FieldProperty>()
         var currentDataClass = dataClass
 
         stringPropertyChain.forEach { fieldName ->
-            val field = findFieldByNameInClass(currentDataClass, fieldName) ?: return@lazy propertyChain.toList()
-            propertyChain += field
-            currentDataClass = psiTypeAsUClassOrNull(field.type) ?: return@lazy propertyChain.toList()
+            if(currentDataClass == null) {
+                propertyChain += FieldProperty(fieldName, null, null)
+                return@forEach
+            }
+
+            val field = findFieldByNameInClass(currentDataClass!!, fieldName)
+            if(field == null) {
+                propertyChain += FieldProperty(fieldName, currentDataClass, null)
+                return@forEach
+            }
+
+            propertyChain += FieldProperty(fieldName, currentDataClass, field)
+
+            currentDataClass = psiTypeAsUClassOrNull(field.type)
         }
 
         return@lazy propertyChain.toList()
@@ -126,8 +140,15 @@ class FormField(
      */
     val dataClass by lazy {
         val sourceRequest = sourceRequest ?: return@lazy null
-        val rawReturnType = sourceRequest.methodFromRequest?.returnType ?: return@lazy null
-        return@lazy psiTypeAsUClassOrNull(rawReturnType)
+        val method = sourceRequest.methodFromRequest ?: return@lazy null
+        val derivedClass = sourceRequest.serviceFromRequest?.javaPsi ?: return@lazy null
+        val superClass = method.containingClass ?: return@lazy null
+        val rawReturnType = method.returnType ?: return@lazy null
+        return@lazy substitutePsiType(
+            superClass,
+            derivedClass,
+            rawReturnType
+        )
     }
 
     private val sourceRequest by lazy {
@@ -136,12 +157,34 @@ class FormField(
         return@lazy formFile.sourceRequest
     }
 
-    private fun findFieldByNameInClass(uClass: UClass, fieldName: String) =
-        uClass.fields.find { it.namedUnwrappedElement?.name == fieldName }
+    private fun findFieldByNameInClass(uClass: UClass, fieldName: String): UField? =
+        uClass.javaPsi.allFields.find { it.name == fieldName }.toUElementOfType()
+
+    private fun substitutePsiType(superClass: PsiClass, derivedClass: PsiClass, psiType: PsiType): UClass? {
+        val substitutedReturnType = TypeConversionUtil.getClassSubstitutor(
+            superClass,
+            derivedClass,
+            PsiSubstitutor.EMPTY
+        )?.substitute(psiType)
+        val classReturnType = substitutedReturnType as? PsiClassType ?: return null
+        return classReturnType.resolve().toUElementOfType()
+    }
 
     private fun psiTypeAsUClassOrNull(psiType: PsiType): UClass? {
         val classReturnType = psiType as? PsiClassType ?: return null
         return classReturnType.resolve().toUElementOfType()
     }
+
+    /**
+     * @property name represents a name of this property.
+     * Never null, but might be referencing to non-existing field.
+     * @property containingClass Data class containing this field
+     * @property referencedField Real psi element resolved from [name] property
+     */
+    data class FieldProperty(
+        val name: String,
+        val containingClass: UClass?,
+        val referencedField: UField?
+    )
 
 }

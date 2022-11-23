@@ -17,21 +17,19 @@ object FieldReferenceProvider : PsiReferenceProvider() {
         val parentObject = stringLiteral.parent?.parent as? JsonObject ?: return emptyArray()
         val formField = parentObject.toFormElement<FormField>() ?: return emptyArray()
 
-        val stringPropertyChain = formField.stringPropertyChain ?: return emptyArray()
-        val propertyChainAsJavaPsi = formField.propertyChain.mapNotNull { it.javaPsi }
-        val stringToFieldChain = propertyChainAsJavaPsi.zip(stringPropertyChain)
+        val propertyChain = formField.propertyChain
 
         var currentPosition = 1
 
-        return stringToFieldChain.map { (field, fieldName) ->
-            val fieldLength = fieldName.length
+        return propertyChain.map {
+            val fieldLength = it.name.length
             val rangeStart = currentPosition
             val rangeEnd = rangeStart + fieldLength
             currentPosition += fieldLength + 1
             FieldReference(
                 stringLiteral,
                 TextRange(rangeStart, rangeEnd),
-                field
+                it
             )
         }.toTypedArray()
     }

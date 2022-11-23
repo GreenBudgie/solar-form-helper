@@ -5,6 +5,8 @@ class TestServiceImpl : TestService {
 
     override fun findData(): DataClass {}
 
+    override fun findDataClassWithSuperClass(): Cls {}
+
     override fun findDataWithNestedProperty(): DataClassWithNestedProperty
 
 }
