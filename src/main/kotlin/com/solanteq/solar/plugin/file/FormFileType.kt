@@ -12,6 +12,6 @@ object FormFileType : AbstractFormFileType() {
     override fun getIcon() = Assets.FORM_ICON
 
     override fun isMyFileType(file: VirtualFile) =
-        file.path.contains("/src/main/resources/config/forms")
+        file.path.contains("config/forms")
 
 }
