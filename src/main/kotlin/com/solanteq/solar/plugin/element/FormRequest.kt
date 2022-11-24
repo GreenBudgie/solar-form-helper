@@ -133,8 +133,7 @@ class FormRequest(
         )
 
         if(applicableServiceClasses.isNotEmpty()) {
-            val foundService = findApplicableService(applicableServiceClasses, groupDotServiceName)
-            if (foundService != null) return foundService
+            findApplicableService(applicableServiceClasses, groupDotServiceName)?.let { return it }
         }
 
         return null

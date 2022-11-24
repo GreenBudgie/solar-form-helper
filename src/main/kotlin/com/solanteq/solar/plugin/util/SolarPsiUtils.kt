@@ -42,7 +42,7 @@ fun findAllCallableServicesImpl(project: Project): List<PsiClass> {
             if(serviceAnnotation == null) {
                 CachedValueProvider.Result(
                     listOf(),
-                    uastModificationTracker(project)
+                    project.uastModificationTracker()
                 )
             } else {
                 val result = AnnotatedElementsSearch.searchPsiClasses(
@@ -52,7 +52,7 @@ fun findAllCallableServicesImpl(project: Project): List<PsiClass> {
 
                 CachedValueProvider.Result(
                     result,
-                    uastModificationTracker(project)
+                    project.uastModificationTracker()
                 )
             }
         },
@@ -70,7 +70,7 @@ fun findAllCallableServiceSolarNames(project: Project): List<String> {
 
             CachedValueProvider.Result(
                 serviceNames,
-                uastModificationTracker(project)
+                project.uastModificationTracker()
             )
         },
         false)
@@ -81,7 +81,7 @@ fun PsiAnnotationMemberValue.evaluateToString(): String? {
         .constantEvaluationHelper.computeConstantExpression(this) as? String ?: return null
 }
 
-private fun uastModificationTracker(project: Project) =
-    PsiModificationTracker.getInstance(project).forLanguages {
+fun Project.uastModificationTracker() =
+    PsiModificationTracker.getInstance(this).forLanguages {
         it is KotlinLanguage || it is JavaLanguage
     }
