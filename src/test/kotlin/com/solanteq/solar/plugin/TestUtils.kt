@@ -10,24 +10,60 @@ import com.solanteq.solar.plugin.file.FormFileType
  * @param formName Form file name (without .json extension)
  * @param text Text to be placed in a form
  * @param module Form module. The file will be placed inside this directory
- * @param isIncluded Whether this form must be placed in `/includes` directory
  *
- * @return Created form virtual file
+ * @return Created form psi file
  */
 fun JavaCodeInsightTestFixture.createForm(
     formName: String,
     text: String,
-    module: String? = null,
-    isIncluded: Boolean = false
+    module: String? = null
 ): PsiFile {
     val realFileName = "$formName.json"
     val modulePath = if(module == null) "" else "$module/"
-    val includedPath = if(isIncluded) "includes/" else ""
 
     return addFileToProject(
-        "main/resources/config/${includedPath}forms/$modulePath$realFileName",
+        "main/resources/config/forms/$modulePath$realFileName",
         text
     )
+}
+
+/**
+ * Creates new included form in the correct directory with specified text
+ *
+ * @param formName Form file name (without .json extension)
+ * @param relativePath Form path relative to "config/includes/forms/". Separate with /.
+ * @param text Text to be placed in a form
+ * You may not insert a separator at the start and at the end.
+ *
+ * @return Created form psi file
+ */
+fun JavaCodeInsightTestFixture.createIncludedForm(
+    formName: String,
+    relativePath: String,
+    text: String
+): PsiFile {
+    val realFileName = "$formName.json"
+
+    return addFileToProject(
+        "main/resources/config/includes/forms/$relativePath$realFileName",
+        text
+    )
+}
+
+/**
+ * Creates new included form in the correct directory with specified text and opens it in the editor
+ *
+ * @see createIncludedForm
+ * @return Opened form psi file
+ */
+fun JavaCodeInsightTestFixture.createIncludedFormAndConfigure(
+    formName: String,
+    relativePath: String,
+    text: String
+): PsiFile {
+    val psiFormFile = createIncludedForm(formName, text, relativePath)
+    configureFromExistingVirtualFile(psiFormFile.virtualFile)
+    return file
 }
 
 /**
@@ -39,11 +75,10 @@ fun JavaCodeInsightTestFixture.createForm(
 fun JavaCodeInsightTestFixture.createFormAndConfigure(
     formName: String,
     text: String,
-    module: String? = null,
-    isIncluded: Boolean = false
+    module: String? = null
 ): PsiFile {
-    val virtualFormFile = createForm(formName, text, module, isIncluded)
-    configureFromExistingVirtualFile(virtualFormFile.virtualFile)
+    val psiFormFile = createForm(formName, text, module)
+    configureFromExistingVirtualFile(psiFormFile.virtualFile)
     return file
 }
 

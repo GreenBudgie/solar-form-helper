@@ -8,6 +8,7 @@ import com.intellij.psi.PsiReferenceRegistrar
 import com.solanteq.solar.plugin.element.FormRequest
 import com.solanteq.solar.plugin.reference.field.FieldReferenceProvider
 import com.solanteq.solar.plugin.reference.form.FormReferenceProvider
+import com.solanteq.solar.plugin.reference.include.JsonIncludeReferenceProvider
 import com.solanteq.solar.plugin.reference.request.RequestReferenceProvider
 import com.solanteq.solar.plugin.util.*
 
@@ -31,7 +32,10 @@ class FormReferenceContributor : PsiReferenceContributor() {
             FieldReferenceProvider
         )
 
-
+        registrar.registerReferenceProvider(
+            inForm<JsonStringLiteral>(),
+            JsonIncludeReferenceProvider
+        )
     }
 
     /**

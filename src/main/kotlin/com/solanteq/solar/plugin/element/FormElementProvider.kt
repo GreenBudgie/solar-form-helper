@@ -5,6 +5,7 @@ import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
+import com.intellij.json.psi.JsonStringLiteral
 import com.solanteq.solar.plugin.file.FormFileType
 import com.solanteq.solar.plugin.util.isForm
 import kotlin.reflect.KClass
@@ -34,6 +35,7 @@ fun <T : FormElement<*>> JsonElement?.toFormElement(formElementClass: KClass<out
         FormFile::class -> formFile()
         FormRequest::class -> formRequest()
         FormField::class -> formField()
+        FormJsonInclude::class -> formJsonInclude()
         else -> null
 
     } as T?
@@ -64,4 +66,13 @@ private fun JsonElement.formField(): FormField? {
         return FormField(jsonObject)
     }
     return null
+}
+
+private fun JsonElement.formJsonInclude(): FormJsonInclude? {
+    val stringLiteral = this as? JsonStringLiteral ?: return null
+    val stringLiteralValue = stringLiteral.value
+    val includeType = FormJsonInclude.JsonIncludeType.values().find {
+        stringLiteralValue.startsWith(it.prefix)
+    } ?: return null
+    return FormJsonInclude(stringLiteral, includeType)
 }
