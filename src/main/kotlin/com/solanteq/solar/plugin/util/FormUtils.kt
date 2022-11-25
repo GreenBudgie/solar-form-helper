@@ -123,7 +123,8 @@ fun VirtualFile.isForm() = fileType == FormFileType || fileType == IncludedFormF
 fun PsiFile.isForm() = fileType == FormFileType || fileType == IncludedFormFileType
 
 /**
- * Gets the module of this form file, or null if this file can't be treated as form
+ * Gets the parent directory name of this form file, or null if this file can't be treated as form.
+ * This directory may correspond to a form module, but that might not be true for included forms.
  */
 fun VirtualFile.getFormModule(): String? {
     if(!isForm()) {
@@ -135,12 +136,12 @@ fun VirtualFile.getFormModule(): String? {
         return null
     }
 
-    val parentDirectoryName = parentDirectory.name
-    if(parentDirectoryName == "forms") {
+    val formsDirectory = parentDirectory.parent
+    if(!formsDirectory.isDirectory || formsDirectory.name != "forms") {
         return null
     }
 
-    return parentDirectoryName
+    return parentDirectory.name
 }
 
 /**

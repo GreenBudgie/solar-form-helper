@@ -40,7 +40,7 @@ class FieldTest : FormTestBase() {
             }
         """.trimIndent())
 
-        assertReferenceFieldName(fixture, "stringField")
+        assertReferencedElementName("stringField")
     }
 
     @Test
@@ -74,7 +74,7 @@ class FieldTest : FormTestBase() {
             }
         """.trimIndent())
 
-        assertCompletionsContainsExact(fixture,
+        assertCompletionsContainsExact(
             "stringField",
             "longField",
             "integerField"
@@ -108,7 +108,7 @@ class FieldTest : FormTestBase() {
             }
         """.trimIndent())
 
-        assertReferenceFieldName(fixture, "nested")
+        assertReferencedElementName("nested")
     }
 
     @Test
@@ -139,7 +139,7 @@ class FieldTest : FormTestBase() {
             }
         """.trimIndent())
 
-        assertReferenceFieldName(fixture, "stringField")
+        assertReferencedElementName("stringField")
     }
 
     @Test
@@ -170,7 +170,7 @@ class FieldTest : FormTestBase() {
             }
         """.trimIndent())
 
-        assertCompletionsContainsExact(fixture,
+        assertCompletionsContainsExact(
             "stringField",
             "longField",
             "integerField"
@@ -205,7 +205,7 @@ class FieldTest : FormTestBase() {
             }
         """.trimIndent())
 
-        assertReferenceFieldName(fixture, "superclassField")
+        assertReferencedElementName("superclassField")
     }
 
     @Test
@@ -237,7 +237,7 @@ class FieldTest : FormTestBase() {
             }
         """.trimIndent())
 
-        assertReferenceFieldName(fixture, "stringField")
+        assertReferencedElementName("stringField")
     }
 
     private fun assertReferenceFieldName(fixture: JavaCodeInsightTestFixture, fieldName: String) {
