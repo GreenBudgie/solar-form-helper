@@ -8,7 +8,6 @@ import com.intellij.psi.PsiReferenceProvider
 import com.intellij.util.ProcessingContext
 import com.solanteq.solar.plugin.element.FormJsonInclude
 import com.solanteq.solar.plugin.element.toFormElement
-import org.jetbrains.kotlin.idea.core.util.toPsiFile
 
 object JsonIncludeReferenceProvider : PsiReferenceProvider()  {
 
@@ -21,8 +20,8 @@ object JsonIncludeReferenceProvider : PsiReferenceProvider()  {
         return arrayOf(
             JsonIncludeFormReference(
                 stringLiteral,
-                TextRange.create(stringLength - formNameLength - 1, stringLength - 1),
-                jsonIncludeElement.referencedFormFile?.toPsiFile(stringLiteral.project)
+                TextRange.create(stringLength - formNameLength + 1, stringLength + 1),
+                jsonIncludeElement
             )
         )
     }
