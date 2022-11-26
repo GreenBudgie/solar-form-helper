@@ -33,7 +33,7 @@ class FormJsonInclude(
     val pathWithoutFormName by lazy {
         val lastSeparatorIndex = path.lastIndexOf("/")
         if(lastSeparatorIndex < 2) return@lazy null
-        return@lazy path.substring(0, lastSeparatorIndex - 1)
+        return@lazy path.substring(0, lastSeparatorIndex)
     }
 
     val formNameWithExtension by lazy {
