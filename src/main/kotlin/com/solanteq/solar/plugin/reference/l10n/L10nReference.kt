@@ -8,10 +8,9 @@ import com.intellij.psi.PsiReferenceBase
 class L10nReference(
     element: JsonStringLiteral,
     textRange: TextRange,
+    private val referencedElement: PsiElement?
 ) : PsiReferenceBase<JsonStringLiteral>(element, textRange, false) {
 
-    override fun resolve(): PsiElement? {
-        TODO("Not yet implemented")
-    }
+    override fun resolve() = referencedElement
 
 }

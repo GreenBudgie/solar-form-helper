@@ -1,8 +1,10 @@
 package com.solanteq.solar.plugin
 
 import com.intellij.psi.PsiFile
+import com.intellij.testFramework.RunsInEdt
 import org.junit.jupiter.api.Test
 
+@RunsInEdt
 class L10nTest : FormTestBase() {
 
     override fun getTestDataSuffix() = "l10n"
