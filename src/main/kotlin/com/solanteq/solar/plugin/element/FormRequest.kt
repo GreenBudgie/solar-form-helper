@@ -5,6 +5,7 @@ import com.intellij.json.psi.JsonProperty
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.PsiShortNamesCache
+import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.util.SERVICE_ANNOTATION_FQ_NAME
 import com.solanteq.solar.plugin.util.evaluateToString
 import com.solanteq.solar.plugin.util.findAllCallableServicesImpl

@@ -7,7 +7,8 @@ import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiSubstitutor
 import com.intellij.psi.PsiType
 import com.intellij.psi.util.TypeConversionUtil
-import com.solanteq.solar.plugin.util.valueAsString
+import com.solanteq.solar.plugin.element.base.FormLocalizableElement
+import com.solanteq.solar.plugin.element.base.FormNamedObjectElement
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UField
 import org.jetbrains.uast.toUElementOfType
@@ -44,25 +45,7 @@ import org.jetbrains.uast.toUElementOfType
  */
 class FormField(
     sourceElement: JsonObject
-) : FormObjectInArrayElement(sourceElement) {
-
-    /**
-     * Full name of this field.
-     *
-     * Example:
-     * ```
-     * "fields": [
-     *   {
-     *     "name": "property.nestedProperty",
-     *     "fieldSize": 4,
-     *     "type": "STRING"
-     *   }
-     * ]
-     * ```
-     *
-     * This will return "property.nestedProperty"
-     */
-    val name by lazy { sourceElement.findProperty("name").valueAsString() }
+) : FormNamedObjectElement(sourceElement), FormLocalizableElement {
 
     /**
      * A list of properties as a chain from main to nested ones represented as raw strings.
@@ -186,5 +169,11 @@ class FormField(
         val containingClass: UClass?,
         val referencedField: UField?
     )
+
+    companion object {
+
+        val ARRAY_NAME = "fields"
+
+    }
 
 }

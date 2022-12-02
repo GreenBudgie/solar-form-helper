@@ -6,6 +6,9 @@ import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
 import com.intellij.json.psi.JsonStringLiteral
+import com.solanteq.solar.plugin.element.base.FormElement
+import com.solanteq.solar.plugin.element.base.FormObjectElement
+import com.solanteq.solar.plugin.element.base.FormPropertyArrayElement
 import com.solanteq.solar.plugin.file.FormFileType
 import com.solanteq.solar.plugin.util.isForm
 import kotlin.reflect.KClass
@@ -26,7 +29,7 @@ inline fun <reified T : FormElement<*>> JsonElement?.toFormElement() = toFormEle
 fun <T : FormElement<*>> JsonElement?.toFormElement(formElementClass: KClass<out T>): T? {
     this ?: return null
 
-    if(this.containingFile?.isForm() == false) {
+    if(containingFile?.isForm() == false) {
         return null
     }
 
@@ -39,6 +42,42 @@ fun <T : FormElement<*>> JsonElement?.toFormElement(formElementClass: KClass<out
         else -> null
 
     } as T?
+}
+
+/**
+ * Converts this json property to form array element with specified inner object elements
+ *
+ * @return Form array element with contents of the specified type, or null if conversion is impossible
+ */
+inline fun <reified T : FormObjectElement> JsonProperty?.toFormArrayElement() = toFormArrayElement(T::class)
+
+fun <T : FormObjectElement> JsonProperty?.toFormArrayElement(
+    contentsClass: KClass<out T>
+): FormPropertyArrayElement<T>? {
+    this ?: return null
+
+    if(containingFile?.isForm() == false) {
+        return null
+    }
+
+    val valueArray = value
+    if(valueArray !is JsonArray)  {
+        return null
+    }
+
+    fun tryCreateElement(requiredPropertyName: String): FormPropertyArrayElement<T>? {
+        return if(requiredPropertyName == name)
+            FormPropertyArrayElement(this, valueArray, contentsClass)
+        else
+            null
+    }
+
+    return when(contentsClass) {
+
+        FormField::class -> tryCreateElement(FormField.ARRAY_NAME)
+        else -> null
+
+    }
 }
 
 private fun JsonElement.formFile(): FormFile? {

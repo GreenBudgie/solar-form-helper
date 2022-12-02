@@ -33,7 +33,6 @@ abstract class FormTestBase : LightJavaCodeInsightFixtureTestCase5(DEFAULT_DESCR
         vararg expectedCompletions: String
     ) {
         val actualCompletions = fixture.completeBasic().map { it.lookupString }
-        //FIXME returns 0 but actually there are 4 completions why???
         Assertions.assertEquals(expectedCompletions.size, actualCompletions.size)
         Assertions.assertTrue(
             actualCompletions.containsAll(listOf(*expectedCompletions))

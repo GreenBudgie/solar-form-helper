@@ -1,8 +1,27 @@
 package com.solanteq.solar.plugin.element
 
 import com.intellij.json.psi.JsonStringLiteral
+import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.util.findIncludedForms
 
+/**
+ * `JSON include` is a SOLAR platform specific feature that allows you to extract JSON objects and arrays
+ * into separate files.
+ *
+ * JSON include can be placed in a property value or in an array.
+ *
+ * *Complaints!! :( *
+ *
+ * This feature makes plugin development significantly more complicated as any piece of JSON can be extracted
+ * into separate file, which can also be separated into many other JSON files, and so on.
+ *
+ * It is a **pain** to traverse JSON include files from bottom to top as every file can have multiple usages.
+ *
+ * Finally, we have optional JSON includes that may not even be in the project or its libraries.
+ * No way to resolve them!
+ *
+ * This plugin will probably struggle with JSON includes for a long time :(
+ */
 class FormJsonInclude(
     sourceElement: JsonStringLiteral,
     val type: JsonIncludeType
