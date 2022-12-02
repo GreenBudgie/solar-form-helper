@@ -12,6 +12,7 @@ import com.intellij.patterns.PsiElementPattern
 import com.intellij.patterns.StandardPatterns
 import com.intellij.psi.PsiFile
 import com.intellij.psi.search.FilenameIndex
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.CachedValue
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
@@ -167,18 +168,27 @@ fun PsiFile.getFormSolarName() = virtualFile?.getFormSolarName()
 /**
  * Finds a form by its full name in all scope, or null if not found
  */
-fun findFormByFullName(project: Project, fullName: String): VirtualFile? {
+fun findFormByFullName(
+    project: Project,
+    fullName: String,
+    scope: GlobalSearchScope = project.allScope()
+): VirtualFile? {
     val (module, name) = getModuleAndNameByFormName(fullName) ?: return null
-    return findFormByModuleAndName(project, module, name)
+    return findFormByModuleAndName(project, module, name, scope)
 }
 
 /**
  * Finds a form by its module and name in all scope, or null if not found
  */
-fun findFormByModuleAndName(project: Project, module: String, name: String): VirtualFile? {
+fun findFormByModuleAndName(
+    project: Project,
+    module: String,
+    name: String,
+    scope: GlobalSearchScope = project.allScope()
+): VirtualFile? {
     val applicableFilesByName = FilenameIndex.getVirtualFilesByName(
         "$name.json",
-        project.allScope()
+        scope
     )
     return applicableFilesByName.firstOrNull {
         it.getFormSolarName() == "$module.$name"
