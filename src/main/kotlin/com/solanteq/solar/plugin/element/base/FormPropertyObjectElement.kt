@@ -1,4 +1,4 @@
-package com.solanteq.solar.plugin.element
+package com.solanteq.solar.plugin.element.base
 
 import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty

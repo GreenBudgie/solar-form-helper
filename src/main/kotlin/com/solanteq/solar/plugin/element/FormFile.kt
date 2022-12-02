@@ -2,6 +2,8 @@ package com.solanteq.solar.plugin.element
 
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonObject
+import com.solanteq.solar.plugin.element.base.FormElement
+import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.util.valueAsString
 
 /**
@@ -10,7 +12,9 @@ import com.solanteq.solar.plugin.util.valueAsString
 class FormFile(
     sourceElement: JsonFile,
     private val topLevelObject: JsonObject
-) : FormElement<JsonFile>(sourceElement) {
+) : FormElement<JsonFile>(sourceElement), FormLocalizableElement {
+
+    override val name by lazy { topLevelObject.findProperty("name").valueAsString() }
 
     val fullName by lazy {
         val name = name ?: return@lazy null
@@ -19,8 +23,6 @@ class FormFile(
     }
 
     val module by lazy { topLevelObject.findProperty("module").valueAsString() }
-
-    val name by lazy { topLevelObject.findProperty("name").valueAsString() }
 
     /**
      * List of all requests in this form. Possible requests are:

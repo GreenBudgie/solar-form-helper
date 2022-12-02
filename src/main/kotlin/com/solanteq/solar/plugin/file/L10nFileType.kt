@@ -1,0 +1,22 @@
+package com.solanteq.solar.plugin.file
+
+import com.intellij.json.JsonLanguage
+import com.intellij.openapi.fileTypes.LanguageFileType
+import com.intellij.openapi.fileTypes.ex.FileTypeIdentifiableByVirtualFile
+import com.intellij.openapi.vfs.VirtualFile
+import com.solanteq.solar.plugin.asset.Assets
+
+object L10nFileType : LanguageFileType(JsonLanguage.INSTANCE), FileTypeIdentifiableByVirtualFile {
+
+    override fun getDefaultExtension() = ""
+
+    override fun getName() = "SOLAR Localization"
+
+    override fun getDescription() = "SOLAR Form localization file"
+
+    override fun getIcon() = Assets.INCLUDED_FORM_ICON //TODO
+
+    override fun isMyFileType(file: VirtualFile) =
+        file.path.contains("config/l10n")
+
+}

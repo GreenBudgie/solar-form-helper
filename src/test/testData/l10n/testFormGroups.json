@@ -1,0 +1,33 @@
+{
+  "module": "test",
+  "name": "testFormGroups",
+  "groups": [
+    {
+      "name": "group1",
+      "rows": [
+        {
+          "fields": [
+            {
+              "name": "field1"
+            },
+            {
+              "name": "field2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "group2",
+      "rows": [
+        {
+          "fields": [
+            {
+              "name": "field.nestedField"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

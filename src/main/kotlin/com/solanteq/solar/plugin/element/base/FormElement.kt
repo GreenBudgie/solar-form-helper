@@ -1,5 +1,6 @@
-package com.solanteq.solar.plugin.element
+package com.solanteq.solar.plugin.element.base
 
+import com.solanteq.solar.plugin.element.toFormElement
 import com.intellij.json.psi.JsonElement
 
 /**
