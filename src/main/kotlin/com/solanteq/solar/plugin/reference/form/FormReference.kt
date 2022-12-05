@@ -5,7 +5,7 @@ import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiReferenceBase
 import com.solanteq.solar.plugin.asset.Assets
-import com.solanteq.solar.plugin.util.findNotIncludedForms
+import com.solanteq.solar.plugin.util.findTopLevelForms
 import com.solanteq.solar.plugin.util.getFormSolarName
 
 class FormReference(
@@ -14,10 +14,10 @@ class FormReference(
 ) : PsiReferenceBase<JsonStringLiteral>(element)  {
 
     override fun getVariants() =
-        findNotIncludedForms(element.project).map {
+        findTopLevelForms(element.project).map {
             LookupElementBuilder
                 .create(it.getFormSolarName())
-                .withIcon(Assets.FORM_ICON)
+                .withIcon(Assets.TOP_LEVEL_FORM_ICON)
         }.toTypedArray()
 
     override fun resolve() = referencedForm

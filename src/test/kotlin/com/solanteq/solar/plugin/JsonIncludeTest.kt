@@ -1,11 +1,9 @@
 package com.solanteq.solar.plugin
 
-import com.intellij.testFramework.RunsInEdt
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
-@RunsInEdt
 class JsonIncludeTest : FormTestBase() {
 
     override fun getTestDataSuffix() = "jsonInclude"

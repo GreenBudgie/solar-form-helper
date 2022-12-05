@@ -14,7 +14,7 @@ object L10nFileType : LanguageFileType(JsonLanguage.INSTANCE), FileTypeIdentifia
 
     override fun getDescription() = "SOLAR Form localization file"
 
-    override fun getIcon() = Assets.INCLUDED_FORM_ICON //TODO
+    override fun getIcon() = Assets.L10N_FILE_ICON
 
     override fun isMyFileType(file: VirtualFile) =
         file.path.contains("config/l10n")

@@ -1,9 +1,7 @@
 package com.solanteq.solar.plugin
 
-import com.intellij.testFramework.RunsInEdt
 import org.junit.jupiter.api.Test
 
-@RunsInEdt
 class FormPropertyTest : FormTestBase() {
 
     override fun getTestDataSuffix() = "form"

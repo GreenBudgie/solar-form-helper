@@ -10,8 +10,10 @@ import com.intellij.testFramework.IdeaTestUtil
 import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase5
 import com.intellij.testFramework.fixtures.MavenDependencyUtil
+import com.intellij.testFramework.junit5.RunInEdt
 import org.junit.jupiter.api.Assertions
 
+@RunInEdt
 abstract class FormTestBase : LightJavaCodeInsightFixtureTestCase5(DEFAULT_DESCRIPTOR) {
 
     final override fun getTestDataPath() = "src/test/testData/${getTestDataSuffix()}"

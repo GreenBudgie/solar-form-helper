@@ -9,7 +9,7 @@ import com.intellij.json.psi.JsonStringLiteral
 import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.element.base.FormObjectElement
 import com.solanteq.solar.plugin.element.base.FormPropertyArrayElement
-import com.solanteq.solar.plugin.file.FormFileType
+import com.solanteq.solar.plugin.file.TopLevelFormFileType
 import com.solanteq.solar.plugin.util.isForm
 import kotlin.reflect.KClass
 
@@ -83,7 +83,7 @@ fun <T : FormObjectElement> JsonProperty?.toFormArrayElement(
 private fun JsonElement.formFile(): FormFile? {
     val jsonFile = this as? JsonFile ?: return null
     val topLevelObject = jsonFile.topLevelValue as? JsonObject ?: return null
-    if(jsonFile.fileType == FormFileType) {
+    if(jsonFile.fileType == TopLevelFormFileType) {
         return FormFile(jsonFile, topLevelObject)
     }
     return null

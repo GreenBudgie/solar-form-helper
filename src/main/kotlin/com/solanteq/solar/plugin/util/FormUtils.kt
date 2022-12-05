@@ -18,7 +18,7 @@ import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.util.findParentOfType
 import com.intellij.util.ProcessingContext
-import com.solanteq.solar.plugin.file.FormFileType
+import com.solanteq.solar.plugin.file.TopLevelFormFileType
 import com.solanteq.solar.plugin.file.IncludedFormFileType
 import org.jetbrains.kotlin.idea.base.util.allScope
 
@@ -28,7 +28,7 @@ import org.jetbrains.kotlin.idea.base.util.allScope
 inline fun <reified T : JsonElement> inForm(): PsiElementPattern.Capture<out T> {
     val basePattern = PlatformPatterns.psiElement(T::class.java)
     return basePattern.andOr(
-        basePattern.inFile(PlatformPatterns.psiFile().withFileType(StandardPatterns.`object`(FormFileType))),
+        basePattern.inFile(PlatformPatterns.psiFile().withFileType(StandardPatterns.`object`(TopLevelFormFileType))),
         basePattern.inFile(PlatformPatterns.psiFile().withFileType(StandardPatterns.`object`(IncludedFormFileType)))
     )
 }
@@ -92,14 +92,14 @@ fun PsiElementPattern.Capture<out JsonStringLiteral>.isObjectInArrayWithKey(vara
     }
 )
 
-private val NOT_INCLUDED_FORMS_KEY = Key<CachedValue<List<VirtualFile>>>("solar.notIncludedForms")
+private val TOP_LEVEL_FORMS_KEY = Key<CachedValue<List<VirtualFile>>>("solar.topLevelForms")
 private val INCLUDED_FORMS_KEY = Key<CachedValue<List<VirtualFile>>>("solar.includedForms")
 
 /**
- * Finds not included forms in all scope with caching
+ * Finds top level forms in all scope with caching
  */
-fun findNotIncludedForms(project: Project) =
-    findForms(project, NOT_INCLUDED_FORMS_KEY, FormFileType)
+fun findTopLevelForms(project: Project) =
+    findForms(project, TOP_LEVEL_FORMS_KEY, TopLevelFormFileType)
 
 /**
  * Finds included forms in all scope with caching
@@ -111,17 +111,17 @@ fun findIncludedForms(project: Project) =
  * Finds included and not included forms in all scope with caching
  */
 fun findAllForms(project: Project) =
-    findNotIncludedForms(project) + findIncludedForms(project)
+    findTopLevelForms(project) + findIncludedForms(project)
 
 /**
  * Checks whether this virtual file is form or included form by checking its file type
  */
-fun VirtualFile.isForm() = fileType == FormFileType || fileType == IncludedFormFileType
+fun VirtualFile.isForm() = fileType == TopLevelFormFileType || fileType == IncludedFormFileType
 
 /**
  * Checks whether this psi file is form or included form by checking its file type
  */
-fun PsiFile.isForm() = fileType == FormFileType || fileType == IncludedFormFileType
+fun PsiFile.isForm() = fileType == TopLevelFormFileType || fileType == IncludedFormFileType
 
 /**
  * Gets the parent directory name of this form file, or null if this file can't be treated as form.
