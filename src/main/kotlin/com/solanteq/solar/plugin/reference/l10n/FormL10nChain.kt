@@ -5,8 +5,8 @@ import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.util.TextRange
 import com.solanteq.solar.plugin.util.findFormByModuleAndName
+import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
-import org.jetbrains.kotlin.idea.search.projectScope
 
 /**
  * TODO for now, only supports form -> group -> field l10ns

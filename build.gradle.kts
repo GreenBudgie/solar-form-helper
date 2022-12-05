@@ -1,7 +1,7 @@
 plugins {
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "1.6.20"
-    id("org.jetbrains.intellij") version "1.9.0"
+    id("org.jetbrains.kotlin.jvm") version "1.7.20"
+    id("org.jetbrains.intellij") version "1.10.0"
 }
 
 group = "com.solanteq.solar.plugin"
@@ -19,20 +19,20 @@ dependencies {
 
 // Configure Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
 intellij {
-    version.set("2022.2.3")
+    version.set("LATEST-EAP-SNAPSHOT")
     type.set("IC") // Target IDE Platform
 
-    plugins.set(listOf("com.intellij.java", "org.jetbrains.kotlin", "PsiViewer:222-SNAPSHOT"))
+    plugins.set(listOf("com.intellij.java", "org.jetbrains.kotlin"))
 }
 
 tasks {
     // Set the JVM compatibility versions
     withType<JavaCompile> {
-        sourceCompatibility = "11"
-        targetCompatibility = "11"
+        sourceCompatibility = "17"
+        targetCompatibility = "17"
     }
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions.jvmTarget = "11"
+        kotlinOptions.jvmTarget = "17"
     }
 
     test {
@@ -42,7 +42,6 @@ tasks {
 
     patchPluginXml {
         sinceBuild.set("212")
-        untilBuild.set("222.*")
     }
 
     signPlugin {

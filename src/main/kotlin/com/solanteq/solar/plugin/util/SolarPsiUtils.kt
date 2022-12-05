@@ -13,7 +13,7 @@ import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.kotlin.idea.KotlinLanguage
-import org.jetbrains.kotlin.idea.search.allScope
+import org.jetbrains.kotlin.idea.base.util.allScope
 
 const val SERVICE_ANNOTATION_FQ_NAME = "org.springframework.stereotype.Service"
 const val CALLABLE_SERVICE_ANNOTATION_FQ_NAME = "com.solanteq.solar.commons.annotations.CallableService"

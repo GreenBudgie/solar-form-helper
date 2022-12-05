@@ -7,7 +7,7 @@ import com.intellij.psi.search.SearchScope
 import com.intellij.psi.search.UseScopeEnlarger
 import com.solanteq.solar.plugin.util.isCallableMethod
 import com.solanteq.solar.plugin.util.isCallableServiceClassImpl
-import org.jetbrains.kotlin.idea.search.projectScope
+import org.jetbrains.kotlin.idea.base.util.projectScope
 
 class CallableServiceScopeEnlarger : UseScopeEnlarger() {
 
