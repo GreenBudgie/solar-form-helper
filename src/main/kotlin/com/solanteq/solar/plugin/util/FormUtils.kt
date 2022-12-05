@@ -20,7 +20,7 @@ import com.intellij.psi.util.findParentOfType
 import com.intellij.util.ProcessingContext
 import com.solanteq.solar.plugin.file.FormFileType
 import com.solanteq.solar.plugin.file.IncludedFormFileType
-import org.jetbrains.kotlin.idea.search.allScope
+import org.jetbrains.kotlin.idea.base.util.allScope
 
 /**
  * Constructs a pattern to check if the specified json element is inside the form file
