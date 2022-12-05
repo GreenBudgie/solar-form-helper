@@ -2,7 +2,7 @@ package com.solanteq.solar.plugin
 
 import com.intellij.psi.PsiFile
 import com.intellij.testFramework.fixtures.JavaCodeInsightTestFixture
-import com.solanteq.solar.plugin.file.FormFileType
+import com.solanteq.solar.plugin.file.TopLevelFormFileType
 
 /**
  * Creates new form in the correct directory with specified text
@@ -104,4 +104,4 @@ fun JavaCodeInsightTestFixture.configureByForms(vararg formPaths: String, module
  * will be placed into correct directory.
  */
 fun JavaCodeInsightTestFixture.configureByFormText(text: String): PsiFile =
-    this.configureByText(FormFileType, text)
+    this.configureByText(TopLevelFormFileType, text)

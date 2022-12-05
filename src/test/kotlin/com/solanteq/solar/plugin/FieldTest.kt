@@ -1,14 +1,12 @@
 package com.solanteq.solar.plugin
 
 import com.intellij.psi.PsiNamedElement
-import com.intellij.testFramework.RunsInEdt
 import com.intellij.testFramework.fixtures.JavaCodeInsightTestFixture
 import org.jetbrains.uast.UField
 import org.jetbrains.uast.toUElement
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-@RunsInEdt
 class FieldTest : FormTestBase() {
 
     override fun getTestDataSuffix() = "field"

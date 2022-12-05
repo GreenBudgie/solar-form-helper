@@ -1,10 +1,8 @@
 package com.solanteq.solar.plugin
 
 import com.intellij.psi.PsiFile
-import com.intellij.testFramework.RunsInEdt
 import org.junit.jupiter.api.Test
 
-@RunsInEdt
 class L10nTest : FormTestBase() {
 
     override fun getTestDataSuffix() = "l10n"
@@ -14,7 +12,7 @@ class L10nTest : FormTestBase() {
         fixture.configureByForms("testFormGroups.json", module = "test")
 
         createL10nFileAndConfigure("l10n",
-            "test.form.<caret>testFormGroups.randomText" to "Form Name!"
+            "test.form.test<caret>FormGroups.randomText" to "Form Name!"
         )
 
         assertReferencedElementName("testFormGroups")
