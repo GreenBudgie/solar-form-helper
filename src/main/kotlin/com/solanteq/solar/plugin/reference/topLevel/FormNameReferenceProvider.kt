@@ -1,4 +1,4 @@
-package com.solanteq.solar.plugin.reference.formName
+package com.solanteq.solar.plugin.reference.topLevel
 
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.json.psi.JsonStringLiteral
