@@ -33,6 +33,11 @@ inline fun <reified T : JsonElement> inForm(): PsiElementPattern.Capture<out T> 
     )
 }
 
+inline fun <reified T : JsonElement> inTopLevelForm(): PsiElementPattern.Capture<out T> =
+    PlatformPatterns
+        .psiElement(T::class.java)
+        .inFile(PlatformPatterns.psiFile().withFileType(StandardPatterns.`object`(TopLevelFormFileType)))
+
 /**
  * Extends the pattern to check whether the element is a json value with one of the specified keys.
  *
