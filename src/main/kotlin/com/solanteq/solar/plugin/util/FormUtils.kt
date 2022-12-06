@@ -1,101 +1,19 @@
 package com.solanteq.solar.plugin.util
 
-import com.intellij.json.psi.*
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
-import com.intellij.patterns.PatternCondition
-import com.intellij.patterns.PlatformPatterns
-import com.intellij.patterns.PsiElementPattern
-import com.intellij.patterns.StandardPatterns
 import com.intellij.psi.PsiFile
 import com.intellij.psi.search.FilenameIndex
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.CachedValue
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
-import com.intellij.psi.util.findParentOfType
-import com.intellij.util.ProcessingContext
-import com.solanteq.solar.plugin.file.TopLevelFormFileType
 import com.solanteq.solar.plugin.file.IncludedFormFileType
+import com.solanteq.solar.plugin.file.TopLevelFormFileType
 import org.jetbrains.kotlin.idea.base.util.allScope
-
-/**
- * Constructs a pattern to check if the specified json element is inside the form file
- */
-inline fun <reified T : JsonElement> inForm(): PsiElementPattern.Capture<out T> {
-    val basePattern = PlatformPatterns.psiElement(T::class.java)
-    return basePattern.andOr(
-        basePattern.inFile(PlatformPatterns.psiFile().withFileType(StandardPatterns.`object`(TopLevelFormFileType))),
-        basePattern.inFile(PlatformPatterns.psiFile().withFileType(StandardPatterns.`object`(IncludedFormFileType)))
-    )
-}
-
-inline fun <reified T : JsonElement> inTopLevelForm(): PsiElementPattern.Capture<out T> =
-    PlatformPatterns
-        .psiElement(T::class.java)
-        .inFile(PlatformPatterns.psiFile().withFileType(StandardPatterns.`object`(TopLevelFormFileType)))
-
-/**
- * Extends the pattern to check whether the element is a json value with one of the specified keys.
- *
- * Example:
- *
- * Pattern `isValueWithKey("request")` passes for
- * `"request": "lty.service.find"`, where `"lty.service.find"` is a value
- */
-fun PsiElementPattern.Capture<out JsonStringLiteral>.isValueWithKey(vararg applicableKeys: String) = with(
-    object : PatternCondition<JsonStringLiteral>("isValueWithKey") {
-        override fun accepts(element: JsonStringLiteral, context: ProcessingContext?): Boolean {
-            if(!JsonPsiUtil.isPropertyValue(element)) return false
-            val parentJsonProperty = element.parent as? JsonProperty ?: return false
-            return parentJsonProperty.name in applicableKeys
-        }
-    }
-)
-
-/**
- * Extends the pattern to check whether the element is inside a json object with one of specified keys.
- *
- * Example:
- *
- * Consider the following json structure:
- * ```
- * "request": {
- *      "name": "lty.service.findById",
- *      "group": "lty",
- *      "params": [
- *          {
- *              "name": "id",
- *              "value": "id"
- *          }
- *      ]
- * }
- * ```
- * Pattern `isElementInsideObject("request")` will pass for every json element inside `"request"` object,
- * excluding `"name": "id"` and `"value": "id"` in params because they are inside their own unnamed object.
- */
-fun PsiElementPattern.Capture<out JsonStringLiteral>.isInsideObjectWithKey(vararg applicableKeys: String) = with(
-    object : PatternCondition<JsonStringLiteral>("isInsideObjectWithKey") {
-        override fun accepts(element: JsonStringLiteral, context: ProcessingContext?): Boolean {
-            val firstJsonObjectParent = element.findParentOfType<JsonObject>() ?: return false
-            val jsonObjectProperty = firstJsonObjectParent.parent as? JsonProperty ?: return false
-            return jsonObjectProperty.name in applicableKeys
-        }
-    }
-)
-
-fun PsiElementPattern.Capture<out JsonStringLiteral>.isObjectInArrayWithKey(vararg applicableKeys: String) = with(
-    object : PatternCondition<JsonStringLiteral>("isObjectInArrayWithKey") {
-        override fun accepts(element: JsonStringLiteral, context: ProcessingContext?): Boolean {
-            val firstJsonArrayParent = element.findParentOfType<JsonArray>() ?: return false
-            val jsonArrayProperty = firstJsonArrayParent.parent as? JsonProperty ?: return false
-            return jsonArrayProperty.name in applicableKeys
-        }
-    }
-)
 
 private val TOP_LEVEL_FORMS_KEY = Key<CachedValue<List<VirtualFile>>>("solar.topLevelForms")
 private val INCLUDED_FORMS_KEY = Key<CachedValue<List<VirtualFile>>>("solar.includedForms")
@@ -113,18 +31,18 @@ fun findIncludedForms(project: Project) =
     findForms(project, INCLUDED_FORMS_KEY, IncludedFormFileType)
 
 /**
- * Finds included and not included forms in all scope with caching
+ * Finds included and top level forms in all scope with caching
  */
 fun findAllForms(project: Project) =
     findTopLevelForms(project) + findIncludedForms(project)
 
 /**
- * Checks whether this virtual file is form or included form by checking its file type
+ * Checks whether this virtual file is top level or included form by checking its file type
  */
 fun VirtualFile.isForm() = fileType == TopLevelFormFileType || fileType == IncludedFormFileType
 
 /**
- * Checks whether this psi file is form or included form by checking its file type
+ * Checks whether this psi file is top level or included form by checking its file type
  */
 fun PsiFile.isForm() = fileType == TopLevelFormFileType || fileType == IncludedFormFileType
 

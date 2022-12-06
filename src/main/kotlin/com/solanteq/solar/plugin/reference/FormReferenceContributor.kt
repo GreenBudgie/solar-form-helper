@@ -4,20 +4,16 @@ import com.intellij.json.psi.*
 import com.intellij.patterns.*
 import com.intellij.psi.PsiReferenceContributor
 import com.intellij.psi.PsiReferenceRegistrar
-import com.intellij.util.ProcessingContext
 import com.solanteq.solar.plugin.element.FormRequest
 import com.solanteq.solar.plugin.file.L10nFileType
 import com.solanteq.solar.plugin.reference.field.FieldReferenceProvider
 import com.solanteq.solar.plugin.reference.form.FormReferenceProvider
-import com.solanteq.solar.plugin.reference.formModule.FormModuleReferenceProvider
-import com.solanteq.solar.plugin.reference.formName.FormNameReferenceProvider
+import com.solanteq.solar.plugin.reference.topLevel.FormModuleReferenceProvider
+import com.solanteq.solar.plugin.reference.topLevel.FormNameReferenceProvider
 import com.solanteq.solar.plugin.reference.include.JsonIncludeReferenceProvider
 import com.solanteq.solar.plugin.reference.l10n.L10nReferenceProvider
 import com.solanteq.solar.plugin.reference.request.RequestReferenceProvider
-import com.solanteq.solar.plugin.util.inForm
-import com.solanteq.solar.plugin.util.isInsideObjectWithKey
-import com.solanteq.solar.plugin.util.isObjectInArrayWithKey
-import com.solanteq.solar.plugin.util.isValueWithKey
+import com.solanteq.solar.plugin.util.*
 
 class FormReferenceContributor : PsiReferenceContributor() {
 
@@ -28,13 +24,13 @@ class FormReferenceContributor : PsiReferenceContributor() {
         )
 
         registrar.registerReferenceProvider(
-            inForm<JsonStringLiteral>().isValueWithKey("form", "parentForm"),
+            inForm<JsonStringLiteral>().isPropertyValueWithKey("form", "parentForm"),
             FormReferenceProvider
         )
 
         registrar.registerReferenceProvider(
             inForm<JsonStringLiteral>()
-                .isValueWithKey("name")
+                .isPropertyValueWithKey("name")
                 .isObjectInArrayWithKey("fields"),
             FieldReferenceProvider
         )
@@ -52,12 +48,16 @@ class FormReferenceContributor : PsiReferenceContributor() {
         )
 
         registrar.registerReferenceProvider(
-            inForm<JsonStringLiteral>().isValueWithKey("name").isValueAtTopLevelObject(),
+            inTopLevelForm<JsonStringLiteral>()
+                .isPropertyValueWithKey("name")
+                .isAtTopLevelObject(),
             FormNameReferenceProvider
         )
 
         registrar.registerReferenceProvider(
-            inForm<JsonStringLiteral>().isValueWithKey("module").isValueAtTopLevelObject(),
+            inTopLevelForm<JsonStringLiteral>()
+                .isPropertyValueWithKey("module")
+                .isAtTopLevelObject(),
             FormModuleReferenceProvider
         )
     }
@@ -80,33 +80,11 @@ class FormReferenceContributor : PsiReferenceContributor() {
 
         return StandardPatterns.or(
             baseInFormPattern
-                .isValueWithKey(*FormRequest.RequestType.requestLiterals),
+                .isPropertyValueWithKey(*FormRequest.RequestType.requestLiterals),
             baseInFormPattern
-                .isValueWithKey("name")
+                .isPropertyValueWithKey("name")
                 .isInsideObjectWithKey(*FormRequest.RequestType.requestLiterals)
         )
     }
-
-    private fun PsiElementPattern.Capture<out JsonStringLiteral>.isPropertyKey() = with(
-        object : PatternCondition<JsonStringLiteral>("isPropertyKey") {
-
-            override fun accepts(element: JsonStringLiteral, context: ProcessingContext?) =
-                JsonPsiUtil.isPropertyKey(element)
-
-        }
-    )
-
-    private fun PsiElementPattern.Capture<out JsonStringLiteral>.isValueAtTopLevelObject() = with(
-        object : PatternCondition<JsonStringLiteral>("isAtTopLevelObject") {
-
-            override fun accepts(element: JsonStringLiteral, context: ProcessingContext?): Boolean {
-                val property = element.parent as? JsonProperty ?: return false
-                val topLevelObject = property.parent as? JsonObject ?: return false
-                val jsonFile = topLevelObject.containingFile as? JsonFile ?: return false
-                return jsonFile.topLevelValue == topLevelObject
-            }
-
-        }
-    )
 
 }
