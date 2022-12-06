@@ -1,7 +1,6 @@
 package com.solanteq.solar.plugin.reference
 
-import com.intellij.json.psi.JsonPsiUtil
-import com.intellij.json.psi.JsonStringLiteral
+import com.intellij.json.psi.*
 import com.intellij.patterns.*
 import com.intellij.psi.PsiReferenceContributor
 import com.intellij.psi.PsiReferenceRegistrar
@@ -10,6 +9,8 @@ import com.solanteq.solar.plugin.element.FormRequest
 import com.solanteq.solar.plugin.file.L10nFileType
 import com.solanteq.solar.plugin.reference.field.FieldReferenceProvider
 import com.solanteq.solar.plugin.reference.form.FormReferenceProvider
+import com.solanteq.solar.plugin.reference.formModule.FormModuleReferenceProvider
+import com.solanteq.solar.plugin.reference.formName.FormNameReferenceProvider
 import com.solanteq.solar.plugin.reference.include.JsonIncludeReferenceProvider
 import com.solanteq.solar.plugin.reference.l10n.L10nReferenceProvider
 import com.solanteq.solar.plugin.reference.request.RequestReferenceProvider
@@ -49,6 +50,16 @@ class FormReferenceContributor : PsiReferenceContributor() {
             ).isPropertyKey(),
             L10nReferenceProvider
         )
+
+        registrar.registerReferenceProvider(
+            inForm<JsonStringLiteral>().isValueWithKey("name").isValueAtTopLevelObject(),
+            FormNameReferenceProvider
+        )
+
+        registrar.registerReferenceProvider(
+            inForm<JsonStringLiteral>().isValueWithKey("module").isValueAtTopLevelObject(),
+            FormModuleReferenceProvider
+        )
     }
 
     /**
@@ -81,6 +92,19 @@ class FormReferenceContributor : PsiReferenceContributor() {
 
             override fun accepts(element: JsonStringLiteral, context: ProcessingContext?) =
                 JsonPsiUtil.isPropertyKey(element)
+
+        }
+    )
+
+    private fun PsiElementPattern.Capture<out JsonStringLiteral>.isValueAtTopLevelObject() = with(
+        object : PatternCondition<JsonStringLiteral>("isAtTopLevelObject") {
+
+            override fun accepts(element: JsonStringLiteral, context: ProcessingContext?): Boolean {
+                val property = element.parent as? JsonProperty ?: return false
+                val topLevelObject = property.parent as? JsonObject ?: return false
+                val jsonFile = topLevelObject.containingFile as? JsonFile ?: return false
+                return jsonFile.topLevelValue == topLevelObject
+            }
 
         }
     )

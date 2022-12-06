@@ -1,6 +1,7 @@
 package com.solanteq.solar.plugin
 
 import com.intellij.jarRepository.RemoteRepositoryDescription
+import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.ContentEntry
 import com.intellij.openapi.roots.DependencyScope
@@ -39,6 +40,14 @@ abstract class FormTestBase : LightJavaCodeInsightFixtureTestCase5(DEFAULT_DESCR
         Assertions.assertTrue(
             actualCompletions.containsAll(listOf(*expectedCompletions))
         )
+    }
+
+    protected fun testJsonStringLiteralRename(renameTo: String, resultName: String) {
+        fixture.renameElementAtCaretUsingHandler(renameTo)
+        val elementAtCaret = fixture.file.findElementAt(fixture.caretOffset)?.parent as? JsonStringLiteral
+
+        Assertions.assertNotNull(elementAtCaret)
+        Assertions.assertEquals(resultName, elementAtCaret!!.value)
     }
 
     companion object {

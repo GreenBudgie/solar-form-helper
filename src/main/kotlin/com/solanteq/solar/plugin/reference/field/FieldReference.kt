@@ -15,6 +15,6 @@ class FieldReference(
         return fieldProperty.containingClass?.javaPsi?.allFields ?: emptyArray()
     }
 
-    override fun resolve() = fieldProperty.referencedField?.javaPsi
+    override fun resolve() = fieldProperty.referencedField?.sourcePsi
 
 }
