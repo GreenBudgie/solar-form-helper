@@ -31,7 +31,7 @@ class FormReferenceContributor : PsiReferenceContributor() {
         registrar.registerReferenceProvider(
             inForm<JsonStringLiteral>()
                 .isPropertyValueWithKey("name")
-                .isObjectInArrayWithKey("fields"),
+                .isInArrayWithKey("fields"),
             FieldReferenceProvider
         )
 
@@ -83,7 +83,7 @@ class FormReferenceContributor : PsiReferenceContributor() {
                 .isPropertyValueWithKey(*FormRequest.RequestType.requestLiterals),
             baseInFormPattern
                 .isPropertyValueWithKey("name")
-                .isInsideObjectWithKey(*FormRequest.RequestType.requestLiterals)
+                .isInObjectWithKey(*FormRequest.RequestType.requestLiterals)
         )
     }
 
