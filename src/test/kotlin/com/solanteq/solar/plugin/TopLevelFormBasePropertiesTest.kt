@@ -1,5 +1,7 @@
 package com.solanteq.solar.plugin
 
+import com.solanteq.solar.plugin.inspection.InvalidFormModuleDeclarationInspection
+import com.solanteq.solar.plugin.inspection.InvalidFormNameDeclarationInspection
 import org.junit.jupiter.api.Test
 
 class TopLevelFormBasePropertiesTest : FormTestBase() {
@@ -57,6 +59,30 @@ class TopLevelFormBasePropertiesTest : FormTestBase() {
         """.trimIndent(), "abc")
 
         assertCompletionsContainsExact("abc")
+    }
+
+    @Test
+    fun `test invalid form module declaration inspection`() {
+        fixture.createFormAndConfigure("testForm", """
+            {
+              "module": "<error>abcd</error>"
+            }
+        """.trimIndent(), "abc")
+
+        fixture.enableInspections(InvalidFormModuleDeclarationInspection::class.java)
+        fixture.checkHighlighting()
+    }
+
+    @Test
+    fun `test invalid form name declaration inspection`() {
+        fixture.createFormAndConfigure("testForm", """
+            {
+              "name": "<error>invalidFormName</error>"
+            }
+        """.trimIndent(), "abc")
+
+        fixture.enableInspections(InvalidFormNameDeclarationInspection::class.java)
+        fixture.checkHighlighting()
     }
 
 }

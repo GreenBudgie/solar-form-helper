@@ -46,5 +46,12 @@
                          level="ERROR"
                          implementationClass="com.solanteq.solar.plugin.inspection.InvalidFormModuleDeclarationInspection"/>
 
+        <localInspection language="JSON"
+                         displayName="Invalid form name declaration"
+                         groupName="SOLAR form"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         implementationClass="com.solanteq.solar.plugin.inspection.InvalidFormNameDeclarationInspection"/>
+
     </extensions>
 </idea-plugin>

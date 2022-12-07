@@ -1,6 +1,7 @@
 package com.solanteq.solar.plugin.util
 
 import com.intellij.json.psi.*
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.findParentOfType
 
 fun JsonElement.isPropertyValueWithKey(vararg applicableKeys: String): Boolean {
@@ -34,3 +35,13 @@ fun JsonProperty?.valueAsString(): String? {
     val stringLiteral = this?.value as? JsonStringLiteral ?: return null
     return stringLiteral.value
 }
+
+/**
+ * Relative text range of this string literal with trimmed quotes
+ */
+val JsonStringLiteral.textRangeWithoutQuotes: TextRange
+    get() {
+        val value = value
+        if(value.length < 2) return TextRange.EMPTY_RANGE
+        return TextRange.from(1, value.length)
+    }

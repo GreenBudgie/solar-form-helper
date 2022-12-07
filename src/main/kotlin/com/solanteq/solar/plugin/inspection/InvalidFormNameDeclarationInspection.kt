@@ -14,7 +14,7 @@ import com.solanteq.solar.plugin.util.isAtTopLevelObject
 import com.solanteq.solar.plugin.util.textRangeWithoutQuotes
 import org.jetbrains.kotlin.idea.util.application.runWriteAction
 
-class InvalidFormModuleDeclarationInspection : FormInspection() {
+class InvalidFormNameDeclarationInspection : FormInspection() {
 
     override fun buildVisitor(holder: ProblemsHolder) = Visitor(holder)
 
@@ -23,33 +23,33 @@ class InvalidFormModuleDeclarationInspection : FormInspection() {
         override fun visitProperty(property: JsonProperty) {
             if(property.containingFile.fileType != TopLevelFormFileType) return
             if(!property.isAtTopLevelObject()) return
-            if(property.name != "module") return
+            if(property.name != "name") return
 
             val propertyValue = property.value as? JsonStringLiteral ?: return
-            val realModuleName = property.containingFile?.originalFile?.parent?.name ?: return
-            val declaredModuleName = propertyValue.value
+            val formFileName = property.containingFile?.originalFile?.virtualFile?.nameWithoutExtension ?: return
+            val declaredFormName = propertyValue.value
 
-            if(realModuleName == declaredModuleName) return
+            if(formFileName == declaredFormName) return
 
             holder.registerProblem(
                 propertyValue,
-                "Module name and form file directory name are not the same",
+                "Declared form name form file name are not the same",
                 ProblemHighlightType.ERROR,
                 propertyValue.textRangeWithoutQuotes,
-                RenameModuleFix(realModuleName)
+                RenameFormNameDeclarationFix(formFileName)
             )
         }
 
     }
 
-    class RenameModuleFix(private val realModuleName: String) : LocalQuickFix {
+    class RenameFormNameDeclarationFix(private val formFileName: String) : LocalQuickFix {
 
         override fun getFamilyName() = "Rename element"
 
         override fun applyFix(project: Project, descriptor: ProblemDescriptor) {
             val element = descriptor.psiElement
             runWriteAction {
-                ElementManipulators.handleContentChange(element, realModuleName)
+                ElementManipulators.handleContentChange(element, formFileName)
             }
         }
 
