@@ -4,13 +4,14 @@ import com.intellij.codeInspection.InspectionManager
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.codeInspection.ProblemsHolder
+import com.intellij.json.psi.JsonElementVisitor
 import com.intellij.psi.PsiElementVisitor
 import com.intellij.psi.PsiFile
 import com.solanteq.solar.plugin.util.isForm
 
 abstract class FormInspection : LocalInspectionTool() {
 
-    protected abstract fun buildVisitor(holder: ProblemsHolder): PsiElementVisitor
+    protected abstract fun buildVisitor(holder: ProblemsHolder): JsonElementVisitor
 
     final override fun buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor {
         if(holder.file.isForm()) {
