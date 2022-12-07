@@ -39,5 +39,12 @@
 
         <referencesSearch implementation="com.solanteq.solar.plugin.reference.request.ServiceNameQueryExecutor" />
 
+        <localInspection language="JSON"
+                         displayName="Invalid form module declaration"
+                         groupName="SOLAR form"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         implementationClass="com.solanteq.solar.plugin.inspection.InvalidFormModuleDeclarationInspection"/>
+
     </extensions>
 </idea-plugin>
