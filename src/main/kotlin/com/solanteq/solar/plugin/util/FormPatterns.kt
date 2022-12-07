@@ -1,12 +1,12 @@
 package com.solanteq.solar.plugin.util
 
-import com.intellij.json.psi.*
+import com.intellij.json.psi.JsonElement
+import com.intellij.json.psi.JsonPsiUtil
 import com.intellij.patterns.PatternCondition
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.patterns.PsiElementPattern
 import com.intellij.patterns.StandardPatterns
 import com.intellij.psi.PsiElement
-import com.intellij.psi.util.findParentOfType
 import com.intellij.util.ProcessingContext
 import com.solanteq.solar.plugin.file.IncludedFormFileType
 import com.solanteq.solar.plugin.file.TopLevelFormFileType
@@ -48,12 +48,8 @@ inline fun <reified T : JsonElement> inIncludedForm(): PsiElementPattern.Capture
  * "request": "lty.service.find"
  * ```
  */
-fun PsiElementPattern.Capture<out JsonStringLiteral>.isPropertyValueWithKey(vararg applicableKeys: String) =
-    withCondition("isPropertyValueWithKey") {
-        if(!JsonPsiUtil.isPropertyValue(it)) return@withCondition false
-        val parentJsonProperty = it.parent as? JsonProperty ?: return@withCondition false
-        return@withCondition parentJsonProperty.name in applicableKeys
-    }
+fun <T : JsonElement> PsiElementPattern.Capture<out T>.isPropertyValueWithKey(vararg applicableKeys: String) =
+    withCondition("isPropertyValueWithKey") { it.isPropertyValueWithKey(*applicableKeys) }
 
 /**
  * Extends the pattern to check whether the element is inside a json object
@@ -77,12 +73,8 @@ fun PsiElementPattern.Capture<out JsonStringLiteral>.isPropertyValueWithKey(vara
  * Pattern `isElementInsideObject("request")` will pass for every json element inside `"request"` object,
  * excluding `"name": "id"` and `"value": "id"` in params because they are inside their own unnamed object.
  */
-fun PsiElementPattern.Capture<out JsonStringLiteral>.isInsideObjectWithKey(vararg applicableKeys: String) =
-    withCondition("isInsideObjectWithKey") {
-        val firstJsonObjectParent = it.findParentOfType<JsonObject>() ?: return@withCondition false
-        val jsonObjectProperty = firstJsonObjectParent.parent as? JsonProperty ?: return@withCondition false
-        return@withCondition jsonObjectProperty.name in applicableKeys
-    }
+fun <T : JsonElement> PsiElementPattern.Capture<out T>.isInObjectWithKey(vararg applicableKeys: String) =
+    withCondition("isInObjectWithKey") { it.isInObjectWithKey(*applicableKeys) }
 
 /**
  * Extends the pattern to check whether the element is inside a json array
@@ -99,12 +91,8 @@ fun PsiElementPattern.Capture<out JsonStringLiteral>.isInsideObjectWithKey(varar
  * "boilerplateKey": "boilerplateValue" //false
  * ```
  */
-fun PsiElementPattern.Capture<out JsonStringLiteral>.isObjectInArrayWithKey(vararg applicableKeys: String) =
-    withCondition("isObjectInArrayWithKey") {
-        val firstJsonArrayParent = it.findParentOfType<JsonArray>() ?: return@withCondition false
-        val jsonArrayProperty = firstJsonArrayParent.parent as? JsonProperty ?: return@withCondition false
-        return@withCondition jsonArrayProperty.name in applicableKeys
-    }
+fun <T : JsonElement> PsiElementPattern.Capture<out T>.isInArrayWithKey(vararg applicableKeys: String) =
+    withCondition("isInArrayWithKey") { it.isInArrayWithKey(*applicableKeys) }
 
 /**
  * Extends the pattern to check whether the element is located directly at top-level json object.
@@ -125,17 +113,13 @@ fun PsiElementPattern.Capture<out JsonStringLiteral>.isObjectInArrayWithKey(vara
  * }
  * ```
  */
-fun PsiElementPattern.Capture<out JsonElement>.isAtTopLevelObject() =
-    withCondition("isAtTopLevelObject") {
-        val topLevelObject = it.findParentOfType<JsonObject>() ?: return@withCondition false
-        val jsonFile = topLevelObject.containingFile as? JsonFile ?: return@withCondition false
-        return@withCondition jsonFile.topLevelValue == topLevelObject
-    }
+fun <T : JsonElement> PsiElementPattern.Capture<out T>.isAtTopLevelObject() =
+    withCondition("isAtTopLevelObject") { it.isAtTopLevelObject() }
 
 /**
  * A pattern condition for [JsonPsiUtil.isPropertyKey]
  */
-fun PsiElementPattern.Capture<out JsonStringLiteral>.isPropertyKey() =
+fun <T : JsonElement> PsiElementPattern.Capture<out T>.isPropertyKey() =
     withCondition("isPropertyKey") {
         JsonPsiUtil.isPropertyKey(it)
     }
@@ -143,7 +127,7 @@ fun PsiElementPattern.Capture<out JsonStringLiteral>.isPropertyKey() =
 /**
  * A pattern condition for [JsonPsiUtil.isPropertyValue]
  */
-fun PsiElementPattern.Capture<out JsonStringLiteral>.isPropertyValue() =
+fun <T : JsonElement> PsiElementPattern.Capture<out T>.isPropertyValue() =
     withCondition("isPropertyValue") {
         JsonPsiUtil.isPropertyValue(it)
     }
