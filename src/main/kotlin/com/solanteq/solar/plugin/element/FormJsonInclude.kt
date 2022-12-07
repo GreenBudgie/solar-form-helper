@@ -1,5 +1,6 @@
 package com.solanteq.solar.plugin.element
 
+import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonStringLiteral
 import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.util.findIncludedForms
@@ -104,6 +105,19 @@ class FormJsonInclude(
         JSON_OPTIONAL("json?://", true),
         JSON_FLAT("json-flat://", false),
         JSON_FLAT_OPTIONAL("json-flat?://", true)
+
+    }
+
+    companion object {
+
+        fun create(sourceElement: JsonElement): FormJsonInclude? {
+            val stringLiteral = sourceElement as? JsonStringLiteral ?: return null
+            val stringLiteralValue = stringLiteral.value
+            val includeType = FormJsonInclude.JsonIncludeType.values().find {
+                stringLiteralValue.startsWith(it.prefix)
+            } ?: return null
+            return FormJsonInclude(stringLiteral, includeType)
+        }
 
     }
 

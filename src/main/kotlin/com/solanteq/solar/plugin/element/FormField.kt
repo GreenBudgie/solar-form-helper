@@ -1,5 +1,6 @@
 package com.solanteq.solar.plugin.element
 
+import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonObject
 import com.intellij.psi.PsiClass
@@ -172,7 +173,14 @@ class FormField(
 
     companion object {
 
-        val ARRAY_NAME = "fields"
+        const val ARRAY_NAME = "fields"
+
+        fun create(sourceElement: JsonElement): FormField? {
+            if(canBeCreatedAsArrayElement(sourceElement, ARRAY_NAME)) {
+                return FormField(sourceElement as JsonObject)
+            }
+            return null
+        }
 
     }
 

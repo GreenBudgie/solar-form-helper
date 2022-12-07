@@ -22,7 +22,20 @@ import com.intellij.json.psi.JsonElement
  * As it does not inherit [JsonElement], [sourceElement] can become invalid at any time after creation
  * which can break how form element works. Try to only use form elements in-place.
  * If you need to update any information about the element, just reuse [toFormElement] method on json element.
+ *
+ * Every form element should have `create` method in companion object.
  */
 abstract class FormElement<T : JsonElement> protected constructor(
     val sourceElement: T
-)
+) {
+
+    override operator fun equals(other: Any?): Boolean {
+        if(other is FormElement<*>) return other.sourceElement == sourceElement
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return sourceElement.hashCode()
+    }
+
+}

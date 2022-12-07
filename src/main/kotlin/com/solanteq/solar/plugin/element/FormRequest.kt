@@ -1,5 +1,6 @@
 package com.solanteq.solar.plugin.element
 
+import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
 import com.intellij.json.psi.JsonStringLiteral
@@ -199,6 +200,18 @@ class FormRequest(
             val requestLiterals = values().map { it.requestLiteral }.toTypedArray()
             val formRequests = values().filter { it.isFormRequest }.toTypedArray()
 
+        }
+
+    }
+
+    companion object {
+
+        fun create(sourceElement: JsonElement): FormRequest? {
+            val jsonProperty = sourceElement as? JsonProperty ?: return null
+            if(jsonProperty.name in RequestType.requestLiterals) {
+                return FormRequest(jsonProperty)
+            }
+            return null
         }
 
     }

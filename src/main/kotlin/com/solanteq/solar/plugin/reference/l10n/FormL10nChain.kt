@@ -45,6 +45,10 @@ class FormL10nChain(
         getTextRangeForChainEntryByIndex(formChainIndex)
     }
 
+    val formGroupReference by lazy {
+
+    }
+
     private fun getTextRangeForChainEntryByIndex(index: Int): TextRange? {
         if(index >= chain.size) return null
         val currentLiteralLength = chain[index].length
