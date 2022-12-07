@@ -2,14 +2,10 @@ package com.solanteq.solar.plugin.element
 
 import com.intellij.json.psi.JsonArray
 import com.intellij.json.psi.JsonElement
-import com.intellij.json.psi.JsonFile
-import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
-import com.intellij.json.psi.JsonStringLiteral
 import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.element.base.FormObjectElement
 import com.solanteq.solar.plugin.element.base.FormPropertyArrayElement
-import com.solanteq.solar.plugin.file.TopLevelFormFileType
 import com.solanteq.solar.plugin.util.isForm
 import kotlin.reflect.KClass
 
@@ -35,10 +31,13 @@ fun <T : FormElement<*>> JsonElement?.toFormElement(formElementClass: KClass<out
 
     return when(formElementClass) {
 
-        FormFile::class -> formFile()
-        FormRequest::class -> formRequest()
-        FormField::class -> formField()
-        FormJsonInclude::class -> formJsonInclude()
+        FormFile::class -> FormFile.create(this)
+        FormRequest::class -> FormRequest.create(this)
+        FormField::class -> FormField.create(this)
+        FormJsonInclude::class -> FormJsonInclude.create(this)
+        FormGroupRow::class -> FormGroupRow.create(this)
+        FormGroup::class -> FormGroup.create(this)
+        FormRow::class -> FormRow.create(this)
         else -> null
 
     } as T?
@@ -51,6 +50,9 @@ fun <T : FormElement<*>> JsonElement?.toFormElement(formElementClass: KClass<out
  */
 inline fun <reified T : FormObjectElement> JsonProperty?.toFormArrayElement() = toFormArrayElement(T::class)
 
+/**
+ * @see toFormArrayElement
+ */
 fun <T : FormObjectElement> JsonProperty?.toFormArrayElement(
     contentsClass: KClass<out T>
 ): FormPropertyArrayElement<T>? {
@@ -74,44 +76,11 @@ fun <T : FormObjectElement> JsonProperty?.toFormArrayElement(
 
     return when(contentsClass) {
 
+        FormGroupRow::class -> tryCreateElement(FormGroupRow.ARRAY_NAME)
+        FormGroup::class -> tryCreateElement(FormGroup.ARRAY_NAME)
+        FormRow::class -> tryCreateElement(FormRow.ARRAY_NAME)
         FormField::class -> tryCreateElement(FormField.ARRAY_NAME)
         else -> null
 
     }
-}
-
-private fun JsonElement.formFile(): FormFile? {
-    val jsonFile = this as? JsonFile ?: return null
-    val topLevelObject = jsonFile.topLevelValue as? JsonObject ?: return null
-    if(jsonFile.fileType == TopLevelFormFileType) {
-        return FormFile(jsonFile, topLevelObject)
-    }
-    return null
-}
-
-private fun JsonElement.formRequest(): FormRequest? {
-    val jsonProperty = this as? JsonProperty ?: return null
-    if(jsonProperty.name in FormRequest.RequestType.requestLiterals) {
-        return FormRequest(jsonProperty)
-    }
-    return null
-}
-
-private fun JsonElement.formField(): FormField? {
-    val jsonObject = this as? JsonObject ?: return null
-    val parentArray = jsonObject.parent as? JsonArray ?: return null
-    val fieldProperty = parentArray.parent as? JsonProperty ?: return null
-    if(fieldProperty.name == "fields") {
-        return FormField(jsonObject)
-    }
-    return null
-}
-
-private fun JsonElement.formJsonInclude(): FormJsonInclude? {
-    val stringLiteral = this as? JsonStringLiteral ?: return null
-    val stringLiteralValue = stringLiteral.value
-    val includeType = FormJsonInclude.JsonIncludeType.values().find {
-        stringLiteralValue.startsWith(it.prefix)
-    } ?: return null
-    return FormJsonInclude(stringLiteral, includeType)
 }
