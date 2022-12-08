@@ -3,6 +3,7 @@ package com.solanteq.solar.plugin.element
 import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonObject
+import com.intellij.json.psi.JsonStringLiteral
 import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.file.TopLevelFormFileType
@@ -16,15 +17,21 @@ class FormFile(
     private val topLevelObject: JsonObject
 ) : FormElement<JsonFile>(sourceElement), FormLocalizableElement {
 
-    override val name by lazy { topLevelObject.findProperty("name").valueAsString() }
+    val nameProperty by lazy { topLevelObject.findProperty("name") }
+
+    val namePropertyValue by lazy { nameProperty?.value as? JsonStringLiteral }
+
+    override val name by lazy { nameProperty.valueAsString() }
+
+    val moduleProperty by lazy { topLevelObject.findProperty("module") }
+
+    val module by lazy { moduleProperty.valueAsString() }
 
     val fullName by lazy {
         val name = name ?: return@lazy null
         val module = module ?: return@lazy name
         return@lazy "$module.$name"
     }
-
-    val module by lazy { topLevelObject.findProperty("module").valueAsString() }
 
     val groupRows by lazy {
         topLevelObject.findProperty(FormGroupRow.ARRAY_NAME).toFormArrayElement<FormGroupRow>()

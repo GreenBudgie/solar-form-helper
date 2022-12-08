@@ -1,9 +1,10 @@
 package com.solanteq.solar.plugin.reference.l10n
 
 import com.intellij.json.psi.JsonFile
-import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.util.TextRange
+import com.solanteq.solar.plugin.element.FormFile
+import com.solanteq.solar.plugin.element.toFormElement
 import com.solanteq.solar.plugin.util.findFormByModuleAndName
 import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
@@ -25,7 +26,7 @@ class FormL10nChain(
         return@lazy findFormByModuleAndName(
             project,
             module,
-            chain[formChainIndex],
+            chain[formNameChainIndex],
             project.projectScope()
         )
     }
@@ -34,19 +35,27 @@ class FormL10nChain(
         referencedForm?.toPsiFile(project) as? JsonFile
     }
 
+    val referencedFormFileElement by lazy {
+        referencedFormPsiFile.toFormElement<FormFile>()
+    }
+
     val formNameReference by lazy {
-        val form = referencedFormPsiFile ?: return@lazy null
-        val topLevelObject = form.topLevelValue as? JsonObject ?: return@lazy null
-        val nameProperty = topLevelObject.findProperty("name") ?: return@lazy null
-        return@lazy nameProperty.value as? JsonStringLiteral ?: return@lazy null
+        return@lazy referencedFormFileElement?.namePropertyValue
     }
 
-    val formTextRange by lazy {
-        getTextRangeForChainEntryByIndex(formChainIndex)
+    val formNameTextRange by lazy {
+        getTextRangeForChainEntryByIndex(formNameChainIndex)
     }
 
-    val formGroupReference by lazy {
+    val groupNameReference by lazy {
+        val groups = referencedFormFileElement?.allGroups ?: return@lazy null
+        val groupName = chain[groupNameChainIndex]
+        val groupElement = groups.find { it.name == groupName } ?: return@lazy null
+        return@lazy groupElement.namePropertyValue
+    }
 
+    val groupNameTextRange by lazy {
+        getTextRangeForChainEntryByIndex(groupNameChainIndex)
     }
 
     private fun getTextRangeForChainEntryByIndex(index: Int): TextRange? {
@@ -73,9 +82,9 @@ class FormL10nChain(
             return FormL10nChain(element, l10nModule, l10nChain, l10nModule.length + 6)
         }
 
-        private val formChainIndex = 0
-        private val groupChainIndex = 1
-        private val firstFieldChainIndex = 2
+        private val formNameChainIndex = 0
+        private val groupNameChainIndex = 1
+        private val firstFieldNameChainIndex = 2
 
     }
 

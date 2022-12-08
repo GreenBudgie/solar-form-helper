@@ -12,13 +12,17 @@ object L10nReferenceProvider : PsiReferenceProvider()  {
         val stringLiteral = element as JsonStringLiteral
         val l10nChain = FormL10nChain.fromElement(stringLiteral) ?: return emptyArray()
 
-        val formNameReference = l10nChain.formNameReference
-        val formTextRange = l10nChain.formTextRange
+        val referenceList = mutableListOf<L10nReference>()
 
-        if(formTextRange != null) {
-            return arrayOf(L10nReference(stringLiteral, formTextRange, formNameReference))
+        if(l10nChain.formNameTextRange != null) {
+            referenceList += L10nReference(stringLiteral, l10nChain.formNameTextRange!!, l10nChain.formNameReference)
         }
-        return emptyArray()
+
+        if(l10nChain.groupNameTextRange != null) {
+            referenceList += L10nReference(stringLiteral, l10nChain.groupNameTextRange!!, l10nChain.groupNameReference)
+        }
+
+        return referenceList.toTypedArray()
     }
 
 }
