@@ -1,6 +1,5 @@
 package com.solanteq.solar.plugin.util
 
-import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
@@ -11,30 +10,42 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.CachedValue
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
+import com.solanteq.solar.plugin.file.AbstractFormFileType
 import com.solanteq.solar.plugin.file.IncludedFormFileType
 import com.solanteq.solar.plugin.file.TopLevelFormFileType
 import org.jetbrains.kotlin.idea.base.util.allScope
+import org.jetbrains.kotlin.idea.base.util.projectScope
 
-private val TOP_LEVEL_FORMS_KEY = Key<CachedValue<List<VirtualFile>>>("solar.topLevelForms")
-private val INCLUDED_FORMS_KEY = Key<CachedValue<List<VirtualFile>>>("solar.includedForms")
-
-/**
- * Finds top level forms in all scope with caching
- */
-fun findTopLevelForms(project: Project) =
-    findForms(project, TOP_LEVEL_FORMS_KEY, TopLevelFormFileType)
+private val TOP_LEVEL_FORMS_ALL_SCOPE_KEY = Key<CachedValue<List<VirtualFile>>>("solar.topLevelFormsAllScope")
+private val INCLUDED_FORMS_ALL_SCOPE_KEY = Key<CachedValue<List<VirtualFile>>>("solar.includedFormsAllScope")
+private val TOP_LEVEL_FORMS_PROJECT_SCOPE_KEY = Key<CachedValue<List<VirtualFile>>>("solar.topLevelFormsProjectScope")
+private val INCLUDED_FORMS_PROJECT_SCOPE_KEY = Key<CachedValue<List<VirtualFile>>>("solar.includedFormsProjectScope")
 
 /**
- * Finds included forms in all scope with caching
+ * Finds top level forms with caching in either all scope or project scope
  */
-fun findIncludedForms(project: Project) =
-    findForms(project, INCLUDED_FORMS_KEY, IncludedFormFileType)
+fun findTopLevelForms(project: Project, projectScope: Boolean = false) =
+    findForms(
+        project,
+        TopLevelFormFileType,
+        projectScope
+    )
 
 /**
- * Finds included and top level forms in all scope with caching
+ * Finds included forms with caching in either all scope or project scope
  */
-fun findAllForms(project: Project) =
-    findTopLevelForms(project) + findIncludedForms(project)
+fun findIncludedForms(project: Project, projectScope: Boolean = false) =
+    findForms(
+        project,
+        TopLevelFormFileType,
+        projectScope
+    )
+
+/**
+ * Finds included and top level forms with caching in either all scope or project scope
+ */
+fun findAllForms(project: Project, projectScope: Boolean = false) =
+    findTopLevelForms(project, projectScope) + findIncludedForms(project, projectScope)
 
 /**
  * Checks whether this virtual file is top level or included form by checking its file type
@@ -138,16 +149,25 @@ fun getModuleAndNameByFormName(fullName: String): Pair<String, String>? {
 
 private fun findForms(
     project: Project,
-    key: Key<CachedValue<List<VirtualFile>>>,
-    fileType: FileType
+    fileType: AbstractFormFileType,
+    projectScope: Boolean
 ): List<VirtualFile> {
+    val key = if(fileType is TopLevelFormFileType) {
+        if(projectScope) TOP_LEVEL_FORMS_PROJECT_SCOPE_KEY else TOP_LEVEL_FORMS_ALL_SCOPE_KEY
+    } else {
+        if(projectScope) INCLUDED_FORMS_PROJECT_SCOPE_KEY else INCLUDED_FORMS_ALL_SCOPE_KEY
+    }
+    val scope = if(projectScope) project.projectScope() else project.allScope()
     return CachedValuesManager.getManager(project).getCachedValue(
         project,
         key,
         {
-            val jsonFiles = FilenameIndex.getAllFilesByExt(project, "json")
+            val jsonFiles = FilenameIndex.getAllFilesByExt(project, "json", scope)
             CachedValueProvider.Result(
-                jsonFiles.filter { it.fileType == fileType }.toList(),
+                jsonFiles
+                    .filter { it.fileType == fileType }
+                    .sortedBy { it.name }
+                    .toList(),
                 VirtualFileManager.VFS_STRUCTURE_MODIFICATIONS
             )
         },

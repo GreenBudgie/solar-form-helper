@@ -39,8 +39,8 @@ class FormL10nChain(
         referencedFormPsiFile.toFormElement<FormFile>()
     }
 
-    val formNameReference by lazy {
-        return@lazy referencedFormFileElement?.namePropertyValue
+    val formReference by lazy {
+        return@lazy referencedFormPsiFile
     }
 
     val formNameTextRange by lazy {

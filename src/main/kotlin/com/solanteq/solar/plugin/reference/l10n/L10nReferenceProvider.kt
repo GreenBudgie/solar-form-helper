@@ -15,11 +15,11 @@ object L10nReferenceProvider : PsiReferenceProvider()  {
         val referenceList = mutableListOf<L10nReference>()
 
         if(l10nChain.formNameTextRange != null) {
-            referenceList += L10nReference(stringLiteral, l10nChain.formNameTextRange!!, l10nChain.formNameReference)
+            referenceList += L10nFormReference(stringLiteral, l10nChain.formNameTextRange!!, l10nChain.formReference)
         }
 
         if(l10nChain.groupNameTextRange != null) {
-            referenceList += L10nReference(stringLiteral, l10nChain.groupNameTextRange!!, l10nChain.groupNameReference)
+            referenceList += L10nGroupReference(stringLiteral, l10nChain.groupNameTextRange!!, l10nChain.groupNameReference)
         }
 
         return referenceList.toTypedArray()
