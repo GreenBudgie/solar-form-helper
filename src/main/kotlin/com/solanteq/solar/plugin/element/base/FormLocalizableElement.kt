@@ -1,17 +1,8 @@
 package com.solanteq.solar.plugin.element.base
 
+import com.intellij.json.psi.JsonElement
+
 /**
- * Represents a json element with `name` property that can be localized.
- *
- * Usually used with [FormNamedObjectElement].
+ * Represents a json element with `name` property that can be localized
  */
-interface FormLocalizableElement {
-
-    /**
-     * Name of this element.
-     *
-     * Similar to [FormNamedObjectElement].
-     */
-    val name: String?
-
-}
+interface FormLocalizableElement<T : JsonElement> : FormNamedElement<T>

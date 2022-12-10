@@ -14,7 +14,8 @@ import com.intellij.json.psi.JsonProperty
  * }
  * ```
  */
-abstract class FormPropertyObjectElement(
-    sourceElement: JsonProperty,
-    val valueObject: JsonObject
-) : FormElement<JsonProperty>(sourceElement)
+interface FormPropertyObjectElement<T : FormElement<JsonObject>> : FormElement<JsonProperty> {
+
+    val valueObject: T
+
+}

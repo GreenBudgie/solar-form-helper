@@ -25,17 +25,8 @@ import com.intellij.json.psi.JsonElement
  *
  * Every form element should have `create` method in companion object.
  */
-abstract class FormElement<T : JsonElement> protected constructor(
+interface FormElement<T : JsonElement> {
+
     val sourceElement: T
-) {
-
-    override operator fun equals(other: Any?): Boolean {
-        if(other is FormElement<*>) return other.sourceElement == sourceElement
-        return false
-    }
-
-    override fun hashCode(): Int {
-        return sourceElement.hashCode()
-    }
 
 }

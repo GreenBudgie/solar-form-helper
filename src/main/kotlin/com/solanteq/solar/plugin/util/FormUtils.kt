@@ -37,7 +37,7 @@ fun findTopLevelForms(project: Project, projectScope: Boolean = false) =
 fun findIncludedForms(project: Project, projectScope: Boolean = false) =
     findForms(
         project,
-        TopLevelFormFileType,
+        IncludedFormFileType,
         projectScope
     )
 

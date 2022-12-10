@@ -1,18 +1,20 @@
 package com.solanteq.solar.plugin.reference
 
-import com.intellij.json.psi.*
-import com.intellij.patterns.*
+import com.intellij.json.psi.JsonStringLiteral
+import com.intellij.patterns.ElementPattern
+import com.intellij.patterns.PlatformPatterns
+import com.intellij.patterns.StandardPatterns
 import com.intellij.psi.PsiReferenceContributor
 import com.intellij.psi.PsiReferenceRegistrar
 import com.solanteq.solar.plugin.element.FormRequest
 import com.solanteq.solar.plugin.file.L10nFileType
 import com.solanteq.solar.plugin.reference.field.FieldReferenceProvider
 import com.solanteq.solar.plugin.reference.form.FormReferenceProvider
-import com.solanteq.solar.plugin.reference.topLevelModule.FormModuleReferenceProvider
-import com.solanteq.solar.plugin.reference.topLevelForm.FormNameReferenceProvider
 import com.solanteq.solar.plugin.reference.include.JsonIncludeReferenceProvider
 import com.solanteq.solar.plugin.reference.l10n.L10nReferenceProvider
 import com.solanteq.solar.plugin.reference.request.RequestReferenceProvider
+import com.solanteq.solar.plugin.reference.topLevelForm.FormNameReferenceProvider
+import com.solanteq.solar.plugin.reference.topLevelModule.FormModuleReferenceProvider
 import com.solanteq.solar.plugin.util.*
 
 class FormReferenceContributor : PsiReferenceContributor() {
