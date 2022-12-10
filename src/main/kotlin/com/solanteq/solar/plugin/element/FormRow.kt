@@ -1,27 +1,19 @@
 package com.solanteq.solar.plugin.element
 
-import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonObject
-import com.solanteq.solar.plugin.element.base.FormNamedObjectElement
+import com.solanteq.solar.plugin.element.base.FormNamedElement
+import com.solanteq.solar.plugin.element.base.FormPropertyArrayElement
 
-class FormRow(
-    sourceElement: JsonObject
-) : FormNamedObjectElement(sourceElement) {
+/**
+ * A single object inside `rows` array in [FormGroup] element
+ */
+interface FormRow : FormNamedElement<JsonObject> {
 
-    val fields by lazy {
-        sourceElement.findProperty(FormField.ARRAY_NAME).toFormArrayElement<FormField>()
-    }
+    val fields: FormPropertyArrayElement<FormField>?
 
     companion object {
 
         const val ARRAY_NAME = "rows"
-
-        fun create(sourceElement: JsonElement): FormRow? {
-            if(canBeCreatedAsArrayElement(sourceElement, ARRAY_NAME)) {
-                return FormRow(sourceElement as JsonObject)
-            }
-            return null
-        }
 
     }
 

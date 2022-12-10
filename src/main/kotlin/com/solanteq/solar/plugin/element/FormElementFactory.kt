@@ -2,10 +2,12 @@ package com.solanteq.solar.plugin.element
 
 import com.intellij.json.psi.JsonArray
 import com.intellij.json.psi.JsonElement
+import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
 import com.solanteq.solar.plugin.element.base.FormElement
-import com.solanteq.solar.plugin.element.base.FormObjectElement
 import com.solanteq.solar.plugin.element.base.FormPropertyArrayElement
+import com.solanteq.solar.plugin.element.base.impl.FormPropertyArrayElementImpl
+import com.solanteq.solar.plugin.element.impl.*
 import com.solanteq.solar.plugin.util.isForm
 import kotlin.reflect.KClass
 
@@ -31,13 +33,13 @@ fun <T : FormElement<*>> JsonElement?.toFormElement(formElementClass: KClass<out
 
     return when(formElementClass) {
 
-        FormFile::class -> FormFile.create(this)
-        FormRequest::class -> FormRequest.create(this)
-        FormField::class -> FormField.create(this)
-        FormJsonInclude::class -> FormJsonInclude.create(this)
-        FormGroupRow::class -> FormGroupRow.create(this)
-        FormGroup::class -> FormGroup.create(this)
-        FormRow::class -> FormRow.create(this)
+        FormFile::class -> FormFileImpl.create(this)
+        FormRequest::class -> FormRequestImpl.create(this)
+        FormField::class -> FormFieldImpl.create(this)
+        FormJsonInclude::class -> FormJsonIncludeImpl.create(this)
+        FormGroupRow::class -> FormGroupRowImpl.create(this)
+        FormGroup::class -> FormGroupImpl.create(this)
+        FormRow::class -> FormRowImpl.create(this)
         else -> null
 
     } as T?
@@ -48,12 +50,12 @@ fun <T : FormElement<*>> JsonElement?.toFormElement(formElementClass: KClass<out
  *
  * @return Form array element with contents of the specified type, or null if conversion is impossible
  */
-inline fun <reified T : FormObjectElement> JsonProperty?.toFormArrayElement() = toFormArrayElement(T::class)
+inline fun <reified T : FormElement<JsonObject>> JsonProperty?.toFormArrayElement() = toFormArrayElement(T::class)
 
 /**
  * @see toFormArrayElement
  */
-fun <T : FormObjectElement> JsonProperty?.toFormArrayElement(
+fun <T : FormElement<JsonObject>> JsonProperty?.toFormArrayElement(
     contentsClass: KClass<out T>
 ): FormPropertyArrayElement<T>? {
     this ?: return null
@@ -69,7 +71,7 @@ fun <T : FormObjectElement> JsonProperty?.toFormArrayElement(
 
     fun tryCreateElement(requiredPropertyName: String): FormPropertyArrayElement<T>? {
         return if(requiredPropertyName == name)
-            FormPropertyArrayElement(this, valueArray, contentsClass)
+            FormPropertyArrayElementImpl(this, valueArray, contentsClass)
         else
             null
     }
