@@ -3,7 +3,7 @@ package com.solanteq.solar.plugin.reference.l10n
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.util.TextRange
-import com.solanteq.solar.plugin.element.FormFile
+import com.solanteq.solar.plugin.element.FormTopLevelFile
 import com.solanteq.solar.plugin.element.toFormElement
 import com.solanteq.solar.plugin.util.findFormByModuleAndName
 import org.jetbrains.kotlin.idea.base.util.projectScope
@@ -35,8 +35,8 @@ class FormL10nChain(
         referencedForm?.toPsiFile(project) as? JsonFile
     }
 
-    val referencedFormFileElement by lazy {
-        referencedFormPsiFile.toFormElement<FormFile>()
+    val referencedFormTopLevelFileElement by lazy {
+        referencedFormPsiFile.toFormElement<FormTopLevelFile>()
     }
 
     val formReference by lazy {
@@ -48,7 +48,7 @@ class FormL10nChain(
     }
 
     val groupNameReference by lazy {
-        val groups = referencedFormFileElement?.allGroups ?: return@lazy null
+        val groups = referencedFormTopLevelFileElement?.allGroups ?: return@lazy null
         val groupName = chain[groupNameChainIndex]
         val groupElement = groups.find { it.name == groupName } ?: return@lazy null
         return@lazy groupElement.namePropertyValue

@@ -1,7 +1,10 @@
 package com.solanteq.solar.plugin.element.base
 
-import com.solanteq.solar.plugin.element.toFormElement
+import com.intellij.json.psi.JsonArray
 import com.intellij.json.psi.JsonElement
+import com.intellij.json.psi.JsonObject
+import com.intellij.json.psi.JsonProperty
+import com.solanteq.solar.plugin.element.toFormElement
 
 /**
  * Form element is a representation of a SOLAR form json element.
@@ -25,8 +28,32 @@ import com.intellij.json.psi.JsonElement
  *
  * Every form element should have `create` method in companion object.
  */
-interface FormElement<T : JsonElement> {
-
+abstract class FormElement<T : JsonElement> protected constructor(
     val sourceElement: T
+) {
+
+    override fun equals(other: Any?): Boolean {
+        if(other is FormElement<*>) return other.sourceElement == sourceElement
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return sourceElement.hashCode()
+    }
+
+    companion object {
+
+        @JvmStatic
+        protected fun canBeCreatedAsArrayElement(
+            sourceElement: JsonElement,
+            requiredArrayName: String
+        ): Boolean {
+            val jsonObject = sourceElement as? JsonObject ?: return false
+            val parentArray = jsonObject.parent as? JsonArray ?: return false
+            val fieldProperty = parentArray.parent as? JsonProperty ?: return false
+            return fieldProperty.name == requiredArrayName
+        }
+
+    }
 
 }

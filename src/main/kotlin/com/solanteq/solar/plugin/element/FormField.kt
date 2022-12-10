@@ -1,9 +1,17 @@
 package com.solanteq.solar.plugin.element
 
+import com.intellij.json.psi.JsonElement
+import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonObject
+import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiClassType
+import com.intellij.psi.PsiSubstitutor
+import com.intellij.psi.PsiType
+import com.intellij.psi.util.TypeConversionUtil
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UField
+import org.jetbrains.uast.toUElementOfType
 
 /**
  * A single object inside `fields` array in [FormRow] element.
@@ -34,7 +42,9 @@ import org.jetbrains.uast.UField
  *
  * TODO: for now, only fields in forms with "source" requests are supported
  */
-interface FormField : FormLocalizableElement<JsonObject> {
+class FormField(
+    sourceElement: JsonObject
+) : FormLocalizableElement<JsonObject>(sourceElement, sourceElement) {
 
     /**
      * A list of properties as a chain from main to nested ones represented as raw strings.
@@ -61,7 +71,7 @@ interface FormField : FormLocalizableElement<JsonObject> {
      * ```
      *
      */
-    val stringPropertyChain: List<String>?
+    val stringPropertyChain by lazy { name?.split(".") }
 
     /**
      * A list of [FieldProperty] as a chain from main to nested ones represented as UAST fields.
@@ -78,14 +88,74 @@ interface FormField : FormLocalizableElement<JsonObject> {
      * -> [field1, field2, null, null, null]
      * ```
      */
-    val propertyChain: List<FieldProperty>
+    val propertyChain by lazy {
+        val stringPropertyChain = stringPropertyChain ?: return@lazy emptyList()
+        if(stringPropertyChain.isEmpty()) {
+            return@lazy emptyList()
+        }
+
+        val propertyChain = mutableListOf<FieldProperty>()
+        var currentDataClass = dataClass
+
+        stringPropertyChain.forEach { fieldName ->
+            if(currentDataClass == null) {
+                propertyChain += FieldProperty(fieldName, null, null)
+                return@forEach
+            }
+
+            val field = findFieldByNameInClass(currentDataClass!!, fieldName)
+            if(field == null) {
+                propertyChain += FieldProperty(fieldName, currentDataClass, null)
+                return@forEach
+            }
+
+            propertyChain += FieldProperty(fieldName, currentDataClass, field)
+
+            currentDataClass = psiTypeAsUClassOrNull(field.type)
+        }
+
+        return@lazy propertyChain.toList()
+    }
 
     /**
      * Data class from source request that this field uses
      */
-    val dataClass: UClass?
+    val dataClass by lazy {
+        val sourceRequest = sourceRequest ?: return@lazy null
+        val method = sourceRequest.methodFromRequest ?: return@lazy null
+        val derivedClass = sourceRequest.serviceFromRequest?.javaPsi ?: return@lazy null
+        val superClass = method.containingClass ?: return@lazy null
+        val rawReturnType = method.returnType ?: return@lazy null
+        return@lazy substitutePsiType(
+            superClass,
+            derivedClass,
+            rawReturnType
+        )
+    }
 
-    val sourceRequest: FormRequest?
+    val sourceRequest by lazy {
+        val jsonFile = sourceElement.containingFile as? JsonFile ?: return@lazy null
+        val formTopLevelFile = jsonFile.toFormElement<FormTopLevelFile>() ?: return@lazy null
+        return@lazy formTopLevelFile.sourceRequest
+    }
+
+    private fun findFieldByNameInClass(uClass: UClass, fieldName: String): UField? =
+        uClass.javaPsi.allFields.find { it.name == fieldName }.toUElementOfType()
+
+    private fun substitutePsiType(superClass: PsiClass, derivedClass: PsiClass, psiType: PsiType): UClass? {
+        val substitutedReturnType = TypeConversionUtil.getClassSubstitutor(
+            superClass,
+            derivedClass,
+            PsiSubstitutor.EMPTY
+        )?.substitute(psiType)
+        val classReturnType = substitutedReturnType as? PsiClassType ?: return null
+        return classReturnType.resolve().toUElementOfType()
+    }
+
+    private fun psiTypeAsUClassOrNull(psiType: PsiType): UClass? {
+        val classReturnType = psiType as? PsiClassType ?: return null
+        return classReturnType.resolve().toUElementOfType()
+    }
 
     /**
      * @property name represents a name of this property.
@@ -102,6 +172,13 @@ interface FormField : FormLocalizableElement<JsonObject> {
     companion object {
 
         const val ARRAY_NAME = "fields"
+
+        fun create(sourceElement: JsonElement): FormField? {
+            if(canBeCreatedAsArrayElement(sourceElement, ARRAY_NAME)) {
+                return FormField(sourceElement as JsonObject)
+            }
+            return null
+        }
 
     }
 
