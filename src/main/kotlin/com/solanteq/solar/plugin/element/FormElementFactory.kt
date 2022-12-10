@@ -6,8 +6,6 @@ import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
 import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.element.base.FormPropertyArrayElement
-import com.solanteq.solar.plugin.element.base.impl.FormPropertyArrayElementImpl
-import com.solanteq.solar.plugin.element.impl.*
 import com.solanteq.solar.plugin.util.isForm
 import kotlin.reflect.KClass
 
@@ -33,13 +31,13 @@ fun <T : FormElement<*>> JsonElement?.toFormElement(formElementClass: KClass<out
 
     return when(formElementClass) {
 
-        FormFile::class -> FormFileImpl.create(this)
-        FormRequest::class -> FormRequestImpl.create(this)
-        FormField::class -> FormFieldImpl.create(this)
-        FormJsonInclude::class -> FormJsonIncludeImpl.create(this)
-        FormGroupRow::class -> FormGroupRowImpl.create(this)
-        FormGroup::class -> FormGroupImpl.create(this)
-        FormRow::class -> FormRowImpl.create(this)
+        FormTopLevelFile::class -> FormTopLevelFile.create(this)
+        FormRequest::class -> FormRequest.create(this)
+        FormField::class -> FormField.create(this)
+        FormJsonInclude::class -> FormJsonInclude.create(this)
+        FormGroupRow::class -> FormGroupRow.create(this)
+        FormGroup::class -> FormGroup.create(this)
+        FormRow::class -> FormRow.create(this)
         else -> null
 
     } as T?
@@ -71,7 +69,7 @@ fun <T : FormElement<JsonObject>> JsonProperty?.toFormArrayElement(
 
     fun tryCreateElement(requiredPropertyName: String): FormPropertyArrayElement<T>? {
         return if(requiredPropertyName == name)
-            FormPropertyArrayElementImpl(this, valueArray, contentsClass)
+            FormPropertyArrayElement(this, valueArray, contentsClass)
         else
             null
     }
