@@ -2,16 +2,12 @@ package com.solanteq.solar.plugin.element
 
 import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonObject
-import com.intellij.json.psi.JsonProperty
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiSubstitutor
 import com.intellij.psi.PsiType
-import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.TypeConversionUtil
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
-import com.solanteq.solar.plugin.reference.form.FormReference
-import org.jetbrains.kotlin.idea.base.util.allScope
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UField
 import org.jetbrains.uast.toUElementOfType
@@ -95,11 +91,13 @@ class FormField(
             return@lazy emptyList()
         }
 
+        val containingForm = containingFile.toFormElement<FormTopLevelFile>() ?: return@lazy emptyList()
+
         val propertyChain = mutableListOf<FieldProperty>()
-        var dataClasses: List<UClass> = if(dataClass != null) {
-            listOf(dataClass!!)
+        var dataClasses: List<UClass> = if(containingForm.dataClassFromSourceRequest != null) {
+            listOf(containingForm.dataClassFromSourceRequest!!)
         } else {
-            dataClassesFromInlineRequests
+            containingForm.dataClassesFromInlineRequests
         }
 
         stringPropertyChain.forEach { fieldName ->
@@ -121,58 +119,6 @@ class FormField(
         }
 
         return@lazy propertyChain.toList()
-    }
-
-    /**
-     * Data class from source request that this field uses
-     *
-     * TODO move to FormTopLevelFile and cache
-     */
-    val dataClass by lazy {
-        val sourceRequest = sourceRequest ?: return@lazy null
-        val method = sourceRequest.methodFromRequest ?: return@lazy null
-        val derivedClass = sourceRequest.serviceFromRequest?.javaPsi ?: return@lazy null
-        val superClass = method.containingClass ?: return@lazy null
-        val rawReturnType = method.returnType ?: return@lazy null
-        return@lazy substitutePsiType(
-            superClass,
-            derivedClass,
-            rawReturnType
-        )
-    }
-
-    private val sourceRequest by lazy {
-        val formTopLevelFile = containingFile.toFormElement<FormTopLevelFile>() ?: return@lazy null
-        return@lazy formTopLevelFile.sourceRequest
-    }
-
-    //TODO move to FormTopLevelFile and cache
-    private val inlineRequests: List<FormRequest> by lazy {
-        val containingFile = containingFile ?: return@lazy emptyList()
-        val references = ReferencesSearch.search(containingFile, project.allScope()).findAll()
-        val formPropertyValueElements = references.filterIsInstance<FormReference>().map { it.element }
-        val formInlineElements = formPropertyValueElements.mapNotNull {
-            val formProperty = it.parent as? JsonProperty ?: return@mapNotNull null
-            val inlineValueObject = formProperty.parent as? JsonObject ?: return@mapNotNull null
-            val inlineProperty = inlineValueObject.parent as? JsonProperty ?: return@mapNotNull null
-            return@mapNotNull inlineProperty.toFormElement<FormInline>()
-        }
-        return@lazy formInlineElements.mapNotNull { it.request }
-    }
-
-    private val dataClassesFromInlineRequests by lazy {
-        inlineRequests.mapNotNull {
-            val method = it.methodFromRequest ?: return@mapNotNull null
-            val derivedClass = it.serviceFromRequest?.javaPsi ?: return@mapNotNull null
-            val superClass = method.containingClass ?: return@mapNotNull null
-            val rawReturnListType = method.returnType as? PsiClassType ?: return@mapNotNull null
-            val rawReturnType = rawReturnListType.parameters.firstOrNull() ?: return@mapNotNull null
-            return@mapNotNull substitutePsiType(
-                superClass,
-                derivedClass,
-                rawReturnType
-            )
-        }
     }
 
     private fun findClassAndFieldByNameInClasses(uClasses: List<UClass>, fieldName: String): Pair<UClass?, UField?> {
