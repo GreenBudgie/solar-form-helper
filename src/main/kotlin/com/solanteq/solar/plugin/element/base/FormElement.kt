@@ -2,6 +2,7 @@ package com.solanteq.solar.plugin.element.base
 
 import com.intellij.json.psi.JsonArray
 import com.intellij.json.psi.JsonElement
+import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
 import com.solanteq.solar.plugin.element.toFormElement
@@ -31,6 +32,20 @@ import com.solanteq.solar.plugin.element.toFormElement
 abstract class FormElement<T : JsonElement> protected constructor(
     val sourceElement: T
 ) {
+
+    /**
+     * Project lazy value to only call it once for performance
+     */
+    protected val project by lazy {
+        sourceElement.project
+    }
+
+    /**
+     * Containing file lazy value to only call it once for performance
+     */
+    protected val containingFile by lazy {
+        sourceElement.containingFile?.originalFile as? JsonFile
+    }
 
     override fun equals(other: Any?): Boolean {
         if(other is FormElement<*>) return other.sourceElement == sourceElement

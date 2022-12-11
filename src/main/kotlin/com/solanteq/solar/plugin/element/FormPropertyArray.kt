@@ -1,9 +1,9 @@
-package com.solanteq.solar.plugin.element.base
+package com.solanteq.solar.plugin.element
 
 import com.intellij.json.psi.JsonArray
 import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
-import com.solanteq.solar.plugin.element.toFormElement
+import com.solanteq.solar.plugin.element.base.FormElement
 import kotlin.reflect.KClass
 
 /**
@@ -21,7 +21,7 @@ import kotlin.reflect.KClass
  * ]
  * ```
  */
-class FormPropertyArrayElement<T : FormElement<JsonObject>>(
+class FormPropertyArray<T : FormElement<JsonObject>>(
     sourceElement: JsonProperty,
     val valueArray: JsonArray,
     private val formObjectClass: KClass<out T>

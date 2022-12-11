@@ -1,8 +1,11 @@
 package com.solanteq.solar.plugin
 
 import com.intellij.psi.PsiFile
+import org.junit.Ignore
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
+@Disabled("L10n resolve is not implemented until I get an answer from JetBrains forum ._.")
 class L10nTest : FormTestBase() {
 
     override fun getTestDataSuffix() = "l10n"

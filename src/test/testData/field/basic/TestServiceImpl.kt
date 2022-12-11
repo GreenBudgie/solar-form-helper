@@ -9,4 +9,8 @@ class TestServiceImpl : TestService {
 
     override fun findDataWithNestedProperty(): DataClassWithNestedProperty
 
+    override fun findDataList(): List<DataClass>
+
+    override fun findDataClsList(): List<Cls>
+
 }

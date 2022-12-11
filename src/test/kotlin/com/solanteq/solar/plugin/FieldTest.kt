@@ -233,4 +233,205 @@ class FieldTest : FormTestBase() {
         assertReferencedElementName("stringField")
     }
 
+    @Test
+    fun `test field completion from multiple inline configurations`() {
+        fixture.configureByFiles(
+            "basic/Cls.kt",
+            "basic/SuperCls.java",
+            "basic/DataClass.kt",
+            "basic/TestService.kt",
+            "basic/TestServiceImpl.kt"
+        )
+
+        fixture.createForm("dataClass", """
+            {
+              "groups": [
+                {
+                  "inline": {
+                    "form": "test.testForm",
+                    "request": {
+                      "name": "test.testService.findDataList"
+                    }
+                  }
+                }
+              ]
+            }
+        """.trimIndent(), "abc1")
+
+        fixture.createForm("cls", """
+            {
+              "groups": [
+                {
+                  "inline": {
+                    "form": "test.testForm",
+                    "request": "test.testService.findDataClsList"
+                  }
+                }
+              ]
+            }
+        """.trimIndent(), "abc2")
+
+        fixture.createFormAndConfigure("testForm", """
+            {
+              "groups": [
+                {
+                  "rows": [
+                    {
+                      "fields": [
+                        {
+                          "name": "<caret>"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent(), "test")
+
+        assertCompletionsContainsExact(
+            "a", //From Cls
+            "superclassField", //From SuperCls
+            "stringField", //From DataClass
+            "longField", //From DataClass
+            "integerField" //From DataClass
+        )
+    }
+
+    @Test
+    fun `test field completion from generified list`() {
+        fixture.configureByFiles(
+            "basic/CustomService.kt",
+            "basic/CustomServiceImpl.kt",
+            "basic/GenericService.kt",
+            "basic/GenericServiceImpl.kt",
+            "basic/DataClass.kt"
+        )
+
+        fixture.createForm("dataClass", """
+            {
+              "groups": [
+                {
+                  "inline": {
+                    "form": "test.testForm",
+                    "request": "test.customService.findDataList"
+                  }
+                }
+              ]
+            }
+        """.trimIndent(), "abc")
+
+        fixture.createFormAndConfigure("testForm", """
+            {
+              "groups": [
+                {
+                  "rows": [
+                    {
+                      "fields": [
+                        {
+                          "name": "<caret>"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent(), "test")
+
+        assertCompletionsContainsExact(
+            "stringField",
+            "longField",
+            "integerField"
+        )
+    }
+
+    @Test
+    fun `test field reference from generified list`() {
+        fixture.configureByFiles(
+            "basic/CustomService.kt",
+            "basic/CustomServiceImpl.kt",
+            "basic/GenericService.kt",
+            "basic/GenericServiceImpl.kt",
+            "basic/DataClass.kt"
+        )
+
+        fixture.createForm("dataClass", """
+            {
+              "groups": [
+                {
+                  "inline": {
+                    "form": "test.testForm",
+                    "request": "test.customService.findDataList"
+                  }
+                }
+              ]
+            }
+        """.trimIndent(), "abc")
+
+        fixture.createFormAndConfigure("testForm", """
+            {
+              "groups": [
+                {
+                  "rows": [
+                    {
+                      "fields": [
+                        {
+                          "name": "<caret>stringField"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent(), "test")
+
+        assertReferencedElementName("stringField")
+    }
+
+    @Test
+    fun `test field reference from inline configuration`() {
+        fixture.configureByFiles(
+            "basic/DataClass.kt",
+            "basic/TestService.kt",
+            "basic/TestServiceImpl.kt"
+        )
+
+        fixture.createForm("dataClass", """
+            {
+              "groups": [
+                {
+                  "inline": {
+                    "form": "test.testForm",
+                    "request": {
+                      "name": "test.testService.findDataList"
+                    }
+                  }
+                }
+              ]
+            }
+        """.trimIndent(), "abc")
+
+        fixture.createFormAndConfigure("testForm", """
+            {
+              "groups": [
+                {
+                  "rows": [
+                    {
+                      "fields": [
+                        {
+                          "name": "<caret>stringField"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent(), "test")
+
+        assertReferencedElementName("stringField")
+    }
+
 }

@@ -7,4 +7,7 @@ interface GenericService<T : Any> {
     @Callable
     fun findById(): T
 
+    @Callable
+    fun findDataList(): List<T>
+
 }

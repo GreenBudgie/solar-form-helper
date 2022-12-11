@@ -4,4 +4,6 @@ abstract class GenericServiceImpl<T : Any> : GenericService<T> {
         error("")
     }
 
+    override fun findDataList(): List<T> {}
+
 }

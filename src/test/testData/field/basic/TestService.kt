@@ -13,4 +13,10 @@ interface TestService {
     @Callable
     fun findDataWithNestedProperty(): DataClassWithNestedProperty
 
+    @Callable
+    fun findDataList(): List<DataClass>
+
+    @Callable
+    fun findDataClsList(): List<Cls>
+
 }
