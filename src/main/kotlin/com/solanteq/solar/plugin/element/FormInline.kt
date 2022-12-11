@@ -31,9 +31,9 @@ class FormInline(
         formFile.toFormElement<FormTopLevelFile>()
     }
 
-    companion object {
+    companion object : FormElementCreator<FormInline> {
 
-        fun create(sourceElement: JsonElement): FormInline? {
+        override fun create(sourceElement: JsonElement): FormInline? {
             val jsonProperty = sourceElement as? JsonProperty ?: return null
             if(jsonProperty.name == "inline") {
                 val valueObject = jsonProperty.value as? JsonObject ?: return null

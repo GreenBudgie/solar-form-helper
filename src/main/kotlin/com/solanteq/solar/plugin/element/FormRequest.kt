@@ -204,9 +204,9 @@ class FormRequest(
 
     }
 
-    companion object {
+    companion object : FormElementCreator<FormRequest> {
 
-        fun create(sourceElement: JsonElement): FormRequest? {
+        override fun create(sourceElement: JsonElement): FormRequest? {
             val jsonProperty = sourceElement as? JsonProperty ?: return null
             if(jsonProperty.name in RequestType.requestLiterals) {
                 return FormRequest(jsonProperty)

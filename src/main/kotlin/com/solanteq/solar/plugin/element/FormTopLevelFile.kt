@@ -107,9 +107,9 @@ class FormTopLevelFile(
     private fun getRequestByType(type: FormRequest.RequestType): FormRequest? =
         topLevelObject.findProperty(type.requestLiteral).toFormElement()
 
-    companion object {
+    companion object : FormElementCreator<FormTopLevelFile> {
 
-        fun create(sourceElement: JsonElement): FormTopLevelFile? {
+        override fun create(sourceElement: JsonElement): FormTopLevelFile? {
             val jsonFile = sourceElement as? JsonFile ?: return null
             val topLevelObject = jsonFile.topLevelValue as? JsonObject ?: return null
             if(jsonFile.fileType == TopLevelFormFileType) {

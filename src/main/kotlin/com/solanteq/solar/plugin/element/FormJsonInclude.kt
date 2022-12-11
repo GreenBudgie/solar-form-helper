@@ -108,9 +108,9 @@ class FormJsonInclude(
 
     }
 
-    companion object {
+    companion object : FormElementCreator<FormJsonInclude> {
 
-        fun create(sourceElement: JsonElement): FormJsonInclude? {
+        override fun create(sourceElement: JsonElement): FormJsonInclude? {
             val stringLiteral = sourceElement as? JsonStringLiteral ?: return null
             val stringLiteralValue = stringLiteral.value
             val includeType = JsonIncludeType.values().find {

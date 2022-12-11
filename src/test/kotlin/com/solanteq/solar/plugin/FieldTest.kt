@@ -347,29 +347,6 @@ class FieldTest : FormTestBase() {
     }
 
     @Test
-    fun `test temp`() {
-        fixture.configureByFiles(
-            "basic/CustomService.kt",
-            "basic/CustomServiceImpl.kt",
-            "basic/GenericService.kt",
-            "basic/GenericServiceImpl.kt",
-            "basic/DataClass.kt"
-        )
-
-        fixture.configureByFormText("""
-            {
-              "request": "test.customService.<caret>"
-            }
-        """.trimIndent())
-
-        assertCompletionsContainsExact(
-            "stringField",
-            "longField",
-            "integerField"
-        )
-    }
-
-    @Test
     fun `test field reference from generified list`() {
         fixture.configureByFiles(
             "basic/CustomService.kt",
