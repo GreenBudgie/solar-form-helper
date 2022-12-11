@@ -102,9 +102,7 @@ class RequestTest : FormTestBase() {
     @ParameterizedTest
     @ValueSource(strings = [
         "<caret>",
-        "test.<caret>",
         "test.<caret>.",
-        "<caret>.callableMethod1",
         "test.<caret>.callableMethod1"
     ])
     fun `test service name completion`(request: String) {
