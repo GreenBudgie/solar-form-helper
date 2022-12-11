@@ -21,13 +21,12 @@ import com.solanteq.solar.plugin.element.toFormElement
  *
  * **Important note**: *form elements are mostly utility classes and data storage, not PSI elements themselves!*
  *
- * Form elements must not be stored inside any containers or in cache.
  * Most of its properties are lazy-initialized from source element.
  * As it does not inherit [JsonElement], [sourceElement] can become invalid at any time after creation
  * which can break how form element works. Try to only use form elements in-place.
  * If you need to update any information about the element, just reuse [toFormElement] method on json element.
  *
- * Every form element should have `create` method in companion object.
+ * Every form element must have [FormElementCreator] companion object.
  */
 abstract class FormElement<T : JsonElement> protected constructor(
     val sourceElement: T
@@ -68,6 +67,16 @@ abstract class FormElement<T : JsonElement> protected constructor(
             val fieldProperty = parentArray.parent as? JsonProperty ?: return false
             return fieldProperty.name == requiredArrayName
         }
+
+    }
+
+    /**
+     * An interface that companion object of this element must implement.
+     * It is used to create element from the factory using [toFormElement].
+     */
+    interface FormElementCreator<T : FormElement<*>> {
+
+        fun create(sourceElement: JsonElement): T?
 
     }
 

@@ -50,11 +50,11 @@ class FormGroup(
 
     }
 
-    companion object {
+    companion object : FormElementCreator<FormGroup> {
 
         const val ARRAY_NAME = "groups"
 
-        fun create(sourceElement: JsonElement): FormGroup? {
+        override fun create(sourceElement: JsonElement): FormGroup? {
             if(canBeCreatedAsArrayElement(sourceElement, ARRAY_NAME)) {
                 return FormGroup(sourceElement as JsonObject)
             }

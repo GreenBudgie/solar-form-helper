@@ -15,11 +15,11 @@ class FormRow(
         sourceElement.findProperty(FormField.ARRAY_NAME).toFormArrayElement<FormField>()
     }
 
-    companion object {
+    companion object : FormElementCreator<FormRow> {
 
         const val ARRAY_NAME = "rows"
 
-        fun create(sourceElement: JsonElement): FormRow? {
+        override fun create(sourceElement: JsonElement): FormRow? {
             if(canBeCreatedAsArrayElement(sourceElement, ARRAY_NAME)) {
                 return FormRow(sourceElement as JsonObject)
             }

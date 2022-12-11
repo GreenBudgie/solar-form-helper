@@ -4,8 +4,10 @@ import com.intellij.json.psi.JsonArray
 import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
+import com.intellij.psi.util.CachedValueProvider
+import com.intellij.psi.util.CachedValuesManager
+import com.intellij.psi.util.PsiModificationTracker
 import com.solanteq.solar.plugin.element.base.FormElement
-import com.solanteq.solar.plugin.util.isForm
 import kotlin.reflect.KClass
 
 /**
@@ -24,20 +26,16 @@ inline fun <reified T : FormElement<*>> JsonElement?.toFormElement() = toFormEle
 fun <T : FormElement<*>> JsonElement?.toFormElement(formElementClass: KClass<out T>): T? {
     this ?: return null
 
-    if(containingFile?.isForm() == false) {
-        return null
-    }
-
     return when(formElementClass) {
 
-        FormTopLevelFile::class -> FormTopLevelFile.create(this)
-        FormRequest::class -> FormRequest.create(this)
-        FormField::class -> FormField.create(this)
-        FormJsonInclude::class -> FormJsonInclude.create(this)
-        FormGroupRow::class -> FormGroupRow.create(this)
-        FormGroup::class -> FormGroup.create(this)
-        FormRow::class -> FormRow.create(this)
-        FormInline::class -> FormInline.create(this)
+        FormTopLevelFile::class -> createElement(FormTopLevelFile)
+        FormRequest::class -> createElement(FormRequest)
+        FormField::class -> createElement(FormField)
+        FormJsonInclude::class -> createElement(FormJsonInclude)
+        FormGroupRow::class -> createElement(FormGroupRow)
+        FormGroup::class -> createElement(FormGroup)
+        FormRow::class -> createElement(FormRow)
+        FormInline::class -> createElement(FormInline)
         else -> null
 
     } as T?
@@ -58,20 +56,23 @@ fun <T : FormElement<JsonObject>> JsonProperty?.toFormArrayElement(
 ): FormPropertyArray<T>? {
     this ?: return null
 
-    if(containingFile?.isForm() == false) {
-        return null
-    }
-
     val valueArray = value
     if(valueArray !is JsonArray)  {
         return null
     }
 
     fun tryCreateElement(requiredPropertyName: String): FormPropertyArray<T>? {
-        return if(requiredPropertyName == name)
-            FormPropertyArray(this, valueArray, contentsClass)
-        else
-            null
+        return CachedValuesManager.getCachedValue(this) {
+            val arrayElement = if(requiredPropertyName == name)
+                FormPropertyArray(this, valueArray, contentsClass)
+            else
+                null
+
+            CachedValueProvider.Result(
+                arrayElement,
+                PsiModificationTracker.MODIFICATION_COUNT
+            )
+        }
     }
 
     return when(contentsClass) {
@@ -82,5 +83,17 @@ fun <T : FormElement<JsonObject>> JsonProperty?.toFormArrayElement(
         FormField::class -> tryCreateElement(FormField.ARRAY_NAME)
         else -> null
 
+    }
+}
+
+/**
+ * A wrapper method that creates new form element with caching
+ */
+private fun JsonElement.createElement(creator: FormElement.FormElementCreator<*>): FormElement<*>? {
+    return CachedValuesManager.getCachedValue(this) {
+        CachedValueProvider.Result(
+            creator.create(this),
+            PsiModificationTracker.MODIFICATION_COUNT
+        )
     }
 }

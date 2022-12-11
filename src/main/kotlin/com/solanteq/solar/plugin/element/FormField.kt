@@ -214,11 +214,11 @@ class FormField(
         val referencedField: UField?
     )
 
-    companion object {
+    companion object : FormElementCreator<FormField> {
 
         const val ARRAY_NAME = "fields"
 
-        fun create(sourceElement: JsonElement): FormField? {
+        override fun create(sourceElement: JsonElement): FormField? {
             if(canBeCreatedAsArrayElement(sourceElement, ARRAY_NAME)) {
                 return FormField(sourceElement as JsonObject)
             }
