@@ -7,12 +7,12 @@ import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.json.psi.JsonElementVisitor
 import com.intellij.json.psi.JsonProperty
 import com.intellij.json.psi.JsonStringLiteral
+import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.project.Project
 import com.intellij.psi.ElementManipulators
 import com.solanteq.solar.plugin.file.TopLevelFormFileType
 import com.solanteq.solar.plugin.util.isAtTopLevelObject
 import com.solanteq.solar.plugin.util.textRangeWithoutQuotes
-import org.jetbrains.kotlin.idea.util.application.runWriteAction
 
 class InvalidFormNameDeclarationInspection : FormInspection() {
 
@@ -33,7 +33,7 @@ class InvalidFormNameDeclarationInspection : FormInspection() {
 
             holder.registerProblem(
                 propertyValue,
-                "Declared form name form file name are not the same",
+                "Declared form name and form file name are not the same",
                 ProblemHighlightType.ERROR,
                 propertyValue.textRangeWithoutQuotes,
                 RenameFormNameDeclarationFix(formFileName)

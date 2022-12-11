@@ -13,14 +13,20 @@ class FieldReference(
 ) : PsiReferenceBase<JsonStringLiteral>(element, textRange) {
 
     override fun getVariants(): Array<out Any> {
-        val fields = fieldProperty.containingClass?.javaPsi?.allFields ?: return emptyArray()
-        return fields.map {
-            LookupElementBuilder
-                .create(it.name)
-                .withIcon(it.getIcon(0))
-                .withTailText(": TODO")
-                .withTypeText("TODO!")
-        }.toTypedArray()
+        val applicableClasses = fieldProperty.applicableClasses
+        val fields = applicableClasses.flatMap { it.javaPsi.allFields.toList() }
+        return fields
+            .distinct()
+            .map { field ->
+                var lookup = LookupElementBuilder
+                    .create(field.name)
+                    .withIcon(field.getIcon(0))
+                    .withTypeText(field.type.presentableText)
+                field.containingClass?.let {
+                    lookup = lookup.withTailText(" in ${it.name}")
+                }
+                return@map lookup
+            }.toTypedArray()
     }
 
     override fun resolve() = fieldProperty.referencedField?.sourcePsi

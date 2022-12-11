@@ -5,7 +5,6 @@ import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
 import com.solanteq.solar.plugin.element.base.FormElement
-import com.solanteq.solar.plugin.element.base.FormPropertyArrayElement
 import com.solanteq.solar.plugin.util.isForm
 import kotlin.reflect.KClass
 
@@ -38,6 +37,7 @@ fun <T : FormElement<*>> JsonElement?.toFormElement(formElementClass: KClass<out
         FormGroupRow::class -> FormGroupRow.create(this)
         FormGroup::class -> FormGroup.create(this)
         FormRow::class -> FormRow.create(this)
+        FormInline::class -> FormInline.create(this)
         else -> null
 
     } as T?
@@ -55,7 +55,7 @@ inline fun <reified T : FormElement<JsonObject>> JsonProperty?.toFormArrayElemen
  */
 fun <T : FormElement<JsonObject>> JsonProperty?.toFormArrayElement(
     contentsClass: KClass<out T>
-): FormPropertyArrayElement<T>? {
+): FormPropertyArray<T>? {
     this ?: return null
 
     if(containingFile?.isForm() == false) {
@@ -67,9 +67,9 @@ fun <T : FormElement<JsonObject>> JsonProperty?.toFormArrayElement(
         return null
     }
 
-    fun tryCreateElement(requiredPropertyName: String): FormPropertyArrayElement<T>? {
+    fun tryCreateElement(requiredPropertyName: String): FormPropertyArray<T>? {
         return if(requiredPropertyName == name)
-            FormPropertyArrayElement(this, valueArray, contentsClass)
+            FormPropertyArray(this, valueArray, contentsClass)
         else
             null
     }

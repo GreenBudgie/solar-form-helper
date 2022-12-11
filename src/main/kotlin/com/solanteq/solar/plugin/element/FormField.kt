@@ -1,14 +1,17 @@
 package com.solanteq.solar.plugin.element
 
 import com.intellij.json.psi.JsonElement
-import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonObject
+import com.intellij.json.psi.JsonProperty
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiSubstitutor
 import com.intellij.psi.PsiType
+import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.TypeConversionUtil
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
+import com.solanteq.solar.plugin.reference.form.FormReference
+import org.jetbrains.kotlin.idea.base.util.allScope
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UField
 import org.jetbrains.uast.toUElementOfType
@@ -39,8 +42,6 @@ import org.jetbrains.uast.toUElementOfType
  *   }
  * ]
  * ```
- *
- * TODO: for now, only fields in forms with "source" requests are supported
  */
 class FormField(
     sourceElement: JsonObject
@@ -95,23 +96,28 @@ class FormField(
         }
 
         val propertyChain = mutableListOf<FieldProperty>()
-        var currentDataClass = dataClass
+        var dataClasses: List<UClass> = if(dataClass != null) {
+            listOf(dataClass!!)
+        } else {
+            dataClassesFromInlineRequests
+        }
 
         stringPropertyChain.forEach { fieldName ->
-            if(currentDataClass == null) {
-                propertyChain += FieldProperty(fieldName, null, null)
+            if(dataClasses.isEmpty()) {
+                propertyChain += FieldProperty(fieldName, emptyList(), null, null)
                 return@forEach
             }
 
-            val field = findFieldByNameInClass(currentDataClass!!, fieldName)
+            val (containingClass, field) = findClassAndFieldByNameInClasses(dataClasses, fieldName)
             if(field == null) {
-                propertyChain += FieldProperty(fieldName, currentDataClass, null)
+                propertyChain += FieldProperty(fieldName, dataClasses, containingClass, null)
                 return@forEach
             }
 
-            propertyChain += FieldProperty(fieldName, currentDataClass, field)
+            propertyChain += FieldProperty(fieldName, dataClasses, containingClass, field)
 
-            currentDataClass = psiTypeAsUClassOrNull(field.type)
+            val nextDataClass = psiTypeAsUClassOrNull(field.type)
+            dataClasses = if(nextDataClass != null) listOf(nextDataClass) else emptyList()
         }
 
         return@lazy propertyChain.toList()
@@ -119,6 +125,8 @@ class FormField(
 
     /**
      * Data class from source request that this field uses
+     *
+     * TODO move to FormTopLevelFile and cache
      */
     val dataClass by lazy {
         val sourceRequest = sourceRequest ?: return@lazy null
@@ -133,14 +141,48 @@ class FormField(
         )
     }
 
-    val sourceRequest by lazy {
-        val jsonFile = sourceElement.containingFile as? JsonFile ?: return@lazy null
-        val formTopLevelFile = jsonFile.toFormElement<FormTopLevelFile>() ?: return@lazy null
+    private val sourceRequest by lazy {
+        val formTopLevelFile = containingFile.toFormElement<FormTopLevelFile>() ?: return@lazy null
         return@lazy formTopLevelFile.sourceRequest
     }
 
-    private fun findFieldByNameInClass(uClass: UClass, fieldName: String): UField? =
-        uClass.javaPsi.allFields.find { it.name == fieldName }.toUElementOfType()
+    //TODO move to FormTopLevelFile and cache
+    private val inlineRequests: List<FormRequest> by lazy {
+        val containingFile = containingFile ?: return@lazy emptyList()
+        val references = ReferencesSearch.search(containingFile, project.allScope()).findAll()
+        val formPropertyValueElements = references.filterIsInstance<FormReference>().map { it.element }
+        val formInlineElements = formPropertyValueElements.mapNotNull {
+            val formProperty = it.parent as? JsonProperty ?: return@mapNotNull null
+            val inlineValueObject = formProperty.parent as? JsonObject ?: return@mapNotNull null
+            val inlineProperty = inlineValueObject.parent as? JsonProperty ?: return@mapNotNull null
+            return@mapNotNull inlineProperty.toFormElement<FormInline>()
+        }
+        return@lazy formInlineElements.mapNotNull { it.request }
+    }
+
+    private val dataClassesFromInlineRequests by lazy {
+        inlineRequests.mapNotNull {
+            val method = it.methodFromRequest ?: return@mapNotNull null
+            val derivedClass = it.serviceFromRequest?.javaPsi ?: return@mapNotNull null
+            val superClass = method.containingClass ?: return@mapNotNull null
+            val rawReturnListType = method.returnType as? PsiClassType ?: return@mapNotNull null
+            val rawReturnType = rawReturnListType.parameters.firstOrNull() ?: return@mapNotNull null
+            return@mapNotNull substitutePsiType(
+                superClass,
+                derivedClass,
+                rawReturnType
+            )
+        }
+    }
+
+    private fun findClassAndFieldByNameInClasses(uClasses: List<UClass>, fieldName: String): Pair<UClass?, UField?> {
+        uClasses.forEach { uClass ->
+            uClass.javaPsi.allFields
+                .find { it.name == fieldName }
+                ?.let { return uClass to it.toUElementOfType() }
+        }
+        return null to null
+    }
 
     private fun substitutePsiType(superClass: PsiClass, derivedClass: PsiClass, psiType: PsiType): UClass? {
         val substitutedReturnType = TypeConversionUtil.getClassSubstitutor(
@@ -160,11 +202,14 @@ class FormField(
     /**
      * @property name represents a name of this property.
      * Never null, but might be referencing to non-existing field.
+     * @property applicableClasses List of classes from inline requests,
+     * or a single class directly from source request
      * @property containingClass Data class containing this field
      * @property referencedField Real psi element resolved from [name] property
      */
     data class FieldProperty(
         val name: String,
+        val applicableClasses: List<UClass>,
         val containingClass: UClass?,
         val referencedField: UField?
     )

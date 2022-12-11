@@ -64,7 +64,7 @@ class FormJsonInclude(
 
     val referencedFormFile by lazy {
         val formName = formNameWithExtension ?: return@lazy null
-        val includedForms = findIncludedForms(sourceElement.project)
+        val includedForms = findIncludedForms(project)
         val applicableFormsByName = includedForms.filter {
             it.name == formName
         }

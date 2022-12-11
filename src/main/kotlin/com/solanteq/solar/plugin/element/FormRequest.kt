@@ -129,9 +129,9 @@ class FormRequest(
 
         val groupDotServiceName = "${requestData.groupName}.${requestData.serviceName}"
 
-        val applicableServiceClasses = PsiShortNamesCache.getInstance(sourceElement.project).getClassesByName(
+        val applicableServiceClasses = PsiShortNamesCache.getInstance(project).getClassesByName(
             exactServiceName,
-            sourceElement.project.allScope()
+            project.allScope()
         )
 
         if(applicableServiceClasses.isNotEmpty()) {
@@ -152,7 +152,7 @@ class FormRequest(
 
         val groupDotServiceName = "${requestData.groupName}.${requestData.serviceName}"
 
-        val allServices = findAllCallableServicesImpl(sourceElement.project).toTypedArray()
+        val allServices = findAllCallableServicesImpl(project).toTypedArray()
 
         return findApplicableService(allServices, groupDotServiceName)
     }
