@@ -3,9 +3,20 @@ package com.solanteq.solar.plugin.element
 import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonObject
+import com.intellij.json.psi.JsonProperty
+import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiClassType
+import com.intellij.psi.PsiSubstitutor
+import com.intellij.psi.PsiType
+import com.intellij.psi.search.searches.ReferencesSearch
+import com.intellij.psi.util.TypeConversionUtil
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.file.TopLevelFormFileType
+import com.solanteq.solar.plugin.reference.form.FormReference
 import com.solanteq.solar.plugin.util.valueAsString
+import org.jetbrains.kotlin.idea.base.util.allScope
+import org.jetbrains.uast.UClass
+import org.jetbrains.uast.toUElementOfType
 
 /**
  * Represents a top level form file.
@@ -15,6 +26,7 @@ import com.solanteq.solar.plugin.util.valueAsString
  * - List (programList.json)
  * - Many (programs.json)
  * - Lookup (programLookup.json)
+ * - Inline list (programInlineList.json)
  * - etc.
  *
  * However, there is a catch: you can always create a form with a completely different purpose.
@@ -100,6 +112,66 @@ class FormTopLevelFile(
     val saveRequest by lazy { getRequestByType(FormRequest.RequestType.SAVE) }
     val removeRequest by lazy { getRequestByType(FormRequest.RequestType.REMOVE) }
     val createSourceRequest by lazy { getRequestByType(FormRequest.RequestType.CREATE_SOURCE) }
+
+    /**
+     * Data class from source request that this field uses
+     */
+    val dataClassFromSourceRequest by lazy {
+        val sourceRequest = sourceRequest ?: return@lazy null
+        val method = sourceRequest.methodFromRequest ?: return@lazy null
+        val derivedClass = sourceRequest.serviceFromRequest?.javaPsi ?: return@lazy null
+        val superClass = method.containingClass ?: return@lazy null
+        val rawReturnType = method.returnType ?: return@lazy null
+        return@lazy substitutePsiType(
+            superClass,
+            derivedClass,
+            rawReturnType
+        )
+    }
+
+    /**
+     * All requests from inline elements that reference this form
+     */
+    val inlineRequests: List<FormRequest> by lazy {
+        val containingFile = containingFile ?: return@lazy emptyList()
+        val references = ReferencesSearch.search(containingFile, project.allScope()).findAll()
+        val formPropertyValueElements = references.filterIsInstance<FormReference>().map { it.element }
+        val formInlineElements = formPropertyValueElements.mapNotNull {
+            val formProperty = it.parent as? JsonProperty ?: return@mapNotNull null
+            val inlineValueObject = formProperty.parent as? JsonObject ?: return@mapNotNull null
+            val inlineProperty = inlineValueObject.parent as? JsonProperty ?: return@mapNotNull null
+            return@mapNotNull inlineProperty.toFormElement<FormInline>()
+        }
+        return@lazy formInlineElements.mapNotNull { it.request }
+    }
+
+    /**
+     * All data classes from inline elements that reference this form
+     */
+    val dataClassesFromInlineRequests by lazy {
+        inlineRequests.mapNotNull {
+            val method = it.methodFromRequest ?: return@mapNotNull null
+            val derivedClass = it.serviceFromRequest?.javaPsi ?: return@mapNotNull null
+            val superClass = method.containingClass ?: return@mapNotNull null
+            val rawReturnListType = method.returnType as? PsiClassType ?: return@mapNotNull null
+            val rawReturnType = rawReturnListType.parameters.firstOrNull() ?: return@mapNotNull null
+            return@mapNotNull substitutePsiType(
+                superClass,
+                derivedClass,
+                rawReturnType
+            )
+        }
+    }
+
+    private fun substitutePsiType(superClass: PsiClass, derivedClass: PsiClass, psiType: PsiType): UClass? {
+        val substitutedReturnType = TypeConversionUtil.getClassSubstitutor(
+            superClass,
+            derivedClass,
+            PsiSubstitutor.EMPTY
+        )?.substitute(psiType)
+        val classReturnType = substitutedReturnType as? PsiClassType ?: return null
+        return classReturnType.resolve().toUElementOfType()
+    }
 
     /**
      * Gets the request by its type, or null if such request isn't present
