@@ -10,7 +10,7 @@ import org.jetbrains.uast.evaluateString
 fun UMethod.isCallableMethod() = javaPsi.isCallableMethod()
 
 fun PsiMethod.isCallableMethod() =
-    (findSuperMethods() + arrayOf(this)).any {
+    (findSuperMethods() + this).any {
         it.hasAnnotation(CALLABLE_ANNOTATION_FQ_NAME)
     }
 

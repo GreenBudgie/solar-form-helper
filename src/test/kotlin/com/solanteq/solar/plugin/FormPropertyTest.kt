@@ -70,4 +70,21 @@ class FormPropertyTest : FormTestBase() {
         )
     }
 
+    @Test
+    fun `test form rename`() {
+        fixture.createForm(
+            "testForm",
+            "{}",
+            "test"
+        )
+
+        fixture.configureByFormText("""
+            {
+              "form": "test.testForm<caret>"
+            }
+        """.trimIndent())
+
+        testJsonStringLiteralRename("testForm2.json", "test.testForm2")
+    }
+
 }
