@@ -42,6 +42,6 @@ fun JsonProperty?.valueAsString(): String? {
 val JsonStringLiteral.textRangeWithoutQuotes: TextRange
     get() {
         val value = value
-        if(value.length < 2) return TextRange.EMPTY_RANGE
+        if(value.isEmpty()) return TextRange.EMPTY_RANGE
         return TextRange.from(1, value.length)
     }

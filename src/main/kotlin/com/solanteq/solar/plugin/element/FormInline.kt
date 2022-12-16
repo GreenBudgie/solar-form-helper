@@ -5,8 +5,9 @@ import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
-import com.solanteq.solar.plugin.util.findFormByFullName
+import com.solanteq.solar.plugin.search.FormSearch
 import com.solanteq.solar.plugin.util.valueAsString
+import org.jetbrains.kotlin.idea.base.util.allScope
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 
 /**
@@ -24,7 +25,7 @@ class FormInline(
     val formFile by lazy {
         val formProperty = valueObject.findProperty("form") ?: return@lazy null
         val stringValue = formProperty.valueAsString() ?: return@lazy null
-        return@lazy findFormByFullName(project, stringValue)?.toPsiFile(project) as? JsonFile
+        return@lazy FormSearch.findFormBySolarName(stringValue, project.allScope())?.toPsiFile(project) as? JsonFile
     }
 
     val formElement by lazy {

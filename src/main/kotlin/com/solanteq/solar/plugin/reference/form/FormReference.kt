@@ -5,10 +5,11 @@ import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiReferenceBase
-import com.solanteq.solar.plugin.asset.Assets
-import com.solanteq.solar.plugin.util.findTopLevelForms
+import com.solanteq.solar.plugin.asset.Icons
+import com.solanteq.solar.plugin.search.FormSearch
 import com.solanteq.solar.plugin.util.getFormModule
 import com.solanteq.solar.plugin.util.getFormSolarName
+import org.jetbrains.kotlin.idea.base.util.allScope
 
 class FormReference(
     element: JsonStringLiteral,
@@ -20,17 +21,20 @@ class FormReference(
             ?: return super.handleElementRename(newElementName)
         if(!newElementName.endsWith(".json")) return super.handleElementRename(newElementName)
         val nameWithoutExtension = newElementName.dropLast(5)
-        return super.handleElementRename(
-            "$referencedFormModule.$nameWithoutExtension"
-        )
+        return super.handleElementRename("$referencedFormModule.$nameWithoutExtension")
     }
 
-    override fun getVariants() =
-        findTopLevelForms(element.project).map {
-            LookupElementBuilder
-                .create(it.getFormSolarName())
-                .withIcon(Assets.TOP_LEVEL_FORM_ICON)
-        }.toTypedArray()
+    override fun getVariants(): Array<Any> {
+        val currentFile = element.containingFile.originalFile.virtualFile
+        return FormSearch.findTopLevelForms(element.project.allScope())
+            .filter {
+                it != currentFile
+            }.map {
+                LookupElementBuilder
+                    .create(it.getFormSolarName())
+                    .withIcon(Icons.TOP_LEVEL_FORM_ICON)
+            }.toTypedArray()
+    }
 
     override fun resolve() = referencedForm
 

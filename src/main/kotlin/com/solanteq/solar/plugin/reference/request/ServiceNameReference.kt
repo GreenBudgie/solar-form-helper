@@ -10,7 +10,7 @@ import com.intellij.psi.util.CachedValue
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
 import com.solanteq.solar.plugin.element.FormRequest
-import com.solanteq.solar.plugin.util.findAllCallableServicesImpl
+import com.solanteq.solar.plugin.search.CallableServiceSearch
 import com.solanteq.solar.plugin.util.serviceSolarName
 import com.solanteq.solar.plugin.util.uastModificationTracker
 import org.jetbrains.uast.UClass
@@ -35,7 +35,7 @@ class ServiceNameReference(
             project,
             callableServiceLookupsKey,
             {
-                val lookups = findAllCallableServicesImpl(project).mapNotNull {
+                val lookups = CallableServiceSearch.findAllCallableServicesImpl(project).mapNotNull {
                     val solarName = it.serviceSolarName ?: return@mapNotNull null
                     LookupElementBuilder
                         .create(solarName)

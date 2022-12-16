@@ -7,9 +7,9 @@ import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.PsiShortNamesCache
 import com.solanteq.solar.plugin.element.base.FormElement
+import com.solanteq.solar.plugin.search.CallableServiceSearch
 import com.solanteq.solar.plugin.util.SERVICE_ANNOTATION_FQ_NAME
 import com.solanteq.solar.plugin.util.evaluateToString
-import com.solanteq.solar.plugin.util.findAllCallableServicesImpl
 import org.jetbrains.kotlin.idea.base.util.allScope
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UMethod
@@ -152,7 +152,7 @@ class FormRequest(
 
         val groupDotServiceName = "${requestData.groupName}.${requestData.serviceName}"
 
-        val allServices = findAllCallableServicesImpl(project).toTypedArray()
+        val allServices = CallableServiceSearch.findAllCallableServicesImpl(project).toTypedArray()
 
         return findApplicableService(allServices, groupDotServiceName)
     }

@@ -4,12 +4,32 @@ import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.util.TextRange
 import com.solanteq.solar.plugin.element.FormTopLevelFile
+import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.element.toFormElement
-import com.solanteq.solar.plugin.util.findFormByModuleAndName
+import com.solanteq.solar.plugin.search.FormSearch
 import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 
 /**
+ * Represents a localization string in a l10n file for top-level form.
+ *
+ * L10n string property is considered a form localization if it starts with `<module_name>.form.<form_name>`.
+ * This property is broken into separate "tokens", forming a chain of tokens.
+ * Each chain token, starting after `form` token, will try to resolve to [FormLocalizableElement.sourceElement].
+ *
+ * In this example, we have three l10n chains, each corresponding to the specific top-level form element.
+ * ```
+ * {
+ *   "test.form.testForm": "Form l10n!",
+ *   "test.form.testForm.details": "Group l10n!",
+ *   "test.form.testForm.details.name": "Field l10n!"
+ * }
+ * ```
+ * Notice the number of references in this l10n file:
+ * - 3 references to `test.testForm` form file
+ * - 2 references to `details` group in `test.testForm` file
+ * - 1 reference to `name` field in `details` group
+ *
  * TODO for now, only supports form -> group -> field l10ns
  */
 class FormL10nChain(
@@ -21,10 +41,9 @@ class FormL10nChain(
 
     private val project = element.project
 
-    val referencedForm by lazy {
+    val referencedFormVirtualFile by lazy {
         if(chain.isEmpty()) return@lazy null
-        return@lazy findFormByModuleAndName(
-            project,
+        return@lazy FormSearch.findFormByModuleAndName(
             module,
             chain[formNameChainIndex],
             project.projectScope()
@@ -32,7 +51,7 @@ class FormL10nChain(
     }
 
     val referencedFormPsiFile by lazy {
-        referencedForm?.toPsiFile(project) as? JsonFile
+        referencedFormVirtualFile?.toPsiFile(project) as? JsonFile
     }
 
     val referencedFormTopLevelFileElement by lazy {
