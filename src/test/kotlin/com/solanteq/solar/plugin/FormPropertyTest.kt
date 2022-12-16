@@ -56,12 +56,11 @@ class FormPropertyTest : FormTestBase() {
             "{}"
         )
 
-        fixture.configureByFormText("""
+        fixture.createFormAndConfigure("testForm", """
             {
               "form": "<caret>"
             }
-        """.trimIndent()
-        )
+        """.trimIndent(), "test")
 
         assertCompletionsContainsExact(
             "testFormNoGroup",

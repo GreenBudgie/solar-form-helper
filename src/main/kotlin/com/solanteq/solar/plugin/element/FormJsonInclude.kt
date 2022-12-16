@@ -3,7 +3,8 @@ package com.solanteq.solar.plugin.element
 import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonStringLiteral
 import com.solanteq.solar.plugin.element.base.FormElement
-import com.solanteq.solar.plugin.util.findIncludedForms
+import com.solanteq.solar.plugin.search.FormSearch
+import org.jetbrains.kotlin.idea.base.util.allScope
 
 /**
  * `JSON include` is a SOLAR platform specific feature that allows you to extract JSON objects and arrays
@@ -64,7 +65,7 @@ class FormJsonInclude(
 
     val referencedFormFile by lazy {
         val formName = formNameWithExtension ?: return@lazy null
-        val includedForms = findIncludedForms(project)
+        val includedForms = FormSearch.findIncludedForms(project.allScope())
         val applicableFormsByName = includedForms.filter {
             it.name == formName
         }

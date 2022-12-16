@@ -4,9 +4,10 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiReferenceBase
-import com.solanteq.solar.plugin.asset.Assets
+import com.solanteq.solar.plugin.asset.Icons
 import com.solanteq.solar.plugin.element.FormJsonInclude
-import com.solanteq.solar.plugin.util.findIncludedForms
+import com.solanteq.solar.plugin.search.FormSearch
+import org.jetbrains.kotlin.idea.base.util.allScope
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 
 class JsonIncludeFormReference(
@@ -17,7 +18,7 @@ class JsonIncludeFormReference(
 
     override fun getVariants(): Array<LookupElementBuilder> {
         val path = jsonIncludeElement.pathWithoutFormName ?: return emptyArray()
-        return findIncludedForms(element.project)
+        return FormSearch.findIncludedForms(element.project.allScope())
             .filter {
                 it.path
                     .substring(0, it.path.length - it.name.length - 1)
@@ -26,7 +27,7 @@ class JsonIncludeFormReference(
             .map {
                 LookupElementBuilder
                     .create(it.name)
-                    .withIcon(Assets.INCLUDED_FORM_ICON)
+                    .withIcon(Icons.INCLUDED_FORM_ICON)
             }.toTypedArray()
     }
 

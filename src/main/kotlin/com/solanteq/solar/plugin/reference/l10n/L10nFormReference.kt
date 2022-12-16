@@ -5,8 +5,9 @@ import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import com.solanteq.solar.plugin.asset.Assets
-import com.solanteq.solar.plugin.util.findTopLevelForms
+import com.solanteq.solar.plugin.asset.Icons
+import com.solanteq.solar.plugin.search.FormSearch
+import org.jetbrains.kotlin.idea.base.util.projectScope
 
 class L10nFormReference(
     element: JsonStringLiteral,
@@ -21,11 +22,11 @@ class L10nFormReference(
     }
 
     override fun getVariants(): Array<Any> {
-        return findTopLevelForms(element.project, true)
+        return FormSearch.findTopLevelForms(element.project.projectScope())
             .map {
                 LookupElementBuilder
                     .create(it.nameWithoutExtension)
-                    .withIcon(Assets.TOP_LEVEL_FORM_ICON)
+                    .withIcon(Icons.TOP_LEVEL_FORM_ICON)
             }.toTypedArray()
     }
 
