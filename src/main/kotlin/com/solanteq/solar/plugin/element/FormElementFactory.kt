@@ -29,6 +29,7 @@ fun <T : FormElement<*>> JsonElement?.toFormElement(formElementClass: KClass<out
     return when(formElementClass) {
 
         FormTopLevelFile::class -> createElement(FormTopLevelFile)
+        FormIncludedFile::class -> createElement(FormIncludedFile)
         FormRequest::class -> createElement(FormRequest)
         FormField::class -> createElement(FormField)
         FormJsonInclude::class -> createElement(FormJsonInclude)

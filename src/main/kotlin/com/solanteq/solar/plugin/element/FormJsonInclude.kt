@@ -12,7 +12,7 @@ import org.jetbrains.kotlin.idea.base.util.allScope
  *
  * JSON include can be placed in a property value or in an array.
  *
- * *Complaints!! :( *
+ * **Complaints!! :(**
  *
  * This feature makes plugin development significantly more complicated as any piece of JSON can be extracted
  * into separate file, which can also be separated into many other JSON files, and so on.
