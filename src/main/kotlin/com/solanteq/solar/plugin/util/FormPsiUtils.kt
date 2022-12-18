@@ -42,7 +42,7 @@ object FormPsiUtils {
      * - Ignores the top-level array element
      */
     fun <T : JsonElement> firstParentsOfType(element: JsonElement, parentClass: KClass<T>): List<T> {
-        val containingJsonFile = element.containingFile?.originalFile as? JsonFile ?: return emptyList()
+        val containingJsonFile = element.containingFile as? JsonFile ?: return emptyList()
         val isTopLevelForm = containingJsonFile.fileType == TopLevelFormFileType
 
         val firstParentInThisFile = element.parentOfTypes(parentClass)
@@ -93,7 +93,7 @@ object FormPsiUtils {
      * - Ignores the top-level array element
      */
     fun parents(element: JsonElement): List<JsonElement> {
-        val containingJsonFile = element.containingFile?.originalFile as? JsonFile ?: return emptyList()
+        val containingJsonFile = element.containingFile as? JsonFile ?: return emptyList()
         val topLevelValue = containingJsonFile.topLevelValue
         val isTopLevelForm = containingJsonFile.fileType == TopLevelFormFileType
 
