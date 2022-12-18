@@ -3,6 +3,7 @@ package com.solanteq.solar.plugin.element
 import com.intellij.json.psi.JsonArray
 import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
+import com.intellij.json.psi.JsonValue
 import com.solanteq.solar.plugin.element.base.FormElement
 import kotlin.reflect.KClass
 
@@ -30,11 +31,9 @@ class FormPropertyArray<T : FormElement<JsonObject>>(
     /**
      * Contents of this array represented as form object elements that this array stores.
      * It only returns valid form elements that can be resolved via [toFormElement].
-     *
-     * TODO also resolve json include
      */
     val contents by lazy {
-        valueArray.valueList.mapNotNull { it.toFormElement(formObjectClass) }
+        valueArray.valueList.flatMap { resolveValueToFormElements(it) }
     }
 
     override val size: Int
@@ -59,5 +58,26 @@ class FormPropertyArray<T : FormElement<JsonObject>>(
     override fun containsAll(elements: Collection<T>) = contents.containsAll(elements)
 
     override fun contains(element: T) = contents.contains(element)
+
+    private fun resolveValueToFormElements(value: JsonValue): List<T> {
+        val jsonInclude = value.toFormElement<FormJsonInclude>()
+        if(jsonInclude == null) {
+            val resolvedElement = value.toFormElement(formObjectClass) ?: return emptyList()
+            return listOf(resolvedElement)
+        }
+
+        val referencedForm = jsonInclude.referencedFormPsiFile ?: return emptyList()
+        val topLevelValue = referencedForm.topLevelValue
+        if(jsonInclude.type.isFlat) {
+            if(topLevelValue !is JsonArray) return emptyList()
+            val resolvedElements = topLevelValue.valueList.flatMap {
+                resolveValueToFormElements(it)
+            }
+            return resolvedElements
+        }
+
+        val resolvedElement = topLevelValue.toFormElement(formObjectClass) ?: return emptyList()
+        return listOf(resolvedElement)
+    }
 
 }

@@ -1,10 +1,14 @@
 package com.solanteq.solar.plugin.element
 
 import com.intellij.json.psi.JsonElement
+import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonStringLiteral
+import com.intellij.openapi.util.Key
+import com.intellij.psi.util.CachedValue
 import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.search.FormSearch
 import org.jetbrains.kotlin.idea.base.util.allScope
+import org.jetbrains.kotlin.idea.core.util.toPsiFile
 
 /**
  * `JSON include` is a SOLAR platform specific feature that allows you to extract JSON objects and arrays
@@ -63,7 +67,7 @@ class FormJsonInclude(
         return@lazy path.substring(lastSeparatorIndex + 1)
     }
 
-    val referencedFormFile by lazy {
+    val referencedFormVirtualFile by lazy {
         val formName = formNameWithExtension ?: return@lazy null
         val includedForms = FormSearch.findIncludedForms(project.allScope())
         val applicableFormsByName = includedForms.filter {
@@ -83,6 +87,14 @@ class FormJsonInclude(
         }
     }
 
+    val referencedFormPsiFile by lazy {
+        referencedFormVirtualFile?.toPsiFile(project) as? JsonFile
+    }
+
+    val referencedForm by lazy {
+        referencedFormPsiFile.toFormElement<FormIncludedFile>()
+    }
+
     /**
      * A chain of parent directories (reversed) after "json://" ("json-flat://") prefix represented as an array
      *
@@ -99,17 +111,20 @@ class FormJsonInclude(
 
     enum class JsonIncludeType(
         val prefix: String,
+        val isFlat: Boolean,
         val isOptional: Boolean
     ) {
 
-        JSON("json://", false),
-        JSON_OPTIONAL("json?://", true),
-        JSON_FLAT("json-flat://", false),
-        JSON_FLAT_OPTIONAL("json-flat?://", true)
+        JSON("json://", false, false),
+        JSON_OPTIONAL("json?://", false , true),
+        JSON_FLAT("json-flat://", true, false),
+        JSON_FLAT_OPTIONAL("json-flat?://", true, true)
 
     }
 
     companion object : FormElementCreator<FormJsonInclude> {
+
+        override val key = Key<CachedValue<FormJsonInclude>>("solar.element.jsonInclude")
 
         override fun create(sourceElement: JsonElement): FormJsonInclude? {
             val stringLiteral = sourceElement as? JsonStringLiteral ?: return null

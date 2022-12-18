@@ -8,7 +8,6 @@ import com.solanteq.solar.plugin.asset.Icons
 import com.solanteq.solar.plugin.element.FormJsonInclude
 import com.solanteq.solar.plugin.search.FormSearch
 import org.jetbrains.kotlin.idea.base.util.allScope
-import org.jetbrains.kotlin.idea.core.util.toPsiFile
 
 class JsonIncludeFormReference(
     element: JsonStringLiteral,
@@ -31,6 +30,6 @@ class JsonIncludeFormReference(
             }.toTypedArray()
     }
 
-    override fun resolve() = jsonIncludeElement.referencedFormFile?.toPsiFile(element.project)
+    override fun resolve() = jsonIncludeElement.referencedFormPsiFile
 
 }

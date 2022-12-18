@@ -26,7 +26,9 @@ class FormReferenceContributor : PsiReferenceContributor() {
         )
 
         registrar.registerReferenceProvider(
-            inForm<JsonStringLiteral>().isPropertyValueWithKey("form", "parentForm"),
+            inForm<JsonStringLiteral>().isPropertyValueWithKey(
+                "form", "parentForm", "parametersForm"
+            ),
             FormReferenceProvider
         )
 
