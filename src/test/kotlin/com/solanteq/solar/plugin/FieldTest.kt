@@ -561,4 +561,44 @@ class FieldTest : FormTestBase() {
         assertReferencedElementName("stringField")
     }
 
+    @Test
+    fun `test field name completion in included form with json-flat declaration`() {
+        fixture.configureByFiles(
+            "DataClass.kt",
+            "TestService.kt",
+            "TestServiceImpl.kt",
+        )
+
+        fixture.createForm("topLevelForm", """
+            {
+              "source": "test.testService.findData",
+              "groups": [
+                {
+                  "rows": [
+                    {
+                      "fields": [
+                        "json-flat://includes/forms/test2/includedForm.json"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent(), "test")
+
+        fixture.createIncludedFormAndConfigure("includedForm", """
+            [
+              {
+                "name": "<caret>"
+              }
+            ]
+        """.trimIndent(), "test2")
+
+        assertCompletionsContainsExact(
+            "stringField",
+            "longField",
+            "integerField"
+        )
+    }
+
 }
