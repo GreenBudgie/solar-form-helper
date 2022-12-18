@@ -90,8 +90,8 @@ fun <T : FormElement<JsonObject>> JsonProperty?.toFormArrayElement(
 /**
  * A wrapper method that creates new form element with caching
  */
-private fun JsonElement.createElement(creator: FormElement.FormElementCreator<*>): FormElement<*>? {
-    return CachedValuesManager.getCachedValue(this) {
+private fun <T : FormElement<*>> JsonElement.createElement(creator: FormElement.FormElementCreator<T>): T? {
+    return CachedValuesManager.getCachedValue(this, creator.key) {
         CachedValueProvider.Result(
             creator.create(this),
             PsiModificationTracker.MODIFICATION_COUNT

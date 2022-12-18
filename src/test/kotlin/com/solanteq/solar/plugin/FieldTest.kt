@@ -9,9 +9,9 @@ class FieldTest : FormTestBase() {
     @Test
     fun `test field name reference from source request`() {
         fixture.configureByFiles(
-            "basic/DataClass.kt",
-            "basic/TestService.kt",
-            "basic/TestServiceImpl.kt",
+            "DataClass.kt",
+            "TestService.kt",
+            "TestServiceImpl.kt",
         )
 
         fixture.configureByFormText("""
@@ -39,9 +39,9 @@ class FieldTest : FormTestBase() {
     @Test
     fun `test field name completion from source request`() {
         fixture.configureByFiles(
-            "basic/DataClass.kt",
-            "basic/TestService.kt",
-            "basic/TestServiceImpl.kt",
+            "DataClass.kt",
+            "TestService.kt",
+            "TestServiceImpl.kt",
         )
 
         fixture.configureByFormText("""
@@ -77,9 +77,9 @@ class FieldTest : FormTestBase() {
     @Test
     fun `test field name reference from source request to nested property`() {
         fixture.configureByFiles(
-            "basic/DataClassWithNestedProperty.kt",
-            "basic/TestService.kt",
-            "basic/TestServiceImpl.kt",
+            "DataClassWithNestedProperty.kt",
+            "TestService.kt",
+            "TestServiceImpl.kt",
         )
 
         fixture.configureByFormText("""
@@ -107,10 +107,10 @@ class FieldTest : FormTestBase() {
     @Test
     fun `test field name reference from source request to nested property field`() {
         fixture.configureByFiles(
-            "basic/DataClass.kt",
-            "basic/DataClassWithNestedProperty.kt",
-            "basic/TestService.kt",
-            "basic/TestServiceImpl.kt",
+            "DataClass.kt",
+            "DataClassWithNestedProperty.kt",
+            "TestService.kt",
+            "TestServiceImpl.kt",
         )
 
         fixture.configureByFormText("""
@@ -138,10 +138,10 @@ class FieldTest : FormTestBase() {
     @Test
     fun `test field name completion from source request with nested property`() {
         fixture.configureByFiles(
-            "basic/DataClass.kt",
-            "basic/DataClassWithNestedProperty.kt",
-            "basic/TestService.kt",
-            "basic/TestServiceImpl.kt",
+            "DataClass.kt",
+            "DataClassWithNestedProperty.kt",
+            "TestService.kt",
+            "TestServiceImpl.kt",
         )
 
         fixture.configureByFormText("""
@@ -173,10 +173,10 @@ class FieldTest : FormTestBase() {
     @Test
     fun `test field name reference from source request to superclass`() {
         fixture.configureByFiles(
-            "basic/Cls.kt",
-            "basic/SuperCls.java",
-            "basic/TestService.kt",
-            "basic/TestServiceImpl.kt",
+            "Cls.kt",
+            "SuperCls.java",
+            "TestService.kt",
+            "TestServiceImpl.kt",
         )
 
         fixture.configureByFormText("""
@@ -204,11 +204,11 @@ class FieldTest : FormTestBase() {
     @Test
     fun `test field name reference from source request with generic return type`() {
         fixture.configureByFiles(
-            "basic/CustomService.kt",
-            "basic/CustomServiceImpl.kt",
-            "basic/GenericService.kt",
-            "basic/GenericServiceImpl.kt",
-            "basic/DataClass.kt"
+            "CustomService.kt",
+            "CustomServiceImpl.kt",
+            "GenericService.kt",
+            "GenericServiceImpl.kt",
+            "DataClass.kt"
         )
 
         fixture.configureByFormText("""
@@ -236,11 +236,11 @@ class FieldTest : FormTestBase() {
     @Test
     fun `test field completion from multiple inline configurations`() {
         fixture.configureByFiles(
-            "basic/Cls.kt",
-            "basic/SuperCls.java",
-            "basic/DataClass.kt",
-            "basic/TestService.kt",
-            "basic/TestServiceImpl.kt"
+            "Cls.kt",
+            "SuperCls.java",
+            "DataClass.kt",
+            "TestService.kt",
+            "TestServiceImpl.kt"
         )
 
         fixture.createForm("dataClass", """
@@ -301,11 +301,11 @@ class FieldTest : FormTestBase() {
     @Test
     fun `test field completion from generified list`() {
         fixture.configureByFiles(
-            "basic/CustomService.kt",
-            "basic/CustomServiceImpl.kt",
-            "basic/GenericService.kt",
-            "basic/GenericServiceImpl.kt",
-            "basic/DataClass.kt"
+            "CustomService.kt",
+            "CustomServiceImpl.kt",
+            "GenericService.kt",
+            "GenericServiceImpl.kt",
+            "DataClass.kt"
         )
 
         fixture.createForm("dataClass", """
@@ -349,11 +349,11 @@ class FieldTest : FormTestBase() {
     @Test
     fun `test field reference from generified list`() {
         fixture.configureByFiles(
-            "basic/CustomService.kt",
-            "basic/CustomServiceImpl.kt",
-            "basic/GenericService.kt",
-            "basic/GenericServiceImpl.kt",
-            "basic/DataClass.kt"
+            "CustomService.kt",
+            "CustomServiceImpl.kt",
+            "GenericService.kt",
+            "GenericServiceImpl.kt",
+            "DataClass.kt"
         )
 
         fixture.createForm("dataClass", """
@@ -393,9 +393,9 @@ class FieldTest : FormTestBase() {
     @Test
     fun `test field reference from inline configuration`() {
         fixture.configureByFiles(
-            "basic/DataClass.kt",
-            "basic/TestService.kt",
-            "basic/TestServiceImpl.kt"
+            "DataClass.kt",
+            "TestService.kt",
+            "TestServiceImpl.kt"
         )
 
         fixture.createForm("dataClass", """
@@ -430,6 +430,133 @@ class FieldTest : FormTestBase() {
               ]
             }
         """.trimIndent(), "test")
+
+        assertReferencedElementName("stringField")
+    }
+
+    @Test
+    fun `test field name reference in included form`() {
+        fixture.configureByFiles(
+            "DataClass.kt",
+            "TestService.kt",
+            "TestServiceImpl.kt",
+        )
+
+        fixture.createForm("topLevelForm", """
+            {
+              "source": "test.testService.findData",
+              "groups": [
+                {
+                  "rows": [
+                    {
+                      "fields": "json://includes/forms/test2/includedForm.json"
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent(), "test")
+
+        fixture.createIncludedFormAndConfigure("includedForm", """
+            [
+              {
+                "name": "<caret>stringField"
+              }
+            ]
+        """.trimIndent(), "test2")
+
+        assertReferencedElementName("stringField")
+    }
+
+    @Test
+    fun `test field name completion in included form for multiple declarations`() {
+        fixture.configureByFiles(
+            "DataClass.kt",
+            "TestService.kt",
+            "TestServiceImpl.kt",
+            "Cls.kt",
+            "SuperCls.java"
+        )
+
+        fixture.createForm("dataClassForm", """
+            {
+              "source": "test.testService.findData",
+              "groups": [
+                {
+                  "rows": [
+                    {
+                      "fields": "json://includes/forms/test2/includedForm.json"
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent(), "test")
+
+        fixture.createForm("clsForm", """
+            {
+              "source": "test.testService.findDataClassWithSuperClass",
+              "groups": [
+                {
+                  "rows": [
+                    {
+                      "fields": "json://includes/forms/test2/includedForm.json"
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent(), "test")
+
+        fixture.createIncludedFormAndConfigure("includedForm", """
+            [
+              {
+                "name": "<caret>"
+              }
+            ]
+        """.trimIndent(), "test2")
+
+        assertCompletionsContainsExact(
+            "a", //From Cls
+            "superclassField", //From SuperCls
+            "stringField", //From DataClass
+            "longField", //From DataClass
+            "integerField" //From DataClass
+        )
+    }
+
+    @Test
+    fun `test field name reference in included form with json-flat declaration`() {
+        fixture.configureByFiles(
+            "DataClass.kt",
+            "TestService.kt",
+            "TestServiceImpl.kt",
+        )
+
+        fixture.createForm("topLevelForm", """
+            {
+              "source": "test.testService.findData",
+              "groups": [
+                {
+                  "rows": [
+                    {
+                      "fields": [
+                        "json-flat://includes/forms/test2/includedForm.json"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent(), "test")
+
+        fixture.createIncludedFormAndConfigure("includedForm", """
+            [
+              {
+                "name": "<caret>stringField"
+              }
+            ]
+        """.trimIndent(), "test2")
 
         assertReferencedElementName("stringField")
     }

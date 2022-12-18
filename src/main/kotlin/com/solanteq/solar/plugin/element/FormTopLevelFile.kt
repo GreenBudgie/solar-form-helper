@@ -4,15 +4,18 @@ import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
+import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiSubstitutor
 import com.intellij.psi.PsiType
 import com.intellij.psi.search.searches.ReferencesSearch
+import com.intellij.psi.util.CachedValue
 import com.intellij.psi.util.TypeConversionUtil
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.file.TopLevelFormFileType
 import com.solanteq.solar.plugin.reference.form.FormReference
+import com.solanteq.solar.plugin.search.FormSearch
 import com.solanteq.solar.plugin.util.valueAsString
 import org.jetbrains.kotlin.idea.base.util.allScope
 import org.jetbrains.uast.UClass
@@ -134,7 +137,8 @@ class FormTopLevelFile(
      */
     val inlineRequests: List<FormRequest> by lazy {
         val containingFile = containingFile ?: return@lazy emptyList()
-        val references = ReferencesSearch.search(containingFile, project.allScope()).findAll()
+        val searchScope = FormSearch.getFormSearchScope(project.allScope())
+        val references = ReferencesSearch.search(containingFile, searchScope).findAll()
         val formPropertyValueElements = references.filterIsInstance<FormReference>().map { it.element }
         val formInlineElements = formPropertyValueElements.mapNotNull {
             val formProperty = it.parent as? JsonProperty ?: return@mapNotNull null
@@ -163,6 +167,27 @@ class FormTopLevelFile(
         }
     }
 
+    /**
+     * A list of data classes that can be used as data sources for this form.
+     *
+     * Data classes are collected from various requests in the specified order:
+     * 1. Source request in this form
+     * 2. Inline requests from other forms
+     * 3. //TODO LIST field type request
+     */
+    val allDataClassesFromRequests: List<UClass> by lazy {
+        dataClassFromSourceRequest?.let { return@lazy listOf(it) }
+
+        val inlineDataClasses = dataClassesFromInlineRequests
+        if(inlineDataClasses.isNotEmpty()) {
+            return@lazy inlineDataClasses
+        }
+
+        //TODO List field type request
+
+        return@lazy emptyList()
+    }
+
     private fun substitutePsiType(superClass: PsiClass, derivedClass: PsiClass, psiType: PsiType): UClass? {
         val substitutedReturnType = TypeConversionUtil.getClassSubstitutor(
             superClass,
@@ -180,6 +205,8 @@ class FormTopLevelFile(
         topLevelObject.findProperty(type.requestLiteral).toFormElement()
 
     companion object : FormElementCreator<FormTopLevelFile> {
+
+        override val key = Key<CachedValue<FormTopLevelFile>>("solar.element.topLevelFile")
 
         override fun create(sourceElement: JsonElement): FormTopLevelFile? {
             val jsonFile = sourceElement as? JsonFile ?: return null

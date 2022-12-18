@@ -2,6 +2,8 @@ package com.solanteq.solar.plugin.element
 
 import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonObject
+import com.intellij.openapi.util.Key
+import com.intellij.psi.util.CachedValue
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 
 /**
@@ -53,6 +55,8 @@ class FormGroup(
     companion object : FormElementCreator<FormGroup> {
 
         const val ARRAY_NAME = "groups"
+
+        override val key = Key<CachedValue<FormGroup>>("solar.element.group")
 
         override fun create(sourceElement: JsonElement): FormGroup? {
             if(canBeCreatedAsArrayElement(sourceElement, ARRAY_NAME)) {

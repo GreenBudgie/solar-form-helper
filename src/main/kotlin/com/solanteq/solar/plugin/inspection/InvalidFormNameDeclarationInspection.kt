@@ -10,8 +10,7 @@ import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.project.Project
 import com.intellij.psi.ElementManipulators
-import com.solanteq.solar.plugin.file.TopLevelFormFileType
-import com.solanteq.solar.plugin.util.isAtTopLevelObject
+import com.solanteq.solar.plugin.util.FormPsiUtils
 import com.solanteq.solar.plugin.util.textRangeWithoutQuotes
 
 class InvalidFormNameDeclarationInspection : FormInspection() {
@@ -21,8 +20,7 @@ class InvalidFormNameDeclarationInspection : FormInspection() {
     class Visitor(private val holder: ProblemsHolder) : JsonElementVisitor() {
 
         override fun visitProperty(property: JsonProperty) {
-            if(property.containingFile.fileType != TopLevelFormFileType) return
-            if(!property.isAtTopLevelObject()) return
+            if(!FormPsiUtils.isAtTopLevelObject(property)) return
             if(property.name != "name") return
 
             val propertyValue = property.value as? JsonStringLiteral ?: return

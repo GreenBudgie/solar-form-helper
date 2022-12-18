@@ -11,10 +11,10 @@ import com.solanteq.solar.plugin.util.getModuleAndNameByFormName
 object FormSearch {
 
     fun findTopLevelForms(scope: GlobalSearchScope): Collection<VirtualFile> =
-        FileTypeIndex.getFiles(TopLevelFormFileType, scope)
+        FileTypeIndex.getFiles(TopLevelFormFileType, getFormSearchScope(scope))
 
     fun findIncludedForms(scope: GlobalSearchScope): Collection<VirtualFile> =
-        FileTypeIndex.getFiles(IncludedFormFileType, scope)
+        FileTypeIndex.getFiles(IncludedFormFileType, getFormSearchScope(scope))
 
     /**
      * Finds included and top level forms
@@ -52,6 +52,14 @@ object FormSearch {
         return applicableForms.firstOrNull {
             it.getFormSolarName() == "$module.$name"
         }
+    }
+
+    /**
+     * Returns the search scope restricted to only search in form files, top-level and included
+     */
+    fun getFormSearchScope(initialScope: GlobalSearchScope): GlobalSearchScope {
+        return GlobalSearchScope.getScopeRestrictedByFileTypes(initialScope,
+            TopLevelFormFileType, IncludedFormFileType)
     }
 
 }

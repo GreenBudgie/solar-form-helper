@@ -1,11 +1,13 @@
 package com.solanteq.solar.plugin.element.base
 
-import com.intellij.json.psi.JsonArray
 import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonObject
-import com.intellij.json.psi.JsonProperty
+import com.intellij.openapi.util.Key
+import com.intellij.psi.util.CachedValue
+import com.solanteq.solar.plugin.element.base.FormElement.FormElementCreator
 import com.solanteq.solar.plugin.element.toFormElement
+import com.solanteq.solar.plugin.util.FormPsiUtils
 
 /**
  * Form element is a representation of a SOLAR form json element.
@@ -63,9 +65,13 @@ abstract class FormElement<T : JsonElement> protected constructor(
             requiredArrayName: String
         ): Boolean {
             val jsonObject = sourceElement as? JsonObject ?: return false
-            val parentArray = jsonObject.parent as? JsonArray ?: return false
-            val fieldProperty = parentArray.parent as? JsonProperty ?: return false
-            return fieldProperty.name == requiredArrayName
+
+            val parentArrays = FormPsiUtils.parents(jsonObject)
+
+            val containsParentPropertyWithArrayName = parentArrays.any {
+                FormPsiUtils.isPropertyValueWithKey(it, requiredArrayName)
+            }
+            return containsParentPropertyWithArrayName
         }
 
     }
@@ -75,6 +81,8 @@ abstract class FormElement<T : JsonElement> protected constructor(
      * It is used to create element from the factory using [toFormElement].
      */
     interface FormElementCreator<T : FormElement<*>> {
+
+        val key: Key<CachedValue<T>>
 
         fun create(sourceElement: JsonElement): T?
 

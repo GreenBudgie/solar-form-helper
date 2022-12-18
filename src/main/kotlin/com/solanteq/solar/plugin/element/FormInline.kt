@@ -4,6 +4,8 @@ import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
+import com.intellij.openapi.util.Key
+import com.intellij.psi.util.CachedValue
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.search.FormSearch
 import com.solanteq.solar.plugin.util.valueAsString
@@ -33,6 +35,8 @@ class FormInline(
     }
 
     companion object : FormElementCreator<FormInline> {
+
+        override val key = Key<CachedValue<FormInline>>("solar.element.inline")
 
         override fun create(sourceElement: JsonElement): FormInline? {
             val jsonProperty = sourceElement as? JsonProperty ?: return null

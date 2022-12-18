@@ -2,10 +2,12 @@ package com.solanteq.solar.plugin.element
 
 import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonObject
+import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiSubstitutor
 import com.intellij.psi.PsiType
+import com.intellij.psi.util.CachedValue
 import com.intellij.psi.util.TypeConversionUtil
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import org.jetbrains.uast.UClass
@@ -82,7 +84,7 @@ class FormField(
      *
      * ```
      * "name": "field1.field2.fieldWithTypo.field4.field5"
-     * -> [field1, field2, null, null, null]
+     * -> [field1, field2]
      * ```
      */
     val propertyChain by lazy {
@@ -91,14 +93,8 @@ class FormField(
             return@lazy emptyList()
         }
 
-        val containingForm = containingFile.toFormElement<FormTopLevelFile>() ?: return@lazy emptyList()
-
         val propertyChain = mutableListOf<FieldProperty>()
-        var dataClasses: List<UClass> = if(containingForm.dataClassFromSourceRequest != null) {
-            listOf(containingForm.dataClassFromSourceRequest!!)
-        } else {
-            containingForm.dataClassesFromInlineRequests
-        }
+        var dataClasses: List<UClass> = findAllDataClassesFromRequests()
 
         stringPropertyChain.forEach { fieldName ->
             if(dataClasses.isEmpty()) {
@@ -119,6 +115,18 @@ class FormField(
         }
 
         return@lazy propertyChain.toList()
+    }
+
+    private fun findAllDataClassesFromRequests(): List<UClass> {
+        val containingTopLevelForm = containingFile.toFormElement<FormTopLevelFile>()
+        if(containingTopLevelForm != null) {
+            return containingTopLevelForm.allDataClassesFromRequests
+        }
+
+        val containingIncludedForm = containingFile.toFormElement<FormIncludedFile>() ?: return emptyList()
+        return containingIncludedForm.allTopLevelForms.flatMap {
+            it.allDataClassesFromRequests
+        }
     }
 
     private fun findClassAndFieldByNameInClasses(uClasses: List<UClass>, fieldName: String): Pair<UClass?, UField?> {
@@ -163,6 +171,8 @@ class FormField(
     companion object : FormElementCreator<FormField> {
 
         const val ARRAY_NAME = "fields"
+
+        override val key = Key<CachedValue<FormField>>("solar.element.field")
 
         override fun create(sourceElement: JsonElement): FormField? {
             if(canBeCreatedAsArrayElement(sourceElement, ARRAY_NAME)) {

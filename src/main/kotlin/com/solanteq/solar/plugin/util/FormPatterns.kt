@@ -39,82 +39,36 @@ inline fun <reified T : JsonElement> inIncludedForm(): PsiElementPattern.Capture
         .inFile(PlatformPatterns.psiFile().withFileType(StandardPatterns.`object`(IncludedFormFileType)))
 
 /**
- * Extends the pattern to check whether the element is a json property value with one of the specified keys.
- *
- * Example:
- *
- * Pattern `isPropertyValueWithKey("request")` passes for value in property:
- * ```
- * "request": "lty.service.find"
- * ```
+ * @see FormPsiUtils.isPropertyValueWithKey
  */
 fun <T : JsonElement> PsiElementPattern.Capture<out T>.isPropertyValueWithKey(vararg applicableKeys: String) =
-    withCondition("isPropertyValueWithKey") { it.isPropertyValueWithKey(*applicableKeys) }
+    withCondition("isPropertyValueWithKey") {
+        FormPsiUtils.isPropertyValueWithKey(it, *applicableKeys)
+    }
 
 /**
- * Extends the pattern to check whether the element is inside a json object
- * that is a value of property with one of specified keys.
- *
- * Example:
- *
- * Consider the following json structure:
- * ```
- * "request": {
- *      "name": "lty.service.findById",
- *      "group": "lty",
- *      "params": [
- *          {
- *              "name": "id",
- *              "value": "id"
- *          }
- *      ]
- * }
- * ```
- * Pattern `isElementInsideObject("request")` will pass for every json element inside `"request"` object,
- * excluding `"name": "id"` and `"value": "id"` in params because they are inside their own unnamed object.
+ * @see FormPsiUtils.isInObjectWithKey
  */
 fun <T : JsonElement> PsiElementPattern.Capture<out T>.isInObjectWithKey(vararg applicableKeys: String) =
-    withCondition("isInObjectWithKey") { it.isInObjectWithKey(*applicableKeys) }
+    withCondition("isInObjectWithKey") {
+        FormPsiUtils.isInObjectWithKey(it, *applicableKeys)
+    }
 
 /**
- * Extends the pattern to check whether the element is inside a json array
- * that is a value of property with one of specified keys.
- *
- * Example for `isObjectInArrayWithKey("fields")`:
- * ```
- * "fields": [ //false
- *   { //true
- *     "name": "fieldName" //true
- *   }, //true
- *   "jsonInclude", //true
- * ],
- * "boilerplateKey": "boilerplateValue" //false
- * ```
+ * @see FormPsiUtils.isInArrayWithKey
  */
 fun <T : JsonElement> PsiElementPattern.Capture<out T>.isInArrayWithKey(vararg applicableKeys: String) =
-    withCondition("isInArrayWithKey") { it.isInArrayWithKey(*applicableKeys) }
+    withCondition("isInArrayWithKey") {
+        FormPsiUtils.isInArrayWithKey(it, *applicableKeys)
+    }
 
 /**
- * Extends the pattern to check whether the element is located directly at top-level json object.
- *
- * Example:
- * ```
- * { //false (top-level object itself is not considered to be located at top-level json object ._.)
- *   "name": "hi", //true
- *   "module": "test", //true
- *   "someArray": [ //true for property key
- *     { //false
- *       "someKey": "someValue" //false
- *     }
- *   ],
- *   "someObject": { //true for property key
- *
- *   }
- * }
- * ```
+ * @see FormPsiUtils.isAtTopLevelObject
  */
 fun <T : JsonElement> PsiElementPattern.Capture<out T>.isAtTopLevelObject() =
-    withCondition("isAtTopLevelObject") { it.isAtTopLevelObject() }
+    withCondition("isAtTopLevelObject") {
+        FormPsiUtils.isAtTopLevelObject(it)
+    }
 
 /**
  * A pattern condition for [JsonPsiUtil.isPropertyKey]
@@ -125,15 +79,15 @@ fun <T : JsonElement> PsiElementPattern.Capture<out T>.isPropertyKey() =
     }
 
 /**
- * A pattern condition for [JsonPsiUtil.isPropertyValue]
+ * @see FormPsiUtils.isPropertyValue
  */
 fun <T : JsonElement> PsiElementPattern.Capture<out T>.isPropertyValue() =
     withCondition("isPropertyValue") {
-        JsonPsiUtil.isPropertyValue(it)
+        FormPsiUtils.isPropertyValue(it)
     }
 
 /**
- * A helper method to implement custom pattern condition
+ * A helper method to implement custom pattern conditions
  */
 inline fun <T : PsiElement> PsiElementPattern.Capture<out T>.withCondition(
     debugMethodName: String = "customCondition",
