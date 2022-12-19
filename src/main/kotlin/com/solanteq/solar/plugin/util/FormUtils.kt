@@ -57,24 +57,6 @@ fun VirtualFile.getFormSolarName(): String {
  */
 fun PsiFile.getFormSolarName() = virtualFile?.getFormSolarName()
 
-/**
- * Gets module and name by form full name, or null if the specified name has invalid format.
- *
- * Example:
- * ```
- * val (module, name) = getModuleAndNameByFormName("test.form") ?: return null
- * -> module = test
- * -> name = form
- * ```
- */
-fun getModuleAndNameByFormName(fullName: String): Pair<String, String>? {
-    val splitName = fullName.split(".")
-    if(splitName.size != 2) {
-        return null
-    }
-    return splitName[0] to splitName[1]
-}
-
 
 
 
