@@ -8,7 +8,7 @@ import com.solanteq.solar.plugin.asset.Icons
 
 object L10nFileType : LanguageFileType(JsonLanguage.INSTANCE), FileTypeIdentifiableByVirtualFile {
 
-    override fun getDefaultExtension() = ""
+    override fun getDefaultExtension() = "json"
 
     override fun getName() = "SOLAR Localization"
 

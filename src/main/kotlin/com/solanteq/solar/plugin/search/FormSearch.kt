@@ -6,7 +6,6 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.solanteq.solar.plugin.file.IncludedFormFileType
 import com.solanteq.solar.plugin.file.TopLevelFormFileType
 import com.solanteq.solar.plugin.util.getFormSolarName
-import com.solanteq.solar.plugin.util.getModuleAndNameByFormName
 
 object FormSearch {
 
@@ -60,6 +59,25 @@ object FormSearch {
     fun getFormSearchScope(initialScope: GlobalSearchScope): GlobalSearchScope {
         return GlobalSearchScope.getScopeRestrictedByFileTypes(initialScope,
             TopLevelFormFileType, IncludedFormFileType)
+    }
+
+
+    /**
+     * Gets module and name by form full name, or null if the specified name has invalid format.
+     *
+     * Example:
+     * ```
+     * val (module, name) = getModuleAndNameByFormName("test.form") ?: return null
+     * -> module = test
+     * -> name = form
+     * ```
+     */
+    private fun getModuleAndNameByFormName(fullName: String): Pair<String, String>? {
+        val splitName = fullName.split(".")
+        if(splitName.size != 2) {
+            return null
+        }
+        return splitName[0] to splitName[1]
     }
 
 }

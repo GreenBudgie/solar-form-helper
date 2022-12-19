@@ -4,6 +4,8 @@ import com.intellij.json.psi.JsonArray
 import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
+import com.intellij.openapi.util.Key
+import com.intellij.psi.util.CachedValue
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.util.PsiModificationTracker
@@ -63,7 +65,8 @@ fun <T : FormElement<JsonObject>> JsonProperty?.toFormArrayElement(
     }
 
     fun tryCreateElement(requiredPropertyName: String): FormPropertyArray<T>? {
-        return CachedValuesManager.getCachedValue(this) {
+        val key = Key<CachedValue<FormPropertyArray<T>>>("solar.element.array.$requiredPropertyName")
+        return CachedValuesManager.getCachedValue(this, key) {
             val arrayElement = if(requiredPropertyName == name)
                 FormPropertyArray(this, valueArray, contentsClass)
             else
