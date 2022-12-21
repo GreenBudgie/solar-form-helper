@@ -3,13 +3,11 @@ package com.solanteq.solar.plugin.element
 import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonObject
 import com.intellij.openapi.util.Key
-import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiClassType
-import com.intellij.psi.PsiSubstitutor
 import com.intellij.psi.PsiType
 import com.intellij.psi.util.CachedValue
-import com.intellij.psi.util.TypeConversionUtil
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
+import com.solanteq.solar.plugin.util.valueAsString
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UField
 import org.jetbrains.uast.toUElementOfType
@@ -44,6 +42,16 @@ import org.jetbrains.uast.toUElementOfType
 class FormField(
     sourceElement: JsonObject
 ) : FormLocalizableElement<JsonObject>(sourceElement, sourceElement) {
+
+    /**
+     * Type of this field represented as plain string
+     *
+     * TODO introduce enum with field types
+     */
+    val type by lazy {
+        val typeProperty = sourceElement.findProperty("type") ?: return@lazy null
+        return@lazy typeProperty.valueAsString()
+    }
 
     /**
      * A list of properties as a chain from main to nested ones represented as raw strings.
@@ -136,16 +144,6 @@ class FormField(
                 ?.let { return uClass to it.toUElementOfType() }
         }
         return null to null
-    }
-
-    private fun substitutePsiType(superClass: PsiClass, derivedClass: PsiClass, psiType: PsiType): UClass? {
-        val substitutedReturnType = TypeConversionUtil.getClassSubstitutor(
-            superClass,
-            derivedClass,
-            PsiSubstitutor.EMPTY
-        )?.substitute(psiType)
-        val classReturnType = substitutedReturnType as? PsiClassType ?: return null
-        return classReturnType.resolve().toUElementOfType()
     }
 
     private fun psiTypeAsUClassOrNull(psiType: PsiType): UClass? {

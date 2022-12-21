@@ -16,6 +16,7 @@ import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.file.TopLevelFormFileType
 import com.solanteq.solar.plugin.reference.form.FormReference
 import com.solanteq.solar.plugin.search.FormSearch
+import com.solanteq.solar.plugin.util.FormPsiUtils
 import com.solanteq.solar.plugin.util.valueAsString
 import org.jetbrains.kotlin.idea.base.util.allScope
 import org.jetbrains.uast.UClass
@@ -136,10 +137,7 @@ class FormTopLevelFile(
      * All requests from inline elements that reference this form
      */
     val inlineRequests: List<FormRequest> by lazy {
-        val containingFile = containingFile ?: return@lazy emptyList()
-        val searchScope = FormSearch.getFormSearchScope(project.allScope())
-        val references = ReferencesSearch.search(containingFile, searchScope).findAll()
-        val formPropertyValueElements = references.filterIsInstance<FormReference>().map { it.element }
+        val formPropertyValueElements = formReferences.filterIsInstance<FormReference>().map { it.element }
         val formInlineElements = formPropertyValueElements.mapNotNull {
             val formProperty = it.parent as? JsonProperty ?: return@mapNotNull null
             val inlineValueObject = formProperty.parent as? JsonObject ?: return@mapNotNull null
@@ -154,16 +152,7 @@ class FormTopLevelFile(
      */
     val dataClassesFromInlineRequests by lazy {
         inlineRequests.mapNotNull {
-            val method = it.methodFromRequest ?: return@mapNotNull null
-            val derivedClass = it.serviceFromRequest?.javaPsi ?: return@mapNotNull null
-            val superClass = method.containingClass ?: return@mapNotNull null
-            val rawReturnListType = method.returnType as? PsiClassType ?: return@mapNotNull null
-            val rawReturnType = rawReturnListType.parameters.firstOrNull() ?: return@mapNotNull null
-            return@mapNotNull substitutePsiType(
-                superClass,
-                derivedClass,
-                rawReturnType
-            )
+            getDataClassFromInlineRequest(it)
         }
     }
 
@@ -173,7 +162,7 @@ class FormTopLevelFile(
      * Data classes are collected from various requests in the specified order:
      * 1. Source request in this form
      * 2. Inline requests from other forms
-     * 3. //TODO LIST field type request
+     * 3. List field in other forms
      */
     val allDataClassesFromRequests: List<UClass> by lazy {
         dataClassFromSourceRequest?.let { return@lazy listOf(it) }
@@ -183,9 +172,66 @@ class FormTopLevelFile(
             return@lazy inlineDataClasses
         }
 
-        //TODO List field type request
+        val dataClassesFromListFields = dataClassesFromListFields
+        if(dataClassesFromListFields.isNotEmpty()) {
+            return@lazy dataClassesFromListFields
+        }
 
         return@lazy emptyList()
+    }
+
+
+    /**
+     * All fields from other forms with `LIST` type that relate to this form
+     */
+    val relatedListFields: List<FormField> by lazy {
+        val formPropertyValueElements = formReferences.filterIsInstance<FormReference>().map { it.element }
+        val fieldElements = formPropertyValueElements
+            .flatMap {
+                FormPsiUtils.firstParentsOfType(it, JsonObject::class)
+            }.mapNotNull {
+                it.toFormElement<FormField>()
+            }
+        val fieldListElements = fieldElements.filter {
+            it.type == "LIST"
+        }
+        return@lazy fieldListElements
+    }
+
+    /**
+     * All applicable data classes from list fields
+     */
+    val dataClassesFromListFields: List<UClass> by lazy {
+        relatedListFields.mapNotNull {
+            val referencedField = it.propertyChain.lastOrNull()?.referencedField ?: return@mapNotNull null
+            val fieldContainingClass = referencedField.containingClass ?: return@mapNotNull null
+            val rawListType = referencedField.type as? PsiClassType ?: return@mapNotNull null
+            val rawInnerType = rawListType.parameters.firstOrNull() ?: return@mapNotNull null
+            return@mapNotNull substitutePsiType(
+                fieldContainingClass,
+                fieldContainingClass,
+                rawInnerType
+            )
+        }
+    }
+
+    private val formReferences by lazy {
+        val containingFile = containingFile ?: return@lazy emptyList()
+        val searchScope = FormSearch.getFormSearchScope(project.allScope())
+        return@lazy ReferencesSearch.search(containingFile, searchScope).findAll().toList()
+    }
+
+    private fun getDataClassFromInlineRequest(request: FormRequest): UClass? {
+        val method = request.methodFromRequest ?: return null
+        val derivedClass = request.serviceFromRequest?.javaPsi ?: return null
+        val superClass = method.javaPsi.containingClass ?: return null
+        val rawReturnListType = method.returnType as? PsiClassType ?: return null
+        val rawReturnType = rawReturnListType.parameters.firstOrNull() ?: return null
+        return substitutePsiType(
+            superClass,
+            derivedClass,
+            rawReturnType
+        )
     }
 
     private fun substitutePsiType(superClass: PsiClass, derivedClass: PsiClass, psiType: PsiType): UClass? {
