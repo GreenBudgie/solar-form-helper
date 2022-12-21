@@ -601,4 +601,110 @@ class FieldTest : FormTestBase() {
         )
     }
 
+    @Test
+    fun `test reference from form with related list field`() {
+        fixture.configureByFiles(
+            "DataClass.kt",
+            "DataClassWithList.kt",
+            "TestService.kt",
+            "TestServiceImpl.kt",
+        )
+
+        fixture.createForm("formWithListField", """
+            {
+              "source": "test.testService.findDataWithList",
+              "groups": [
+                {
+                  "rows": [
+                    {
+                      "fields": [
+                        {
+                          "name": "dataClassList",
+                          "type": "LIST",
+                          "form": "test.listForm"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent(), "test")
+
+        fixture.createFormAndConfigure("listForm", """
+            {
+              "groups": [
+                {
+                  "rows": [
+                    {
+                      "fields": [
+                        {
+                          "name": "stringField<caret>"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent(), "test")
+
+        assertReferencedElementName("stringField")
+    }
+
+    @Test
+    fun `test completion from form with related list field`() {
+        fixture.configureByFiles(
+            "DataClass.kt",
+            "DataClassWithList.kt",
+            "TestService.kt",
+            "TestServiceImpl.kt",
+        )
+
+        fixture.createForm("formWithListField", """
+            {
+              "source": "test.testService.findDataWithList",
+              "groups": [
+                {
+                  "rows": [
+                    {
+                      "fields": [
+                        {
+                          "name": "dataClassList",
+                          "type": "LIST",
+                          "form": "test.listForm"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent(), "test")
+
+        fixture.createFormAndConfigure("listForm", """
+            {
+              "groups": [
+                {
+                  "rows": [
+                    {
+                      "fields": [
+                        {
+                          "name": "<caret>"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent(), "test")
+
+        assertCompletionsContainsExact(
+            "stringField",
+            "longField",
+            "integerField"
+        )
+    }
+
 }
