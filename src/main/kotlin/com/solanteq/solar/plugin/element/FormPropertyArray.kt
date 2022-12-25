@@ -24,9 +24,10 @@ import kotlin.reflect.KClass
  */
 class FormPropertyArray<T : FormElement<JsonObject>>(
     sourceElement: JsonProperty,
-    val valueArray: JsonArray,
     private val formObjectClass: KClass<out T>
 ) : FormElement<JsonProperty>(sourceElement), List<T> {
+
+    val valueArray = sourceElement.value as JsonArray
 
     /**
      * Contents of this array represented as form object elements that this array stores.

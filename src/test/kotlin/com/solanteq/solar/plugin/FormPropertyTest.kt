@@ -30,7 +30,7 @@ class FormPropertyTest : FormTestBase() {
         """.trimIndent()
         )
 
-        assertReferencedElementName("testFormWithGroup.json")
+        assertReferencedElementNameEquals("testFormWithGroup.json")
     }
 
     @Test

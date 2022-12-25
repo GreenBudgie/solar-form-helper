@@ -1,75 +1,64 @@
 package com.solanteq.solar.plugin
 
 import com.intellij.psi.PsiFile
-import org.junit.Ignore
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
-@Disabled("L10n resolve is not implemented until I get an answer from JetBrains forum ._.")
 class L10nTest : FormTestBase() {
 
     override fun getTestDataSuffix() = "l10n"
 
     @Test
     fun `test l10n reference to form`() {
-        fixture.configureByForms("testFormGroups.json", module = "test")
+        fixture.configureByForms("testForm1.json", module = "test")
 
         createL10nFileAndConfigure("l10n",
-            "test.form.test<caret>FormGroups.randomText" to "Form Name!"
+            "test.form.<caret>testForm1.randomText" to "Form Name!"
         )
 
-        assertReferencedElementName("testFormGroups")
+        assertReferencedElementNameEquals("testForm1.json")
     }
 
     @Test
     fun `test l10n reference to group`() {
-        fixture.configureByForms("testFormGroups.json", module = "test")
+        fixture.configureByForms("testForm1.json", module = "test")
 
         createL10nFileAndConfigure("l10n",
-            "test.form.testFormGroups.<caret>group1.randomText" to "Group Name!"
+            "test.form.testForm1.<caret>group1.randomText" to "Group Name!"
         )
 
-        assertReferencedElementName("group1")
+        assertReferencedSymbolNameEquals("group1")
     }
 
     @Test
+    @Disabled("Not yet implemented")
     fun `test l10n reference to field`() {
-        fixture.configureByForms("testFormGroups.json", module = "test")
+        fixture.configureByForms("testForm1.json", module = "test")
 
         createL10nFileAndConfigure("l10n",
             "test.form.testForm.group1.<caret>field1" to "Field Name!"
         )
 
-        assertReferencedElementName("field1")
+        assertReferencedElementNameEquals("field1")
     }
 
     @Test
-    fun `test l10n reference to field with groupRows`() {
-        fixture.configureByForms("testFormGroupRows.json", module = "test")
-
-        createL10nFileAndConfigure("l10n",
-            "test.form.testForm.group1.<caret>field2" to "Field Name!!"
-        )
-
-        assertReferencedElementName("field2")
-    }
-
-    @Test
+    @Disabled("Not yet implemented")
     fun `test l10n reference to nested field`() {
-        fixture.configureByForms("testFormGroups.json", module = "test")
+        fixture.configureByForms("testForm1.json", module = "test")
 
         createL10nFileAndConfigure("l10n",
             "test.form.testForm.group2.field.<caret>nestedField.randomText" to "Field Name!"
         )
 
-        assertReferencedElementName("nestedField")
+        assertReferencedElementNameEquals("nestedField")
     }
 
     @Test
     fun `test l10n form completion`() {
         fixture.configureByForms(
-            "testFormGroups.json",
-            "testFormGroupRows.json",
+            "testForm1.json",
+            "testForm2.json",
             module = "test"
         )
 
@@ -79,12 +68,13 @@ class L10nTest : FormTestBase() {
             "test.form.<caret>" to "Form Name!"
         )
 
-        assertCompletionsContainsExact("testFormGroups", "testFormGroupRows")
+        assertCompletionsContainsExact("testForm1", "testForm2")
     }
 
     @Test
+    @Disabled("Not yet implemented")
     fun `test l10n group completion`() {
-        fixture.configureByForms("testFormGroups.json", module = "test")
+        fixture.configureByForms("testForm1.json", module = "test")
 
         createL10nFileAndConfigure("l10n",
             "test.form.testFormGroups.<caret>" to "Group Name!"
@@ -94,19 +84,9 @@ class L10nTest : FormTestBase() {
     }
 
     @Test
-    fun `test l10n groupRows completion`() {
-        fixture.configureByForms("testFormGroupRows.json", module = "test")
-
-        createL10nFileAndConfigure("l10n",
-            "test.form.testFormGroupRows.<caret>" to "Group Name!"
-        )
-
-        assertCompletionsContainsExact("group1", "group2")
-    }
-
-    @Test
+    @Disabled("Not yet implemented")
     fun `test l10n field completion`() {
-        fixture.configureByForms("testFormGroups.json", module = "test")
+        fixture.configureByForms("testForm1.json", module = "test")
 
         createL10nFileAndConfigure("l10n",
             "test.form.testFormGroups.group1.<caret>" to "Field Name!"
@@ -116,25 +96,50 @@ class L10nTest : FormTestBase() {
     }
 
     @Test
+    @Disabled("Not yet implemented")
     fun `test l10n nested field first part completion`() {
-        fixture.configureByForms("testFormGroups.json", module = "test")
+        fixture.configureByForms("testForm1.json", module = "test")
 
         createL10nFileAndConfigure("l10n",
-            "test.form.testFormGroups.group2.<caret>" to "Field Name!"
+            "test.form.testForm1.group2.<caret>" to "Field Name!"
         )
 
         assertCompletionsContainsExact("field")
     }
 
     @Test
+    @Disabled("Not yet implemented")
     fun `test l10n nested field second part completion`() {
-        fixture.configureByForms("testFormGroups.json", module = "test")
+        fixture.configureByForms("testForm1.json", module = "test")
 
         createL10nFileAndConfigure("l10n",
-            "test.form.testFormGroups.group2.field.<caret>" to "Nested Field Name!"
+            "test.form.testForm1.group2.field.<caret>" to "Nested Field Name!"
         )
 
         assertCompletionsContainsExact("nestedField")
+    }
+
+    @Test
+    fun `test l10n form rename`() {
+        fixture.configureByForms("testForm1.json", module = "test")
+
+        createL10nFileAndConfigure("l10n",
+            "test.form.<caret>testForm1" to "Form Name!"
+        )
+
+        testJsonStringLiteralRename("renamed.json", "test.form.renamed")
+    }
+
+    @Test
+    @Disabled("Working, but can't choose rename handler to rename symbol instead of the whole property")
+    fun `test l10n group rename`() {
+        fixture.configureByForms("testForm1.json", module = "test")
+
+        createL10nFileAndConfigure("l10n",
+            "test.form.testForm1.<caret>group1" to "Group Name!"
+        )
+
+        testJsonStringLiteralRename("renamed", "test.form.testForm1.renamed")
     }
 
     /**

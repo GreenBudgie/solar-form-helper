@@ -23,7 +23,7 @@ class JsonIncludeTest : FormTestBase() {
             }
         """.trimIndent())
 
-        assertReferencedElementName("includedForm.json")
+        assertReferencedElementNameEquals("includedForm.json")
     }
 
     @Test
@@ -35,7 +35,7 @@ class JsonIncludeTest : FormTestBase() {
             }
         """.trimIndent())
 
-        assertReferencedElementName("includedForm.json")
+        assertReferencedElementNameEquals("includedForm.json")
     }
 
     @Test

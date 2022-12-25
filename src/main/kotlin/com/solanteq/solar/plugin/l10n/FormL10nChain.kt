@@ -1,12 +1,21 @@
-package com.solanteq.solar.plugin.reference.l10n
+package com.solanteq.solar.plugin.l10n
 
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonStringLiteral
+import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.TextRange
+import com.intellij.patterns.PlatformPatterns
+import com.intellij.patterns.StandardPatterns
+import com.intellij.psi.util.CachedValue
+import com.intellij.psi.util.CachedValueProvider
+import com.intellij.psi.util.CachedValuesManager
+import com.intellij.psi.util.PsiModificationTracker
 import com.solanteq.solar.plugin.element.FormTopLevelFile
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.element.toFormElement
+import com.solanteq.solar.plugin.file.L10nFileType
 import com.solanteq.solar.plugin.search.FormSearch
+import com.solanteq.solar.plugin.util.isPropertyKey
 import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 
@@ -32,7 +41,7 @@ import org.jetbrains.kotlin.idea.core.util.toPsiFile
  *
  * TODO for now, only supports form -> group -> field l10ns
  */
-class FormL10nChain(
+class FormL10nChain private constructor(
     val element: JsonStringLiteral,
     val module: String,
     private val chain: List<String>,
@@ -88,10 +97,26 @@ class FormL10nChain(
 
     companion object {
 
+        private val key = Key<CachedValue<FormL10nChain>>("solar.l10n.chain")
+
+        val elementPattern =
+            PlatformPatterns.psiElement(JsonStringLiteral::class.java).inFile(
+                PlatformPatterns.psiFile().withFileType(StandardPatterns.`object`(L10nFileType))
+            ).isPropertyKey()
+
         /**
          * Creates new l10n chain for the given element if it's possible, or returns null
          */
         fun fromElement(element: JsonStringLiteral): FormL10nChain? {
+            return CachedValuesManager.getCachedValue(element, key) {
+                CachedValueProvider.Result(
+                    createChain(element),
+                    PsiModificationTracker.MODIFICATION_COUNT
+                )
+            }
+        }
+
+        private fun createChain(element: JsonStringLiteral): FormL10nChain? {
             val textSplit = element.value.split(".")
             if(textSplit.size < 3) return null
             val l10nType = textSplit[1]
@@ -101,9 +126,9 @@ class FormL10nChain(
             return FormL10nChain(element, l10nModule, l10nChain, l10nModule.length + 6)
         }
 
-        private val formNameChainIndex = 0
-        private val groupNameChainIndex = 1
-        private val firstFieldNameChainIndex = 2
+        private const val formNameChainIndex = 0
+        private const val groupNameChainIndex = 1
+        private const val firstFieldNameChainIndex = 2
 
     }
 

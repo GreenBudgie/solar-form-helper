@@ -16,7 +16,7 @@ class ServiceMethodReference(
     element: JsonStringLiteral,
     range: TextRange,
     requestElement: FormRequest?
-) : AbstractServiceReference(element, range, requestElement) {
+) : CallableServiceReference(element, range, requestElement) {
 
     override fun getVariants(): Array<Any> {
         val service = requestElement?.serviceFromRequest ?: return emptyArray()

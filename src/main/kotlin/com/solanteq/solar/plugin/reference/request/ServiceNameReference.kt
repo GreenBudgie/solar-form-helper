@@ -19,7 +19,7 @@ class ServiceNameReference(
     element: JsonStringLiteral,
     range: TextRange,
     requestElement: FormRequest?
-) : AbstractServiceReference(element, range, requestElement) {
+) : CallableServiceReference(element, range, requestElement) {
 
     override fun handleElementRename(newElementName: String): PsiElement {
         //Preventing rename of service solar name

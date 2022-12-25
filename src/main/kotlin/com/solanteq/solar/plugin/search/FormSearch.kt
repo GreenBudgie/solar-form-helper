@@ -5,6 +5,7 @@ import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.search.GlobalSearchScope
 import com.solanteq.solar.plugin.file.IncludedFormFileType
 import com.solanteq.solar.plugin.file.TopLevelFormFileType
+import com.solanteq.solar.plugin.util.getFormModule
 import com.solanteq.solar.plugin.util.getFormSolarName
 
 object FormSearch {
@@ -20,6 +21,21 @@ object FormSearch {
      */
     fun findAllForms(scope: GlobalSearchScope) =
         findTopLevelForms(scope) + findIncludedForms(scope)
+
+    fun findTopLevelFormsInModule(scope: GlobalSearchScope, moduleName: String): Collection<VirtualFile> {
+        return findTopLevelForms(scope).filter {
+            it.getFormModule() == moduleName
+        }
+    }
+
+    fun findIncludedFormsInModule(scope: GlobalSearchScope, moduleName: String): Collection<VirtualFile> {
+        return findIncludedForms(scope).filter {
+            it.getFormModule() == moduleName
+        }
+    }
+
+    fun findFormsInModule(scope: GlobalSearchScope, moduleName: String) =
+        findTopLevelFormsInModule(scope, moduleName) + findIncludedFormsInModule(scope, moduleName)
 
     /**
      * Finds a form by its full solar name, for example: `test.testForm`
@@ -60,7 +76,6 @@ object FormSearch {
         return GlobalSearchScope.getScopeRestrictedByFileTypes(initialScope,
             TopLevelFormFileType, IncludedFormFileType)
     }
-
 
     /**
      * Gets module and name by form full name, or null if the specified name has invalid format.

@@ -65,10 +65,10 @@ fun <T : FormElement<JsonObject>> JsonProperty?.toFormArrayElement(
     }
 
     fun tryCreateElement(requiredPropertyName: String): FormPropertyArray<T>? {
-        val key = Key<CachedValue<FormPropertyArray<T>>>("solar.element.array.$requiredPropertyName")
+        val key = Key<CachedValue<FormPropertyArray<T>?>>("solar.element.array.$requiredPropertyName")
         return CachedValuesManager.getCachedValue(this, key) {
             val arrayElement = if(requiredPropertyName == name)
-                FormPropertyArray(this, valueArray, contentsClass)
+                FormPropertyArray(this, contentsClass)
             else
                 null
 
