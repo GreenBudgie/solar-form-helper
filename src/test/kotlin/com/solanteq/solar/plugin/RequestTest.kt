@@ -68,7 +68,7 @@ class RequestTest : FormTestBase() {
             }
         """.trimIndent())
 
-        assertReferencedElementName("${serviceName}Impl")
+        assertReferencedElementNameEquals("${serviceName}Impl")
     }
 
     @Test
@@ -80,7 +80,7 @@ class RequestTest : FormTestBase() {
             }
         """.trimIndent())
 
-        assertReferencedElementName("superMethod")
+        assertReferencedElementNameEquals("superMethod")
     }
 
     @Test
@@ -135,7 +135,7 @@ class RequestTest : FormTestBase() {
         fixture.configureByFile(serviceClassPath)
         fixture.configureByFormText(formText)
 
-        assertReferencedElementName("findData")
+        assertReferencedElementNameEquals("findData")
     }
 
 }

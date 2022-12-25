@@ -2,16 +2,15 @@ package com.solanteq.solar.plugin.reference
 
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.patterns.ElementPattern
-import com.intellij.patterns.PlatformPatterns
 import com.intellij.patterns.StandardPatterns
 import com.intellij.psi.PsiReferenceContributor
 import com.intellij.psi.PsiReferenceRegistrar
 import com.solanteq.solar.plugin.element.FormRequest
-import com.solanteq.solar.plugin.file.L10nFileType
+import com.solanteq.solar.plugin.l10n.FormL10nChain
+import com.solanteq.solar.plugin.l10n.form.L10nFormPsiReferenceProvider
 import com.solanteq.solar.plugin.reference.field.FieldReferenceProvider
 import com.solanteq.solar.plugin.reference.form.FormReferenceProvider
 import com.solanteq.solar.plugin.reference.include.JsonIncludeReferenceProvider
-import com.solanteq.solar.plugin.reference.l10n.L10nReferenceProvider
 import com.solanteq.solar.plugin.reference.request.RequestReferenceProvider
 import com.solanteq.solar.plugin.reference.topLevelForm.FormNameReferenceProvider
 import com.solanteq.solar.plugin.reference.topLevelModule.FormModuleReferenceProvider
@@ -45,10 +44,8 @@ class FormReferenceContributor : PsiReferenceContributor() {
         )
 
         registrar.registerReferenceProvider(
-            PlatformPatterns.psiElement(JsonStringLiteral::class.java).inFile(
-                PlatformPatterns.psiFile().withFileType(StandardPatterns.`object`(L10nFileType))
-            ).isPropertyKey(),
-            L10nReferenceProvider
+            FormL10nChain.elementPattern,
+            L10nFormPsiReferenceProvider
         )
 
         registrar.registerReferenceProvider(

@@ -6,7 +6,7 @@
     <vendor email="nbundin@solanteq.com" url="https://www.solanteq.com">Solanteq</vendor>
 
     <description><![CDATA[
-    A simple plugin that helps writing AIR Forms
+    A plugin that assists in writing AIR Forms
   ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
@@ -24,11 +24,6 @@
         <fileType name="Included AIR Form"
                   language="JSON"
                   implementationClass="com.solanteq.solar.plugin.file.IncludedFormFileType"
-                  fieldName="INSTANCE" />
-
-        <fileType name="SOLAR Localization"
-                  language="JSON"
-                  implementationClass="com.solanteq.solar.plugin.file.L10nFileType"
                   fieldName="INSTANCE" />
 
         <psi.referenceContributor
@@ -52,6 +47,26 @@
                          enabledByDefault="true"
                          level="ERROR"
                          implementationClass="com.solanteq.solar.plugin.inspection.InvalidFormNameDeclarationInspection"/>
+
+        <!-- Localization -->
+
+        <fileType name="SOLAR Localization"
+                  language="JSON"
+                  implementationClass="com.solanteq.solar.plugin.file.L10nFileType"
+                  fieldName="INSTANCE" />
+
+        <psi.declarationProvider implementation="com.solanteq.solar.plugin.l10n.group.L10nGroupDeclarationProvider" />
+
+        <psi.symbolReferenceProvider hostElementClass="com.intellij.json.psi.impl.JsonStringLiteralImpl"
+                                     hostLanguage="JSON"
+                                     implementationClass="com.solanteq.solar.plugin.l10n.group.L10nGroupSymbolReferenceProvider"
+                                     targetClass="com.solanteq.solar.plugin.symbol.FormSymbol" />
+
+        <searcher forClass="com.intellij.find.usages.api.UsageSearchParameters"
+                  implementationClass="com.solanteq.solar.plugin.l10n.group.L10nGroupUsageSearcher"/>
+
+        <searcher forClass="com.intellij.refactoring.rename.api.RenameUsageSearchParameters"
+                  implementationClass="com.solanteq.solar.plugin.l10n.group.L10nGroupRenameUsageSearcher"/>
 
     </extensions>
 </idea-plugin>

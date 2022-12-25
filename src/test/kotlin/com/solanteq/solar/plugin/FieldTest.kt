@@ -33,7 +33,7 @@ class FieldTest : FormTestBase() {
             }
         """.trimIndent())
 
-        assertReferencedElementName("stringField")
+        assertReferencedElementNameEquals("stringField")
     }
 
     @Test
@@ -101,7 +101,7 @@ class FieldTest : FormTestBase() {
             }
         """.trimIndent())
 
-        assertReferencedElementName("nested")
+        assertReferencedElementNameEquals("nested")
     }
 
     @Test
@@ -132,7 +132,7 @@ class FieldTest : FormTestBase() {
             }
         """.trimIndent())
 
-        assertReferencedElementName("stringField")
+        assertReferencedElementNameEquals("stringField")
     }
 
     @Test
@@ -198,7 +198,7 @@ class FieldTest : FormTestBase() {
             }
         """.trimIndent())
 
-        assertReferencedElementName("superclassField")
+        assertReferencedElementNameEquals("superclassField")
     }
 
     @Test
@@ -230,7 +230,7 @@ class FieldTest : FormTestBase() {
             }
         """.trimIndent())
 
-        assertReferencedElementName("stringField")
+        assertReferencedElementNameEquals("stringField")
     }
 
     @Test
@@ -387,7 +387,7 @@ class FieldTest : FormTestBase() {
             }
         """.trimIndent(), "test")
 
-        assertReferencedElementName("stringField")
+        assertReferencedElementNameEquals("stringField")
     }
 
     @Test
@@ -431,7 +431,7 @@ class FieldTest : FormTestBase() {
             }
         """.trimIndent(), "test")
 
-        assertReferencedElementName("stringField")
+        assertReferencedElementNameEquals("stringField")
     }
 
     @Test
@@ -465,7 +465,7 @@ class FieldTest : FormTestBase() {
             ]
         """.trimIndent(), "test2")
 
-        assertReferencedElementName("stringField")
+        assertReferencedElementNameEquals("stringField")
     }
 
     @Test
@@ -558,7 +558,7 @@ class FieldTest : FormTestBase() {
             ]
         """.trimIndent(), "test2")
 
-        assertReferencedElementName("stringField")
+        assertReferencedElementNameEquals("stringField")
     }
 
     @Test
@@ -649,7 +649,7 @@ class FieldTest : FormTestBase() {
             }
         """.trimIndent(), "test")
 
-        assertReferencedElementName("stringField")
+        assertReferencedElementNameEquals("stringField")
     }
 
     @Test

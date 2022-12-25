@@ -7,7 +7,7 @@ import com.intellij.psi.PsiReferenceBase
 import com.solanteq.solar.plugin.element.FormRequest
 import org.jetbrains.uast.UClass
 
-abstract class AbstractServiceReference(
+abstract class CallableServiceReference(
     element: JsonStringLiteral,
     range: TextRange,
     protected val requestElement: FormRequest?

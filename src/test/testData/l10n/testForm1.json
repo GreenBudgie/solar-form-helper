@@ -1,6 +1,6 @@
 {
   "module": "test",
-  "name": "testFormGroups",
+  "name": "testForm1",
   "groups": [
     {
       "name": "group1",

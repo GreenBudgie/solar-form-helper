@@ -14,7 +14,7 @@ class TopLevelFormBasePropertiesTest : FormTestBase() {
             }
         """.trimIndent(), "abc")
 
-        assertReferencedElementName("testForm.json")
+        assertReferencedElementNameEquals("testForm.json")
     }
 
     @Test
@@ -25,7 +25,7 @@ class TopLevelFormBasePropertiesTest : FormTestBase() {
             }
         """.trimIndent(), "abc")
 
-        assertReferencedElementName("abc")
+        assertReferencedElementNameEquals("abc")
     }
 
     @Test
