@@ -22,21 +22,14 @@ class L10nGroupSymbolReferenceProvider : PsiSymbolReferenceProvider {
         val l10nChain = FormL10nChain.fromElement(stringLiteral) ?: return emptyList()
 
         if(l10nChain.groupNameTextRange == null) return emptyList()
-        return getReferenceForOffset(stringLiteral, l10nChain, hints.offsetInElement).asListOrEmpty()
+        return getReferenceForOffset(l10nChain, hints.offsetInElement).asListOrEmpty()
     }
 
-    private fun getReferenceForOffset(
-        element: JsonStringLiteral,
-        l10nChain: FormL10nChain,
-        offset: Int): FormSymbolReference<*>? {
-        if(offset != -1 && l10nChain.groupNameTextRange?.contains(offset) == false) {
+    private fun getReferenceForOffset(l10nChain: FormL10nChain, offset: Int): FormSymbolReference<*>? {
+        if(offset != -1 && !l10nChain.groupNameTextRange!!.contains(offset)) {
             return null
         }
-        return FormSymbolReference(
-            element,
-            l10nChain.groupNameTextRange!!,
-            l10nChain.groupNameReference
-        )
+        return FormGroupSymbolReference(l10nChain)
     }
 
     override fun getSearchRequests(project: Project, target: Symbol) = emptyList<SearchRequest>()
