@@ -72,12 +72,11 @@ class L10nTest : FormTestBase() {
     }
 
     @Test
-    @Disabled("Not yet implemented")
     fun `test l10n group completion`() {
         fixture.configureByForms("testForm1.json", module = "test")
 
         createL10nFileAndConfigure("l10n",
-            "test.form.testFormGroups.<caret>" to "Group Name!"
+            "test.form.testForm1.<caret>" to "Group Name!"
         )
 
         assertCompletionsContainsExact("group1", "group2")

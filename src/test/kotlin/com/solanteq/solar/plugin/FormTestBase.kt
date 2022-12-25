@@ -14,7 +14,6 @@ import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase5
 import com.intellij.testFramework.fixtures.MavenDependencyUtil
 import com.intellij.testFramework.junit5.RunInEdt
-import com.solanteq.solar.plugin.symbol.FormSymbol
 import com.solanteq.solar.plugin.symbol.FormSymbolReference
 import org.junit.jupiter.api.Assertions
 
@@ -48,7 +47,7 @@ abstract class FormTestBase : LightJavaCodeInsightFixtureTestCase5(DEFAULT_DESCR
 
         Assertions.assertNotNull(reference)
 
-        val referencedSymbol = reference!!.resolveReference().firstOrNull() as? FormSymbol
+        val referencedSymbol = reference!!.resolveSingleTarget()
 
         Assertions.assertNotNull(referencedSymbol)
         Assertions.assertEquals(name, referencedSymbol!!.targetName)
