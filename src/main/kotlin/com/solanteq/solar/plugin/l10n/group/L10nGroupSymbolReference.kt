@@ -7,12 +7,12 @@ import com.intellij.model.psi.PsiCompletableReference
 import com.solanteq.solar.plugin.l10n.FormL10nChain
 import com.solanteq.solar.plugin.symbol.FormSymbolReference
 
-class FormGroupSymbolReference(
+class L10nGroupSymbolReference(
     val l10nChain: FormL10nChain
 ) : FormSymbolReference<JsonStringLiteral>(
     l10nChain.element,
-    l10nChain.groupNameTextRange!!,
-    l10nChain.groupNameReference
+    l10nChain.groupTextRange!!,
+    l10nChain.groupReference
 ), PsiCompletableReference {
 
     override fun getCompletionVariants(): List<LookupElement> {

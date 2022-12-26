@@ -141,6 +141,32 @@ class L10nTest : FormTestBase() {
         testJsonStringLiteralRename("renamed", "test.form.testForm1.renamed")
     }
 
+    @Test
+    fun `test l10n module reference`() {
+        fixture.createForm("testForm", "{}", "test")
+
+        createL10nFileAndConfigure("l10n",
+            "<caret>test.form.testForm.randomGroup" to "Group Name!"
+        )
+
+        assertReferencedElementNameEquals("test")
+    }
+
+    @Test
+    @Disabled("Not yet implemented")
+    fun `test l10n module completion`() {
+        fixture.createForm("testForm", "{}", "test")
+        fixture.createForm("testForm2", "{}", "test")
+        fixture.createForm("testForm", "{}", "test2")
+        fixture.createForm("testForm", "{}", "test3")
+
+        createL10nFileAndConfigure("l10n",
+            "<caret>" to "some l10n"
+        )
+
+        assertCompletionsContainsExact("test", "test2", "test3")
+    }
+
     /**
      * Creates a new localization file with specified l10n entries and places it into a proper directory
      *

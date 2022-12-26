@@ -1,16 +1,20 @@
-package com.solanteq.solar.plugin.reference.topLevelForm
+package com.solanteq.solar.plugin.l10n.module
 
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiReference
 import com.intellij.psi.PsiReferenceProvider
 import com.intellij.util.ProcessingContext
+import com.solanteq.solar.plugin.l10n.FormL10nChain
 import com.solanteq.solar.plugin.util.asArray
 
-object FormNameReferenceProvider : PsiReferenceProvider()  {
+object L10nModulePsiReferenceProvider : PsiReferenceProvider() {
 
     override fun getReferencesByElement(element: PsiElement, context: ProcessingContext): Array<PsiReference> {
-        return FormFileReference(element as JsonStringLiteral).asArray()
+        val stringLiteral = element as JsonStringLiteral
+        val l10nChain = FormL10nChain.fromElement(stringLiteral) ?: return emptyArray()
+
+        return L10nModulePsiReference(l10nChain).asArray()
     }
 
 }

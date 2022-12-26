@@ -5,7 +5,7 @@ import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.search.GlobalSearchScope
 import com.solanteq.solar.plugin.file.IncludedFormFileType
 import com.solanteq.solar.plugin.file.TopLevelFormFileType
-import com.solanteq.solar.plugin.util.getFormModule
+import com.solanteq.solar.plugin.util.getFormModuleName
 import com.solanteq.solar.plugin.util.getFormSolarName
 
 object FormSearch {
@@ -24,13 +24,13 @@ object FormSearch {
 
     fun findTopLevelFormsInModule(scope: GlobalSearchScope, moduleName: String): Collection<VirtualFile> {
         return findTopLevelForms(scope).filter {
-            it.getFormModule() == moduleName
+            it.getFormModuleName() == moduleName
         }
     }
 
     fun findIncludedFormsInModule(scope: GlobalSearchScope, moduleName: String): Collection<VirtualFile> {
         return findIncludedForms(scope).filter {
-            it.getFormModule() == moduleName
+            it.getFormModuleName() == moduleName
         }
     }
 

@@ -10,9 +10,8 @@ import com.solanteq.solar.plugin.search.FormSearch
 import org.jetbrains.kotlin.idea.base.util.projectScope
 
 class L10nFormPsiReference(
-    element: JsonStringLiteral,
     val l10nChain: FormL10nChain
-) : PsiReferenceBase<JsonStringLiteral>(element, l10nChain.formNameTextRange, false) {
+) : PsiReferenceBase<JsonStringLiteral>(l10nChain.element, l10nChain.formTextRange, false) {
 
     //TODO Extract duplicate code
     override fun handleElementRename(newElementName: String): PsiElement {
@@ -21,8 +20,9 @@ class L10nFormPsiReference(
     }
 
     override fun getVariants(): Array<Any> {
+        l10nChain.moduleName ?: return emptyArray()
         return FormSearch
-            .findTopLevelFormsInModule(element.project.projectScope(), l10nChain.module)
+            .findTopLevelFormsInModule(element.project.projectScope(), l10nChain.moduleName)
             .map {
                 LookupElementBuilder
                     .create(it.nameWithoutExtension)

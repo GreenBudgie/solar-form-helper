@@ -16,38 +16,61 @@ fun VirtualFile.isForm() = fileType == TopLevelFormFileType || fileType == Inclu
 fun PsiFile.isForm() = fileType == TopLevelFormFileType || fileType == IncludedFormFileType
 
 /**
- * Gets the parent directory name of this form file, or null if this file can't be treated as form.
- * This directory may correspond to a form module, but that might not be true for included forms.
+ * @see getFormModuleName
  */
-fun VirtualFile.getFormModule(): String? {
+fun VirtualFile.getFormModuleName() = getFormModuleDirectory()?.name
+
+/**
+ * @see getFormModuleDirectory
+ */
+fun PsiFile.getFormModuleName() = getFormModuleDirectory()?.name
+
+/**
+ * Gets the module (directory) of this form by virtual file structure.
+ * This method does not rely on form file contents ("name" and "module" properties).
+ * It only relies on parent directories.
+ *
+ * Note that not all forms are directly located in the corresponding module directory.
+ * For example, some included forms may be located in `config/includes/forms/test/tabs`.
+ * Their real module is `test`, but they are located in `tabs` directory.
+ * This method will return `test` in this case.
+ */
+fun VirtualFile.getFormModuleDirectory(): VirtualFile? {
     if(!isForm()) {
         return null
     }
 
-    val parentDirectory = parent ?: return null
-    if(!parentDirectory.isDirectory) {
+    var parent: VirtualFile? = parent
+    var child: VirtualFile = this
+    while(parent != null) {
+        if(parent.name == "config" || parent.name == "resources") {
+            return null
+        }
+        if(parent.name == "forms") {
+            break
+        }
+        child = parent
+        parent = parent.parent
+    }
+
+    if(!child.isDirectory) {
         return null
     }
 
-    val formsDirectory = parentDirectory.parent ?: return null
-    if(!formsDirectory.isDirectory || formsDirectory.name != "forms") {
-        return null
-    }
-
-    return parentDirectory.name
+    return child
 }
 
 /**
- * @see getFormModule
+ * @see getFormModuleDirectory
  */
-fun PsiFile.getFormModule() = virtualFile?.getFormModule()
+fun PsiFile.getFormModuleDirectory() = virtualFile?.getFormModuleDirectory()
 
 /**
  * Gets the form name of this virtual file, or null if this file can't be treated as form
  * @see isForm
  */
 fun VirtualFile.getFormSolarName(): String {
-    val formModule = getFormModule() ?: return nameWithoutExtension
+    val formModule = getFormModuleName() ?: return nameWithoutExtension
 
     return "$formModule.${nameWithoutExtension}"
 }
