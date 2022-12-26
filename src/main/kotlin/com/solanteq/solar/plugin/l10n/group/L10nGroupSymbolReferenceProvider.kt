@@ -8,6 +8,7 @@ import com.intellij.model.psi.PsiSymbolReferenceProvider
 import com.intellij.model.search.SearchRequest
 import com.intellij.openapi.project.Project
 import com.solanteq.solar.plugin.l10n.FormL10nChain
+import com.solanteq.solar.plugin.l10n.L10nReferenceContributor
 import com.solanteq.solar.plugin.symbol.FormSymbolReference
 import com.solanteq.solar.plugin.util.asListOrEmpty
 
@@ -17,19 +18,19 @@ class L10nGroupSymbolReferenceProvider : PsiSymbolReferenceProvider {
         element: PsiExternalReferenceHost,
         hints: PsiSymbolReferenceHints
     ): List<FormSymbolReference<*>> {
-        if(!FormL10nChain.elementPattern.accepts(element)) return emptyList()
+        if(!L10nReferenceContributor.l10nPropertyPattern.accepts(element)) return emptyList()
         val stringLiteral = element as JsonStringLiteral
         val l10nChain = FormL10nChain.fromElement(stringLiteral) ?: return emptyList()
 
-        if(l10nChain.groupNameTextRange == null) return emptyList()
+        if(l10nChain.groupTextRange == null) return emptyList()
         return getReferenceForOffset(l10nChain, hints.offsetInElement).asListOrEmpty()
     }
 
     private fun getReferenceForOffset(l10nChain: FormL10nChain, offset: Int): FormSymbolReference<*>? {
-        if(offset != -1 && !l10nChain.groupNameTextRange!!.contains(offset)) {
+        if(offset != -1 && !l10nChain.groupTextRange!!.contains(offset)) {
             return null
         }
-        return FormGroupSymbolReference(l10nChain)
+        return L10nGroupSymbolReference(l10nChain)
     }
 
     override fun getSearchRequests(project: Project, target: Symbol) = emptyList<SearchRequest>()

@@ -14,8 +14,8 @@ object L10nFormPsiReferenceProvider : PsiReferenceProvider()  {
         val stringLiteral = element as JsonStringLiteral
         val l10nChain = FormL10nChain.fromElement(stringLiteral) ?: return emptyArray()
 
-        if(l10nChain.formNameTextRange == null) return emptyArray()
-        return L10nFormPsiReference(stringLiteral, l10nChain).asArray()
+        if(l10nChain.formTextRange == null) return emptyArray()
+        return L10nFormPsiReference(l10nChain).asArray()
     }
 
 }

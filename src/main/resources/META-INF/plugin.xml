@@ -55,6 +55,10 @@
                   implementationClass="com.solanteq.solar.plugin.file.L10nFileType"
                   fieldName="INSTANCE" />
 
+        <psi.referenceContributor
+                language="JSON"
+                implementation="com.solanteq.solar.plugin.l10n.L10nReferenceContributor" />
+
         <psi.declarationProvider implementation="com.solanteq.solar.plugin.l10n.group.L10nGroupDeclarationProvider" />
 
         <psi.symbolReferenceProvider hostElementClass="com.intellij.json.psi.impl.JsonStringLiteralImpl"
