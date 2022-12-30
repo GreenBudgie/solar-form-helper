@@ -1,12 +1,11 @@
 package com.solanteq.solar.plugin.file
 
-import com.intellij.json.JsonLanguage
-import com.intellij.openapi.fileTypes.LanguageFileType
+import com.intellij.json.JsonFileType
 import com.intellij.openapi.fileTypes.ex.FileTypeIdentifiableByVirtualFile
 import com.intellij.openapi.vfs.VirtualFile
 import com.solanteq.solar.plugin.asset.Icons
 
-object TopLevelFormFileType : LanguageFileType(JsonLanguage.INSTANCE), FileTypeIdentifiableByVirtualFile {
+object TopLevelFormFileType : JsonFileType(), FileTypeIdentifiableByVirtualFile {
 
     override fun getName() = "AIR Form"
 
@@ -16,8 +15,6 @@ object TopLevelFormFileType : LanguageFileType(JsonLanguage.INSTANCE), FileTypeI
 
     override fun isMyFileType(file: VirtualFile) =
         file.path.contains("config/forms")
-
-    override fun getDefaultExtension() = "json"
 
     override fun getDisplayName() = name
 
