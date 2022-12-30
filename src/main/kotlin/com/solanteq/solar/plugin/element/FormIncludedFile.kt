@@ -10,8 +10,8 @@ import com.intellij.psi.util.CachedValue
 import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.file.IncludedFormFileType
 import com.solanteq.solar.plugin.search.FormSearch
-import org.jetbrains.kotlin.idea.base.util.allScope
-import org.jetbrains.kotlin.idea.base.util.minus
+import org.jetbrains.kotlin.idea.search.allScope
+import org.jetbrains.kotlin.idea.search.minus
 
 /**
  * Represents an included form file.

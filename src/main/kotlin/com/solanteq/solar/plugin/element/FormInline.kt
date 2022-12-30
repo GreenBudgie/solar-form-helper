@@ -9,8 +9,8 @@ import com.intellij.psi.util.CachedValue
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.search.FormSearch
 import com.solanteq.solar.plugin.util.valueAsString
-import org.jetbrains.kotlin.idea.base.util.allScope
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
+import org.jetbrains.kotlin.idea.search.allScope
 
 /**
  * Represents an inline configuration property in [FormGroup]

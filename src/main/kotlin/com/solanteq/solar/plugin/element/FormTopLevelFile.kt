@@ -18,7 +18,7 @@ import com.solanteq.solar.plugin.reference.form.FormReference
 import com.solanteq.solar.plugin.search.FormSearch
 import com.solanteq.solar.plugin.util.FormPsiUtils
 import com.solanteq.solar.plugin.util.valueAsString
-import org.jetbrains.kotlin.idea.base.util.allScope
+import org.jetbrains.kotlin.idea.search.allScope
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.toUElementOfType
 

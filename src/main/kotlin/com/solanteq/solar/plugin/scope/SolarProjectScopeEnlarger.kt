@@ -6,7 +6,7 @@ import com.intellij.psi.search.UseScopeEnlarger
 import com.solanteq.solar.plugin.util.isCallableMethod
 import com.solanteq.solar.plugin.util.isCallableServiceClassImpl
 import com.solanteq.solar.plugin.util.isForm
-import org.jetbrains.kotlin.idea.base.util.projectScope
+import org.jetbrains.kotlin.idea.search.projectScope
 
 class SolarProjectScopeEnlarger : UseScopeEnlarger() {
 

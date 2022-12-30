@@ -10,14 +10,15 @@ import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.psi.PsiNamedElement
 import com.intellij.testFramework.IdeaTestUtil
+import com.intellij.testFramework.RunsInEdt
 import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase5
 import com.intellij.testFramework.fixtures.MavenDependencyUtil
-import com.intellij.testFramework.junit5.RunInEdt
 import com.solanteq.solar.plugin.symbol.FormSymbolReference
+import com.solanteq.solar.plugin.util.asList
 import org.junit.jupiter.api.Assertions
 
-@RunInEdt
+@RunsInEdt
 abstract class FormTestBase : LightJavaCodeInsightFixtureTestCase5(DEFAULT_DESCRIPTOR) {
 
     final override fun getTestDataPath() = "src/test/testData/${getTestDataSuffix()}"
@@ -77,8 +78,8 @@ abstract class FormTestBase : LightJavaCodeInsightFixtureTestCase5(DEFAULT_DESCR
         private val DEFAULT_DESCRIPTOR = object : DefaultLightProjectDescriptor() {
 
             override fun configureModule(module: Module, model: ModifiableRootModel, contentEntry: ContentEntry) {
-                MavenDependencyUtil.addFromMaven(model, "org.springframework:spring-context:5.3.23")
-                withSolarDependency(model, "com.solanteq.solar:solar-commons:3.3.5.1.RELEASE")
+//                MavenDependencyUtil.addFromMaven(model, "org.springframework:spring-context:5.3.23")
+//                withSolarDependency(model, "com.solanteq.solar:solar-commons:3.3.5.1.RELEASE")
                 super.configureModule(module, model, contentEntry)
             }
 
@@ -88,17 +89,15 @@ abstract class FormTestBase : LightJavaCodeInsightFixtureTestCase5(DEFAULT_DESCR
                     dependency,
                     true,
                     DependencyScope.COMPILE,
-                    listOf(
-                        RemoteRepositoryDescription(
-                            "solar",
-                            "SOLAR Repository",
-                            "https://karjala.solanteq.com/content/repositories/releases/"
-                        )
-                    )
+                    RemoteRepositoryDescription(
+                        "solar",
+                        "SOLAR Repository",
+                        "https://karjala.solanteq.com/content/repositories/releases/"
+                    ).asList()
                 )
             }
 
-            override fun getSdk() = IdeaTestUtil.getMockJdk18()
+            override fun getSdk() = IdeaTestUtil.getMockJdk11()
 
         }
 

@@ -7,7 +7,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi.util.CachedValue
 import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.search.FormSearch
-import org.jetbrains.kotlin.idea.base.util.allScope
+import org.jetbrains.kotlin.idea.search.allScope
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 
 /**

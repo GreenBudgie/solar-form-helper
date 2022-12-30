@@ -12,7 +12,7 @@ import com.intellij.psi.util.CachedValuesManager
 import com.solanteq.solar.plugin.util.SERVICE_ANNOTATION_FQ_NAME
 import com.solanteq.solar.plugin.util.isCallableServiceClassImpl
 import com.solanteq.solar.plugin.util.uastModificationTracker
-import org.jetbrains.kotlin.idea.base.util.allScope
+import org.jetbrains.kotlin.idea.search.allScope
 
 object CallableServiceSearch {
 

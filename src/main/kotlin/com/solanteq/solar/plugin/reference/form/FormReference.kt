@@ -9,7 +9,7 @@ import com.solanteq.solar.plugin.asset.Icons
 import com.solanteq.solar.plugin.search.FormSearch
 import com.solanteq.solar.plugin.util.getFormModuleName
 import com.solanteq.solar.plugin.util.getFormSolarName
-import org.jetbrains.kotlin.idea.base.util.allScope
+import org.jetbrains.kotlin.idea.search.allScope
 
 class FormReference(
     element: JsonStringLiteral,

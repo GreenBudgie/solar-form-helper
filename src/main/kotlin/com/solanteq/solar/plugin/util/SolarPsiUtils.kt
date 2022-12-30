@@ -24,6 +24,6 @@ fun PsiAnnotationMemberValue.evaluateToString(): String? {
 }
 
 fun Project.uastModificationTracker() =
-    PsiModificationTracker.getInstance(this).forLanguages {
+    PsiModificationTracker.SERVICE.getInstance(this).forLanguages {
         it is KotlinLanguage || it is JavaLanguage
     }

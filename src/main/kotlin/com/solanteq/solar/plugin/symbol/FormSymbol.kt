@@ -15,7 +15,7 @@ import com.intellij.refactoring.rename.api.PsiModifiableRenameUsage
 import com.intellij.refactoring.rename.api.RenameTarget
 import com.solanteq.solar.plugin.util.asList
 import com.solanteq.solar.plugin.util.textRangeWithoutQuotes
-import org.jetbrains.kotlin.idea.base.util.allScope
+import org.jetbrains.kotlin.idea.search.allScope
 
 /**
  * Represents a symbol in a form.
@@ -57,9 +57,7 @@ open class FormSymbol(
         return FormSymbolNavigationTarget(element).asList()
     }
 
-    override fun presentation(): TargetPresentation {
-        return TargetPresentation.builder(targetName).presentation()
-    }
+    override val presentation = TargetPresentation.builder(element.value).presentation()
 
     override val maximalSearchScope = project.allScope()
 
@@ -96,8 +94,8 @@ open class FormSymbol(
 
         override fun createPointer() = Pointer.hardPointer(this)
 
-        override fun presentation(): TargetPresentation {
-            return this@FormSymbol.presentation()
+        override fun getTargetPresentation(): TargetPresentation {
+            return this@FormSymbol.presentation
         }
 
         override fun navigationRequest(): NavigationRequest? {

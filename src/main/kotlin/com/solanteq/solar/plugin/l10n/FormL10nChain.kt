@@ -12,7 +12,7 @@ import com.solanteq.solar.plugin.element.FormTopLevelFile
 import com.solanteq.solar.plugin.element.toFormElement
 import com.solanteq.solar.plugin.search.FormSearch
 import com.solanteq.solar.plugin.util.getFormModuleDirectory
-import org.jetbrains.kotlin.idea.base.util.projectScope
+import org.jetbrains.kotlin.idea.search.projectScope
 import org.jetbrains.kotlin.idea.core.util.toPsiDirectory
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 

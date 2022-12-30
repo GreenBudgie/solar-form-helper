@@ -7,7 +7,7 @@ import com.intellij.psi.PsiReferenceBase
 import com.solanteq.solar.plugin.asset.Icons
 import com.solanteq.solar.plugin.l10n.FormL10nChain
 import com.solanteq.solar.plugin.search.FormSearch
-import org.jetbrains.kotlin.idea.base.util.projectScope
+import org.jetbrains.kotlin.idea.search.projectScope
 
 class L10nFormPsiReference(
     val l10nChain: FormL10nChain

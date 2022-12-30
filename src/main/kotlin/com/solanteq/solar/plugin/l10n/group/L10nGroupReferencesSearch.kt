@@ -14,7 +14,7 @@ import com.intellij.psi.util.PsiModificationTracker
 import com.solanteq.solar.plugin.file.L10nFileType
 import com.solanteq.solar.plugin.symbol.FormSymbol
 import com.solanteq.solar.plugin.symbol.FormSymbolReference
-import org.jetbrains.kotlin.idea.base.util.projectScope
+import org.jetbrains.kotlin.idea.search.projectScope
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 
 internal object L10nGroupReferencesSearch {

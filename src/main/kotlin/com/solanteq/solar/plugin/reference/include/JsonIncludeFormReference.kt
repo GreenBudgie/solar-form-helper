@@ -7,7 +7,7 @@ import com.intellij.psi.PsiReferenceBase
 import com.solanteq.solar.plugin.asset.Icons
 import com.solanteq.solar.plugin.element.FormJsonInclude
 import com.solanteq.solar.plugin.search.FormSearch
-import org.jetbrains.kotlin.idea.base.util.allScope
+import org.jetbrains.kotlin.idea.search.allScope
 
 class JsonIncludeFormReference(
     element: JsonStringLiteral,
