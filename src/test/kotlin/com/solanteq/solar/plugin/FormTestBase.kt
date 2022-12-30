@@ -72,6 +72,30 @@ abstract class FormTestBase : LightJavaCodeInsightFixtureTestCase5(DEFAULT_DESCR
         Assertions.assertEquals(expectedResult, elementAtCaret!!.value)
     }
 
+    protected fun testSymbolReferenceInStringLiteralRename(
+        renameTo: String,
+        expectedResult: String
+    ) {
+        val elementAtCaret = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonStringLiteral
+        val elementAbsoluteTextRangeStart = elementAtCaret.textRange.startOffset
+        val offset = fixture.caretOffset - elementAbsoluteTextRangeStart
+
+        val reference = PsiSymbolReferenceService.getService().getReferences(
+            elementAtCaret,
+            PsiSymbolReferenceHints.offsetHint(offset)
+        ).firstOrNull() as? FormSymbolReference<*>
+
+        Assertions.assertNotNull(reference)
+
+        val referencedSymbol = reference!!.resolveSingleTarget()
+
+        Assertions.assertNotNull(referencedSymbol)
+
+        fixture.renameTarget(referencedSymbol!!, renameTo)
+
+        Assertions.assertEquals(expectedResult, elementAtCaret.value)
+    }
+
     companion object {
 
         private val DEFAULT_DESCRIPTOR = object : DefaultLightProjectDescriptor() {

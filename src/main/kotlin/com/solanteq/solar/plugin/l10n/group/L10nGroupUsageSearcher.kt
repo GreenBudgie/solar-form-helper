@@ -6,6 +6,8 @@ import com.intellij.find.usages.api.UsageSearcher
 import com.intellij.util.Query
 import com.solanteq.solar.plugin.symbol.FormSymbol
 import com.solanteq.solar.plugin.util.ListWrapperQuery
+import com.solanteq.solar.plugin.util.asList
+import org.jetbrains.kotlin.psi.psiUtil.contains
 
 class L10nGroupUsageSearcher : UsageSearcher {
 
@@ -16,7 +18,12 @@ class L10nGroupUsageSearcher : UsageSearcher {
             .findReferencesInAllScope(target)
             .map { it.toPsiUsage() }
         val declaration = target.toDeclarationUsage()
-        return listOf(ListWrapperQuery(usages + declaration))
+        val allUsages = usages + declaration
+        val scope = parameters.searchScope
+        val usagesInScope = allUsages.filter {
+            scope.contains(it.file)
+        }
+        return ListWrapperQuery(usagesInScope).asList()
     }
 
 }

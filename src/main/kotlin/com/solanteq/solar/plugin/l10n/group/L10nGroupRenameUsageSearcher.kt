@@ -6,6 +6,7 @@ import com.intellij.refactoring.rename.api.RenameUsageSearcher
 import com.intellij.util.Query
 import com.solanteq.solar.plugin.symbol.FormSymbol
 import com.solanteq.solar.plugin.util.ListWrapperQuery
+import com.solanteq.solar.plugin.util.asList
 
 class L10nGroupRenameUsageSearcher : RenameUsageSearcher {
 
@@ -16,7 +17,7 @@ class L10nGroupRenameUsageSearcher : RenameUsageSearcher {
             .findReferencesInAllScope(target)
             .map { it.toRenameUsage() }
         val declaration = target.toDeclarationRenameUsage()
-        return listOf(ListWrapperQuery(usages + declaration))
+        return ListWrapperQuery(usages + declaration).asList()
     }
 
 }

@@ -110,7 +110,22 @@ class FormL10nChain private constructor(
 
     companion object {
 
+        private const val moduleNameChainIndex = 0
+        private const val formNameChainIndex = 2
+        private const val groupNameChainIndex = 3
+        private const val firstFieldNameChainIndex = 4
+
         private val key = Key<CachedValue<FormL10nChain>>("solar.l10n.chain")
+
+        /**
+         * Whether this element can be considered a form localization.
+         * Note that the form may not be resolved, but it will still be considered a form l10n.
+         */
+        fun isFormL10n(element: JsonStringLiteral): Boolean {
+            val textSplit = element.value.split(".")
+            val l10nType = textSplit.getOrNull(1)
+            return l10nType == "form"
+        }
 
         /**
          * Creates new l10n chain for the given element if it's possible, or returns null
@@ -131,11 +146,6 @@ class FormL10nChain private constructor(
             if(l10nType != "form") return null
             return FormL10nChain(element, textSplit)
         }
-
-        private const val moduleNameChainIndex = 0
-        private const val formNameChainIndex = 2
-        private const val groupNameChainIndex = 3
-        private const val firstFieldNameChainIndex = 4
 
     }
 

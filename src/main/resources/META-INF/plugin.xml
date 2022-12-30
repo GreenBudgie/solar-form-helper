@@ -72,5 +72,7 @@
         <searcher forClass="com.intellij.refactoring.rename.api.RenameUsageSearchParameters"
                   implementationClass="com.solanteq.solar.plugin.l10n.group.L10nGroupRenameUsageSearcher"/>
 
+        <vetoRenameCondition implementation="com.solanteq.solar.plugin.l10n.L10nVetoPropertyRename" />
+
     </extensions>
 </idea-plugin>

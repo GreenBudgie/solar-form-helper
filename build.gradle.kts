@@ -1,7 +1,7 @@
 plugins {
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "1.7.20"
-    id("org.jetbrains.intellij") version "1.10.1"
+    id("org.jetbrains.kotlin.jvm") version "1.7.22"
+    id("org.jetbrains.intellij") version "1.11.0"
 }
 
 group = "com.solanteq.solar.plugin"
@@ -19,7 +19,7 @@ dependencies {
 
 // Configure Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
 intellij {
-    version.set("LATEST-EAP-SNAPSHOT")
+    version.set("2022.3.1")
     type.set("IC") // Target IDE Platform
 
     plugins.set(listOf("com.intellij.java", "org.jetbrains.kotlin"))
@@ -41,7 +41,7 @@ tasks {
     }
 
     patchPluginXml {
-        sinceBuild.set("212")
+        sinceBuild.set("223")
     }
 
     signPlugin {

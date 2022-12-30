@@ -17,7 +17,8 @@ open class FormSymbolReference<T : PsiElement>(
     val targetElement: JsonStringLiteral?
 ) : PsiSymbolReference {
 
-    override fun resolveReference(): List<FormSymbol> = targetElement?.let { FormSymbol(it) }.asListOrEmpty()
+    override fun resolveReference(): List<FormSymbol> =
+        targetElement?.let { FormSymbol(it) }.asListOrEmpty()
 
     fun resolveSingleTarget(): FormSymbol? = resolveReference().firstOrNull()
 

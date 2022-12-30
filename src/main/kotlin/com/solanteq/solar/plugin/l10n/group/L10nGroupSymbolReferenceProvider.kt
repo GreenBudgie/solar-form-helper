@@ -26,13 +26,13 @@ class L10nGroupSymbolReferenceProvider : PsiSymbolReferenceProvider {
         return getReferenceForOffset(l10nChain, hints.offsetInElement).asListOrEmpty()
     }
 
+    override fun getSearchRequests(project: Project, target: Symbol) = emptyList<SearchRequest>()
+
     private fun getReferenceForOffset(l10nChain: FormL10nChain, offset: Int): FormSymbolReference<*>? {
         if(offset != -1 && !l10nChain.groupTextRange!!.contains(offset)) {
             return null
         }
         return L10nGroupSymbolReference(l10nChain)
     }
-
-    override fun getSearchRequests(project: Project, target: Symbol) = emptyList<SearchRequest>()
 
 }

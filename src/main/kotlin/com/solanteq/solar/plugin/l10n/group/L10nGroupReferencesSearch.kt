@@ -17,7 +17,7 @@ import com.solanteq.solar.plugin.symbol.FormSymbolReference
 import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 
-internal object L10nGroupReferencesSearch {
+object L10nGroupReferencesSearch {
 
     private val key = Key<CachedValue<List<FormSymbolReference<*>>>>("solar.l10n.groupReference")
 

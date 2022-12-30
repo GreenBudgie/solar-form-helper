@@ -76,11 +76,11 @@ open class FormSymbol(
 
     fun toDeclarationRenameUsage() = FormSymbolDeclarationRenameUsage()
 
-    protected inner class FormSymbolPointer(
-        private val psiElementPointer: SmartPsiElementPointer<JsonStringLiteral>
+    class FormSymbolPointer(
+        private val basePointer: SmartPsiElementPointer<JsonStringLiteral>
     ) : Pointer<FormSymbol> {
 
-        override fun dereference() = psiElementPointer.element?.let {
+        override fun dereference() = basePointer.element?.let {
             FormSymbol(it)
         }
 

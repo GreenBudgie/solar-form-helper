@@ -130,7 +130,6 @@ class L10nTest : FormTestBase() {
     }
 
     @Test
-    @Disabled("Working, but can't choose rename handler to rename symbol instead of the whole property")
     fun `test l10n group rename`() {
         fixture.configureByForms("testForm1.json", module = "test")
 
@@ -138,7 +137,10 @@ class L10nTest : FormTestBase() {
             "test.form.testForm1.<caret>group1" to "Group Name!"
         )
 
-        testJsonStringLiteralRename("renamed", "test.form.testForm1.renamed")
+        testSymbolReferenceInStringLiteralRename(
+            "renamed",
+            "test.form.testForm1.renamed"
+        )
     }
 
     @Test
