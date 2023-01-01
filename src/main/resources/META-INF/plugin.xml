@@ -74,5 +74,8 @@
 
         <vetoRenameCondition implementation="com.solanteq.solar.plugin.l10n.L10nVetoPropertyRename" />
 
+        <completion.contributor language="JSON"
+                                implementationClass="com.solanteq.solar.plugin.l10n.L10nCompletionContributor" />
+
     </extensions>
 </idea-plugin>

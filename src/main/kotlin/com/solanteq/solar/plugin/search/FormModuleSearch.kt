@@ -51,9 +51,15 @@ object FormModuleSearch {
         findTopLevelFormModules(project) + findIncludedFormModules(project)
 
     private fun getConfigDirectories(project: Project): List<VirtualFile> {
-        val resourcesDirectories = ProjectRootManager.getInstance(project).contentSourceRoots
-            .filter { it.name == "resources" }
-        return resourcesDirectories.childDirectoriesWithName("config")
+        val sourceRoots = ProjectRootManager.getInstance(project).contentSourceRoots
+        val directResourcesDirectories = sourceRoots.filter { it.name == "resources" }
+        val srcDirectories = sourceRoots.filter { it.name == "src" }
+        val mainDirectories = srcDirectories.childDirectoriesWithName("main")
+        val resourcesDirectories = mainDirectories.childDirectoriesWithName("resources")
+
+        val allResourcesDirectories = (directResourcesDirectories + resourcesDirectories).distinct()
+
+        return allResourcesDirectories.childDirectoriesWithName("config")
     }
 
     private fun getTopLevelFormModules(project: Project): List<VirtualFile> {
