@@ -5,14 +5,16 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.model.psi.PsiCompletableReference
 import com.solanteq.solar.plugin.l10n.FormL10nChain
-import com.solanteq.solar.plugin.symbol.FormSymbolReference
+import com.solanteq.solar.plugin.symbol.FormSymbolSingleReference
+import com.solanteq.solar.plugin.symbol.FormSymbolType
 
 class L10nGroupSymbolReference(
     val l10nChain: FormL10nChain
-) : FormSymbolReference<JsonStringLiteral>(
+) : FormSymbolSingleReference<JsonStringLiteral>(
     l10nChain.element,
     l10nChain.groupTextRange!!,
-    l10nChain.groupReference
+    FormSymbolType.GROUP,
+    l10nChain.referencedGroup
 ), PsiCompletableReference {
 
     override fun getCompletionVariants(): List<LookupElement> {

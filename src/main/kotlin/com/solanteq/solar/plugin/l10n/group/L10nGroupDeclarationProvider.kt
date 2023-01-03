@@ -7,6 +7,7 @@ import com.intellij.psi.PsiElement
 import com.solanteq.solar.plugin.element.FormGroup
 import com.solanteq.solar.plugin.symbol.FormSymbol
 import com.solanteq.solar.plugin.symbol.FormSymbolDeclaration
+import com.solanteq.solar.plugin.symbol.FormSymbolType
 import com.solanteq.solar.plugin.util.asList
 import com.solanteq.solar.plugin.util.inForm
 import com.solanteq.solar.plugin.util.isInArrayWithKey
@@ -26,7 +27,7 @@ class L10nGroupDeclarationProvider : PsiSymbolDeclarationProvider {
         if(!groupNamePattern.accepts(element)) return emptyList()
         return FormSymbolDeclaration(
             element as JsonStringLiteral,
-            FormSymbol(element)
+            FormSymbol.withFullTextRange(element, FormSymbolType.GROUP)
         ).asList()
     }
 

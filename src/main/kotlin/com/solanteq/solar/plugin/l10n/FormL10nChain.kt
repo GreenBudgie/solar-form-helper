@@ -11,6 +11,7 @@ import com.intellij.psi.util.PsiModificationTracker
 import com.solanteq.solar.plugin.element.FormTopLevelFile
 import com.solanteq.solar.plugin.element.toFormElement
 import com.solanteq.solar.plugin.search.FormSearch
+import com.solanteq.solar.plugin.util.dotSplit
 import com.solanteq.solar.plugin.util.getFormModuleDirectory
 import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.kotlin.idea.core.util.toPsiDirectory
@@ -40,17 +41,17 @@ import org.jetbrains.kotlin.idea.core.util.toPsiFile
  */
 class FormL10nChain private constructor(
     val element: JsonStringLiteral,
-    private val chain: List<String>,
+    val chain: List<Pair<TextRange, String>>,
 ) {
 
     val project = element.project
 
-    val moduleName = chain.getOrNull(moduleNameChainIndex)
-    val formName = chain.getOrNull(formNameChainIndex)
-    val groupName = chain.getOrNull(groupNameChainIndex)
+    val moduleName = chain.getOrNull(moduleNameChainIndex)?.second
+    val formName = chain.getOrNull(formNameChainIndex)?.second
+    val groupName = chain.getOrNull(groupNameChainIndex)?.second
 
     val moduleTextRange by lazy {
-        getTextRangeForChainTokenByIndex(moduleNameChainIndex)
+        chain.getOrNull(moduleNameChainIndex)?.first
     }
 
     val referencedModuleDirectory by lazy {
@@ -85,27 +86,33 @@ class FormL10nChain private constructor(
     }
 
     val formTextRange by lazy {
-        getTextRangeForChainTokenByIndex(formNameChainIndex)
+        chain.getOrNull(formNameChainIndex)?.first
     }
 
-    val groupReference by lazy {
+    val referencedGroup by lazy {
+        referencedGroupElement?.namePropertyValue
+    }
+
+    val referencedGroupElement by lazy {
         groupName ?: return@lazy null
         val groups = referencedFormTopLevelFileElement?.allGroups ?: return@lazy null
-        val groupElement = groups.find { it.name == groupName } ?: return@lazy null
-        return@lazy groupElement.namePropertyValue
+        return@lazy groups.find { it.name == groupName }
     }
 
     val groupTextRange by lazy {
-        getTextRangeForChainTokenByIndex(groupNameChainIndex)
+        chain.getOrNull(groupNameChainIndex)?.first
     }
 
-    private fun getTextRangeForChainTokenByIndex(index: Int): TextRange? {
-        if(index >= chain.size) return null
-        val currentLiteralLength = chain[index].length
-        val prevLiteralsLength = chain.take(index).joinToString("").length
-        val startPos = prevLiteralsLength + index + 1
-        val endPos = startPos + currentLiteralLength
-        return TextRange(startPos, endPos)
+    val fieldChain by lazy {
+        val fieldChainIndexRange = fieldChainStartIndex until chain.size
+        return@lazy fieldChainIndexRange.map { chain[it] }
+    }
+
+    private val fieldsInForm by lazy {
+        val form = referencedFormTopLevelFileElement ?: return@lazy emptyList()
+        val groups = form.allGroups
+        val rows = groups.flatMap { it.rows ?: emptyList() }
+        return@lazy rows.flatMap { it.fields ?: emptyList() }
     }
 
     companion object {
@@ -113,7 +120,7 @@ class FormL10nChain private constructor(
         private const val moduleNameChainIndex = 0
         private const val formNameChainIndex = 2
         private const val groupNameChainIndex = 3
-        private const val firstFieldNameChainIndex = 4
+        private const val fieldChainStartIndex = 4
 
         private val key = Key<CachedValue<FormL10nChain>>("solar.l10n.chain")
 
@@ -140,9 +147,9 @@ class FormL10nChain private constructor(
         }
 
         private fun createChain(element: JsonStringLiteral): FormL10nChain? {
-            val textSplit = element.value.split(".")
+            val textSplit = element.dotSplit()
             if(textSplit.size < 3) return null
-            val l10nType = textSplit[1]
+            val l10nType = textSplit[1].second
             if(l10nType != "form") return null
             return FormL10nChain(element, textSplit)
         }

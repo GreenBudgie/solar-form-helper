@@ -8,9 +8,12 @@ import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.model.Pointer
 import com.intellij.navigation.*
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import com.intellij.psi.SmartPointerManager
 import com.intellij.psi.SmartPsiElementPointer
+import com.intellij.psi.SmartPsiFileRange
 import com.intellij.refactoring.rename.api.PsiModifiableRenameUsage
 import com.intellij.refactoring.rename.api.RenameTarget
 import com.solanteq.solar.plugin.util.asList
@@ -22,8 +25,10 @@ import org.jetbrains.kotlin.idea.base.util.allScope
  *
  * Symbols in forms can only be [JsonStringLiteral] values of properties.
  */
-open class FormSymbol(
-    val element: JsonStringLiteral
+class FormSymbol private constructor(
+    val element: JsonStringLiteral,
+    val fileTextRange: TextRange,
+    val type: FormSymbolType
 ) : RenameTarget, SearchTarget, NavigatableSymbol {
 
     val project = element.project
@@ -32,29 +37,23 @@ open class FormSymbol(
             "Cannot find file of a symbol underlying element. Is it a valid physical element?"
         )
 
-    val virtualFile = file.virtualFile ?: throw IllegalArgumentException(
-        "Cannot find virtual file of a symbol underlying element. Is it a valid physical element?"
-    )
+    val virtualFile: VirtualFile? = file.virtualFile
 
-    val elementTextRange = element.textRangeWithoutQuotes
-
-    val fileTextRange by lazy {
-        elementTextRange.shiftRight(
-            element.textRange.startOffset
-        )
-    }
+    val elementTextRange = fileTextRange.shiftLeft(element.textRange.startOffset)
 
     override fun createPointer(): Pointer<FormSymbol> {
-        val pointer = SmartPointerManager.getInstance(project).createSmartPsiElementPointer(element)
-        return FormSymbolPointer(pointer)
+        val manager = SmartPointerManager.getInstance(project)
+        val elementPointer = manager.createSmartPsiElementPointer(element, file)
+        val textRangePointer = manager.createSmartPsiFileRangePointer(file, fileTextRange)
+        return FormSymbolPointer(elementPointer, textRangePointer)
     }
 
-    override val targetName = element.value
+    override val targetName = elementTextRange.substring(element.text)
 
-    override val usageHandler = UsageHandler.createEmptyUsageHandler(element.value)
+    override val usageHandler = UsageHandler.createEmptyUsageHandler(targetName)
 
     override fun getNavigationTargets(project: Project): List<NavigationTarget> {
-        return FormSymbolNavigationTarget(element).asList()
+        return FormSymbolNavigationTarget().asList()
     }
 
     override fun presentation(): TargetPresentation {
@@ -76,22 +75,24 @@ open class FormSymbol(
 
     fun toDeclarationRenameUsage() = FormSymbolDeclarationRenameUsage()
 
-    class FormSymbolPointer(
-        private val basePointer: SmartPsiElementPointer<JsonStringLiteral>
+    inner class FormSymbolPointer(
+        private val baseElementPointer: SmartPsiElementPointer<JsonStringLiteral>,
+        private val baseRangePointer: SmartPsiFileRange,
     ) : Pointer<FormSymbol> {
 
-        override fun dereference() = basePointer.element?.let {
-            FormSymbol(it)
+        override fun dereference(): FormSymbol? {
+            val element = baseElementPointer.element ?: return null
+            val fileTextRangeSegment = baseRangePointer.range ?: return null
+            val fileTextRange = TextRange.create(fileTextRangeSegment)
+            return FormSymbol(element, fileTextRange, type)
         }
 
     }
 
-    protected inner class FormSymbolNavigationTarget(
-        val element: JsonStringLiteral
-    ) : NavigationTarget {
+    inner class FormSymbolNavigationTarget : NavigationTarget {
 
         private val offset by lazy {
-            element.textRange.startOffset + 1
+            fileTextRange.startOffset
         }
 
         override fun createPointer() = Pointer.hardPointer(this)
@@ -101,6 +102,7 @@ open class FormSymbol(
         }
 
         override fun navigationRequest(): NavigationRequest? {
+            virtualFile ?: return null
             return NavigationService.instance().sourceNavigationRequest(
                 virtualFile,
                 offset
@@ -115,7 +117,7 @@ open class FormSymbol(
 
         override val file: PsiFile = this@FormSymbol.file
 
-        override val range = this@FormSymbol.fileTextRange
+        override val range = fileTextRange
 
     }
 
@@ -131,6 +133,40 @@ open class FormSymbol(
         PsiModifiableRenameUsage {
 
         override fun createPointer() = Pointer.hardPointer(this)
+
+    }
+
+    companion object {
+
+        /**
+         * Creates a form symbol using full text range of its value (does not include quotes)
+         */
+        fun withFullTextRange(element: JsonStringLiteral, type: FormSymbolType): FormSymbol {
+            return withElementTextRange(element, element.textRangeWithoutQuotes, type)
+        }
+
+        /**
+         * Creates a form symbol using the specified text range in element.
+         * Note that this range includes quotes.
+         */
+        fun withElementTextRange(element: JsonStringLiteral,
+                                 elementTextRange: TextRange,
+                                 type: FormSymbolType): FormSymbol {
+            return withFileTextRange(
+                element,
+                elementTextRange.shiftRight(element.textRange.startOffset),
+                type
+            )
+        }
+
+        /**
+         * Creates a form symbol using the specified text range in the file
+         */
+        fun withFileTextRange(element: JsonStringLiteral,
+                              fileTextRange: TextRange,
+                              type: FormSymbolType): FormSymbol {
+            return FormSymbol(element, fileTextRange, type)
+        }
 
     }
 

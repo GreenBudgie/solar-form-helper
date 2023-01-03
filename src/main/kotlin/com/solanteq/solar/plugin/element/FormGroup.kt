@@ -17,6 +17,13 @@ class FormGroup(
 ) : FormLocalizableElement<JsonObject>(sourceElement, sourceElement) {
 
     /**
+     * A list of [FormField] elements from all rows in this group
+     */
+    val allFields by lazy {
+        rows?.flatMap { it.fields ?: emptyList() } ?: emptyList()
+    }
+
+    /**
      * [FormRow] array as content of the group.
      *
      * Not null when type is [GroupContentType.ROWS].

@@ -7,6 +7,9 @@ import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiType
 import com.intellij.psi.util.CachedValue
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
+import com.solanteq.solar.plugin.symbol.FormSymbol
+import com.solanteq.solar.plugin.symbol.FormSymbolType
+import com.solanteq.solar.plugin.util.dotSplit
 import com.solanteq.solar.plugin.util.valueAsString
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UField
@@ -78,7 +81,7 @@ class FormField(
      * ```
      *
      */
-    val stringPropertyChain by lazy { name?.split(".") }
+    val stringPropertyChain by lazy { namePropertyValue?.dotSplit() ?: emptyList() }
 
     /**
      * A list of [FieldProperty] as a chain from main to nested ones represented as UAST fields.
@@ -89,14 +92,10 @@ class FormField(
      *
      * Example: consider we have a chain of five fields `field1`, `field2`...
      * If we make a typo at `field3`, then only `field1` and `field2` will be resolved.
-     *
-     * ```
-     * "name": "field1.field2.fieldWithTypo.field4.field5"
-     * -> [field1, field2]
-     * ```
+     * Further fields will be considered "fake", and symbols will be used to describe them.
      */
     val propertyChain by lazy {
-        val stringPropertyChain = stringPropertyChain ?: return@lazy emptyList()
+        val stringPropertyChain = stringPropertyChain
         if(stringPropertyChain.isEmpty()) {
             return@lazy emptyList()
         }
@@ -104,19 +103,31 @@ class FormField(
         val propertyChain = mutableListOf<FieldProperty>()
         var dataClasses: List<UClass> = findAllDataClassesFromRequests()
 
-        stringPropertyChain.forEach { fieldName ->
+        stringPropertyChain.forEach { (textRange, fieldName) ->
             if(dataClasses.isEmpty()) {
-                propertyChain += FieldProperty(fieldName, emptyList(), null, null)
+                propertyChain += FieldProperty(
+                    fieldName,
+                    emptyList(),
+                    null,
+                    null,
+                    FormSymbol.withElementTextRange(namePropertyValue!!, textRange, FormSymbolType.FIELD)
+                )
                 return@forEach
             }
 
             val (containingClass, field) = findClassAndFieldByNameInClasses(dataClasses, fieldName)
             if(field == null) {
-                propertyChain += FieldProperty(fieldName, dataClasses, containingClass, null)
+                propertyChain += FieldProperty(
+                    fieldName,
+                    dataClasses,
+                    containingClass,
+                    null,
+                    FormSymbol.withElementTextRange(namePropertyValue!!, textRange, FormSymbolType.FIELD)
+                )
                 return@forEach
             }
 
-            propertyChain += FieldProperty(fieldName, dataClasses, containingClass, field)
+            propertyChain += FieldProperty(fieldName, dataClasses, containingClass, field, null)
 
             val nextDataClass = psiTypeAsUClassOrNull(field.type)
             dataClasses = if(nextDataClass != null) listOf(nextDataClass) else emptyList()
@@ -158,12 +169,14 @@ class FormField(
      * or a single class directly from source request
      * @property containingClass Data class containing this field
      * @property referencedField Real psi element resolved from [name] property
+     * @property symbol If no field is found, this symbol can be used instead
      */
     data class FieldProperty(
         val name: String,
         val applicableClasses: List<UClass>,
         val containingClass: UClass?,
-        val referencedField: UField?
+        val referencedField: UField?,
+        val symbol: FormSymbol?
     )
 
     companion object : FormElementCreator<FormField> {

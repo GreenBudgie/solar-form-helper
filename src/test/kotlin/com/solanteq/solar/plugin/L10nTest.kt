@@ -1,7 +1,6 @@
 package com.solanteq.solar.plugin
 
 import com.intellij.psi.PsiFile
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -139,35 +138,45 @@ class L10nTest : FormTestBase() {
         )
     }
 
-    // Field
+    // Fake fields (fields that are not backed by fields in data classes)
 
     @Test
-    @Disabled("Not yet implemented")
-    fun `test l10n reference to field`() {
+    fun `test l10n reference to fake field`() {
         fixture.configureByForms("testForm1.json", module = "test")
 
         createL10nFileAndConfigure("l10n",
             "test.form.testForm.group1.<caret>field1" to "Field Name!"
         )
 
-        assertReferencedElementNameEquals("field1")
+        assertReferencedSymbolNameEquals("field1")
     }
 
     @Test
-    @Disabled("Not yet implemented")
-    fun `test l10n reference to nested field`() {
+    fun `test l10n reference to nested fake field`() {
         fixture.configureByForms("testForm1.json", module = "test")
 
         createL10nFileAndConfigure("l10n",
             "test.form.testForm.group2.field.<caret>nestedField.randomText" to "Field Name!"
         )
 
-        assertReferencedElementNameEquals("nestedField")
+        assertReferencedSymbolNameEquals("nestedField")
     }
 
     @Test
-    @Disabled("Not yet implemented")
-    fun `test l10n field completion`() {
+    fun `test l10n fake field rename`() {
+        fixture.configureByForms("testForm1.json", module = "test")
+
+        createL10nFileAndConfigure("l10n",
+            "test.form.testForm.group1.<caret>field1" to "Field Name!"
+        )
+
+        testSymbolReferenceInStringLiteralRename(
+            "renamed",
+            "test.form.testForm.group1.renamed")
+    }
+
+    @Test
+    fun `test l10n fake field completion`() {
         fixture.configureByForms("testForm1.json", module = "test")
 
         createL10nFileAndConfigure("l10n",
@@ -178,8 +187,7 @@ class L10nTest : FormTestBase() {
     }
 
     @Test
-    @Disabled("Not yet implemented")
-    fun `test l10n nested field first part completion`() {
+    fun `test l10n fake nested field first part completion`() {
         fixture.configureByForms("testForm1.json", module = "test")
 
         createL10nFileAndConfigure("l10n",
@@ -190,8 +198,7 @@ class L10nTest : FormTestBase() {
     }
 
     @Test
-    @Disabled("Not yet implemented")
-    fun `test l10n nested field second part completion`() {
+    fun `test l10n fake nested field second part completion`() {
         fixture.configureByForms("testForm1.json", module = "test")
 
         createL10nFileAndConfigure("l10n",
@@ -199,6 +206,88 @@ class L10nTest : FormTestBase() {
         )
 
         assertCompletionsContainsExact("nestedField")
+    }
+
+    // Real fields (fields that are backed by fields in data classes)
+
+    @Test
+    fun `test l10n real field reference`() {
+        prepareRealFieldsTest()
+
+        createL10nFileAndConfigure("l10n",
+            "test.form.fieldsForm.group1.<caret>realField" to "Field Name!"
+        )
+
+        assertReferencedElementNameEquals("realField")
+    }
+
+    @Test
+    fun `test l10n real field rename`() {
+        prepareRealFieldsTest()
+
+        createL10nFileAndConfigure("l10n",
+            "test.form.fieldsForm.group1.<caret>realField" to "Field Name!"
+        )
+
+        testJsonStringLiteralRename(
+            "renamed",
+            "test.form.fieldsForm.group1.renamed"
+        )
+    }
+
+    @Test
+    fun `test l10n fake field reference when source exists`() {
+        prepareRealFieldsTest()
+
+        createL10nFileAndConfigure("l10n",
+            "test.form.fieldsForm.group1.<caret>fakeField" to "Field Name!"
+        )
+
+        assertReferencedSymbolNameEquals("fakeField")
+    }
+
+    @Test
+    fun `test l10n real nested field reference`() {
+        prepareRealFieldsTest()
+
+        createL10nFileAndConfigure("l10n",
+            "test.form.fieldsForm.group2.realFieldWithNested.<caret>realNestedField" to "Field Name!"
+        )
+
+        assertReferencedElementNameEquals("realNestedField")
+    }
+
+    @Test
+    fun `test l10n real and fake fields completion`() {
+        prepareRealFieldsTest()
+
+        createL10nFileAndConfigure("l10n",
+            "test.form.fieldsForm.group1.<caret>" to "Field Name!"
+        )
+
+        assertCompletionsContainsExact("realField", "fakeField")
+    }
+
+    @Test
+    fun `test l10n real nested field completion first part`() {
+        prepareRealFieldsTest()
+
+        createL10nFileAndConfigure("l10n",
+            "test.form.fieldsForm.group2.<caret>" to "Field Name!"
+        )
+
+        assertCompletionsContainsExact("realFieldWithNested")
+    }
+
+    @Test
+    fun `test l10n real nested field completion second part`() {
+        prepareRealFieldsTest()
+
+        createL10nFileAndConfigure("l10n",
+            "test.form.fieldsForm.group2.realFieldWithNested.<caret>" to "Field Name!"
+        )
+
+        assertCompletionsContainsExact("realNestedField")
     }
 
     /**
@@ -240,6 +329,17 @@ class L10nTest : FormTestBase() {
         val psiL10nFile = createL10nFile(fileName, *l10ns, isRussian = isRussian)
         fixture.configureFromExistingVirtualFile(psiL10nFile.virtualFile)
         return fixture.file
+    }
+
+    private fun prepareRealFieldsTest() {
+        fixture.configureByFiles(
+            "TestService.kt",
+            "TestServiceImpl.kt",
+            "DataClass.kt",
+            "NestedDataClass.kt",
+        )
+
+        fixture.configureByForms("fieldsForm.json", module = "test")
     }
 
 }

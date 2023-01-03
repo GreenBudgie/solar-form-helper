@@ -7,6 +7,7 @@ import com.intellij.psi.PsiReferenceContributor
 import com.intellij.psi.PsiReferenceProvider
 import com.intellij.psi.PsiReferenceRegistrar
 import com.solanteq.solar.plugin.file.L10nFileType
+import com.solanteq.solar.plugin.l10n.field.L10nFieldPsiReferenceProvider
 import com.solanteq.solar.plugin.l10n.form.L10nFormPsiReferenceProvider
 import com.solanteq.solar.plugin.l10n.module.L10nModulePsiReferenceProvider
 import com.solanteq.solar.plugin.util.isPropertyKey
@@ -16,7 +17,8 @@ class L10nReferenceContributor : PsiReferenceContributor() {
     override fun registerReferenceProviders(registrar: PsiReferenceRegistrar) {
         registrar.registerAllProviders(
             L10nModulePsiReferenceProvider,
-            L10nFormPsiReferenceProvider
+            L10nFormPsiReferenceProvider,
+            L10nFieldPsiReferenceProvider
         )
     }
 

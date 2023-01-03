@@ -77,5 +77,12 @@
         <completion.contributor language="JSON"
                                 implementationClass="com.solanteq.solar.plugin.l10n.L10nCompletionContributor" />
 
+        <psi.declarationProvider implementation="com.solanteq.solar.plugin.l10n.field.L10nFieldDeclarationProvider" />
+
+        <psi.symbolReferenceProvider hostElementClass="com.intellij.json.psi.impl.JsonStringLiteralImpl"
+                                     hostLanguage="JSON"
+                                     implementationClass="com.solanteq.solar.plugin.l10n.field.L10nFieldSymbolReferenceProvider"
+                                     targetClass="com.solanteq.solar.plugin.symbol.FormSymbol" />
+
     </extensions>
 </idea-plugin>

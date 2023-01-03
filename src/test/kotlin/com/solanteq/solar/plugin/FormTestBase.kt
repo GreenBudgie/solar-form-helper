@@ -47,7 +47,7 @@ abstract class FormTestBase : LightJavaCodeInsightFixtureTestCase5(DEFAULT_DESCR
 
         Assertions.assertNotNull(reference)
 
-        val referencedSymbol = reference!!.resolveSingleTarget()
+        val referencedSymbol = reference!!.getFirstResolveResult()
 
         Assertions.assertNotNull(referencedSymbol)
         Assertions.assertEquals(name, referencedSymbol!!.targetName)
@@ -87,7 +87,7 @@ abstract class FormTestBase : LightJavaCodeInsightFixtureTestCase5(DEFAULT_DESCR
 
         Assertions.assertNotNull(reference)
 
-        val referencedSymbol = reference!!.resolveSingleTarget()
+        val referencedSymbol = reference!!.getFirstResolveResult()
 
         Assertions.assertNotNull(referencedSymbol)
 
