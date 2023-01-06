@@ -19,11 +19,11 @@ import org.jetbrains.kotlin.idea.core.util.toPsiFile
 
 object L10nGroupReferencesSearch {
 
-    private val key = Key<CachedValue<List<FormSymbolReference<*>>>>("solar.l10n.groupReference")
+    private val key = Key<CachedValue<List<FormSymbolReference>>>("solar.l10n.groupReference")
 
     fun findReferencesInAllScope(
         resolveTarget: FormSymbol
-    ): List<FormSymbolReference<*>> {
+    ): List<FormSymbolReference> {
         return CachedValuesManager.getCachedValue(resolveTarget.element, key) {
             CachedValueProvider.Result(
                 findReferences(resolveTarget),
@@ -34,14 +34,14 @@ object L10nGroupReferencesSearch {
 
     private fun findReferences(
         resolveTarget: FormSymbol
-    ): List<FormSymbolReference<*>> {
+    ): List<FormSymbolReference> {
         val l10nFiles = FileTypeIndex.getFiles(L10nFileType, resolveTarget.element.project.projectScope())
         return l10nFiles.flatMap {
             findReferencesInFile(it, resolveTarget)
         }
     }
 
-    private fun findReferencesInFile(file: VirtualFile, resolveTarget: FormSymbol): List<FormSymbolReference<*>> {
+    private fun findReferencesInFile(file: VirtualFile, resolveTarget: FormSymbol): List<FormSymbolReference> {
         val jsonFile = file.toPsiFile(resolveTarget.element.project) as? JsonFile ?: return emptyList()
         val topLevelObject = jsonFile.topLevelValue as? JsonObject ?: return emptyList()
         val propertyKeys = topLevelObject.propertyList.mapNotNull {
@@ -55,7 +55,7 @@ object L10nGroupReferencesSearch {
     private fun findReferenceInElement(
         element: JsonStringLiteral,
         resolveTarget: FormSymbol
-    ): FormSymbolReference<*>? {
+    ): FormSymbolReference? {
         val references = PsiSymbolReferenceService.getService().getReferences(element)
         val groupReferences = references.filterIsInstance<L10nGroupSymbolReference>()
         val applicableReferences = groupReferences.filter { reference ->

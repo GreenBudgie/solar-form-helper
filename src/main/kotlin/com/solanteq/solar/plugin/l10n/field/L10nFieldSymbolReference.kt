@@ -12,7 +12,7 @@ class L10nFieldSymbolReference(
     private val fieldsInGroup: List<FormField>,
     private val l10nFieldNameChain: List<String>,
     private val l10nFieldNameChainIndex: Int,
-) : FormSymbolReference<JsonStringLiteral>(sourceElement, sourceElementTextRange) {
+) : FormSymbolReference(sourceElement, sourceElementTextRange) {
 
     override fun resolveReference(): List<FormSymbol> {
         val fieldProperties = L10nFieldSearcher.findApplicablePropertiesByNameChainAtIndex(

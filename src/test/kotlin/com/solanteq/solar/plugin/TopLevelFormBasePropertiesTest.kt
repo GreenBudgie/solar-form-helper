@@ -36,7 +36,8 @@ class TopLevelFormBasePropertiesTest : FormTestBase() {
             }
         """.trimIndent(), "abc")
 
-        testReferenceInJsonStringLiteralRename("newName.json", "newName")
+        fixture.renameElementAtCaretUsingHandler("newName.json")
+        assertJsonStringLiteralValueEquals("newName")
     }
 
     @Test

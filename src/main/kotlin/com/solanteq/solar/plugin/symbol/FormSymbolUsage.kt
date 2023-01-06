@@ -25,7 +25,7 @@ class FormSymbolUsage(
     )
 
     constructor(
-        reference: FormSymbolReference<*>
+        reference: FormSymbolReference
     ) : this(
         reference.element.containingFile as JsonFile,
         reference.absoluteRange,

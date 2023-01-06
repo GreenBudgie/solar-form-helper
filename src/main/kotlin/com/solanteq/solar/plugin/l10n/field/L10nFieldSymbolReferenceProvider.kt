@@ -17,7 +17,7 @@ class L10nFieldSymbolReferenceProvider : PsiSymbolReferenceProvider {
     override fun getReferences(
         element: PsiExternalReferenceHost,
         hints: PsiSymbolReferenceHints
-    ): List<FormSymbolReference<*>> {
+    ): List<FormSymbolReference> {
         if(!L10nReferenceContributor.l10nPropertyPattern.accepts(element)) return emptyList()
         val stringLiteral = element as JsonStringLiteral
         val offset = hints.offsetInElement

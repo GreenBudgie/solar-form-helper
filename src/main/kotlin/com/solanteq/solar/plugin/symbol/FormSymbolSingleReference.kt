@@ -2,21 +2,20 @@ package com.solanteq.solar.plugin.symbol
 
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.PsiElement
 import com.solanteq.solar.plugin.util.asListOrEmpty
 import com.solanteq.solar.plugin.util.textRangeWithoutQuotes
 
 /**
- * Represents a reference to a single [FormSymbol] from any [PsiElement].
+ * Represents a reference to a single [FormSymbol] from [JsonStringLiteral].
  */
-abstract class FormSymbolSingleReference<T : PsiElement>(
-    sourceElement: T,
+abstract class FormSymbolSingleReference(
+    sourceElement: JsonStringLiteral,
     sourceElementTextRange: TextRange,
     val targetSymbol: FormSymbol?
-) : FormSymbolReference<T>(sourceElement, sourceElementTextRange) {
+) : FormSymbolReference(sourceElement, sourceElementTextRange) {
 
     constructor(
-        sourceElement: T,
+        sourceElement: JsonStringLiteral,
         sourceElementTextRange: TextRange,
         symbolType: FormSymbolType,
         targetElement: JsonStringLiteral?,

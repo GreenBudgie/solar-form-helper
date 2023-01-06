@@ -1,6 +1,8 @@
 package com.solanteq.solar.plugin
 
 import com.intellij.psi.PsiFile
+import com.solanteq.solar.plugin.l10n.field.L10nFieldDeclarationProvider
+import com.solanteq.solar.plugin.l10n.group.L10nGroupDeclarationProvider
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -97,7 +99,8 @@ class L10nTest : FormTestBase() {
             "test.form.<caret>testForm1" to "Form Name!"
         )
 
-        testReferenceInJsonStringLiteralRename("renamed.json", "test.form.renamed")
+        fixture.renameElementAtCaretUsingHandler("renamed.json")
+        assertJsonStringLiteralValueEquals("test.form.renamed")
     }
 
     // Group
@@ -125,17 +128,31 @@ class L10nTest : FormTestBase() {
     }
 
     @Test
-    fun `test l10n group rename`() {
+    fun `test l10n group reference rename`() {
         fixture.configureByForms("testForm1.json", module = "test")
 
         createL10nFileAndConfigure("l10n",
             "test.form.testForm1.<caret>group1" to "Group Name!"
         )
 
-        testSymbolReferenceInStringLiteralRename(
-            "renamed",
-            "test.form.testForm1.renamed"
-        )
+        renameFormSymbolReference("renamed")
+        assertJsonStringLiteralValueEquals("test.form.testForm1.renamed")
+    }
+
+    @Test
+    fun `test l10n group declaration rename`() {
+        fixture.createFormAndConfigure("form", """
+            {
+              "groups": [
+                {
+                  "name": "<caret>group"
+                }
+              ]
+            }
+        """.trimIndent(), "test")
+
+        renameFormSymbolDeclaration(L10nGroupDeclarationProvider(), "renamed")
+        assertJsonStringLiteralValueEquals("renamed")
     }
 
     // Fake fields (fields that are not backed by fields in data classes)
@@ -163,17 +180,77 @@ class L10nTest : FormTestBase() {
     }
 
     @Test
-    fun `test l10n fake field rename`() {
+    fun `test l10n fake field reference rename`() {
         fixture.configureByForms("testForm1.json", module = "test")
 
         createL10nFileAndConfigure("l10n",
             "test.form.testForm1.group1.<caret>field1" to "Field Name!"
         )
 
-        testSymbolReferenceInStringLiteralRename(
-            "renamed",
-            "test.form.testForm.group1.renamed"
+        renameFormSymbolReference("renamed")
+        assertJsonStringLiteralValueEquals("test.form.testForm.group1.renamed")
+    }
+
+    @Test
+    fun `test l10n fake field rename from declaration`() {
+        val l10nFile = createL10nFile("l10n",
+            "test.form.form.group.fakeField.field1" to "field1",
+            "test.form.form.group.fakeField.field2" to "field2",
         )
+
+        fixture.createFormAndConfigure("form", """
+            {
+              "groups": [
+                {
+                  "name": "group",
+                  "rows": [
+                    {
+                      "fields": [
+                        {
+                          "name": "<caret>fakeField.field1"
+                        },
+                        {
+                          "name": "fakeField.field2"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent(), "test")
+
+        val expectedFormText = """
+            {
+              "groups": [
+                {
+                  "rows": [
+                    {
+                      "fields": [
+                        {
+                          "name": "renamed.field1"
+                        },
+                        {
+                          "name": "renamed.field2"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent()
+
+        val expectedL10nText = generateL10nFileText(
+            "test.form.form.group.renamed.field1" to "field1",
+            "test.form.form.group.renamed.field2" to "field2",
+        )
+
+        renameFormSymbolDeclaration(L10nFieldDeclarationProvider(), "renamed")
+        fixture.checkResult(expectedFormText)
+
+        fixture.openFileInEditor(l10nFile.virtualFile)
+        fixture.checkResult(expectedL10nText)
     }
 
     @Test
@@ -230,11 +307,9 @@ class L10nTest : FormTestBase() {
             "test.form.fieldsForm.group1.<caret>realField" to "Field Name!"
         )
 
-        testReferenceInJsonStringLiteralRename(
-            "renamed",
-            "test.form.fieldsForm.group1.renamed",
-            false
-        )
+        //TODO check why using handler does not work
+        fixture.renameElementAtCaretUsingHandler("renamed")
+        assertJsonStringLiteralValueEquals("test.form.fieldsForm.group1.renamed")
     }
 
     @Test
@@ -292,6 +367,20 @@ class L10nTest : FormTestBase() {
         assertCompletionsContainsExact("realNestedField")
     }
 
+    private fun generateL10nFileText(vararg l10ns: Pair<String, String>): String {
+        if(l10ns.isEmpty()) error("You need to provide at least one l10n entry")
+
+        val l10nJsonEntries = l10ns.joinToString { (l10nKey, l10nValue) ->
+            "\"$l10nKey\": \"$l10nValue\",\n"
+        }.dropLast(2)
+
+        return """
+            {
+            $l10nJsonEntries
+            }
+        """.trimIndent()
+    }
+
     /**
      * Creates a new localization file with specified l10n entries and places it into a proper directory
      *
@@ -309,17 +398,9 @@ class L10nTest : FormTestBase() {
         val realFileName = "$fileName.json"
         val languagePath = if(isRussian) "ru-RU" else "en-US"
 
-        val l10nJsonEntries = l10ns.joinToString { (l10nKey, l10nValue) ->
-            "\"$l10nKey\": \"$l10nValue\",\n"
-        }.dropLast(2)
-
         return fixture.addFileToProject(
             "main/resources/config/l10n/$languagePath/$realFileName",
-            """
-                {
-                $l10nJsonEntries
-                }
-            """.trimIndent()
+            generateL10nFileText(*l10ns)
         )
     }
 

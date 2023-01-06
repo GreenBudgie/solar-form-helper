@@ -20,7 +20,8 @@ import org.jetbrains.kotlin.idea.base.util.allScope
 /**
  * Represents a symbol in a form.
  *
- * Symbols in forms can only be [JsonStringLiteral] values of properties.
+ * Symbols in forms can only be declared in [JsonStringLiteral] values of properties
+ * and referenced from [JsonStringLiteral].
  */
 class FormSymbol private constructor(
     val element: JsonStringLiteral,

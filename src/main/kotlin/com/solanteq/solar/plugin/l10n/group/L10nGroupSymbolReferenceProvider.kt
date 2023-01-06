@@ -17,7 +17,7 @@ class L10nGroupSymbolReferenceProvider : PsiSymbolReferenceProvider {
     override fun getReferences(
         element: PsiExternalReferenceHost,
         hints: PsiSymbolReferenceHints
-    ): List<FormSymbolReference<*>> {
+    ): List<FormSymbolReference> {
         if(!L10nReferenceContributor.l10nPropertyPattern.accepts(element)) return emptyList()
         val stringLiteral = element as JsonStringLiteral
         val l10nChain = FormL10n.fromElement(stringLiteral) ?: return emptyList()
@@ -28,7 +28,7 @@ class L10nGroupSymbolReferenceProvider : PsiSymbolReferenceProvider {
 
     override fun getSearchRequests(project: Project, target: Symbol) = emptyList<SearchRequest>()
 
-    private fun getReferenceForOffset(l10nChain: FormL10n, offset: Int): FormSymbolReference<*>? {
+    private fun getReferenceForOffset(l10nChain: FormL10n, offset: Int): FormSymbolReference? {
         if(offset != -1 && !l10nChain.groupTextRange!!.contains(offset)) {
             return null
         }
