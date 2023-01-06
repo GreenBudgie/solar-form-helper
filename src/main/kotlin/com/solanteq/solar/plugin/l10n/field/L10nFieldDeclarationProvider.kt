@@ -1,7 +1,6 @@
 package com.solanteq.solar.plugin.l10n.field
 
 import com.intellij.json.psi.JsonStringLiteral
-import com.intellij.model.psi.PsiSymbolDeclaration
 import com.intellij.model.psi.PsiSymbolDeclarationProvider
 import com.intellij.psi.PsiElement
 import com.solanteq.solar.plugin.element.FormField
@@ -24,7 +23,7 @@ class L10nFieldDeclarationProvider : PsiSymbolDeclarationProvider {
     override fun getDeclarations(
         element: PsiElement,
         offsetInElement: Int
-    ): Collection<PsiSymbolDeclaration> {
+    ): Collection<FormSymbolDeclaration> {
         if(!fieldNamePattern.accepts(element)) return emptyList()
 
         val considerOffset = offsetInElement != -1

@@ -6,6 +6,7 @@ import com.intellij.refactoring.rename.api.RenameUsageSearcher
 import com.intellij.util.Query
 import com.solanteq.solar.plugin.symbol.FormSymbol
 import com.solanteq.solar.plugin.symbol.FormSymbolType
+import com.solanteq.solar.plugin.symbol.FormSymbolUsage
 import com.solanteq.solar.plugin.util.ListWrapperQuery
 import com.solanteq.solar.plugin.util.asList
 
@@ -16,8 +17,8 @@ class L10nGroupRenameUsageSearcher : RenameUsageSearcher {
         if(target !is FormSymbol || target.type != FormSymbolType.GROUP) return emptyList()
         val usages = L10nGroupReferencesSearch
             .findReferencesInAllScope(target)
-            .map { it.toRenameUsage() }
-        val declaration = target.toDeclarationRenameUsage()
+            .map { FormSymbolUsage(it) }
+        val declaration = FormSymbolUsage(target, true)
         return ListWrapperQuery(usages + declaration).asList()
     }
 

@@ -1,6 +1,5 @@
 package com.solanteq.solar.plugin.symbol
 
-import com.intellij.find.usages.api.PsiUsage
 import com.intellij.find.usages.api.SearchTarget
 import com.intellij.find.usages.api.UsageHandler
 import com.intellij.json.psi.JsonFile
@@ -10,11 +9,9 @@ import com.intellij.navigation.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiFile
 import com.intellij.psi.SmartPointerManager
 import com.intellij.psi.SmartPsiElementPointer
 import com.intellij.psi.SmartPsiFileRange
-import com.intellij.refactoring.rename.api.PsiModifiableRenameUsage
 import com.intellij.refactoring.rename.api.RenameTarget
 import com.solanteq.solar.plugin.util.asList
 import com.solanteq.solar.plugin.util.textRangeWithoutQuotes
@@ -60,20 +57,24 @@ class FormSymbol private constructor(
         return TargetPresentation.builder(targetName).presentation()
     }
 
-    override val maximalSearchScope = project.allScope()
-
     override fun equals(other: Any?): Boolean {
         if(other !is FormSymbol) return false
-        return other.element == element
+        if(element != other.element) return false
+        if(fileTextRange != other.fileTextRange) return false
+        if(type != other.type) return false
+        return true
     }
 
     override fun hashCode(): Int {
-        return element.hashCode()
+        var result = element.hashCode()
+        result = 31 * result + fileTextRange.hashCode()
+        result = 31 * result + type.hashCode()
+        return result
     }
 
-    fun toDeclarationUsage() = FormSymbolDeclarationUsage()
+    override val maximalSearchScope = project.allScope()
 
-    fun toDeclarationRenameUsage() = FormSymbolDeclarationRenameUsage()
+
 
     inner class FormSymbolPointer(
         private val baseElementPointer: SmartPsiElementPointer<JsonStringLiteral>,
@@ -108,31 +109,6 @@ class FormSymbol private constructor(
                 offset
             )
         }
-
-    }
-
-    abstract inner class AbstractFormSymbolDeclarationPsiUsage : PsiUsage {
-
-        override val declaration = true
-
-        override val file: PsiFile = this@FormSymbol.file
-
-        override val range = fileTextRange
-
-    }
-
-    inner class FormSymbolDeclarationUsage :
-        AbstractFormSymbolDeclarationPsiUsage() {
-
-        override fun createPointer() = Pointer.hardPointer(this)
-
-    }
-
-    inner class FormSymbolDeclarationRenameUsage :
-        AbstractFormSymbolDeclarationPsiUsage(),
-        PsiModifiableRenameUsage {
-
-        override fun createPointer() = Pointer.hardPointer(this)
 
     }
 

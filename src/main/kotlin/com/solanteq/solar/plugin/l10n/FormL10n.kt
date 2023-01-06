@@ -1,6 +1,7 @@
 package com.solanteq.solar.plugin.l10n
 
 import com.intellij.json.psi.JsonFile
+import com.intellij.json.psi.JsonProperty
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.TextRange
@@ -19,6 +20,7 @@ import org.jetbrains.kotlin.idea.core.util.toPsiFile
 
 /**
  * Represents a localization string in a l10n file for top-level form.
+ * [FormL10n] should not be treated as plain l10n key-value pair even though it extends [L10n].
  *
  * L10n string property is considered a form localization if it starts with `<module_name>.form.<form_name>`.
  * This property is broken into "tokens", forming a chain of tokens.
@@ -39,12 +41,13 @@ import org.jetbrains.kotlin.idea.core.util.toPsiFile
  *
  * TODO for now, only supports form -> group -> field l10ns
  */
-class FormL10nChain private constructor(
-    val element: JsonStringLiteral,
+class FormL10n private constructor(
+    keyElement: JsonStringLiteral,
+    valueElement: JsonStringLiteral,
     val chain: List<Pair<TextRange, String>>,
-) {
+) : L10n(keyElement, valueElement) {
 
-    val project = element.project
+    val project = keyElement.project
 
     val moduleName = chain.getOrNull(moduleNameChainIndex)?.second
     val formName = chain.getOrNull(formNameChainIndex)?.second
@@ -122,36 +125,55 @@ class FormL10nChain private constructor(
         private const val groupNameChainIndex = 3
         private const val fieldChainStartIndex = 4
 
-        private val key = Key<CachedValue<FormL10nChain>>("solar.l10n.chain")
+        private val key = Key<CachedValue<FormL10n>>("solar.l10n.form")
 
         /**
-         * Whether this element can be considered a form localization.
+         * Whether this property can be considered a form localization.
          * Note that the form may not be resolved, but it will still be considered a form l10n.
          */
-        fun isFormL10n(element: JsonStringLiteral): Boolean {
-            val textSplit = element.value.split(".")
+        fun isFormL10n(property: JsonProperty): Boolean {
+            val key = property.nameElement as? JsonStringLiteral ?: return false
+            return isFormL10n(key)
+        }
+
+        /**
+         * Whether this key element can be considered a form localization.
+         * Note that the form may not be resolved, but it will still be considered a form l10n.
+         */
+        fun isFormL10n(keyElement: JsonStringLiteral): Boolean {
+            val textSplit = keyElement.value.split(".")
             val l10nType = textSplit.getOrNull(1)
             return l10nType == "form"
         }
 
         /**
-         * Creates new l10n chain for the given element if it's possible, or returns null
+         * Creates form l10n from the given property if it's possible, or returns null
          */
-        fun fromElement(element: JsonStringLiteral): FormL10nChain? {
-            return CachedValuesManager.getCachedValue(element, key) {
+        fun fromElement(property: JsonProperty): FormL10n? {
+            return CachedValuesManager.getCachedValue(property, key) {
                 CachedValueProvider.Result(
-                    createChain(element),
+                    createChain(property),
                     PsiModificationTracker.MODIFICATION_COUNT
                 )
             }
         }
 
-        private fun createChain(element: JsonStringLiteral): FormL10nChain? {
-            val textSplit = element.dotSplit()
-            if(textSplit.size < 3) return null
-            val l10nType = textSplit[1].second
+        /**
+         * Creates form l10n from the given property key element if it's possible, or returns null
+         */
+        fun fromElement(keyElement: JsonStringLiteral): FormL10n? {
+            val parentProperty = keyElement.parent as? JsonProperty ?: return null
+            return fromElement(parentProperty)
+        }
+
+        private fun createChain(property: JsonProperty): FormL10n? {
+            val keyElement = property.nameElement as? JsonStringLiteral ?: return null
+            val valueElement = property.value as? JsonStringLiteral ?: return null
+            val dotSplit = keyElement.dotSplit()
+            if(dotSplit.size < 3) return null
+            val l10nType = dotSplit[1].second
             if(l10nType != "form") return null
-            return FormL10nChain(element, textSplit)
+            return FormL10n(keyElement, valueElement, dotSplit)
         }
 
     }

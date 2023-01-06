@@ -5,13 +5,13 @@ import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiReferenceBase
 import com.solanteq.solar.plugin.asset.Icons
-import com.solanteq.solar.plugin.l10n.FormL10nChain
+import com.solanteq.solar.plugin.l10n.FormL10n
 import com.solanteq.solar.plugin.search.FormSearch
 import org.jetbrains.kotlin.idea.base.util.projectScope
 
 class L10nFormPsiReference(
-    val l10nChain: FormL10nChain
-) : PsiReferenceBase<JsonStringLiteral>(l10nChain.element, l10nChain.formTextRange, false) {
+    val l10nChain: FormL10n
+) : PsiReferenceBase<JsonStringLiteral>(l10nChain.keyElement, l10nChain.formTextRange, false) {
 
     //TODO Extract duplicate code
     override fun handleElementRename(newElementName: String): PsiElement {

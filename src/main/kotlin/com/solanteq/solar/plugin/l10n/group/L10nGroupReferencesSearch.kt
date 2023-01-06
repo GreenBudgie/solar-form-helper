@@ -57,7 +57,7 @@ object L10nGroupReferencesSearch {
         resolveTarget: FormSymbol
     ): FormSymbolReference<*>? {
         val references = PsiSymbolReferenceService.getService().getReferences(element)
-        val groupReferences = references.filterIsInstance<FormSymbolReference<*>>()
+        val groupReferences = references.filterIsInstance<L10nGroupSymbolReference>()
         val applicableReferences = groupReferences.filter { reference ->
             reference.resolvesTo(resolveTarget)
         }

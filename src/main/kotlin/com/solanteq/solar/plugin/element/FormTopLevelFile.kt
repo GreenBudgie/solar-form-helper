@@ -97,6 +97,13 @@ class FormTopLevelFile(
     }
 
     /**
+     * All fields from [allGroups] in this form
+     */
+    val allFields by lazy {
+        allGroups.flatMap { it.allFields }
+    }
+
+    /**
      * List of all requests in this form. Possible requests are:
      * - source
      * - save

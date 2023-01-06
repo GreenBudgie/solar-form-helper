@@ -57,7 +57,7 @@ class FormField(
     }
 
     /**
-     * A list of properties as a chain from main to nested ones represented as raw strings.
+     * A list of field names as a chain from main to nested ones represented as raw strings.
      *
      * Example:
      * ```
@@ -81,11 +81,11 @@ class FormField(
      * ```
      *
      */
-    val stringPropertyChain by lazy { namePropertyValue?.dotSplit() ?: emptyList() }
+    val fieldNameChain by lazy { namePropertyValue?.dotSplit() ?: emptyList() }
 
     /**
      * A list of [FieldProperty] as a chain from main to nested ones represented as UAST fields.
-     * Works similar to [stringPropertyChain].
+     * Works similar to [fieldNameChain].
      *
      * If any nested property is not resolved, every property to the right won't be resolved too
      * and the returned chain will only contain references to resolved properties.
@@ -95,7 +95,7 @@ class FormField(
      * Further fields will be considered "fake", and symbols will be used to describe them.
      */
     val propertyChain by lazy {
-        val stringPropertyChain = stringPropertyChain
+        val stringPropertyChain = fieldNameChain
         if(stringPropertyChain.isEmpty()) {
             return@lazy emptyList()
         }

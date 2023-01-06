@@ -55,7 +55,7 @@ class FormIncludedFile(
     val allTopLevelForms: List<FormTopLevelFile> by lazy {
         val containingFilesOfDeclarations = declarations.mapNotNull {
             it.sourceElement.containingFile?.originalFile as? JsonFile
-        }.distinct().filter { it != containingFile }
+        }.distinct().filter { it != containingFile?.originalFile }
 
         val topLevelFormsOfDeclarations = containingFilesOfDeclarations.mapNotNull {
             it.toFormElement<FormTopLevelFile>()

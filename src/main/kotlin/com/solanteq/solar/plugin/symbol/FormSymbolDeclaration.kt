@@ -17,8 +17,4 @@ open class FormSymbolDeclaration(
 
     override fun getSymbol(): FormSymbol = symbolInElement
 
-    fun toPsiUsage() = symbolInElement.toDeclarationUsage()
-
-    fun toRenameUsage() = symbolInElement.toDeclarationRenameUsage()
-
 }

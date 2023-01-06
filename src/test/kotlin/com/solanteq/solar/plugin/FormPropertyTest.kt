@@ -83,7 +83,7 @@ class FormPropertyTest : FormTestBase() {
             }
         """.trimIndent())
 
-        testJsonStringLiteralRename("testForm2.json", "test.testForm2")
+        testReferenceInJsonStringLiteralRename("testForm2.json", "test.testForm2")
     }
 
 }

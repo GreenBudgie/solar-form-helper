@@ -26,7 +26,6 @@ abstract class FormTestBase : LightJavaCodeInsightFixtureTestCase5(DEFAULT_DESCR
 
     protected fun assertReferencedElementNameEquals(name: String) {
         val reference = fixture.file.findReferenceAt(fixture.caretOffset)
-
         Assertions.assertNotNull(reference)
 
         val referencedElement = reference!!.resolve() as? PsiNamedElement
@@ -36,22 +35,11 @@ abstract class FormTestBase : LightJavaCodeInsightFixtureTestCase5(DEFAULT_DESCR
     }
 
     protected fun assertReferencedSymbolNameEquals(name: String) {
-        val elementAtCaret = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonStringLiteral
-        val elementAbsoluteTextRangeStart = elementAtCaret.textRange.startOffset
-        val offset = fixture.caretOffset - elementAbsoluteTextRangeStart
-
-        val reference = PsiSymbolReferenceService.getService().getReferences(
-            elementAtCaret,
-            PsiSymbolReferenceHints.offsetHint(offset)
-        ).firstOrNull() as? FormSymbolReference<*>
-
-        Assertions.assertNotNull(reference)
-
-        val referencedSymbol = reference!!.getFirstResolveResult()
+        val reference = getFormSymbolReferenceAtCaret()
+        val referencedSymbol = reference.getFirstResolveResult()
 
         Assertions.assertNotNull(referencedSymbol)
         Assertions.assertEquals(name, referencedSymbol!!.targetName)
-
     }
 
     protected fun assertCompletionsContainsExact(
@@ -64,8 +52,12 @@ abstract class FormTestBase : LightJavaCodeInsightFixtureTestCase5(DEFAULT_DESCR
         )
     }
 
-    protected fun testJsonStringLiteralRename(renameTo: String, expectedResult: String) {
-        fixture.renameElementAtCaretUsingHandler(renameTo)
+    protected fun testReferenceInJsonStringLiteralRename(renameTo: String, expectedResult: String, useHandler: Boolean = true) {
+        if(useHandler) {
+            fixture.renameElementAtCaretUsingHandler(renameTo)
+        } else {
+            fixture.renameElementAtCaret(renameTo)
+        }
         val elementAtCaret = fixture.file.findElementAt(fixture.caretOffset)?.parent as? JsonStringLiteral
 
         Assertions.assertNotNull(elementAtCaret)
@@ -76,7 +68,21 @@ abstract class FormTestBase : LightJavaCodeInsightFixtureTestCase5(DEFAULT_DESCR
         renameTo: String,
         expectedResult: String
     ) {
-        val elementAtCaret = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonStringLiteral
+        val elementAtCaret = getJsonStringLiteralAtCaret()
+        val reference = getFormSymbolReferenceAtCaret()
+        val referencedSymbol = reference.getFirstResolveResult()
+        Assertions.assertNotNull(referencedSymbol)
+
+        fixture.renameTarget(referencedSymbol!!, renameTo)
+        Assertions.assertEquals(expectedResult, elementAtCaret.value)
+    }
+
+    protected fun getJsonStringLiteralAtCaret(): JsonStringLiteral {
+        return fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonStringLiteral
+    }
+
+    protected fun getFormSymbolReferenceAtCaret(): FormSymbolReference<*> {
+        val elementAtCaret = getJsonStringLiteralAtCaret()
         val elementAbsoluteTextRangeStart = elementAtCaret.textRange.startOffset
         val offset = fixture.caretOffset - elementAbsoluteTextRangeStart
 
@@ -86,14 +92,7 @@ abstract class FormTestBase : LightJavaCodeInsightFixtureTestCase5(DEFAULT_DESCR
         ).firstOrNull() as? FormSymbolReference<*>
 
         Assertions.assertNotNull(reference)
-
-        val referencedSymbol = reference!!.getFirstResolveResult()
-
-        Assertions.assertNotNull(referencedSymbol)
-
-        fixture.renameTarget(referencedSymbol!!, renameTo)
-
-        Assertions.assertEquals(expectedResult, elementAtCaret.value)
+        return reference!!
     }
 
     companion object {

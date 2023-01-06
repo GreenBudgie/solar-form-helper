@@ -7,7 +7,8 @@ import com.intellij.model.psi.PsiSymbolReferenceHints
 import com.intellij.model.psi.PsiSymbolReferenceProvider
 import com.intellij.model.search.SearchRequest
 import com.intellij.openapi.project.Project
-import com.solanteq.solar.plugin.l10n.FormL10nChain
+import com.intellij.psi.impl.source.resolve.reference.impl.PsiMultiReference
+import com.solanteq.solar.plugin.l10n.FormL10n
 import com.solanteq.solar.plugin.l10n.L10nReferenceContributor
 import com.solanteq.solar.plugin.symbol.FormSymbolReference
 
@@ -19,7 +20,19 @@ class L10nFieldSymbolReferenceProvider : PsiSymbolReferenceProvider {
     ): List<FormSymbolReference<*>> {
         if(!L10nReferenceContributor.l10nPropertyPattern.accepts(element)) return emptyList()
         val stringLiteral = element as JsonStringLiteral
-        val l10nChain = FormL10nChain.fromElement(stringLiteral) ?: return emptyList()
+        val offset = hints.offsetInElement
+
+        val existingPsiReference = element.findReferenceAt(offset)
+        if(existingPsiReference is PsiMultiReference) {
+            val fieldReference = existingPsiReference.references.find { it is L10nFieldPsiReference }
+            val referencedField = fieldReference?.resolve()
+            if(referencedField != null) {
+                //We don't need a symbol reference if the real field exists
+                return emptyList()
+            }
+        }
+
+        val l10nChain = FormL10n.fromElement(stringLiteral) ?: return emptyList()
 
         val l10nFieldChain = l10nChain.fieldChain
         if(l10nFieldChain.isEmpty()) {
@@ -33,7 +46,6 @@ class L10nFieldSymbolReferenceProvider : PsiSymbolReferenceProvider {
         }
 
         val l10nFieldNameChain = l10nFieldChain.map { it.second }
-        val offset = hints.offsetInElement
 
         return l10nFieldChain.mapIndexedNotNull { index, (textRange, _) ->
             if(offset != -1 && !textRange.contains(offset)) {

@@ -84,5 +84,11 @@
                                      implementationClass="com.solanteq.solar.plugin.l10n.field.L10nFieldSymbolReferenceProvider"
                                      targetClass="com.solanteq.solar.plugin.symbol.FormSymbol" />
 
+        <searcher forClass="com.intellij.find.usages.api.UsageSearchParameters"
+                  implementationClass="com.solanteq.solar.plugin.l10n.field.L10nFieldUsageSearcher"/>
+
+        <searcher forClass="com.intellij.refactoring.rename.api.RenameUsageSearchParameters"
+                  implementationClass="com.solanteq.solar.plugin.l10n.field.L10nFieldRenameUsageSearcher"/>
+
     </extensions>
 </idea-plugin>

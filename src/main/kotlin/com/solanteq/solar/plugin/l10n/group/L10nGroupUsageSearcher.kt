@@ -6,6 +6,7 @@ import com.intellij.find.usages.api.UsageSearcher
 import com.intellij.util.Query
 import com.solanteq.solar.plugin.symbol.FormSymbol
 import com.solanteq.solar.plugin.symbol.FormSymbolType
+import com.solanteq.solar.plugin.symbol.FormSymbolUsage
 import com.solanteq.solar.plugin.util.ListWrapperQuery
 import com.solanteq.solar.plugin.util.asList
 import org.jetbrains.kotlin.psi.psiUtil.contains
@@ -17,8 +18,8 @@ class L10nGroupUsageSearcher : UsageSearcher {
         if(target !is FormSymbol || target.type != FormSymbolType.GROUP) return emptyList()
         val usages = L10nGroupReferencesSearch
             .findReferencesInAllScope(target)
-            .map { it.toPsiUsage() }
-        val declaration = target.toDeclarationUsage()
+            .map { FormSymbolUsage(it) }
+        val declaration = FormSymbolUsage(target, true)
         val allUsages = usages + declaration
         val scope = parameters.searchScope
         val usagesInScope = allUsages.filter {

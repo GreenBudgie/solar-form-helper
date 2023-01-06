@@ -17,7 +17,7 @@ object L10nFieldSearcher {
         }
         val l10nFieldNameSubChain = fieldNameChain.take(chainSize)
         val applicableFields = fields.filter { field ->
-            val fieldNameSubChain = field.stringPropertyChain.take(chainSize).map { it.second }
+            val fieldNameSubChain = field.fieldNameChain.take(chainSize).map { it.second }
             l10nFieldNameSubChain == fieldNameSubChain
         }
         return applicableFields.mapNotNull { it.propertyChain.getOrNull(index) }

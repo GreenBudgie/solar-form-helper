@@ -36,7 +36,7 @@ class TopLevelFormBasePropertiesTest : FormTestBase() {
             }
         """.trimIndent(), "abc")
 
-        testJsonStringLiteralRename("newName.json", "newName")
+        testReferenceInJsonStringLiteralRename("newName.json", "newName")
     }
 
     @Test

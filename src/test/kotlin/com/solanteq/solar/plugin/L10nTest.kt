@@ -97,7 +97,7 @@ class L10nTest : FormTestBase() {
             "test.form.<caret>testForm1" to "Form Name!"
         )
 
-        testJsonStringLiteralRename("renamed.json", "test.form.renamed")
+        testReferenceInJsonStringLiteralRename("renamed.json", "test.form.renamed")
     }
 
     // Group
@@ -145,7 +145,7 @@ class L10nTest : FormTestBase() {
         fixture.configureByForms("testForm1.json", module = "test")
 
         createL10nFileAndConfigure("l10n",
-            "test.form.testForm.group1.<caret>field1" to "Field Name!"
+            "test.form.testForm1.group1.<caret>field1" to "Field Name!"
         )
 
         assertReferencedSymbolNameEquals("field1")
@@ -156,7 +156,7 @@ class L10nTest : FormTestBase() {
         fixture.configureByForms("testForm1.json", module = "test")
 
         createL10nFileAndConfigure("l10n",
-            "test.form.testForm.group2.field.<caret>nestedField.randomText" to "Field Name!"
+            "test.form.testForm1.group2.field.<caret>nestedField.randomText" to "Field Name!"
         )
 
         assertReferencedSymbolNameEquals("nestedField")
@@ -167,12 +167,13 @@ class L10nTest : FormTestBase() {
         fixture.configureByForms("testForm1.json", module = "test")
 
         createL10nFileAndConfigure("l10n",
-            "test.form.testForm.group1.<caret>field1" to "Field Name!"
+            "test.form.testForm1.group1.<caret>field1" to "Field Name!"
         )
 
         testSymbolReferenceInStringLiteralRename(
             "renamed",
-            "test.form.testForm.group1.renamed")
+            "test.form.testForm.group1.renamed"
+        )
     }
 
     @Test
@@ -180,7 +181,7 @@ class L10nTest : FormTestBase() {
         fixture.configureByForms("testForm1.json", module = "test")
 
         createL10nFileAndConfigure("l10n",
-            "test.form.testFormGroups.group1.<caret>" to "Field Name!"
+            "test.form.testForm1.group1.<caret>" to "Field Name!"
         )
 
         assertCompletionsContainsExact("field1", "field2")
@@ -229,9 +230,10 @@ class L10nTest : FormTestBase() {
             "test.form.fieldsForm.group1.<caret>realField" to "Field Name!"
         )
 
-        testJsonStringLiteralRename(
+        testReferenceInJsonStringLiteralRename(
             "renamed",
-            "test.form.fieldsForm.group1.renamed"
+            "test.form.fieldsForm.group1.renamed",
+            false
         )
     }
 
