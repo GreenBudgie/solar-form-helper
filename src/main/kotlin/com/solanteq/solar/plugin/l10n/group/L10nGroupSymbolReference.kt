@@ -17,7 +17,7 @@ class L10nGroupSymbolReference(
 ), PsiCompletableReference {
 
     override fun getCompletionVariants(): List<LookupElement> {
-        val formElement = l10nChain.referencedFormTopLevelFileElement ?: return emptyList()
+        val formElement = l10nChain.referencedFormFileElement ?: return emptyList()
         val groupNames = formElement.allGroups.mapNotNull { it.name }
         return groupNames.map {
             LookupElementBuilder.create(it)

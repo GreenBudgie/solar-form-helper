@@ -14,11 +14,13 @@ import com.intellij.psi.util.CachedValue
 import com.intellij.psi.util.TypeConversionUtil
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.file.TopLevelFormFileType
+import com.solanteq.solar.plugin.l10n.L10nService
 import com.solanteq.solar.plugin.reference.form.FormReference
 import com.solanteq.solar.plugin.search.FormSearch
 import com.solanteq.solar.plugin.util.FormPsiUtils
 import com.solanteq.solar.plugin.util.valueAsString
 import org.jetbrains.kotlin.idea.base.util.allScope
+import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.toUElementOfType
 
@@ -55,6 +57,13 @@ class FormTopLevelFile(
      * this property has non-string value.
      */
     val module by lazy { moduleProperty.valueAsString() }
+
+    override val localizations: List<String> by lazy {
+        val formL10ns = L10nService.findFormL10ns(project, project.projectScope())
+        return@lazy formL10ns
+            .filter { this == it.referencedFormFileElement }
+            .map { it.value }
+    }
 
     /**
      * Fully-qualified SOLAR form name

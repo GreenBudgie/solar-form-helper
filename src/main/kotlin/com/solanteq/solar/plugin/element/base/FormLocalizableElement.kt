@@ -9,4 +9,12 @@ import com.intellij.json.psi.JsonObject
 abstract class FormLocalizableElement<T : JsonElement>(
     sourceElement: T,
     objectWithNameProperty: JsonObject
-) : FormNamedElement<T>(sourceElement, objectWithNameProperty)
+) : FormNamedElement<T>(sourceElement, objectWithNameProperty) {
+
+    /**
+     * Localization strings for this element.
+     * Usually there are two localizations must be present: ru-RU and en-US.
+     */
+    abstract val localizations: List<String>
+
+}

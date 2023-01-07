@@ -49,14 +49,40 @@ class FormL10n private constructor(
 
     val project = keyElement.project
 
+    /**
+     * Module name in l10n chain. Provided as is. May be named as non-existing directory.
+     *
+     * "**module**.form.formName.group.field1.field2"
+     */
     val moduleName = chain.getOrNull(moduleNameChainIndex)?.second
+
+    /**
+     * Form name in l10n chain. Provided as is. May be named as non-existing form.
+     *
+     * "module.form.**formName**.group.field1.field2"
+     */
     val formName = chain.getOrNull(formNameChainIndex)?.second
+
+    /**
+     * Group name in l10n chain. Provided as is. May be named as non-existing group.
+     *
+     * "module.form.formName.**group**.field1.field2"
+     */
     val groupName = chain.getOrNull(groupNameChainIndex)?.second
 
+    /**
+     * Text range of the module in l10n chain.
+     *
+     * "**module**.form.formName.group.field1.field2"
+     */
     val moduleTextRange by lazy {
         chain.getOrNull(moduleNameChainIndex)?.first
     }
 
+    /**
+     * A real directory (form module) that this l10n references to.
+     * Cannot exist without [referencedFormVirtualFile].
+     */
     val referencedModuleDirectory by lazy {
         val directory = referencedFormVirtualFile?.getFormModuleDirectory() ?: return@lazy null
         if(moduleName != directory.name) {
@@ -65,10 +91,17 @@ class FormL10n private constructor(
         return@lazy directory
     }
 
+    /**
+     * The same as [referencedModuleDirectory], but represented as PSI directory.
+     */
     val referencedModulePsiDirectory by lazy {
         referencedModuleDirectory?.toPsiDirectory(project)
     }
 
+    /**
+     * A real virtual file of the form that this l10n references to.
+     * Only exists if valid [moduleName] and [formName] are provided.
+     */
     val referencedFormVirtualFile by lazy {
         if(moduleName == null || formName == null) {
             return@lazy null
@@ -80,42 +113,83 @@ class FormL10n private constructor(
         )
     }
 
+    /**
+     * The same as [referencedFormVirtualFile], but represented as PSI file.
+     */
     val referencedFormPsiFile by lazy {
         referencedFormVirtualFile?.toPsiFile(project) as? JsonFile
     }
 
-    val referencedFormTopLevelFileElement by lazy {
+    /**
+     * [referencedFormPsiFile] converted to top-level form.
+     * Should not be null if [referencedFormPsiFile] is not null.
+     */
+    val referencedFormFileElement by lazy {
         referencedFormPsiFile.toFormElement<FormTopLevelFile>()
     }
 
+    /**
+     * Text range of the form name in l10n chain.
+     *
+     * "module.form.**formName**.group.field1.field2"
+     */
     val formTextRange by lazy {
         chain.getOrNull(formNameChainIndex)?.first
     }
 
+    /**
+     * A group in [referencedFormFileElement] that this l10n references.
+     * Represented as [JsonStringLiteral] property value element.
+     */
     val referencedGroup by lazy {
         referencedGroupElement?.namePropertyValue
     }
 
+    /**
+     * [referencedGroup] converted to form element.
+     * Should not be null if [referencedGroup] is not null.
+     */
     val referencedGroupElement by lazy {
         groupName ?: return@lazy null
-        val groups = referencedFormTopLevelFileElement?.allGroups ?: return@lazy null
+        val groups = referencedFormFileElement?.allGroups ?: return@lazy null
         return@lazy groups.find { it.name == groupName }
     }
 
+    /**
+     * Text range of the group name in l10n chain.
+     *
+     * "module.form.formName.**group**.field1.field2"
+     */
     val groupTextRange by lazy {
         chain.getOrNull(groupNameChainIndex)?.first
     }
 
+    /**
+     * A chain of text ranges and corresponding field names in l10n chain.
+     *
+     * "module.form.formName.group.**field1**.**field2**"
+     */
     val fieldChain by lazy {
         val fieldChainIndexRange = fieldChainStartIndex until chain.size
         return@lazy fieldChainIndexRange.map { chain[it] }
     }
 
-    private val fieldsInForm by lazy {
-        val form = referencedFormTopLevelFileElement ?: return@lazy emptyList()
-        val groups = form.allGroups
-        val rows = groups.flatMap { it.rows ?: emptyList() }
-        return@lazy rows.flatMap { it.fields ?: emptyList() }
+    /**
+     * A field element that this l10n references to.
+     * This is always the last field in [fieldChain] even if it is not resolved.
+     *
+     * "module.form.formName.group.field1.**field2**"
+     */
+    val referencedFieldElement by lazy {
+        val l10nFieldNameChain = fieldChain.map { it.second }
+        if(l10nFieldNameChain.isEmpty()) {
+            return@lazy null
+        }
+        val group = referencedGroupElement ?: return@lazy null
+        return@lazy group.allFields.find { field ->
+            val fieldNameChain = field.fieldNameChain.map { it.second }
+            l10nFieldNameChain == fieldNameChain
+        }
     }
 
     companion object {

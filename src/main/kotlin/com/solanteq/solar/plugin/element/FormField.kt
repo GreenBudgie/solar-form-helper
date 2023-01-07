@@ -7,10 +7,12 @@ import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiType
 import com.intellij.psi.util.CachedValue
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
+import com.solanteq.solar.plugin.l10n.L10nService
 import com.solanteq.solar.plugin.symbol.FormSymbol
 import com.solanteq.solar.plugin.symbol.FormSymbolType
 import com.solanteq.solar.plugin.util.dotSplit
 import com.solanteq.solar.plugin.util.valueAsString
+import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UField
 import org.jetbrains.uast.toUElementOfType
@@ -45,6 +47,13 @@ import org.jetbrains.uast.toUElementOfType
 class FormField(
     sourceElement: JsonObject
 ) : FormLocalizableElement<JsonObject>(sourceElement, sourceElement) {
+
+    override val localizations: List<String> by lazy {
+        val formL10ns = L10nService.findFormL10ns(project, project.projectScope())
+        return@lazy formL10ns
+            .filter { this == it.referencedFieldElement }
+            .map { it.value }
+    }
 
     /**
      * Type of this field represented as plain string

@@ -5,6 +5,8 @@ import com.intellij.json.psi.JsonObject
 import com.intellij.openapi.util.Key
 import com.intellij.psi.util.CachedValue
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
+import com.solanteq.solar.plugin.l10n.L10nService
+import org.jetbrains.kotlin.idea.base.util.projectScope
 
 /**
  * A single object inside `groups` array in form or [FormGroupRow] element.
@@ -15,6 +17,13 @@ import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 class FormGroup(
     sourceElement: JsonObject
 ) : FormLocalizableElement<JsonObject>(sourceElement, sourceElement) {
+
+    override val localizations: List<String> by lazy {
+        val formL10ns = L10nService.findFormL10ns(project, project.projectScope())
+        return@lazy formL10ns
+            .filter { this == it.referencedGroupElement }
+            .map { it.value }
+    }
 
     /**
      * A list of [FormField] elements from all rows in this group

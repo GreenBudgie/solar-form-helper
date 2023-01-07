@@ -90,5 +90,8 @@
         <searcher forClass="com.intellij.refactoring.rename.api.RenameUsageSearchParameters"
                   implementationClass="com.solanteq.solar.plugin.l10n.field.L10nFieldRenameUsageSearcher"/>
 
+        <codeInsight.inlayProvider implementationClass="com.solanteq.solar.plugin.l10n.L10nInlayProvider"
+                                   language="JSON" />
+
     </extensions>
 </idea-plugin>
