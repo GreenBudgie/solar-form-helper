@@ -11,7 +11,6 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.SmartPointerManager
 import com.intellij.psi.SmartPsiElementPointer
-import com.intellij.psi.SmartPsiFileRange
 import com.intellij.refactoring.rename.api.RenameTarget
 import com.solanteq.solar.plugin.util.asList
 import com.solanteq.solar.plugin.util.textRangeWithoutQuotes
@@ -40,10 +39,10 @@ class FormSymbol private constructor(
     val elementTextRange = fileTextRange.shiftLeft(element.textRange.startOffset)
 
     override fun createPointer(): Pointer<FormSymbol> {
-        val manager = SmartPointerManager.getInstance(project)
-        val elementPointer = manager.createSmartPsiElementPointer(element, file)
-        val textRangePointer = manager.createSmartPsiFileRangePointer(file, fileTextRange)
-        return FormSymbolPointer(elementPointer, textRangePointer)
+        val elementPointer = SmartPointerManager
+            .getInstance(project)
+            .createSmartPsiElementPointer(element, file)
+        return FormSymbolPointer(elementPointer)
     }
 
     override val targetName = elementTextRange.substring(element.text)
@@ -76,14 +75,11 @@ class FormSymbol private constructor(
     override val maximalSearchScope = project.allScope()
 
     inner class FormSymbolPointer(
-        private val baseElementPointer: SmartPsiElementPointer<JsonStringLiteral>,
-        private val baseRangePointer: SmartPsiFileRange,
+        private val baseElementPointer: SmartPsiElementPointer<JsonStringLiteral>
     ) : Pointer<FormSymbol> {
 
         override fun dereference(): FormSymbol? {
             val element = baseElementPointer.element ?: return null
-            val fileTextRangeSegment = baseRangePointer.range ?: return null
-            val fileTextRange = TextRange.create(fileTextRangeSegment)
             return FormSymbol(element, fileTextRange, type)
         }
 
