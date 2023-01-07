@@ -3,6 +3,7 @@ package com.solanteq.solar.plugin
 import com.intellij.psi.PsiFile
 import com.solanteq.solar.plugin.l10n.field.L10nFieldDeclarationProvider
 import com.solanteq.solar.plugin.l10n.group.L10nGroupDeclarationProvider
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -129,30 +130,61 @@ class L10nTest : FormTestBase() {
 
     @Test
     fun `test l10n group reference rename`() {
-        fixture.configureByForms("testForm1.json", module = "test")
-
-        createL10nFileAndConfigure("l10n",
-            "test.form.testForm1.<caret>group1" to "Group Name!"
-        )
-
-        renameFormSymbolReference("renamed")
-        assertJsonStringLiteralValueEquals("test.form.testForm1.renamed")
-    }
-
-    @Test
-    fun `test l10n group declaration rename`() {
-        fixture.createFormAndConfigure("form", """
+        val formFile = fixture.createForm("testForm", """
             {
               "groups": [
                 {
-                  "name": "<caret>group"
+                  "name": "group1"
                 }
               ]
             }
         """.trimIndent(), "test")
 
+        createL10nFileAndConfigure("l10n",
+            "test.form.testForm.<caret>group1" to "Group Name!"
+        )
+
+        val expectedFormText = """
+            {
+              "groups": [
+                {
+                  "name": "renamed"
+                }
+              ]
+            }
+        """.trimIndent()
+
+        renameFormSymbolReference("renamed")
+        assertJsonStringLiteralValueEquals("test.form.testForm.renamed")
+        fixture.openFileInEditor(formFile.virtualFile)
+        fixture.checkResult(expectedFormText)
+    }
+
+    @Test
+    fun `test l10n group declaration rename`() {
+        fixture.createFormAndConfigure("testForm", """
+            {
+              "groups": [
+                {
+                  "name": "<caret>group1"
+                }
+              ]
+            }
+        """.trimIndent(), "test")
+
+        val l10nFile = createL10nFile("l10n",
+            "test.form.testForm.group1" to "Group Name!"
+        )
+
+        val expectedL10nText = generateL10nFileText(
+            "test.form.testForm.renamed" to "Group Name!"
+        )
+
         renameFormSymbolDeclaration(L10nGroupDeclarationProvider(), "renamed")
         assertJsonStringLiteralValueEquals("renamed")
+
+        fixture.openFileInEditor(l10nFile.virtualFile)
+        fixture.checkResult(expectedL10nText)
     }
 
     // Fake fields (fields that are not backed by fields in data classes)
@@ -180,15 +212,18 @@ class L10nTest : FormTestBase() {
     }
 
     @Test
-    fun `test l10n fake field reference rename`() {
+    fun `test l10n fake field rename from reference`() {
         fixture.configureByForms("testForm1.json", module = "test")
 
         createL10nFileAndConfigure("l10n",
             "test.form.testForm1.group1.<caret>field1" to "Field Name!"
         )
 
-        renameFormSymbolReference("renamed")
-        assertJsonStringLiteralValueEquals("test.form.testForm.group1.renamed")
+        val reference = getFormSymbolReferenceAtCaret()
+        val referencedSymbol = reference.resolveReference().firstOrNull()
+        Assertions.assertNotNull(referencedSymbol)
+        fixture.renameTarget(referencedSymbol!!, "renamed")
+        assertJsonStringLiteralValueEquals("test.form.testForm1.group1.renamed")
     }
 
     @Test
@@ -224,6 +259,7 @@ class L10nTest : FormTestBase() {
             {
               "groups": [
                 {
+                  "name": "group",
                   "rows": [
                     {
                       "fields": [
@@ -300,15 +336,14 @@ class L10nTest : FormTestBase() {
     }
 
     @Test
-    fun `test l10n real field rename`() {
+    fun `test l10n real field rename from reference`() {
         prepareRealFieldsTest()
 
         createL10nFileAndConfigure("l10n",
             "test.form.fieldsForm.group1.<caret>realField" to "Field Name!"
         )
 
-        //TODO check why using handler does not work
-        fixture.renameElementAtCaretUsingHandler("renamed")
+        fixture.renameElementAtCaret("renamed")
         assertJsonStringLiteralValueEquals("test.form.fieldsForm.group1.renamed")
     }
 

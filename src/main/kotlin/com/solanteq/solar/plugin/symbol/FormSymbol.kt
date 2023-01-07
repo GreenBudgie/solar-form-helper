@@ -75,8 +75,6 @@ class FormSymbol private constructor(
 
     override val maximalSearchScope = project.allScope()
 
-
-
     inner class FormSymbolPointer(
         private val baseElementPointer: SmartPsiElementPointer<JsonStringLiteral>,
         private val baseRangePointer: SmartPsiFileRange,

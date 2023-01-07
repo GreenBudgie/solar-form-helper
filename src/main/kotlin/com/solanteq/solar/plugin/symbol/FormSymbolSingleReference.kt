@@ -11,7 +11,7 @@ import com.solanteq.solar.plugin.util.textRangeWithoutQuotes
 abstract class FormSymbolSingleReference(
     sourceElement: JsonStringLiteral,
     sourceElementTextRange: TextRange,
-    val targetSymbol: FormSymbol?
+    private val targetSymbol: FormSymbol?
 ) : FormSymbolReference(sourceElement, sourceElementTextRange) {
 
     constructor(

@@ -1,11 +1,9 @@
 package com.solanteq.solar.plugin.l10n.field
 
 import com.intellij.model.psi.PsiSymbolReferenceService
-import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.SearchScope
-import com.intellij.util.AbstractQuery
 import com.intellij.util.Processor
 import com.solanteq.solar.plugin.element.FormField
 import com.solanteq.solar.plugin.element.FormIncludedFile
@@ -16,26 +14,16 @@ import com.solanteq.solar.plugin.l10n.L10nService
 import com.solanteq.solar.plugin.symbol.FormSymbol
 import com.solanteq.solar.plugin.symbol.FormSymbolType
 import com.solanteq.solar.plugin.symbol.FormSymbolUsage
+import com.solanteq.solar.plugin.symbol.FormSymbolUsageSearchQuery
 import com.solanteq.solar.plugin.util.asListOrEmpty
 import org.jetbrains.kotlin.psi.psiUtil.contains
 
 class L10nFieldUsageSearchQuery(
-    private val resolveTarget: FormSymbol,
-    private val searchScope: SearchScope
-) : AbstractQuery<FormSymbolUsage>(){
+    resolveTarget: FormSymbol,
+    searchScope: SearchScope
+) : FormSymbolUsageSearchQuery(resolveTarget, searchScope){
 
-    override fun processResults(consumer: Processor<in FormSymbolUsage>): Boolean {
-        var isProcessSuccessful = runReadAction {
-            processDeclarations(consumer)
-        }
-        if(!isProcessSuccessful) return false
-        isProcessSuccessful = runReadAction {
-            processReferences(consumer)
-        }
-        return isProcessSuccessful
-    }
-
-    private fun processDeclarations(consumer: Processor<in FormSymbolUsage>): Boolean {
+    override fun processDeclarations(consumer: Processor<in FormSymbolUsage>): Boolean {
         val file = resolveTarget.file
         if(file !in searchScope) return true
 
@@ -78,33 +66,15 @@ class L10nFieldUsageSearchQuery(
         return true
     }
 
-    private fun processReferences(consumer: Processor<in FormSymbolUsage>): Boolean {
-        if(searchScope !is GlobalSearchScope) {
-            return true
-        }
-        val project = resolveTarget.project
-        val formL10ns = L10nService.findFormL10ns(project, searchScope)
+    override fun processReferences(globalSearchScope: GlobalSearchScope,
+                                  consumer: Processor<in FormSymbolUsage>): Boolean {
+        val formL10ns = L10nService.findFormL10ns(resolveTarget.project, globalSearchScope)
         val keys = formL10ns.map { it.keyElement }
         val symbolReferenceService = PsiSymbolReferenceService.getService()
         keys.forEach {
             val references = symbolReferenceService.getReferences(it)
             val fieldReferences = references.filterIsInstance<L10nFieldSymbolReference>()
-            if(!processReferencesInL10nKey(fieldReferences, consumer)) {
-                return false
-            }
-        }
-        return true
-    }
-
-    private fun processReferencesInL10nKey(references: Collection<L10nFieldSymbolReference>,
-                                           consumer: Processor<in FormSymbolUsage>): Boolean {
-        references.forEach {
-            ProgressManager.checkCanceled()
-            if(!it.resolvesTo(resolveTarget)) {
-                return@forEach
-            }
-            val symbolUsage = FormSymbolUsage(it)
-            if(!consumer.process(symbolUsage)) {
+            if(!processReferences(fieldReferences, consumer)) {
                 return false
             }
         }
