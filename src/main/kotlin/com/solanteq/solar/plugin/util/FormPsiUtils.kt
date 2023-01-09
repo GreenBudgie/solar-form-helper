@@ -5,14 +5,16 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.findParentOfType
 import com.intellij.psi.util.parentOfType
 import com.intellij.psi.util.parentOfTypes
-import com.solanteq.solar.plugin.element.*
+import com.solanteq.solar.plugin.element.FormIncludedFile
+import com.solanteq.solar.plugin.element.FormJsonInclude
+import com.solanteq.solar.plugin.element.toFormElement
 import com.solanteq.solar.plugin.file.IncludedFormFileType
 import com.solanteq.solar.plugin.file.TopLevelFormFileType
 import kotlin.reflect.KClass
 
 /**
  * Helps traverse the psi tree in form files of both types (top level and included).
- * Use this util (when possible) to traverse the form psi tree.
+ * Use this util (when possible and necessary) to traverse the form psi tree.
  *
  * The main goal of this util is to take JSON include into account.
  *
@@ -23,7 +25,8 @@ import kotlin.reflect.KClass
  * Note that methods in this util can return multiple parent psi elements because multiple
  * JSON includes can be declared to reference the same included form.
  *
- * Note that most methods use [ReferencesSearch] so they are very performance impactful.
+ * **Most methods use project-scope or even all-scope references search,
+ * so they are very performance impactful.**
  */
 object FormPsiUtils {
 
@@ -246,6 +249,24 @@ object FormPsiUtils {
         val topLevelObject = element.findParentOfType<JsonObject>() ?: return false
         val jsonFile = topLevelObject.containingFile as? JsonFile ?: return false
         return jsonFile.fileType != IncludedFormFileType && jsonFile.topLevelValue === topLevelObject
+    }
+
+    /**
+     * If the property value is a JSON include declaration, finds the referenced form and returns
+     * its top-level value (can only be [JsonObject] or [JsonArray]).
+     * Note that if the property value can be considered as JSON include declaration, but the
+     * referenced form cannot be found, then **null will be returned**.
+     *
+     * Otherwise, works the same as [JsonProperty.getValue].
+     */
+    fun getPropertyValue(propertyElement: JsonProperty): JsonValue? {
+        val value = propertyElement.value
+        if(value !is JsonStringLiteral) {
+            return value
+        }
+        val jsonIncludeDeclaration = value.toFormElement<FormJsonInclude>() ?: return value
+        val referencedForm = jsonIncludeDeclaration.referencedFormPsiFile ?: return value
+        return referencedForm.topLevelValue
     }
 
     private fun jsonIncludeDeclarations(jsonFile: JsonFile): List<FormJsonInclude> {

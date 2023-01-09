@@ -100,9 +100,15 @@ class FormTopLevelFile(
      * Never returns null, only empty list.
      */
     val allGroups by lazy {
-        val groupRows = groupRows ?: return@lazy groups?.contents ?: return@lazy emptyList()
-        val notNullGroups = groupRows.mapNotNull { it.groups }
-        return@lazy notNullGroups.flatMap { it.contents }
+        val groupRows = groupRows
+        if(groupRows != null) {
+            return@lazy groupRows.flatMap { it.groups ?: emptyList() }
+        }
+        val groups = groups
+        if(groups != null) {
+            return@lazy groups
+        }
+        return@lazy emptyList()
     }
 
     /**

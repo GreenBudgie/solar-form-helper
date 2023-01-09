@@ -32,6 +32,7 @@ fun JavaCodeInsightTestFixture.createForm(
  *
  * @param formName Form file name (without .json extension)
  * @param relativePath Form path relative to "config/includes/forms/". Separate with /.
+ * Can be treated as module, but included forms do not really have modules.
  * @param text Text to be placed in a form
  * You may not insert a separator at the start and at the end.
  *
@@ -61,7 +62,7 @@ fun JavaCodeInsightTestFixture.createIncludedFormAndConfigure(
     relativePath: String,
     text: String
 ): PsiFile {
-    val psiFormFile = createIncludedForm(formName, text, relativePath)
+    val psiFormFile = createIncludedForm(formName, relativePath, text)
     configureFromExistingVirtualFile(psiFormFile.virtualFile)
     return file
 }

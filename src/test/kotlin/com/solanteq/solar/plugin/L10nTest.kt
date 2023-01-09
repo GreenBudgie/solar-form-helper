@@ -187,6 +187,29 @@ class L10nTest : FormTestBase() {
         fixture.checkResult(expectedL10nText)
     }
 
+    @Test
+    fun `test l10n reference to group in included form`() {
+        fixture.createForm("topLevelForm", """
+            {
+              "groups": "json://includes/forms/test/includedForm.json"
+            }
+        """.trimIndent(), "test")
+
+        fixture.createIncludedForm("includedForm", "test", """
+            [
+              {
+                "name": "groupName"
+              }
+            ]
+        """.trimIndent())
+
+        createL10nFileAndConfigure("l10n",
+            "test.form.topLevelForm.<caret>groupName" to "Group name"
+        )
+
+        assertReferencedSymbolNameEquals("groupName")
+    }
+
     // Fake fields (fields that are not backed by fields in data classes)
 
     @Test
@@ -320,6 +343,42 @@ class L10nTest : FormTestBase() {
         )
 
         assertCompletionsContainsExact("nestedField")
+    }
+
+    @Test
+    fun `test l10n reference to fake field in included form`() {
+        fixture.createForm("topLevelForm", """
+            {
+              "groups": "json://includes/forms/test/includedFormGroups.json"
+            }
+        """.trimIndent(), "test")
+
+        fixture.createIncludedForm("includedFormGroups", "test", """
+            [
+              {
+                "name": "groupName"
+                "rows": [
+                  {
+                    "fields": "json://includes/forms/test/includedFormFields.json"
+                  }
+                ]
+              }
+            ]
+        """.trimIndent())
+
+        fixture.createIncludedForm("includedFormFields", "test", """
+            [
+              {
+                "name": "fieldName"
+              }
+            ]
+        """.trimIndent())
+
+        createL10nFileAndConfigure("l10n",
+            "test.form.topLevelForm.groupName.<caret>fieldName" to "Field name"
+        )
+
+        assertReferencedSymbolNameEquals("fieldName")
     }
 
     // Real fields (fields that are backed by fields in data classes)

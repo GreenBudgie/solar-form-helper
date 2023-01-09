@@ -10,6 +10,7 @@ import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.util.PsiModificationTracker
 import com.solanteq.solar.plugin.element.base.FormElement
+import com.solanteq.solar.plugin.util.FormPsiUtils
 import kotlin.reflect.KClass
 
 /**
@@ -59,7 +60,7 @@ fun <T : FormElement<JsonObject>> JsonProperty?.toFormArrayElement(
 ): FormPropertyArray<T>? {
     this ?: return null
 
-    val valueArray = value
+    val valueArray = FormPsiUtils.getPropertyValue(this)
     if(valueArray !is JsonArray)  {
         return null
     }

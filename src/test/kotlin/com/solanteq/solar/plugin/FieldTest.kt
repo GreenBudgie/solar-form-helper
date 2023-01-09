@@ -457,13 +457,13 @@ class FieldTest : FormTestBase() {
             }
         """.trimIndent(), "test")
 
-        fixture.createIncludedFormAndConfigure("includedForm", """
+        fixture.createIncludedFormAndConfigure("includedForm", "test2", """
             [
               {
                 "name": "<caret>stringField"
               }
             ]
-        """.trimIndent(), "test2")
+        """.trimIndent())
 
         assertReferencedElementNameEquals("stringField")
     }
@@ -508,13 +508,13 @@ class FieldTest : FormTestBase() {
             }
         """.trimIndent(), "test")
 
-        fixture.createIncludedFormAndConfigure("includedForm", """
+        fixture.createIncludedFormAndConfigure("includedForm", "test2", """
             [
               {
                 "name": "<caret>"
               }
             ]
-        """.trimIndent(), "test2")
+        """.trimIndent())
 
         assertCompletionsContainsExact(
             "a", //From Cls
@@ -550,13 +550,13 @@ class FieldTest : FormTestBase() {
             }
         """.trimIndent(), "test")
 
-        fixture.createIncludedFormAndConfigure("includedForm", """
+        fixture.createIncludedFormAndConfigure("includedForm", "test2", """
             [
               {
                 "name": "<caret>stringField"
               }
             ]
-        """.trimIndent(), "test2")
+        """.trimIndent())
 
         assertReferencedElementNameEquals("stringField")
     }
@@ -586,13 +586,13 @@ class FieldTest : FormTestBase() {
             }
         """.trimIndent(), "test")
 
-        fixture.createIncludedFormAndConfigure("includedForm", """
+        fixture.createIncludedFormAndConfigure("includedForm", "test2", """
             [
               {
                 "name": "<caret>"
               }
             ]
-        """.trimIndent(), "test2")
+        """.trimIndent())
 
         assertCompletionsContainsExact(
             "stringField",

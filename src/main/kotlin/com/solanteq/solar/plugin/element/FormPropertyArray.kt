@@ -5,6 +5,7 @@ import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
 import com.intellij.json.psi.JsonValue
 import com.solanteq.solar.plugin.element.base.FormElement
+import com.solanteq.solar.plugin.util.FormPsiUtils
 import kotlin.reflect.KClass
 
 /**
@@ -27,7 +28,9 @@ class FormPropertyArray<T : FormElement<JsonObject>>(
     private val formObjectClass: KClass<out T>
 ) : FormElement<JsonProperty>(sourceElement), List<T> {
 
-    val valueArray = sourceElement.value as JsonArray
+    val valueArray by lazy {
+        FormPsiUtils.getPropertyValue(sourceElement) as JsonArray
+    }
 
     /**
      * Contents of this array represented as form object elements that this array stores.

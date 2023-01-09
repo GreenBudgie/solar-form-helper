@@ -1,9 +1,6 @@
 package com.solanteq.solar.plugin
 
-import com.intellij.json.psi.JsonArray
-import com.intellij.json.psi.JsonElement
-import com.intellij.json.psi.JsonObject
-import com.intellij.json.psi.JsonProperty
+import com.intellij.json.psi.*
 import com.solanteq.solar.plugin.util.FormPsiUtils
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -22,9 +19,9 @@ class FormPsiUtilsTest : FormTestBase() {
             }
         """.trimIndent(), "test")
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as? JsonElement
+        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
 
-        val firstParent = FormPsiUtils.firstParentsOfType(element!!, JsonObject::class).firstOrNull()
+        val firstParent = FormPsiUtils.firstParentsOfType(element, JsonObject::class).firstOrNull()
 
         assertNotNull(firstParent)
 
@@ -44,23 +41,23 @@ class FormPsiUtilsTest : FormTestBase() {
             }
         """.trimIndent(), "test")
 
-        fixture.createIncludedFormAndConfigure("includedForm", """
+        fixture.createIncludedFormAndConfigure("includedForm", "test", """
             [
               "anotherArray": "json://includes/forms/test/includedForm2.json"
             ]
-        """.trimIndent(), "test")
+        """.trimIndent())
 
-        fixture.createIncludedFormAndConfigure("includedForm2", """
+        fixture.createIncludedFormAndConfigure("includedForm2", "test", """
             [
               "anotherArray2": [
                 "<caret>"
               ]
             ]
-        """.trimIndent(), "test")
+        """.trimIndent())
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as? JsonElement
+        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
 
-        val firstParent = FormPsiUtils.firstParentsOfType(element!!, JsonObject::class).firstOrNull()
+        val firstParent = FormPsiUtils.firstParentsOfType(element, JsonObject::class).firstOrNull()
 
         assertNotNull(firstParent)
 
@@ -88,15 +85,15 @@ class FormPsiUtilsTest : FormTestBase() {
             }
         """.trimIndent(), "test")
 
-        fixture.createIncludedFormAndConfigure("includedForm", """
+        fixture.createIncludedFormAndConfigure("includedForm", "test", """
             [
               "anotherArray": "<caret>"
             ]
-        """.trimIndent(), "test")
+        """.trimIndent())
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as? JsonElement
+        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
 
-        val parents = FormPsiUtils.firstParentsOfType(element!!, JsonObject::class)
+        val parents = FormPsiUtils.firstParentsOfType(element, JsonObject::class)
         assertEquals(2, parents.size)
 
         val parentProperties = parents.mapNotNull { it.parent as? JsonProperty }
@@ -120,15 +117,15 @@ class FormPsiUtilsTest : FormTestBase() {
             }
         """.trimIndent(), "test")
 
-        fixture.createIncludedFormAndConfigure("includedForm", """
+        fixture.createIncludedFormAndConfigure("includedForm", "test", """
             <caret>{
               "key": "value"
             }
-        """.trimIndent(), "test")
+        """.trimIndent())
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as? JsonElement
+        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
 
-        val parents = FormPsiUtils.parents(element!!)
+        val parents = FormPsiUtils.parents(element)
         assertEquals(2, parents.size)
 
         val parentProperties = parents.mapNotNull { it as? JsonProperty }
@@ -154,15 +151,15 @@ class FormPsiUtilsTest : FormTestBase() {
             }
         """.trimIndent(), "test")
 
-        fixture.createIncludedFormAndConfigure("includedForm", """
+        fixture.createIncludedFormAndConfigure("includedForm", "test", """
             <caret>{
               "key": "value"
             }
-        """.trimIndent(), "test")
+        """.trimIndent())
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as? JsonElement
+        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
 
-        assertTrue(FormPsiUtils.isPropertyValueWithKey(element!!, "objectProperty"))
+        assertTrue(FormPsiUtils.isPropertyValueWithKey(element, "objectProperty"))
     }
 
     @Test
@@ -175,15 +172,15 @@ class FormPsiUtilsTest : FormTestBase() {
             }
         """.trimIndent(), "test")
 
-        fixture.createIncludedFormAndConfigure("includedForm", """
+        fixture.createIncludedFormAndConfigure("includedForm", "test", """
             [
               "key": "<caret>"
             ]
-        """.trimIndent(), "test")
+        """.trimIndent())
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as? JsonElement
+        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
 
-        assertTrue(FormPsiUtils.isInObjectWithKey(element!!, "objectProperty"))
+        assertTrue(FormPsiUtils.isInObjectWithKey(element, "objectProperty"))
     }
 
     @Test
@@ -194,15 +191,15 @@ class FormPsiUtilsTest : FormTestBase() {
             }
         """.trimIndent(), "test")
 
-        fixture.createIncludedFormAndConfigure("includedForm", """
+        fixture.createIncludedFormAndConfigure("includedForm", "test", """
             {
               "key": "<caret>"
             }
-        """.trimIndent(), "test")
+        """.trimIndent())
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as? JsonElement
+        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
 
-        assertTrue(FormPsiUtils.isInObjectWithKey(element!!, "objectProperty"))
+        assertTrue(FormPsiUtils.isInObjectWithKey(element, "objectProperty"))
     }
 
     @Test
@@ -215,15 +212,15 @@ class FormPsiUtilsTest : FormTestBase() {
             }
         """.trimIndent(), "test")
 
-        fixture.createIncludedFormAndConfigure("includedForm", """
+        fixture.createIncludedFormAndConfigure("includedForm", "test", """
             {
               "key": "<caret>"
             }
-        """.trimIndent(), "test")
+        """.trimIndent())
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as? JsonElement
+        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
 
-        assertTrue(FormPsiUtils.isInArrayWithKey(element!!, "arrayProperty"))
+        assertTrue(FormPsiUtils.isInArrayWithKey(element, "arrayProperty"))
     }
 
     @Test
@@ -234,17 +231,17 @@ class FormPsiUtilsTest : FormTestBase() {
             }
         """.trimIndent(), "test")
 
-        fixture.createIncludedFormAndConfigure("includedForm", """
+        fixture.createIncludedFormAndConfigure("includedForm", "test", """
             [
               {
                 "key": "<caret>"
               }
             ]
-        """.trimIndent(), "test")
+        """.trimIndent())
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as? JsonElement
+        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
 
-        assertTrue(FormPsiUtils.isInArrayWithKey(element!!, "arrayProperty"))
+        assertTrue(FormPsiUtils.isInArrayWithKey(element, "arrayProperty"))
     }
 
     @Test
@@ -257,17 +254,17 @@ class FormPsiUtilsTest : FormTestBase() {
             }
         """.trimIndent(), "test")
 
-        fixture.createIncludedFormAndConfigure("includedForm", """
+        fixture.createIncludedFormAndConfigure("includedForm", "test", """
             [
               {
                 "key": "<caret>"
               }
             ]
-        """.trimIndent(), "test")
+        """.trimIndent())
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as? JsonElement
+        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
 
-        assertTrue(FormPsiUtils.isInArrayWithKey(element!!, "arrayProperty"))
+        assertTrue(FormPsiUtils.isInArrayWithKey(element, "arrayProperty"))
     }
 
     @Test
@@ -280,23 +277,23 @@ class FormPsiUtilsTest : FormTestBase() {
             }
         """.trimIndent(), "test")
 
-        fixture.createIncludedFormAndConfigure("includedForm1", """
+        fixture.createIncludedFormAndConfigure("includedForm1", "test", """
             [
               "json-flat://includes/forms/test/includedForm2.json"
             ]
-        """.trimIndent(), "test")
+        """.trimIndent())
 
-        fixture.createIncludedFormAndConfigure("includedForm2", """
+        fixture.createIncludedFormAndConfigure("includedForm2", "test", """
             [
               {
                 "key": "<caret>"
               }
             ]
-        """.trimIndent(), "test")
+        """.trimIndent())
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as? JsonElement
+        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
 
-        assertTrue(FormPsiUtils.isInArrayWithKey(element!!, "arrayProperty"))
+        assertTrue(FormPsiUtils.isInArrayWithKey(element, "arrayProperty"))
     }
 
     @Test
@@ -315,16 +312,16 @@ class FormPsiUtilsTest : FormTestBase() {
             }
         """.trimIndent(), "test")
 
-        fixture.createIncludedFormAndConfigure("includedForm", """
+        fixture.createIncludedFormAndConfigure("includedForm", "test", """
             [
               {
                 "key": "<caret>"
               }
             ]
-        """.trimIndent(), "test")
+        """.trimIndent())
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as? JsonElement
-        val firstParents = FormPsiUtils.firstParentsOfType(element!!, JsonArray::class)
+        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
+        val firstParents = FormPsiUtils.firstParentsOfType(element, JsonArray::class)
         val arrayInIncludedFormParent = firstParents.filter {
             it.containingFile.name == "includedForm.json"
         }
@@ -353,14 +350,14 @@ class FormPsiUtilsTest : FormTestBase() {
             }
         """.trimIndent(), "test")
 
-        fixture.createIncludedFormAndConfigure("includedForm", """
+        fixture.createIncludedFormAndConfigure("includedForm", "test", """
             [
               "<caret>"
             ]
-        """.trimIndent(), "test")
+        """.trimIndent())
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as? JsonElement
-        val firstParents = FormPsiUtils.parents(element!!)
+        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
+        val firstParents = FormPsiUtils.parents(element)
         val arrayInIncludedFormParent = firstParents.filter {
             it.containingFile.name == "includedForm.json"
         }
@@ -390,20 +387,20 @@ class FormPsiUtilsTest : FormTestBase() {
             }
         """.trimIndent(), "test")
 
-        fixture.createIncludedFormAndConfigure("includedForm1", """
+        fixture.createIncludedFormAndConfigure("includedForm1", "test", """
             [
               "json-flat://includes/forms/test/includedForm2.json"
             ]
-        """.trimIndent(), "test")
+        """.trimIndent())
 
-        fixture.createIncludedFormAndConfigure("includedForm2", """
+        fixture.createIncludedFormAndConfigure("includedForm2", "test", """
             [
               "<caret>"
             ]
-        """.trimIndent(), "test")
+        """.trimIndent())
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as? JsonElement
-        val firstParents = FormPsiUtils.parents(element!!)
+        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
+        val firstParents = FormPsiUtils.parents(element)
         val arrayInIncludedFormParent = firstParents.filter {
             it.containingFile.name == "includedForm1.json"
         }
@@ -415,6 +412,29 @@ class FormPsiUtilsTest : FormTestBase() {
         assertEquals(2, firstParents.size)
         assertEquals(1, arrayInIncludedFormParent.size)
         assertEquals(1, arrayInTopLevelForm1.size)
+    }
+
+    @Test
+    fun `test get property value as json include declaration`() {
+        fixture.createFormAndConfigure("topLevelForm", """
+            {
+              "<caret>property": "json://includes/forms/test/includedForm.json"
+            }
+        """.trimIndent(), "test")
+
+        fixture.createIncludedForm("includedForm", "test", """
+            [
+              "element"
+            ]
+        """.trimIndent())
+
+        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonStringLiteral
+        val property = element.parent as JsonProperty
+
+        val value = FormPsiUtils.getPropertyValue(property)
+
+        assertNotNull(value)
+        assertTrue(value is JsonArray)
     }
 
 }
