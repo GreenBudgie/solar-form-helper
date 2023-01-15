@@ -14,6 +14,12 @@ import com.solanteq.solar.plugin.util.FormPsiUtils
 import kotlin.reflect.KClass
 
 /**
+ * Whether caching of form element is enabled.
+ * True by default. Only used for debugging purposes.
+ */
+private const val DEBUG_CACHING_ENABLED = true
+
+/**
  * Converts this json element to form element with specified type
  *
  * @return Form element of specified type, or null if conversion is impossible
@@ -66,6 +72,12 @@ fun <T : FormElement<JsonObject>> JsonProperty?.toFormArrayElement(
     }
 
     fun tryCreateElement(requiredPropertyName: String): FormPropertyArray<T>? {
+        if(!DEBUG_CACHING_ENABLED) {
+            return if(requiredPropertyName == name)
+                FormPropertyArray(this, contentsClass)
+            else
+                null
+        }
         val key = Key<CachedValue<FormPropertyArray<T>?>>("solar.element.array.$requiredPropertyName")
         return CachedValuesManager.getCachedValue(this, key) {
             val arrayElement = if(requiredPropertyName == name)
@@ -95,6 +107,9 @@ fun <T : FormElement<JsonObject>> JsonProperty?.toFormArrayElement(
  * A wrapper method that creates new form element with caching
  */
 private fun <T : FormElement<*>> JsonElement.createElement(creator: FormElement.FormElementCreator<T>): T? {
+    if(!DEBUG_CACHING_ENABLED) {
+        return creator.create(this)
+    }
     return CachedValuesManager.getCachedValue(this, creator.key) {
         CachedValueProvider.Result(
             creator.create(this),

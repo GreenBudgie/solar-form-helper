@@ -51,11 +51,7 @@ object FormPsiUtils {
         val firstParentInThisFile = element.parentOfTypes(parentClass)
 
         if(isTopLevelForm) {
-            return if(firstParentInThisFile != null) {
-                listOf(firstParentInThisFile)
-            } else {
-                emptyList()
-            }
+            return firstParentInThisFile.asListOrEmpty()
         }
 
         val isSearchingForArrayParent = parentClass == JsonArray::class
@@ -65,7 +61,7 @@ object FormPsiUtils {
                 && firstParentInThisFile == topLevelValue
 
         if(!needToConsiderJsonFlat && firstParentInThisFile != null) {
-            return listOf(firstParentInThisFile)
+            return firstParentInThisFile.asList()
         }
 
         val jsonIncludeDeclarations = jsonIncludeDeclarations(containingJsonFile)
@@ -75,7 +71,7 @@ object FormPsiUtils {
         return jsonIncludeDeclarations.flatMap {
             val isFlat = it.type.isFlat
             if(needToConsiderJsonFlat && isFirstParentIsTopLevelJsonArray && !isFlat) {
-                return@flatMap listOf(firstParentInThisFile!!)
+                return@flatMap firstParentInThisFile!!.asList()
             }
             return@flatMap firstParentsOfType(it.sourceElement, parentClass)
         }
@@ -271,7 +267,7 @@ object FormPsiUtils {
 
     private fun jsonIncludeDeclarations(jsonFile: JsonFile): List<FormJsonInclude> {
         val includedForm = jsonFile.toFormElement<FormIncludedFile>() ?: return emptyList()
-        return includedForm.declarations
+        return includedForm.findDeclarations()
     }
 
 

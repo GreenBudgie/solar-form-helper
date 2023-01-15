@@ -23,8 +23,15 @@ class FormIncludedFile(
     sourceElement: JsonFile
 ) : FormElement<JsonFile>(sourceElement) {
 
+    private var declarations: List<FormJsonInclude>? = null
+
     /**
-     * A list of [FormJsonInclude] elements that have a reference to this form.
+     * Prevents infinite recursion
+     */
+    private var isSearchingForDeclarations = false
+
+    /**
+     * Finds [FormJsonInclude] elements that have a reference to this form.
      * Uses all scope to search for dependencies.
      *
      * Please note that some references might be in the modules that are not included as
@@ -32,17 +39,25 @@ class FormIncludedFile(
      *
      * Does not return declarations in the same file to prevent infinite recursion.
      *
-     * TODO make the search faster
+     * Uses [isSearchingForDeclarations] field to prevent infinite recursion. See PLUGIN-2.
      */
-    val declarations by lazy {
-        val containingFile = containingFile ?: return@lazy emptyList()
+    fun findDeclarations(): List<FormJsonInclude> {
+        if(isSearchingForDeclarations) {
+            return emptyList()
+        }
+        val foundDeclarations = declarations
+        if(foundDeclarations != null) {
+            return foundDeclarations
+        }
+        isSearchingForDeclarations = true
         val searchScope = FormSearch.getFormSearchScope(project.allScope())
-            .minus(GlobalSearchScope.fileScope(containingFile))
-        val references = ReferencesSearch.search(containingFile, searchScope).findAll()
+            .minus(GlobalSearchScope.fileScope(sourceElement))
+        val references = ReferencesSearch.search(sourceElement, searchScope).findAll()
         val referencedJsonElements = references.mapNotNull {
             it.element as? JsonStringLiteral
         }
-        return@lazy referencedJsonElements.mapNotNull { it.toFormElement<FormJsonInclude>() }
+        isSearchingForDeclarations = false
+        return referencedJsonElements.mapNotNull { it.toFormElement() }
     }
 
     /**
@@ -53,7 +68,7 @@ class FormIncludedFile(
      * //TODO test recursive references
      */
     val allTopLevelForms: List<FormTopLevelFile> by lazy {
-        val containingFilesOfDeclarations = declarations.mapNotNull {
+        val containingFilesOfDeclarations = findDeclarations().mapNotNull {
             it.sourceElement.containingFile?.originalFile as? JsonFile
         }.distinct().filter { it != containingFile?.originalFile }
 
