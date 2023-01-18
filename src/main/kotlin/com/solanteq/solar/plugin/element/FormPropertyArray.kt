@@ -6,6 +6,7 @@ import com.intellij.json.psi.JsonProperty
 import com.intellij.json.psi.JsonValue
 import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.util.FormPsiUtils
+import com.solanteq.solar.plugin.util.asListOrEmpty
 import kotlin.reflect.KClass
 
 /**
@@ -66,8 +67,8 @@ class FormPropertyArray<T : FormElement<JsonObject>>(
     private fun resolveValueToFormElements(value: JsonValue): List<T> {
         val jsonInclude = value.toFormElement<FormJsonInclude>()
         if(jsonInclude == null) {
-            val resolvedElement = value.toFormElement(formObjectClass) ?: return emptyList()
-            return listOf(resolvedElement)
+            val resolvedElement = value.toFormElement(formObjectClass)
+            return resolvedElement.asListOrEmpty()
         }
 
         val referencedForm = jsonInclude.referencedFormPsiFile ?: return emptyList()
@@ -80,8 +81,8 @@ class FormPropertyArray<T : FormElement<JsonObject>>(
             return resolvedElements
         }
 
-        val resolvedElement = topLevelValue.toFormElement(formObjectClass) ?: return emptyList()
-        return listOf(resolvedElement)
+        val resolvedElement = topLevelValue.toFormElement(formObjectClass)
+        return resolvedElement.asListOrEmpty()
     }
 
 }

@@ -49,15 +49,17 @@ class FormIncludedFile(
         if(foundDeclarations != null) {
             return foundDeclarations
         }
+        val containingFile = containingFile ?: return emptyList()
         isSearchingForDeclarations = true
         val searchScope = FormSearch.getFormSearchScope(project.allScope())
-            .minus(GlobalSearchScope.fileScope(sourceElement))
-        val references = ReferencesSearch.search(sourceElement, searchScope).findAll()
+            .minus(GlobalSearchScope.fileScope(containingFile))
+        val references = ReferencesSearch.search(containingFile, searchScope).findAll()
         val referencedJsonElements = references.mapNotNull {
             it.element as? JsonStringLiteral
         }
         isSearchingForDeclarations = false
-        return referencedJsonElements.mapNotNull { it.toFormElement() }
+        declarations = referencedJsonElements.mapNotNull { it.toFormElement() }
+        return declarations!!
     }
 
     /**
