@@ -42,7 +42,7 @@ abstract class FormElement<T : JsonElement> protected constructor(
     }
 
     /**
-     * Containing file lazy value to only call it once for performance
+     * Containing file (original) lazy value to only call it once for performance
      */
     protected val containingFile by lazy {
         sourceElement.containingFile?.originalFile as? JsonFile

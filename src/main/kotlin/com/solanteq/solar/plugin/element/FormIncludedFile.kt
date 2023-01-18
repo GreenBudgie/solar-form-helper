@@ -3,7 +3,10 @@ package com.solanteq.solar.plugin.element
 import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonStringLiteral
+import com.intellij.openapi.progress.EmptyProgressIndicator
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Key
+import com.intellij.psi.PsiReference
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.CachedValue
@@ -53,7 +56,11 @@ class FormIncludedFile(
         isSearchingForDeclarations = true
         val searchScope = FormSearch.getFormSearchScope(project.allScope())
             .minus(GlobalSearchScope.fileScope(containingFile))
-        val references = ReferencesSearch.search(containingFile, searchScope).findAll()
+
+        val references = ProgressManager.getInstance().runProcess<Collection<PsiReference>>({
+            ReferencesSearch.search(containingFile, searchScope).findAll()
+        }, EmptyProgressIndicator())
+
         val referencedJsonElements = references.mapNotNull {
             it.element as? JsonStringLiteral
         }
@@ -66,8 +73,6 @@ class FormIncludedFile(
      * All top-level forms that included forms can lead to.
      *
      * Traverses up recursively through all included forms until the top-level form is found.
-     *
-     * //TODO test recursive references
      */
     val allTopLevelForms: List<FormTopLevelFile> by lazy {
         val containingFilesOfDeclarations = findDeclarations().mapNotNull {
