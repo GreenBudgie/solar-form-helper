@@ -4,11 +4,10 @@ import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
+import com.intellij.openapi.progress.EmptyProgressIndicator
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Key
-import com.intellij.psi.PsiClass
-import com.intellij.psi.PsiClassType
-import com.intellij.psi.PsiSubstitutor
-import com.intellij.psi.PsiType
+import com.intellij.psi.*
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.CachedValue
 import com.intellij.psi.util.TypeConversionUtil
@@ -240,7 +239,9 @@ class FormTopLevelFile(
     private val formReferences by lazy {
         val containingFile = containingFile ?: return@lazy emptyList()
         val searchScope = FormSearch.getFormSearchScope(project.allScope())
-        return@lazy ReferencesSearch.search(containingFile, searchScope).findAll().toList()
+        return@lazy ProgressManager.getInstance().runProcess<Collection<PsiReference>>({
+            ReferencesSearch.search(containingFile, searchScope).findAll()
+        }, EmptyProgressIndicator())
     }
 
     private fun getDataClassFromInlineRequest(request: FormRequest): UClass? {
