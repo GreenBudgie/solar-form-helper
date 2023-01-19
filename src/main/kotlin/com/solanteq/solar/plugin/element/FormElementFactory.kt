@@ -20,7 +20,16 @@ import kotlin.reflect.KClass
 private const val DEBUG_CACHING_ENABLED = true
 
 /**
- * Converts this json element to form element with specified type
+ * Whether this JSON element can be converted to the form element of the specified type.
+ *
+ * This method also invokes [toFormElement], so it caches the result of form element conversion
+ * computation but not returning it.
+ */
+inline fun <reified T : FormElement<*>> JsonElement?.isFormElement() = toFormElement<T>() != null
+
+/**
+ * Converts this json element to form element with specified type.
+ * Uses caching, so it's mostly safe for performance to call it multiple times.
  *
  * @return Form element of specified type, or null if conversion is impossible
  *

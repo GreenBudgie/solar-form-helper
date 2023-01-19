@@ -8,10 +8,7 @@ import com.solanteq.solar.plugin.element.FormGroup
 import com.solanteq.solar.plugin.symbol.FormSymbol
 import com.solanteq.solar.plugin.symbol.FormSymbolDeclaration
 import com.solanteq.solar.plugin.symbol.FormSymbolType
-import com.solanteq.solar.plugin.util.asList
-import com.solanteq.solar.plugin.util.inForm
-import com.solanteq.solar.plugin.util.isInArrayWithKey
-import com.solanteq.solar.plugin.util.isPropertyValueWithKey
+import com.solanteq.solar.plugin.util.*
 
 class L10nGroupDeclarationProvider : PsiSymbolDeclarationProvider {
 
@@ -19,6 +16,7 @@ class L10nGroupDeclarationProvider : PsiSymbolDeclarationProvider {
         inForm<JsonStringLiteral>()
         .isInArrayWithKey(FormGroup.ARRAY_NAME)
         .isPropertyValueWithKey("name")
+        .notJsonIncludeDeclaration()
 
     override fun getDeclarations(
         element: PsiElement,

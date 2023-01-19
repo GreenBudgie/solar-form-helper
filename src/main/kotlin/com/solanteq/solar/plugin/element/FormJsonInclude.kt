@@ -115,10 +115,10 @@ class FormJsonInclude(
         val isOptional: Boolean
     ) {
 
-        JSON("json://", false, false),
-        JSON_OPTIONAL("json?://", false , true),
-        JSON_FLAT("json-flat://", true, false),
-        JSON_FLAT_OPTIONAL("json-flat?://", true, true)
+        JSON("json://includes/forms/", false, false),
+        JSON_OPTIONAL("json?://includes/forms/", false , true),
+        JSON_FLAT("json-flat://includes/forms/", true, false),
+        JSON_FLAT_OPTIONAL("json-flat?://includes/forms/", true, true)
 
     }
 
@@ -128,11 +128,22 @@ class FormJsonInclude(
 
         override fun create(sourceElement: JsonElement): FormJsonInclude? {
             val stringLiteral = sourceElement as? JsonStringLiteral ?: return null
-            val stringLiteralValue = stringLiteral.value
-            val includeType = JsonIncludeType.values().find {
-                stringLiteralValue.startsWith(it.prefix)
-            } ?: return null
+            val includeType = getJsonIncludeDeclarationType(stringLiteral) ?: return null
             return FormJsonInclude(stringLiteral, includeType)
+        }
+
+        /**
+         * Whether the given element can be considered a JSON include declaration.
+         * Checks if its value starts with `prefix://includes/forms`.
+         */
+        fun isJsonIncludeDeclaration(element: JsonStringLiteral) =
+            getJsonIncludeDeclarationType(element) != null
+
+        private fun getJsonIncludeDeclarationType(element: JsonStringLiteral): JsonIncludeType? {
+            val value = element.value
+            return JsonIncludeType.values().find {
+                value.startsWith(it.prefix)
+            }
         }
 
     }

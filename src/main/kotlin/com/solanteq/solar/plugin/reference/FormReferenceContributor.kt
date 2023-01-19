@@ -25,14 +25,15 @@ class FormReferenceContributor : PsiReferenceContributor() {
         registrar.registerReferenceProvider(
             inForm<JsonStringLiteral>().isPropertyValueWithKey(
                 "form", "parentForm", "parametersForm"
-            ),
+            ).notJsonIncludeDeclaration(),
             FormReferenceProvider
         )
 
         registrar.registerReferenceProvider(
             inForm<JsonStringLiteral>()
                 .isPropertyValueWithKey("name")
-                .isInArrayWithKey("fields"),
+                .isInArrayWithKey("fields")
+                .notJsonIncludeDeclaration(),
             FieldReferenceProvider
         )
 
@@ -44,14 +45,16 @@ class FormReferenceContributor : PsiReferenceContributor() {
         registrar.registerReferenceProvider(
             inTopLevelForm<JsonStringLiteral>()
                 .isPropertyValueWithKey("name")
-                .isAtTopLevelObject(),
+                .isAtTopLevelObject()
+                .notJsonIncludeDeclaration(),
             FormNameReferenceProvider
         )
 
         registrar.registerReferenceProvider(
             inTopLevelForm<JsonStringLiteral>()
                 .isPropertyValueWithKey("module")
-                .isAtTopLevelObject(),
+                .isAtTopLevelObject()
+                .notJsonIncludeDeclaration(),
             FormModuleReferenceProvider
         )
     }
@@ -74,10 +77,12 @@ class FormReferenceContributor : PsiReferenceContributor() {
 
         return StandardPatterns.or(
             baseInFormPattern
-                .isPropertyValueWithKey(*FormRequest.RequestType.requestLiterals),
+                .isPropertyValueWithKey(*FormRequest.RequestType.requestLiterals)
+                .notJsonIncludeDeclaration(),
             baseInFormPattern
                 .isPropertyValueWithKey("name")
                 .isInObjectWithKey(*FormRequest.RequestType.requestLiterals)
+                .notJsonIncludeDeclaration()
         )
     }
 

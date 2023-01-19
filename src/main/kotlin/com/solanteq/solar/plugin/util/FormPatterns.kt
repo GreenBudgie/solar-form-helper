@@ -2,12 +2,14 @@ package com.solanteq.solar.plugin.util
 
 import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonPsiUtil
+import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.patterns.PatternCondition
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.patterns.PsiElementPattern
 import com.intellij.patterns.StandardPatterns
 import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
+import com.solanteq.solar.plugin.element.FormJsonInclude
 import com.solanteq.solar.plugin.file.IncludedFormFileType
 import com.solanteq.solar.plugin.file.TopLevelFormFileType
 
@@ -29,14 +31,6 @@ inline fun <reified T : JsonElement> inTopLevelForm(): PsiElementPattern.Capture
     PlatformPatterns
         .psiElement(T::class.java)
         .inFile(PlatformPatterns.psiFile().withFileType(StandardPatterns.`object`(TopLevelFormFileType)))
-
-/**
- * Constructs a pattern to check if the specified json element is inside the included form file
- */
-inline fun <reified T : JsonElement> inIncludedForm(): PsiElementPattern.Capture<out T> =
-    PlatformPatterns
-        .psiElement(T::class.java)
-        .inFile(PlatformPatterns.psiFile().withFileType(StandardPatterns.`object`(IncludedFormFileType)))
 
 /**
  * @see FormPsiUtils.isPropertyValueWithKey
@@ -84,6 +78,16 @@ fun <T : JsonElement> PsiElementPattern.Capture<out T>.isPropertyKey() =
 fun <T : JsonElement> PsiElementPattern.Capture<out T>.isPropertyValue() =
     withCondition("isPropertyValue") {
         FormPsiUtils.isPropertyValue(it)
+    }
+
+/**
+ * Whether this element cannot be considered a JSON include declaration.
+ * It's better to check whenever it is possible to declare a JSON include in this string literal.
+ */
+fun <T : JsonElement> PsiElementPattern.Capture<out T>.notJsonIncludeDeclaration() =
+    withCondition("notJsonIncludeDeclaration") {
+        if(it !is JsonStringLiteral) return@withCondition true
+        !FormJsonInclude.isJsonIncludeDeclaration(it)
     }
 
 /**
