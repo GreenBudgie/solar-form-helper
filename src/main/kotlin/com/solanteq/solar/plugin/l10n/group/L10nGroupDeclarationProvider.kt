@@ -14,9 +14,9 @@ class L10nGroupDeclarationProvider : PsiSymbolDeclarationProvider {
 
     private val groupNamePattern =
         inForm<JsonStringLiteral>()
-        .isInArrayWithKey(FormGroup.ARRAY_NAME)
-        .isPropertyValueWithKey("name")
-        .notJsonIncludeDeclaration()
+            .notJsonIncludeDeclaration()
+            .isPropertyValueWithKey("name")
+            .isInArrayWithKey(FormGroup.ARRAY_NAME)
 
     override fun getDeclarations(
         element: PsiElement,

@@ -23,38 +23,38 @@ class FormReferenceContributor : PsiReferenceContributor() {
         )
 
         registrar.registerReferenceProvider(
-            inForm<JsonStringLiteral>().isPropertyValueWithKey(
-                "form", "parentForm", "parametersForm"
-            ).notJsonIncludeDeclaration(),
+            inForm<JsonStringLiteral>()
+                .notJsonIncludeDeclaration()
+                .isPropertyValueWithKey("form", "parentForm", "parametersForm"),
             FormReferenceProvider
         )
 
         registrar.registerReferenceProvider(
             inForm<JsonStringLiteral>()
+                .notJsonIncludeDeclaration()
                 .isPropertyValueWithKey("name")
-                .isInArrayWithKey("fields")
-                .notJsonIncludeDeclaration(),
+                .isInObjectInArrayWithKey("fields"),
             FieldReferenceProvider
         )
 
         registrar.registerReferenceProvider(
-            inForm<JsonStringLiteral>(),
+            inForm<JsonStringLiteral>().isJsonIncludeDeclaration(),
             JsonIncludeReferenceProvider
         )
 
         registrar.registerReferenceProvider(
             inTopLevelForm<JsonStringLiteral>()
+                .notJsonIncludeDeclaration()
                 .isPropertyValueWithKey("name")
-                .isAtTopLevelObject()
-                .notJsonIncludeDeclaration(),
+                .isAtTopLevelObject(),
             FormNameReferenceProvider
         )
 
         registrar.registerReferenceProvider(
             inTopLevelForm<JsonStringLiteral>()
+                .notJsonIncludeDeclaration()
                 .isPropertyValueWithKey("module")
-                .isAtTopLevelObject()
-                .notJsonIncludeDeclaration(),
+                .isAtTopLevelObject(),
             FormModuleReferenceProvider
         )
     }
@@ -77,12 +77,12 @@ class FormReferenceContributor : PsiReferenceContributor() {
 
         return StandardPatterns.or(
             baseInFormPattern
-                .isPropertyValueWithKey(*FormRequest.RequestType.requestLiterals)
-                .notJsonIncludeDeclaration(),
+                .notJsonIncludeDeclaration()
+                .isPropertyValueWithKey(*FormRequest.RequestType.requestLiterals),
             baseInFormPattern
+                .notJsonIncludeDeclaration()
                 .isPropertyValueWithKey("name")
                 .isInObjectWithKey(*FormRequest.RequestType.requestLiterals)
-                .notJsonIncludeDeclaration()
         )
     }
 

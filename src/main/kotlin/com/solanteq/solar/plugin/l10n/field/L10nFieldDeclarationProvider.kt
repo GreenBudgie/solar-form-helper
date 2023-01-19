@@ -14,9 +14,9 @@ class L10nFieldDeclarationProvider : PsiSymbolDeclarationProvider {
 
     private val fieldNamePattern =
         inForm<JsonStringLiteral>()
-        .isInArrayWithKey(FormField.ARRAY_NAME)
-        .isPropertyValueWithKey("name")
-        .notJsonIncludeDeclaration()
+            .notJsonIncludeDeclaration()
+            .isPropertyValueWithKey("name")
+            .isInObjectInArrayWithKey(FormField.ARRAY_NAME)
 
     override fun getDeclarations(
         element: PsiElement,

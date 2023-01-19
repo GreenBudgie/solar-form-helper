@@ -57,6 +57,14 @@ fun <T : JsonElement> PsiElementPattern.Capture<out T>.isInArrayWithKey(vararg a
     }
 
 /**
+ * @see FormPsiUtils.isInObjectInArrayWithKey
+ */
+fun <T : JsonElement> PsiElementPattern.Capture<out T>.isInObjectInArrayWithKey(vararg applicableKeys: String) =
+    withCondition("isInObjectInArrayWithKey") {
+        FormPsiUtils.isInObjectInArrayWithKey(it, *applicableKeys)
+    }
+
+/**
  * @see FormPsiUtils.isAtTopLevelObject
  */
 fun <T : JsonElement> PsiElementPattern.Capture<out T>.isAtTopLevelObject() =
@@ -81,13 +89,22 @@ fun <T : JsonElement> PsiElementPattern.Capture<out T>.isPropertyValue() =
     }
 
 /**
- * Whether this element cannot be considered a JSON include declaration.
+ * Whether this element **cannot** be considered a JSON include declaration.
  * It's better to check whenever it is possible to declare a JSON include in this string literal.
  */
 fun <T : JsonElement> PsiElementPattern.Capture<out T>.notJsonIncludeDeclaration() =
     withCondition("notJsonIncludeDeclaration") {
         if(it !is JsonStringLiteral) return@withCondition true
         !FormJsonInclude.isJsonIncludeDeclaration(it)
+    }
+
+/**
+ * Whether this element **can** be considered a JSON include declaration
+ */
+fun <T : JsonElement> PsiElementPattern.Capture<out T>.isJsonIncludeDeclaration() =
+    withCondition("isJsonIncludeDeclaration") {
+        if(it !is JsonStringLiteral) return@withCondition false
+        FormJsonInclude.isJsonIncludeDeclaration(it)
     }
 
 /**

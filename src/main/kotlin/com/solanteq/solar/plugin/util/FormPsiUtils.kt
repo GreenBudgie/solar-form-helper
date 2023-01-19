@@ -102,7 +102,7 @@ object FormPsiUtils {
                 && parentInThisForm == topLevelValue
                 && !isTopLevelForm
         if(!needToConsiderJsonFlat && parentInThisForm !is JsonFile) {
-            return listOf(parentInThisForm)
+            return parentInThisForm.asList()
         }
 
         val jsonIncludeDeclarations = jsonIncludeDeclarations(containingJsonFile)
@@ -110,7 +110,7 @@ object FormPsiUtils {
         return jsonIncludeDeclarations.flatMap {
             val isFlat = it.type.isFlat
             if(needToConsiderJsonFlat && !isFlat) {
-                return@flatMap listOf(parentInThisForm)
+                return@flatMap parentInThisForm.asList()
             }
             return@flatMap parents(it.sourceElement)
         }
@@ -194,12 +194,17 @@ object FormPsiUtils {
     /**
      * In top-level form:
      * - Whether the element is inside a json array that is a value of property with one of specified keys.
+     * Uses the first array parent in tree. Passes even for properties in nested objects.
+     * See the example below.
      *
      * Example for `isObjectInArrayWithKey("fields")`:
      * ```
      * "fields": [ //false
      *   { //true
      *     "name": "fieldName" //true
+     *     "innerObject": { //true
+     *       "innerProperty": 1 //true
+     *     }
      *   }, //true
      *   "jsonInclude" //true
      * ],
@@ -214,6 +219,48 @@ object FormPsiUtils {
         val firstJsonArrayParents = firstParentsOfType(element, JsonArray::class)
 
         return firstJsonArrayParents.any {
+            isPropertyValueWithKey(it, *applicableKeys)
+        }
+    }
+
+    /**
+     * In top-level form:
+     * - Whether the element is inside an object that is located right in
+     * json array that is a value of property with one of specified keys.
+     * Uses the first array parent in tree. The main difference from [isInArrayWithKey] is that it
+     * **does not pass** for properties in nested objects and for the object in array itself.
+     * Only passes for properties inside this object.
+     * See the example below.
+     *
+     * Example for `isInObjectInArrayWithKey("fields")`:
+     * ```
+     * "fields": [ //false
+     *   { //false!!!
+     *     "name": "fieldName" //true
+     *     "innerObject": { //true
+     *       "innerProperty": 1 //false!!!
+     *     }
+     *   }, //true
+     *   "jsonInclude" //true
+     * ],
+     * "boilerplateKey": "boilerplateValue" //false
+     * ```
+     *
+     * In included form:
+     * - Finds all json array parents in other forms by JSON include declarations
+     * and checks whether one of them is a value of property with one of specified keys.
+     */
+    fun isInObjectInArrayWithKey(element: JsonElement, vararg applicableKeys: String): Boolean {
+        val firstObjectParents = firstParentsOfType(element, JsonObject::class)
+        if(firstObjectParents.isEmpty()) {
+            return false
+        }
+
+        val parentArrays = firstObjectParents
+            .flatMap { parents(it) }
+            .filterIsInstance<JsonArray>()
+
+        return parentArrays.any {
             isPropertyValueWithKey(it, *applicableKeys)
         }
     }

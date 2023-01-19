@@ -461,6 +461,33 @@ class L10nTest : FormTestBase() {
         assertCompletionsContainsExact("realNestedField")
     }
 
+    @Test
+    fun `test field declaration does not exist in request name inside field`() {
+        fixture.createFormAndConfigure("testForm", """
+            {
+              "groups": [
+                {
+                  "rows": [
+                    {
+                      "fields": [
+                        {
+                          "name": "field",
+                          "source": {
+                            "name": "test.test<caret>Service.findData"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent(), "test")
+
+        val declaration = getFormSymbolDeclarationAtCaret(L10nFieldDeclarationProvider())
+        Assertions.assertNull(declaration)
+    }
+
     private fun generateL10nFileText(vararg l10ns: Pair<String, String>): String {
         if(l10ns.isEmpty()) error("You need to provide at least one l10n entry")
 

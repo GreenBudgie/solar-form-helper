@@ -297,6 +297,126 @@ class FormPsiUtilsTest : FormTestBase() {
     }
 
     @Test
+    fun `test isInObjectInArrayWithKey for top-level form positive scenario property`() {
+        fixture.configureByFormText("""
+            {
+              "fields": [
+                {
+                  "property": "value<caret>"
+                }
+              ]
+            }
+        """.trimIndent())
+
+        val element = getJsonStringLiteralAtCaret()
+        val result = FormPsiUtils.isInObjectInArrayWithKey(element, "fields")
+        assertTrue(result)
+    }
+
+    @Test
+    fun `test isInObjectInArrayWithKey for included form positive scenario property`() {
+        fixture.createForm("topLevelForm", """
+            {
+              "fields": "json://includes/forms/test/includedForm.json"
+            }
+        """.trimIndent(), "test")
+
+        fixture.createIncludedFormAndConfigure("includedForm", "test", """
+            [
+              {
+                "property": "value<caret>"
+              }
+            ]
+        """.trimIndent())
+
+        val element = getJsonStringLiteralAtCaret()
+        val result = FormPsiUtils.isInObjectInArrayWithKey(element, "fields")
+        assertTrue(result)
+    }
+
+    @Test
+    fun `test isInObjectInArrayWithKey for flat included form positive scenario property`() {
+        fixture.createForm("topLevelForm", """
+            {
+              "fields": [
+                "json-flat://includes/forms/test/includedForm.json"
+              ]
+            }
+        """.trimIndent(), "test")
+
+        fixture.createIncludedFormAndConfigure("includedForm", "test", """
+            [
+              {
+                "property": "value<caret>"
+              }
+            ]
+        """.trimIndent())
+
+        val element = getJsonStringLiteralAtCaret()
+        val result = FormPsiUtils.isInObjectInArrayWithKey(element, "fields")
+        assertTrue(result)
+    }
+
+    @Test
+    fun `test isInObjectInArrayWithKey for top-level form negative scenario no object in array`() {
+        fixture.configureByFormText("""
+            {
+              "fields": [
+                "someString<caret>"
+              ]
+            }
+        """.trimIndent())
+
+        val element = getJsonStringLiteralAtCaret()
+        val result = FormPsiUtils.isInObjectInArrayWithKey(element, "fields")
+        assertFalse(result)
+    }
+
+    @Test
+    fun `test isInObjectInArrayWithKey for top-level form negative scenario inner object property`() {
+        fixture.configureByFormText("""
+            {
+              "fields": [
+                {
+                  "property": "value",
+                  "innerObject": {
+                    "mustNot": "pass<caret>"
+                  }
+                }
+              ]
+            }
+        """.trimIndent())
+
+        val element = getJsonStringLiteralAtCaret()
+        val result = FormPsiUtils.isInObjectInArrayWithKey(element, "fields")
+        assertFalse(result)
+    }
+
+    @Test
+    fun `test isInObjectInArrayWithKey for included form negative scenario inner object property`() {
+        fixture.createForm("topLevelForm", """
+            {
+              "fields": [
+                "json://includes/forms/test/includedForm.json"
+              ]
+            }
+        """.trimIndent(), "test")
+
+        fixture.createIncludedFormAndConfigure("includedForm", "test", """
+            {
+              "property": "value",
+              "innerObject": {
+                "mustNot": "pass<caret>"
+              }
+            }
+        """.trimIndent())
+
+        val element = getJsonStringLiteralAtCaret()
+        val result = FormPsiUtils.isInObjectInArrayWithKey(element, "fields")
+        assertFalse(result)
+    }
+
+    @Test
     fun `test different first parents for flat and non-flat json include declarations`() {
         fixture.createForm("topLevelForm1", """
             {

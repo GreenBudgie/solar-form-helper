@@ -64,7 +64,7 @@ abstract class FormTestBase : LightJavaCodeInsightFixtureTestCase5(DEFAULT_DESCR
         declarationProvider: PsiSymbolDeclarationProvider,
         renameTo: String
     ) {
-        val symbol = getFormSymbolDeclarationAtCaret(declarationProvider)
+        val symbol = getFormSymbolAtCaret(declarationProvider)
         fixture.renameTarget(symbol, renameTo)
     }
 
@@ -83,13 +83,19 @@ abstract class FormTestBase : LightJavaCodeInsightFixtureTestCase5(DEFAULT_DESCR
 
     protected fun getFormSymbolDeclarationAtCaret(
         declarationProvider: PsiSymbolDeclarationProvider
-    ): FormSymbol {
+    ): FormSymbolDeclaration? {
         val elementAtCaret = getJsonStringLiteralAtCaret()
         val elementAbsoluteTextRangeStart = elementAtCaret.textRange.startOffset
         val offset = fixture.caretOffset - elementAbsoluteTextRangeStart
-        val declaration = declarationProvider
+        return declarationProvider
             .getDeclarations(elementAtCaret, offset)
             .firstOrNull() as? FormSymbolDeclaration
+    }
+
+    protected fun getFormSymbolAtCaret(
+        declarationProvider: PsiSymbolDeclarationProvider
+    ): FormSymbol {
+        val declaration = getFormSymbolDeclarationAtCaret(declarationProvider)
         Assertions.assertNotNull(declaration)
         return declaration!!.symbol
     }
