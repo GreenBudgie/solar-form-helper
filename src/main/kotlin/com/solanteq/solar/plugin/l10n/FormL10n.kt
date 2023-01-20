@@ -9,7 +9,7 @@ import com.intellij.psi.util.CachedValue
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.util.PsiModificationTracker
-import com.solanteq.solar.plugin.element.FormTopLevelFile
+import com.solanteq.solar.plugin.element.FormRootFile
 import com.solanteq.solar.plugin.element.toFormElement
 import com.solanteq.solar.plugin.search.FormSearch
 import com.solanteq.solar.plugin.util.dotSplit
@@ -19,7 +19,7 @@ import org.jetbrains.kotlin.idea.core.util.toPsiDirectory
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 
 /**
- * Represents a localization string in a l10n file for top-level form.
+ * Represents a localization string in a l10n file for root form.
  * [FormL10n] should not be treated as plain l10n key-value pair even though it extends [L10n].
  *
  * L10n string property is considered a form localization if it starts with `<module_name>.form.<form_name>`.
@@ -121,11 +121,11 @@ class FormL10n private constructor(
     }
 
     /**
-     * [referencedFormPsiFile] converted to top-level form.
+     * [referencedFormPsiFile] converted to root form.
      * Should not be null if [referencedFormPsiFile] is not null.
      */
     val referencedFormFileElement by lazy {
-        referencedFormPsiFile.toFormElement<FormTopLevelFile>()
+        referencedFormPsiFile.toFormElement<FormRootFile>()
     }
 
     /**

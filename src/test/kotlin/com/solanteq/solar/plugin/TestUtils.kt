@@ -2,7 +2,7 @@ package com.solanteq.solar.plugin
 
 import com.intellij.json.psi.JsonFile
 import com.intellij.testFramework.fixtures.JavaCodeInsightTestFixture
-import com.solanteq.solar.plugin.file.TopLevelFormFileType
+import com.solanteq.solar.plugin.file.RootFormFileType
 
 /**
  * Creates new form in the correct directory with specified text
@@ -105,4 +105,4 @@ fun JavaCodeInsightTestFixture.configureByForms(vararg formPaths: String, module
  * will be placed into correct directory.
  */
 fun JavaCodeInsightTestFixture.configureByFormText(text: String): JsonFile =
-    this.configureByText(TopLevelFormFileType, text) as JsonFile
+    this.configureByText(RootFormFileType, text) as JsonFile

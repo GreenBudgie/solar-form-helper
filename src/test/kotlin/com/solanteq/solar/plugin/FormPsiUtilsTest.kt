@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test
 class FormPsiUtilsTest : FormTestBase() {
 
     @Test
-    fun `test first parents of type on top level form`() {
-        fixture.createFormAndConfigure("topLevelForm", """
+    fun `test first parents of type on root form`() {
+        fixture.createFormAndConfigure("rootForm", """
             {
               "objectProperty": {
                 "arrayProperty": [
@@ -32,8 +32,8 @@ class FormPsiUtilsTest : FormTestBase() {
     }
 
     @Test
-    fun `test first parents of type in included form to top level form`() {
-        fixture.createForm("topLevelForm", """
+    fun `test first parents of type in included form to root form`() {
+        fixture.createForm("rootForm", """
             {
               "objectProperty": {
                 "arrayProperty": "json://includes/forms/test/includedForm.json"
@@ -69,7 +69,7 @@ class FormPsiUtilsTest : FormTestBase() {
 
     @Test
     fun `test find multiple first parents`() {
-        fixture.createForm("topLevelForm", """
+        fixture.createForm("rootForm", """
             {
               "objectProperty": {
                 "arrayProperty": "json://includes/forms/test/includedForm.json"
@@ -77,7 +77,7 @@ class FormPsiUtilsTest : FormTestBase() {
             }
         """.trimIndent(), "test")
 
-        fixture.createForm("topLevelForm2", """
+        fixture.createForm("rootForm2", """
             {
               "objectProperty2": {
                 "arrayProperty": "json://includes/forms/test/includedForm.json"
@@ -105,13 +105,13 @@ class FormPsiUtilsTest : FormTestBase() {
 
     @Test
     fun `test multiple parents`() {
-        fixture.createForm("topLevelForm", """
+        fixture.createForm("rootForm", """
             {
               "objectProperty": "json://includes/forms/test/includedForm.json"
             }
         """.trimIndent(), "test")
 
-        fixture.createForm("topLevelForm2", """
+        fixture.createForm("rootForm2", """
             {
               "objectProperty2": "json://includes/forms/test/includedForm.json"
             }
@@ -137,13 +137,13 @@ class FormPsiUtilsTest : FormTestBase() {
 
     @Test
     fun `test isPropertyValueWithKey for included form`() {
-        fixture.createForm("topLevelForm", """
+        fixture.createForm("rootForm", """
             {
               "objectProperty": "json://includes/forms/test/includedForm.json"
             }
         """.trimIndent(), "test")
 
-        fixture.createForm("topLevelForm2", """
+        fixture.createForm("rootForm2", """
             {
               "arrayProperty": [
                 "json://includes/forms/test/includedForm.json"
@@ -164,7 +164,7 @@ class FormPsiUtilsTest : FormTestBase() {
 
     @Test
     fun `test isInObjectWithKey for included form`() {
-        fixture.createForm("topLevelForm", """
+        fixture.createForm("rootForm", """
             {
               "objectProperty": {
                 "value": "json://includes/forms/test/includedForm.json"
@@ -185,7 +185,7 @@ class FormPsiUtilsTest : FormTestBase() {
 
     @Test
     fun `test isInObjectWithKey for included form as direct object value`() {
-        fixture.createForm("topLevelForm", """
+        fixture.createForm("rootForm", """
             {
               "objectProperty": "json://includes/forms/test/includedForm.json"
             }
@@ -204,7 +204,7 @@ class FormPsiUtilsTest : FormTestBase() {
 
     @Test
     fun `test isInArrayWithKey for included form`() {
-        fixture.createForm("topLevelForm", """
+        fixture.createForm("rootForm", """
             {
               "arrayProperty": [
                 "json://includes/forms/test/includedForm.json"
@@ -225,7 +225,7 @@ class FormPsiUtilsTest : FormTestBase() {
 
     @Test
     fun `test isInArrayWithKey for included form as direct array value`() {
-        fixture.createForm("topLevelForm", """
+        fixture.createForm("rootForm", """
             {
               "arrayProperty": "json://includes/forms/test/includedForm.json"
             }
@@ -246,7 +246,7 @@ class FormPsiUtilsTest : FormTestBase() {
 
     @Test
     fun `test isInArrayWithKey for included form with json-flat declaration`() {
-        fixture.createForm("topLevelForm", """
+        fixture.createForm("rootForm", """
             {
               "arrayProperty": [
                 "json-flat://includes/forms/test/includedForm.json"
@@ -269,7 +269,7 @@ class FormPsiUtilsTest : FormTestBase() {
 
     @Test
     fun `test isInArrayWithKey for included form with json-flat declaration 2x deep`() {
-        fixture.createForm("topLevelForm", """
+        fixture.createForm("rootForm", """
             {
               "arrayProperty": [
                 "json-flat://includes/forms/test/includedForm1.json"
@@ -297,7 +297,7 @@ class FormPsiUtilsTest : FormTestBase() {
     }
 
     @Test
-    fun `test isInObjectInArrayWithKey for top-level form positive scenario property`() {
+    fun `test isInObjectInArrayWithKey for root form positive scenario property`() {
         fixture.configureByFormText("""
             {
               "fields": [
@@ -315,7 +315,7 @@ class FormPsiUtilsTest : FormTestBase() {
 
     @Test
     fun `test isInObjectInArrayWithKey for included form positive scenario property`() {
-        fixture.createForm("topLevelForm", """
+        fixture.createForm("rootForm", """
             {
               "fields": "json://includes/forms/test/includedForm.json"
             }
@@ -336,7 +336,7 @@ class FormPsiUtilsTest : FormTestBase() {
 
     @Test
     fun `test isInObjectInArrayWithKey for flat included form positive scenario property`() {
-        fixture.createForm("topLevelForm", """
+        fixture.createForm("rootForm", """
             {
               "fields": [
                 "json-flat://includes/forms/test/includedForm.json"
@@ -358,7 +358,7 @@ class FormPsiUtilsTest : FormTestBase() {
     }
 
     @Test
-    fun `test isInObjectInArrayWithKey for top-level form negative scenario no object in array`() {
+    fun `test isInObjectInArrayWithKey for root form negative scenario no object in array`() {
         fixture.configureByFormText("""
             {
               "fields": [
@@ -373,7 +373,7 @@ class FormPsiUtilsTest : FormTestBase() {
     }
 
     @Test
-    fun `test isInObjectInArrayWithKey for top-level form negative scenario inner object property`() {
+    fun `test isInObjectInArrayWithKey for root form negative scenario inner object property`() {
         fixture.configureByFormText("""
             {
               "fields": [
@@ -394,7 +394,7 @@ class FormPsiUtilsTest : FormTestBase() {
 
     @Test
     fun `test isInObjectInArrayWithKey for included form negative scenario inner object property`() {
-        fixture.createForm("topLevelForm", """
+        fixture.createForm("rootForm", """
             {
               "fields": [
                 "json://includes/forms/test/includedForm.json"
@@ -418,7 +418,7 @@ class FormPsiUtilsTest : FormTestBase() {
 
     @Test
     fun `test different first parents for flat and non-flat json include declarations`() {
-        fixture.createForm("topLevelForm1", """
+        fixture.createForm("rootForm1", """
             {
               "arrayProperty": [
                 "json-flat://includes/forms/test/includedForm.json"
@@ -426,7 +426,7 @@ class FormPsiUtilsTest : FormTestBase() {
             }
         """.trimIndent(), "test")
 
-        fixture.createForm("topLevelForm2", """
+        fixture.createForm("rootForm2", """
             {
               "arrayProperty": "json://includes/forms/test/includedForm.json"
             }
@@ -445,18 +445,18 @@ class FormPsiUtilsTest : FormTestBase() {
         val arrayInIncludedFormParent = firstParents.filter {
             it.containingFile.name == "includedForm.json"
         }
-        val arrayInTopLevelForm1 = firstParents.filter {
-            it.containingFile.name == "topLevelForm1.json"
+        val arrayInRootForm1 = firstParents.filter {
+            it.containingFile.name == "rootForm1.json"
         }
 
         assertEquals(2, firstParents.size)
         assertEquals(1, arrayInIncludedFormParent.size)
-        assertEquals(1, arrayInTopLevelForm1.size)
+        assertEquals(1, arrayInRootForm1.size)
     }
 
     @Test
     fun `test different parents for flat and non-flat json include declarations`() {
-        fixture.createForm("topLevelForm1", """
+        fixture.createForm("rootForm1", """
             {
               "arrayProperty": [
                 "json-flat://includes/forms/test/includedForm.json"
@@ -464,7 +464,7 @@ class FormPsiUtilsTest : FormTestBase() {
             }
         """.trimIndent(), "test")
 
-        fixture.createForm("topLevelForm2", """
+        fixture.createForm("rootForm2", """
             {
               "arrayProperty": "json://includes/forms/test/includedForm.json"
             }
@@ -481,19 +481,19 @@ class FormPsiUtilsTest : FormTestBase() {
         val arrayInIncludedFormParent = firstParents.filter {
             it.containingFile.name == "includedForm.json"
         }
-        val arrayInTopLevelForm1 = firstParents.filter {
-            it.containingFile.name == "topLevelForm1.json"
+        val arrayInRootForm1 = firstParents.filter {
+            it.containingFile.name == "rootForm1.json"
         }
 
         assertTrue(firstParents.all { it is JsonArray })
         assertEquals(2, firstParents.size)
         assertEquals(1, arrayInIncludedFormParent.size)
-        assertEquals(1, arrayInTopLevelForm1.size)
+        assertEquals(1, arrayInRootForm1.size)
     }
 
     @Test
     fun `test different parents for flat and non-flat json include declarations 2x deep`() {
-        fixture.createForm("topLevelForm1", """
+        fixture.createForm("rootForm1", """
             {
               "arrayProperty": [
                 "json-flat://includes/forms/test/includedForm1.json"
@@ -501,7 +501,7 @@ class FormPsiUtilsTest : FormTestBase() {
             }
         """.trimIndent(), "test")
 
-        fixture.createForm("topLevelForm2", """
+        fixture.createForm("rootForm2", """
             {
               "arrayProperty": "json://includes/forms/test/includedForm1.json"
             }
@@ -524,19 +524,19 @@ class FormPsiUtilsTest : FormTestBase() {
         val arrayInIncludedFormParent = firstParents.filter {
             it.containingFile.name == "includedForm1.json"
         }
-        val arrayInTopLevelForm1 = firstParents.filter {
-            it.containingFile.name == "topLevelForm1.json"
+        val arrayInRootForm1 = firstParents.filter {
+            it.containingFile.name == "rootForm1.json"
         }
 
         assertTrue(firstParents.all { it is JsonArray })
         assertEquals(2, firstParents.size)
         assertEquals(1, arrayInIncludedFormParent.size)
-        assertEquals(1, arrayInTopLevelForm1.size)
+        assertEquals(1, arrayInRootForm1.size)
     }
 
     @Test
     fun `test get property value as json include declaration`() {
-        fixture.createFormAndConfigure("topLevelForm", """
+        fixture.createFormAndConfigure("rootForm", """
             {
               "<caret>property": "json://includes/forms/test/includedForm.json"
             }

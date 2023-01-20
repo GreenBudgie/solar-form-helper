@@ -11,7 +11,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
 import com.solanteq.solar.plugin.element.FormJsonInclude
 import com.solanteq.solar.plugin.file.IncludedFormFileType
-import com.solanteq.solar.plugin.file.TopLevelFormFileType
+import com.solanteq.solar.plugin.file.RootFormFileType
 
 /**
  * Constructs a pattern to check if the specified json element is inside the form file
@@ -19,18 +19,18 @@ import com.solanteq.solar.plugin.file.TopLevelFormFileType
 inline fun <reified T : JsonElement> inForm(): PsiElementPattern.Capture<out T> {
     val basePattern = PlatformPatterns.psiElement(T::class.java)
     return basePattern.andOr(
-        basePattern.inFile(PlatformPatterns.psiFile().withFileType(StandardPatterns.`object`(TopLevelFormFileType))),
+        basePattern.inFile(PlatformPatterns.psiFile().withFileType(StandardPatterns.`object`(RootFormFileType))),
         basePattern.inFile(PlatformPatterns.psiFile().withFileType(StandardPatterns.`object`(IncludedFormFileType)))
     )
 }
 
 /**
- * Constructs a pattern to check if the specified json element is inside the top level form file
+ * Constructs a pattern to check if the specified json element is inside the root form file
  */
-inline fun <reified T : JsonElement> inTopLevelForm(): PsiElementPattern.Capture<out T> =
+inline fun <reified T : JsonElement> inRootForm(): PsiElementPattern.Capture<out T> =
     PlatformPatterns
         .psiElement(T::class.java)
-        .inFile(PlatformPatterns.psiFile().withFileType(StandardPatterns.`object`(TopLevelFormFileType)))
+        .inFile(PlatformPatterns.psiFile().withFileType(StandardPatterns.`object`(RootFormFileType)))
 
 /**
  * @see FormPsiUtils.isPropertyValueWithKey

@@ -18,7 +18,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <fileType name="AIR Form"
                   language="JSON"
-                  implementationClass="com.solanteq.solar.plugin.file.TopLevelFormFileType"
+                  implementationClass="com.solanteq.solar.plugin.file.RootFormFileType"
                   fieldName="INSTANCE" />
 
         <fileType name="Included AIR Form"

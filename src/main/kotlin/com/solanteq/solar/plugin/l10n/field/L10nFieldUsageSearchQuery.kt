@@ -7,9 +7,9 @@ import com.intellij.psi.search.SearchScope
 import com.intellij.util.Processor
 import com.solanteq.solar.plugin.element.FormField
 import com.solanteq.solar.plugin.element.FormIncludedFile
-import com.solanteq.solar.plugin.element.FormTopLevelFile
+import com.solanteq.solar.plugin.element.FormRootFile
 import com.solanteq.solar.plugin.element.toFormElement
-import com.solanteq.solar.plugin.file.TopLevelFormFileType
+import com.solanteq.solar.plugin.file.RootFormFileType
 import com.solanteq.solar.plugin.l10n.L10nService
 import com.solanteq.solar.plugin.symbol.FormSymbol
 import com.solanteq.solar.plugin.symbol.FormSymbolType
@@ -27,14 +27,14 @@ class L10nFieldUsageSearchQuery(
         val file = resolveTarget.file
         if(file !in searchScope) return true
 
-        val allTopLevelForms = if(file.fileType == TopLevelFormFileType) {
-            file.toFormElement<FormTopLevelFile>().asListOrEmpty()
+        val allRootForms = if(file.fileType == RootFormFileType) {
+            file.toFormElement<FormRootFile>().asListOrEmpty()
         } else {
             val includedForm = file.toFormElement<FormIncludedFile>()
-            includedForm?.allTopLevelForms ?: emptyList()
+            includedForm?.allRootForms ?: emptyList()
         }
 
-        val formsInScope = allTopLevelForms.filter { it.sourceElement in searchScope }
+        val formsInScope = allRootForms.filter { it.sourceElement in searchScope }
         val allFields = formsInScope.flatMap { it.allFields }
 
         val provider = L10nFieldDeclarationProvider()

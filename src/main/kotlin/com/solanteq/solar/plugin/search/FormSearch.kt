@@ -4,26 +4,26 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.search.GlobalSearchScope
 import com.solanteq.solar.plugin.file.IncludedFormFileType
-import com.solanteq.solar.plugin.file.TopLevelFormFileType
+import com.solanteq.solar.plugin.file.RootFormFileType
 import com.solanteq.solar.plugin.util.getFormModuleName
 import com.solanteq.solar.plugin.util.getFormSolarName
 
 object FormSearch {
 
-    fun findTopLevelForms(scope: GlobalSearchScope): Collection<VirtualFile> =
-        FileTypeIndex.getFiles(TopLevelFormFileType, getFormSearchScope(scope))
+    fun findRootForms(scope: GlobalSearchScope): Collection<VirtualFile> =
+        FileTypeIndex.getFiles(RootFormFileType, getFormSearchScope(scope))
 
     fun findIncludedForms(scope: GlobalSearchScope): Collection<VirtualFile> =
         FileTypeIndex.getFiles(IncludedFormFileType, getFormSearchScope(scope))
 
     /**
-     * Finds included and top level forms
+     * Finds included and root forms
      */
     fun findAllForms(scope: GlobalSearchScope) =
-        findTopLevelForms(scope) + findIncludedForms(scope)
+        findRootForms(scope) + findIncludedForms(scope)
 
-    fun findTopLevelFormsInModule(scope: GlobalSearchScope, moduleName: String): Collection<VirtualFile> {
-        return findTopLevelForms(scope).filter {
+    fun findRootFormsInModule(scope: GlobalSearchScope, moduleName: String): Collection<VirtualFile> {
+        return findRootForms(scope).filter {
             it.getFormModuleName() == moduleName
         }
     }
@@ -35,7 +35,7 @@ object FormSearch {
     }
 
     fun findFormsInModule(scope: GlobalSearchScope, moduleName: String) =
-        findTopLevelFormsInModule(scope, moduleName) + findIncludedFormsInModule(scope, moduleName)
+        findRootFormsInModule(scope, moduleName) + findIncludedFormsInModule(scope, moduleName)
 
     /**
      * Finds a form by its full solar name, for example: `test.testForm`
@@ -70,11 +70,11 @@ object FormSearch {
     }
 
     /**
-     * Returns the search scope restricted to only search in form files, top-level and included
+     * Returns the search scope restricted to only search in form files, root and included
      */
     fun getFormSearchScope(initialScope: GlobalSearchScope): GlobalSearchScope {
         return GlobalSearchScope.getScopeRestrictedByFileTypes(initialScope,
-            TopLevelFormFileType, IncludedFormFileType)
+            RootFormFileType, IncludedFormFileType)
     }
 
     /**

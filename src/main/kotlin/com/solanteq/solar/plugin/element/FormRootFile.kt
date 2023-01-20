@@ -12,7 +12,7 @@ import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.CachedValue
 import com.intellij.psi.util.TypeConversionUtil
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
-import com.solanteq.solar.plugin.file.TopLevelFormFileType
+import com.solanteq.solar.plugin.file.RootFormFileType
 import com.solanteq.solar.plugin.l10n.FormL10n
 import com.solanteq.solar.plugin.l10n.L10nService
 import com.solanteq.solar.plugin.reference.form.FormReference
@@ -25,9 +25,9 @@ import org.jetbrains.uast.UClass
 import org.jetbrains.uast.toUElementOfType
 
 /**
- * Represents a top level form file.
+ * Represents a root (top-level) form file.
  *
- * It is possible to separate top level forms by type, for example:
+ * It is possible to separate root forms by type, for example:
  * - Single (program.json)
  * - List (programList.json)
  * - Many (programs.json)
@@ -38,9 +38,9 @@ import org.jetbrains.uast.toUElementOfType
  * However, there is a catch: you can always create a form with a completely different purpose.
  * Also, it is wrong to just suppose that a form named `programList.json` to actually be `List` type.
  * There are no hard-coded form naming rules.
- * So, **for now**, we don't separate top level forms by type.
+ * So, **for now**, we don't separate root forms by type.
  */
-class FormTopLevelFile(
+class FormRootFile(
     sourceElement: JsonFile,
     private val topLevelObject: JsonObject
 ) : FormLocalizableElement<JsonFile>(sourceElement, topLevelObject) {
@@ -275,15 +275,15 @@ class FormTopLevelFile(
     private fun getRequestByType(type: FormRequest.RequestType): FormRequest? =
         topLevelObject.findProperty(type.requestLiteral).toFormElement()
 
-    companion object : FormElementCreator<FormTopLevelFile> {
+    companion object : FormElementCreator<FormRootFile> {
 
-        override val key = Key<CachedValue<FormTopLevelFile>>("solar.element.topLevelFile")
+        override val key = Key<CachedValue<FormRootFile>>("solar.element.rootFile")
 
-        override fun create(sourceElement: JsonElement): FormTopLevelFile? {
+        override fun create(sourceElement: JsonElement): FormRootFile? {
             val jsonFile = sourceElement as? JsonFile ?: return null
             val topLevelObject = jsonFile.topLevelValue as? JsonObject ?: return null
-            if(jsonFile.fileType == TopLevelFormFileType) {
-                return FormTopLevelFile(jsonFile, topLevelObject)
+            if(jsonFile.fileType == RootFormFileType) {
+                return FormRootFile(jsonFile, topLevelObject)
             }
             return null
         }

@@ -14,18 +14,18 @@ import com.intellij.psi.util.CachedValuesManager
  */
 object FormModuleSearch {
 
-    private val TOP_LEVEL_MODULES_KEY =
-        Key<CachedValue<List<VirtualFile>>>("solar.topLevelFormModules")
+    private val ROOT_MODULES_KEY =
+        Key<CachedValue<List<VirtualFile>>>("solar.rootFormModules")
     private val INCLUDED_MODULES_KEY =
         Key<CachedValue<List<VirtualFile>>>("solar.includedFormModules")
 
-    fun findTopLevelFormModules(project: Project): List<VirtualFile> {
+    fun findRootFormModules(project: Project): List<VirtualFile> {
         return CachedValuesManager.getManager(project).getCachedValue(
             project,
-            TOP_LEVEL_MODULES_KEY,
+            ROOT_MODULES_KEY,
             {
                 CachedValueProvider.Result(
-                    getTopLevelFormModules(project),
+                    getRootFormModules(project),
                     VirtualFileManager.VFS_STRUCTURE_MODIFICATIONS
                 )
             },
@@ -48,7 +48,7 @@ object FormModuleSearch {
     }
 
     fun findFormModules(project: Project) =
-        findTopLevelFormModules(project) + findIncludedFormModules(project)
+        findRootFormModules(project) + findIncludedFormModules(project)
 
     private fun getConfigDirectories(project: Project): List<VirtualFile> {
         val sourceRoots = ProjectRootManager.getInstance(project).contentSourceRoots
@@ -62,7 +62,7 @@ object FormModuleSearch {
         return allResourcesDirectories.childDirectoriesWithName("config")
     }
 
-    private fun getTopLevelFormModules(project: Project): List<VirtualFile> {
+    private fun getRootFormModules(project: Project): List<VirtualFile> {
         return getConfigDirectories(project).getFormModulesInside()
     }
 

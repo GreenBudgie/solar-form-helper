@@ -4,7 +4,7 @@ import com.solanteq.solar.plugin.inspection.InvalidFormModuleDeclarationInspecti
 import com.solanteq.solar.plugin.inspection.InvalidFormNameDeclarationInspection
 import org.junit.jupiter.api.Test
 
-class TopLevelFormBasePropertiesTest : FormTestBase() {
+class RootFormBasePropertiesTest : FormTestBase() {
 
     @Test
     fun `test form name reference`() {

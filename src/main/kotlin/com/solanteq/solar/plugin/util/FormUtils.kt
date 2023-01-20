@@ -3,17 +3,17 @@ package com.solanteq.solar.plugin.util
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import com.solanteq.solar.plugin.file.IncludedFormFileType
-import com.solanteq.solar.plugin.file.TopLevelFormFileType
+import com.solanteq.solar.plugin.file.RootFormFileType
 
 /**
- * Checks whether this virtual file is top level or included form by checking its file type
+ * Checks whether this virtual file is root or included form by checking its file type
  */
-fun VirtualFile.isForm() = fileType == TopLevelFormFileType || fileType == IncludedFormFileType
+fun VirtualFile.isForm() = fileType == RootFormFileType || fileType == IncludedFormFileType
 
 /**
- * Checks whether this psi file is top level or included form by checking its file type
+ * Checks whether this psi file is root or included form by checking its file type
  */
-fun PsiFile.isForm() = fileType == TopLevelFormFileType || fileType == IncludedFormFileType
+fun PsiFile.isForm() = fileType == RootFormFileType || fileType == IncludedFormFileType
 
 /**
  * @see getFormModuleName

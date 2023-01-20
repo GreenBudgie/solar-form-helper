@@ -19,8 +19,7 @@ import org.jetbrains.kotlin.idea.base.util.minus
 /**
  * Represents an included form file.
  *
- * Each included form is referenced via [FormJsonInclude] element
- * from top level or other included forms.
+ * Each included form is referenced via [FormJsonInclude] element from root or other included forms.
  */
 class FormIncludedFile(
     sourceElement: JsonFile
@@ -70,27 +69,27 @@ class FormIncludedFile(
     }
 
     /**
-     * All top-level forms that included forms can lead to.
+     * All root forms that included forms can lead to.
      *
-     * Traverses up recursively through all included forms until the top-level form is found.
+     * Traverses up recursively through all included forms until the root form is found.
      */
-    val allTopLevelForms: List<FormTopLevelFile> by lazy {
+    val allRootForms: List<FormRootFile> by lazy {
         val containingFilesOfDeclarations = findDeclarations().mapNotNull {
             it.sourceElement.containingFile?.originalFile as? JsonFile
         }.distinct().filter { it != containingFile?.originalFile }
 
-        val topLevelFormsOfDeclarations = containingFilesOfDeclarations.mapNotNull {
-            it.toFormElement<FormTopLevelFile>()
+        val rootFormsOfDeclarations = containingFilesOfDeclarations.mapNotNull {
+            it.toFormElement<FormRootFile>()
         }
         val includedFormsOfDeclarations = containingFilesOfDeclarations.mapNotNull {
             it.toFormElement<FormIncludedFile>()
         }
 
-        val recursivelyCollectedTopLevelForms = includedFormsOfDeclarations.flatMap {
-            it.allTopLevelForms
+        val recursivelyCollectedRootForms = includedFormsOfDeclarations.flatMap {
+            it.allRootForms
         }
 
-        return@lazy recursivelyCollectedTopLevelForms + topLevelFormsOfDeclarations
+        return@lazy recursivelyCollectedRootForms + rootFormsOfDeclarations
     }
 
     companion object : FormElementCreator<FormIncludedFile> {

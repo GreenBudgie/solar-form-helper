@@ -148,13 +148,13 @@ class FormField(
     }
 
     private fun findAllDataClassesFromRequests(): List<UClass> {
-        val containingTopLevelForm = containingFile.toFormElement<FormTopLevelFile>()
-        if(containingTopLevelForm != null) {
-            return containingTopLevelForm.allDataClassesFromRequests
+        val containingRootForm = containingFile.toFormElement<FormRootFile>()
+        if(containingRootForm != null) {
+            return containingRootForm.allDataClassesFromRequests
         }
 
         val containingIncludedForm = containingFile.toFormElement<FormIncludedFile>() ?: return emptyList()
-        return containingIncludedForm.allTopLevelForms.flatMap {
+        return containingIncludedForm.allRootForms.flatMap {
             it.allDataClassesFromRequests
         }
     }

@@ -1,4 +1,4 @@
-package com.solanteq.solar.plugin.reference.topLevelModule
+package com.solanteq.solar.plugin.reference.rootModule
 
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.json.psi.JsonStringLiteral

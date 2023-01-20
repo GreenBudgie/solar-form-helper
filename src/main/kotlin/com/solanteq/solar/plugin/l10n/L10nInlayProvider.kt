@@ -11,7 +11,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.solanteq.solar.plugin.element.FormField
 import com.solanteq.solar.plugin.element.FormGroup
-import com.solanteq.solar.plugin.element.FormTopLevelFile
+import com.solanteq.solar.plugin.element.FormRootFile
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.element.toFormElement
 import com.solanteq.solar.plugin.util.isForm
@@ -50,7 +50,7 @@ class L10nInlayProvider : InlayHintsProvider<NoSettings> {
             if(element !is JsonFile && element !is JsonObject) return true
             if(tryAddHint<FormField>(element, editor, sink)) return true
             if(tryAddHint<FormGroup>(element, editor, sink)) return true
-            if(tryAddHint<FormTopLevelFile>(element, editor, sink)) return true
+            if(tryAddHint<FormRootFile>(element, editor, sink)) return true
             return true
         }
 

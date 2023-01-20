@@ -61,7 +61,7 @@ class L10nCompletionContributor : CompletionContributor() {
             project: Project,
             result: CompletionResultSet
         ) {
-            val allModules = FormModuleSearch.findTopLevelFormModules(project)
+            val allModules = FormModuleSearch.findRootFormModules(project)
             val distinctModulesByName = allModules
                 .distinctBy { it.name }
             val psiDirectories = distinctModulesByName.mapNotNull {

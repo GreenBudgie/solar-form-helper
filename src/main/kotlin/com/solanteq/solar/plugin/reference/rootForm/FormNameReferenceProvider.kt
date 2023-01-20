@@ -1,4 +1,4 @@
-package com.solanteq.solar.plugin.reference.topLevelForm
+package com.solanteq.solar.plugin.reference.rootForm
 
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.psi.PsiElement

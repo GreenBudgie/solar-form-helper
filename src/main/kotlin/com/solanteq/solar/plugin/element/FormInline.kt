@@ -31,7 +31,7 @@ class FormInline(
     }
 
     val formElement by lazy {
-        formFile.toFormElement<FormTopLevelFile>()
+        formFile.toFormElement<FormRootFile>()
     }
 
     companion object : FormElementCreator<FormInline> {

@@ -1,7 +1,7 @@
 package com.solanteq.solar.plugin
 
 import com.intellij.psi.PsiFile
-import com.solanteq.solar.plugin.element.FormTopLevelFile
+import com.solanteq.solar.plugin.element.FormRootFile
 import com.solanteq.solar.plugin.element.toFormElement
 import com.solanteq.solar.plugin.l10n.field.L10nFieldDeclarationProvider
 import com.solanteq.solar.plugin.l10n.group.L10nGroupDeclarationProvider
@@ -191,7 +191,7 @@ class L10nTest : FormTestBase() {
 
     @Test
     fun `test l10n reference to group in included form`() {
-        fixture.createForm("topLevelForm", """
+        fixture.createForm("rootForm", """
             {
               "groups": "json://includes/forms/test/includedForm.json"
             }
@@ -206,7 +206,7 @@ class L10nTest : FormTestBase() {
         """.trimIndent())
 
         createL10nFileAndConfigure("l10n",
-            "test.form.topLevelForm.<caret>groupName" to "Group name"
+            "test.form.rootForm.<caret>groupName" to "Group name"
         )
 
         assertReferencedSymbolNameEquals("groupName")
@@ -349,7 +349,7 @@ class L10nTest : FormTestBase() {
 
     @Test
     fun `test l10n reference to fake field in included form`() {
-        fixture.createForm("topLevelForm", """
+        fixture.createForm("rootForm", """
             {
               "groups": "json://includes/forms/test/includedFormGroups.json"
             }
@@ -377,7 +377,7 @@ class L10nTest : FormTestBase() {
         """.trimIndent())
 
         createL10nFileAndConfigure("l10n",
-            "test.form.topLevelForm.groupName.<caret>fieldName" to "Field name"
+            "test.form.rootForm.groupName.<caret>fieldName" to "Field name"
         )
 
         assertReferencedSymbolNameEquals("fieldName")
@@ -508,9 +508,9 @@ class L10nTest : FormTestBase() {
 
         createL10nFile("l10n", "test.form.testForm.group" to "Group l10n")
 
-        val topLevelFormElement = form.toFormElement<FormTopLevelFile>()!!
+        val rootFormElement = form.toFormElement<FormRootFile>()!!
 
-        Assertions.assertTrue(topLevelFormElement.localizations.isEmpty())
+        Assertions.assertTrue(rootFormElement.localizations.isEmpty())
     }
 
     private fun generateL10nFileText(vararg l10ns: Pair<String, String>): String {

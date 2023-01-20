@@ -26,13 +26,13 @@ class FormReference(
 
     override fun getVariants(): Array<Any> {
         val currentFile = element.containingFile.originalFile.virtualFile
-        return FormSearch.findTopLevelForms(element.project.allScope())
+        return FormSearch.findRootForms(element.project.allScope())
             .filter {
                 it != currentFile
             }.map {
                 LookupElementBuilder
                     .create(it.getFormSolarName())
-                    .withIcon(Icons.TOP_LEVEL_FORM_ICON)
+                    .withIcon(Icons.ROOT_FORM_ICON)
             }.toTypedArray()
     }
 

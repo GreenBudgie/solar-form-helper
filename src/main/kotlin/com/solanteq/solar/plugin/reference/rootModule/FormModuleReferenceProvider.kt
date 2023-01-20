@@ -1,4 +1,4 @@
-package com.solanteq.solar.plugin.reference.topLevelModule
+package com.solanteq.solar.plugin.reference.rootModule
 
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.psi.PsiElement

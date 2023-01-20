@@ -22,11 +22,11 @@ class L10nFormPsiReference(
     override fun getVariants(): Array<Any> {
         l10nChain.moduleName ?: return emptyArray()
         return FormSearch
-            .findTopLevelFormsInModule(element.project.projectScope(), l10nChain.moduleName)
+            .findRootFormsInModule(element.project.projectScope(), l10nChain.moduleName)
             .map {
                 LookupElementBuilder
                     .create(it.nameWithoutExtension)
-                    .withIcon(Icons.TOP_LEVEL_FORM_ICON)
+                    .withIcon(Icons.ROOT_FORM_ICON)
             }.toTypedArray()
     }
 

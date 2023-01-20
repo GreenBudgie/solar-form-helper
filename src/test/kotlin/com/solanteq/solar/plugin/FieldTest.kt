@@ -442,7 +442,7 @@ class FieldTest : FormTestBase() {
             "TestServiceImpl.kt",
         )
 
-        fixture.createForm("topLevelForm", """
+        fixture.createForm("rootForm", """
             {
               "source": "test.testService.findData",
               "groups": [
@@ -533,7 +533,7 @@ class FieldTest : FormTestBase() {
             "TestServiceImpl.kt",
         )
 
-        fixture.createForm("topLevelForm", """
+        fixture.createForm("rootForm", """
             {
               "source": "test.testService.findData",
               "groups": [
@@ -569,7 +569,7 @@ class FieldTest : FormTestBase() {
             "TestServiceImpl.kt",
         )
 
-        fixture.createForm("topLevelForm", """
+        fixture.createForm("rootForm", """
             {
               "source": "test.testService.findData",
               "groups": [

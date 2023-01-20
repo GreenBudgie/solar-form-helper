@@ -9,17 +9,17 @@ import com.solanteq.solar.plugin.element.FormIncludedFile
 import com.solanteq.solar.plugin.element.FormJsonInclude
 import com.solanteq.solar.plugin.element.toFormElement
 import com.solanteq.solar.plugin.file.IncludedFormFileType
-import com.solanteq.solar.plugin.file.TopLevelFormFileType
+import com.solanteq.solar.plugin.file.RootFormFileType
 import kotlin.reflect.KClass
 
 /**
- * Helps traverse the psi tree in form files of both types (top level and included).
+ * Helps traverse the psi tree in form files of both types (root and included).
  * Use this util (when possible and necessary) to traverse the form psi tree.
  *
  * The main goal of this util is to take JSON include into account.
  *
  * For example, if we invoke [PsiElement.parentOfType] in included form instead of the method in this util,
- * it will not consider the probable existence of multiple places in top-level forms where this
+ * it will not consider the probable existence of multiple places in root forms where this
  * JSON include declared.
  *
  * Note that methods in this util can return multiple parent psi elements because multiple
@@ -31,7 +31,7 @@ import kotlin.reflect.KClass
 object FormPsiUtils {
 
     /**
-     * In top-level form:
+     * In root form:
      * - Finds first parent with [parentClass] type of the given [element] by traversing up the psi tree,
      * similar to [PsiElement.parentOfTypes]. Returns a list with single element,
      * or empty list if no element is found.
@@ -46,11 +46,11 @@ object FormPsiUtils {
      */
     fun <T : JsonElement> firstParentsOfType(element: JsonElement, parentClass: KClass<T>): List<T> {
         val containingJsonFile = element.containingFile as? JsonFile ?: return emptyList()
-        val isTopLevelForm = containingJsonFile.fileType == TopLevelFormFileType
+        val isRootForm = containingJsonFile.fileType == RootFormFileType
 
         val firstParentInThisFile = element.parentOfTypes(parentClass)
 
-        if(isTopLevelForm) {
+        if(isRootForm) {
             return firstParentInThisFile.asListOrEmpty()
         }
 
@@ -78,7 +78,7 @@ object FormPsiUtils {
     }
 
     /**
-     * In top-level form:
+     * In root form:
      * - Finds the direct parent of the given [element], similar to [PsiElement.getParent]
      * Returns a list with single parent element, or empty list if [element] is [JsonFile]
      *
@@ -94,13 +94,13 @@ object FormPsiUtils {
     fun parents(element: JsonElement): List<JsonElement> {
         val containingJsonFile = element.containingFile as? JsonFile ?: return emptyList()
         val topLevelValue = containingJsonFile.topLevelValue
-        val isTopLevelForm = containingJsonFile.fileType == TopLevelFormFileType
+        val isRootForm = containingJsonFile.fileType == RootFormFileType
 
         val parentInThisForm = element.parent as? JsonElement ?: return emptyList()
 
         val needToConsiderJsonFlat = topLevelValue is JsonArray
                 && parentInThisForm == topLevelValue
-                && !isTopLevelForm
+                && !isRootForm
         if(!needToConsiderJsonFlat && parentInThisForm !is JsonFile) {
             return parentInThisForm.asList()
         }
@@ -117,7 +117,7 @@ object FormPsiUtils {
     }
 
     /**
-     * In top-level form:
+     * In root form:
      * - Similar to [JsonPsiUtil.isPropertyValue]
      *
      * In included form:
@@ -133,12 +133,12 @@ object FormPsiUtils {
     }
 
     /**
-     * In top-level form:
+     * In root form:
      * - Similar to [JsonPsiUtil.isPropertyValue], but also checks the property name
      * to be in [applicableKeys]
      *
      * In included form:
-     * - If this is not a top-level json value, similar to top-level form.
+     * - If this is not a top-level json value, similar to root form.
      * Otherwise, finds all JSON include declarations and checks whether a declaration is
      * a property value and checks the property name to be in [applicableKeys].
      * If any declaration is a property value with applicable property key - returns true.
@@ -158,7 +158,7 @@ object FormPsiUtils {
     }
 
     /**
-     * In top-level form:
+     * In root form:
      * - Whether the element is inside a json object that is a value of property with one of specified keys.
      *
      * Example:
@@ -192,7 +192,7 @@ object FormPsiUtils {
     }
 
     /**
-     * In top-level form:
+     * In root form:
      * - Whether the element is inside a json array that is a value of property with one of specified keys.
      * Uses the first array parent in tree. Passes even for properties in nested objects.
      * See the example below.
@@ -224,7 +224,7 @@ object FormPsiUtils {
     }
 
     /**
-     * In top-level form:
+     * In root form:
      * - Whether the element is inside an object that is located right in
      * json array that is a value of property with one of specified keys.
      * Uses the first array parent in tree. The main difference from [isInArrayWithKey] is that it
@@ -266,7 +266,7 @@ object FormPsiUtils {
     }
 
     /**
-     * In top-level form:
+     * In root form:
      * Whether the element is located directly at top-level json object.
      *
      * Example:
