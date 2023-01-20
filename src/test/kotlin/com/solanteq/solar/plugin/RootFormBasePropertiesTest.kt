@@ -1,10 +1,12 @@
 package com.solanteq.solar.plugin
 
+import com.solanteq.solar.plugin.base.LightPluginTestBase
+import com.solanteq.solar.plugin.base.createFormAndConfigure
 import com.solanteq.solar.plugin.inspection.InvalidFormModuleDeclarationInspection
 import com.solanteq.solar.plugin.inspection.InvalidFormNameDeclarationInspection
 import org.junit.jupiter.api.Test
 
-class RootFormBasePropertiesTest : FormTestBase() {
+class RootFormBasePropertiesTest : LightPluginTestBase() {
 
     @Test
     fun `test form name reference`() {

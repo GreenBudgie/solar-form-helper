@@ -1,10 +1,13 @@
 package com.solanteq.solar.plugin
 
+import com.solanteq.solar.plugin.base.LightPluginTestBase
+import com.solanteq.solar.plugin.base.createFormAndConfigure
+import com.solanteq.solar.plugin.base.createIncludedForm
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
-class JsonIncludeTest : FormTestBase() {
+class JsonIncludeTest : LightPluginTestBase() {
 
     override fun getTestDataSuffix() = "jsonInclude"
 

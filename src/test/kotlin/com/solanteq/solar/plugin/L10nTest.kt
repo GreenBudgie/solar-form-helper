@@ -1,6 +1,7 @@
 package com.solanteq.solar.plugin
 
 import com.intellij.psi.PsiFile
+import com.solanteq.solar.plugin.base.*
 import com.solanteq.solar.plugin.element.FormRootFile
 import com.solanteq.solar.plugin.element.toFormElement
 import com.solanteq.solar.plugin.l10n.field.L10nFieldDeclarationProvider
@@ -10,7 +11,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
-class L10nTest : FormTestBase() {
+class L10nTest : JavaPluginTestBase() {
 
     override fun getTestDataSuffix() = "l10n"
 

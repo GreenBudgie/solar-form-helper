@@ -1,8 +1,9 @@
 package com.solanteq.solar.plugin
 
+import com.solanteq.solar.plugin.base.*
 import org.junit.jupiter.api.Test
 
-class FormPropertyTest : FormTestBase() {
+class FormPropertyTest : LightPluginTestBase() {
 
     override fun getTestDataSuffix() = "form"
 

@@ -1,11 +1,12 @@
 package com.solanteq.solar.plugin
 
 import com.intellij.json.psi.*
+import com.solanteq.solar.plugin.base.*
 import com.solanteq.solar.plugin.util.FormPsiUtils
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
-class FormPsiUtilsTest : FormTestBase() {
+class FormPsiUtilsTest : LightPluginTestBase() {
 
     @Test
     fun `test first parents of type on root form`() {
