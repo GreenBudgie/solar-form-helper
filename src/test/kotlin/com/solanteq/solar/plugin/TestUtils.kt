@@ -1,6 +1,6 @@
 package com.solanteq.solar.plugin
 
-import com.intellij.psi.PsiFile
+import com.intellij.json.psi.JsonFile
 import com.intellij.testFramework.fixtures.JavaCodeInsightTestFixture
 import com.solanteq.solar.plugin.file.TopLevelFormFileType
 
@@ -17,14 +17,14 @@ fun JavaCodeInsightTestFixture.createForm(
     formName: String,
     text: String,
     module: String? = null
-): PsiFile {
+): JsonFile {
     val realFileName = "$formName.json"
     val modulePath = if(module == null) "" else "$module/"
 
     return addFileToProject(
         "main/resources/config/forms/$modulePath$realFileName",
         text
-    )
+    ) as JsonFile
 }
 
 /**
@@ -42,13 +42,13 @@ fun JavaCodeInsightTestFixture.createIncludedForm(
     formName: String,
     relativePath: String,
     text: String
-): PsiFile {
+): JsonFile {
     val realFileName = "$formName.json"
 
     return addFileToProject(
         "main/resources/config/includes/forms/$relativePath/$realFileName",
         text
-    )
+    ) as JsonFile
 }
 
 /**
@@ -61,10 +61,10 @@ fun JavaCodeInsightTestFixture.createIncludedFormAndConfigure(
     formName: String,
     relativePath: String,
     text: String
-): PsiFile {
+): JsonFile {
     val psiFormFile = createIncludedForm(formName, relativePath, text)
     configureFromExistingVirtualFile(psiFormFile.virtualFile)
-    return file
+    return file as JsonFile
 }
 
 /**
@@ -77,22 +77,22 @@ fun JavaCodeInsightTestFixture.createFormAndConfigure(
     formName: String,
     text: String,
     module: String? = null
-): PsiFile {
+): JsonFile {
     val psiFormFile = createForm(formName, text, module)
     configureFromExistingVirtualFile(psiFormFile.virtualFile)
-    return file
+    return file as JsonFile
 }
 
 /**
  * Copies forms from testData directory to the correct directory and opens the first form in editor
  */
-fun JavaCodeInsightTestFixture.configureByForms(vararg formPaths: String, module: String? = null): PsiFile? {
+fun JavaCodeInsightTestFixture.configureByForms(vararg formPaths: String, module: String? = null): JsonFile? {
     val modulePath = if(module == null) "" else "$module/"
     val virtualFiles = formPaths.map {
         copyFileToProject(it, "main/resources/config/forms/$modulePath$it")
     }
     virtualFiles.firstOrNull()?.let { configureFromExistingVirtualFile(it) }
-    return file
+    return file as JsonFile
 }
 
 /**
@@ -104,5 +104,5 @@ fun JavaCodeInsightTestFixture.configureByForms(vararg formPaths: String, module
  * For many purposes it is better to use [createFormAndConfigure] because it
  * will be placed into correct directory.
  */
-fun JavaCodeInsightTestFixture.configureByFormText(text: String): PsiFile =
-    this.configureByText(TopLevelFormFileType, text)
+fun JavaCodeInsightTestFixture.configureByFormText(text: String): JsonFile =
+    this.configureByText(TopLevelFormFileType, text) as JsonFile

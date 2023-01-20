@@ -5,6 +5,7 @@ import com.intellij.json.psi.JsonObject
 import com.intellij.openapi.util.Key
 import com.intellij.psi.util.CachedValue
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
+import com.solanteq.solar.plugin.l10n.FormL10n
 import com.solanteq.solar.plugin.l10n.L10nService
 import org.jetbrains.kotlin.idea.base.util.projectScope
 
@@ -21,6 +22,7 @@ class FormGroup(
     override val localizations: List<String> by lazy {
         val formL10ns = L10nService.findFormL10ns(project, project.projectScope())
         return@lazy formL10ns
+            .filter { it.type == FormL10n.L10nType.GROUP }
             .filter { this == it.referencedGroupElement }
             .map { it.value }
     }

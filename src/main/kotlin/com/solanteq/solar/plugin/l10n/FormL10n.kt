@@ -192,6 +192,23 @@ class FormL10n private constructor(
         }
     }
 
+    /**
+     * Describes which form element this l10n string actually represents
+     */
+    val type by lazy {
+        val chainLength = chain.size
+        if(chainLength == formNameChainIndex) return@lazy L10nType.FORM
+        if(chainLength == groupNameChainIndex) return@lazy L10nType.GROUP
+        if(chainLength >= fieldChainStartIndex) return@lazy L10nType.FIELD
+        return@lazy null
+    }
+
+    enum class L10nType {
+        FORM,
+        GROUP,
+        FIELD
+    }
+
     companion object {
 
         private const val moduleNameChainIndex = 0

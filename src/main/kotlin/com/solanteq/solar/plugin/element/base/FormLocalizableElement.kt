@@ -13,7 +13,9 @@ abstract class FormLocalizableElement<T : JsonElement>(
 
     /**
      * Localization strings for this element.
-     * Usually there are two localizations must be present: ru-RU and en-US.
+     * Usually there are two localizations must be present: ru-RU and en-US,
+     * Actually there might be more duplicate localizations,
+     * which is wrong and should be avoided.
      */
     abstract val localizations: List<String>
 

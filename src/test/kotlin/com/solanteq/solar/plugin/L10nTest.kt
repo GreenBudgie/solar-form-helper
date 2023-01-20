@@ -1,6 +1,8 @@
 package com.solanteq.solar.plugin
 
 import com.intellij.psi.PsiFile
+import com.solanteq.solar.plugin.element.FormTopLevelFile
+import com.solanteq.solar.plugin.element.toFormElement
 import com.solanteq.solar.plugin.l10n.field.L10nFieldDeclarationProvider
 import com.solanteq.solar.plugin.l10n.group.L10nGroupDeclarationProvider
 import org.junit.jupiter.api.Assertions
@@ -461,6 +463,8 @@ class L10nTest : FormTestBase() {
         assertCompletionsContainsExact("realNestedField")
     }
 
+    //Other
+
     @Test
     fun `test field declaration does not exist in request name inside field`() {
         fixture.createFormAndConfigure("testForm", """
@@ -486,6 +490,27 @@ class L10nTest : FormTestBase() {
 
         val declaration = getFormSymbolDeclarationAtCaret(L10nFieldDeclarationProvider())
         Assertions.assertNull(declaration)
+    }
+
+    @Test
+    fun `test no extra l10n`() {
+        val form = fixture.createFormAndConfigure("testForm", """
+            {
+              "name": "testForm",
+              "module": "test",
+              "groups": [
+                {
+                  "name": "group"
+                }
+              ]
+            }
+        """.trimIndent(), "test")
+
+        createL10nFile("l10n", "test.form.testForm.group" to "Group l10n")
+
+        val topLevelFormElement = form.toFormElement<FormTopLevelFile>()!!
+
+        Assertions.assertTrue(topLevelFormElement.localizations.isEmpty())
     }
 
     private fun generateL10nFileText(vararg l10ns: Pair<String, String>): String {

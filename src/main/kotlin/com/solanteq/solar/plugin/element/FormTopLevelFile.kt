@@ -13,6 +13,7 @@ import com.intellij.psi.util.CachedValue
 import com.intellij.psi.util.TypeConversionUtil
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.file.TopLevelFormFileType
+import com.solanteq.solar.plugin.l10n.FormL10n
 import com.solanteq.solar.plugin.l10n.L10nService
 import com.solanteq.solar.plugin.reference.form.FormReference
 import com.solanteq.solar.plugin.search.FormSearch
@@ -60,6 +61,7 @@ class FormTopLevelFile(
     override val localizations: List<String> by lazy {
         val formL10ns = L10nService.findFormL10ns(project, project.projectScope())
         return@lazy formL10ns
+            .filter { it.type == FormL10n.L10nType.FORM }
             .filter { this == it.referencedFormFileElement }
             .map { it.value }
     }
