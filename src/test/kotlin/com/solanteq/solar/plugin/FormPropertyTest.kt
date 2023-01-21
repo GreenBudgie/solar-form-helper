@@ -5,8 +5,6 @@ import org.junit.jupiter.api.Test
 
 class FormPropertyTest : LightPluginTestBase() {
 
-    override fun getTestDataSuffix() = "form"
-
     @Test
     fun `test form reference with group`() {
         fixture.createForm(

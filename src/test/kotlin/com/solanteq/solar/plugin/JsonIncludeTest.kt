@@ -9,8 +9,6 @@ import org.junit.jupiter.params.provider.ValueSource
 
 class JsonIncludeTest : LightPluginTestBase() {
 
-    override fun getTestDataSuffix() = "jsonInclude"
-
     @ParameterizedTest
     @ValueSource(strings = [
         "json",
