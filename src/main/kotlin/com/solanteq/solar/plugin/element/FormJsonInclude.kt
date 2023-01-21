@@ -4,9 +4,13 @@ import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.util.Key
+import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.util.CachedValue
 import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.search.FormSearch
+import com.solanteq.solar.plugin.util.RangeSplit
+import com.solanteq.solar.plugin.util.convert
 import org.jetbrains.kotlin.idea.base.util.allScope
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 
@@ -34,12 +38,20 @@ class FormJsonInclude(
 ) : FormElement<JsonStringLiteral>(sourceElement) {
 
     /**
-     * Path to the form after "json://" ("json-flat://") prefix
+     * Path after "json://includes/forms/" ("json-flat://includes/forms/") prefix
      *
-     * Example:
+     * Examples:
      * ```
      * "json-flat?://includes/forms/test/testForm.json"
-     * -> includes/forms/test/testForm.json
+     * -> "test/testForm.json"
+     * ```
+     * ```
+     * "json://includes/forms/dir1/dir2/"
+     * -> "dir1/dir2/"
+     * ```
+     * ```
+     * "json://includes/forms/"
+     * -> ""
      * ```
      */
     val path by lazy {
@@ -47,41 +59,46 @@ class FormJsonInclude(
     }
 
     /**
-     * Path to the form without its name after "json://" ("json-flat://") prefix
-     *
-     * Example:
-     * ```
-     * "json-flat?://includes/forms/test/testForm.json"
-     * -> includes/forms/test
-     * ```
+     * A chain of [RangeSplit]s containing text ranges and corresponding directory/form names.
+     * Uses real text ranges in string literal.
      */
-    val pathWithoutFormName by lazy {
-        val lastSeparatorIndex = path.lastIndexOf("/")
-        if(lastSeparatorIndex < 2) return@lazy null
-        return@lazy path.substring(0, lastSeparatorIndex)
+    val pathChain by lazy {
+        RangeSplit.from(path, '/').shiftedRight(type.prefix.length + 1)
     }
 
-    val formNameWithExtension by lazy {
+    private val reversedPathChain by lazy {
+        pathChain.reversed().convert()
+    }
+
+    /**
+     * Form name with `.json` extension, or null if this declaration is incomplete and
+     * no form is present for now
+     */
+    val formName by lazy {
+        if(!path.endsWith(".json")) return@lazy null
         val lastSeparatorIndex = path.lastIndexOf("/")
-        if(lastSeparatorIndex == -1) return@lazy null
+        if(lastSeparatorIndex == -1) return@lazy path
         return@lazy path.substring(lastSeparatorIndex + 1)
     }
 
+    /**
+     * A file that this element points to.
+     * Can be null if this declaration is incomplete, invalid, or points to non-existent file.
+     */
     val referencedFormVirtualFile by lazy {
-        val formName = formNameWithExtension ?: return@lazy null
+        val formName = formName ?: return@lazy null
         val includedForms = FormSearch.findIncludedForms(project.allScope())
         val applicableFormsByName = includedForms.filter {
             it.name == formName
         }
-        val parentDirectoryChain = getParentDirectoryChain() ?: return@lazy null
 
         return@lazy applicableFormsByName.find { file ->
-            var currentDirectory = file.parent
-            parentDirectoryChain.forEach { directoryName ->
-                if(!currentDirectory.isDirectory || currentDirectory.name != directoryName) {
+            var currentVirtualFile = file
+            reversedPathChain.forEach {
+                if(currentVirtualFile.name != it.text) {
                     return@find false
                 }
-                currentDirectory = currentDirectory.parent
+                currentVirtualFile = currentVirtualFile.parent
             }
             return@find true
         }
@@ -96,17 +113,22 @@ class FormJsonInclude(
     }
 
     /**
-     * A chain of parent directories (reversed) after "json://" ("json-flat://") prefix represented as an array
+     * A chain of [VirtualFile]s representing the **reversed** path to the
+     * form or last directory in chain.
      *
-     * Example:
-     * ```
-     * "json-flat?://includes/forms/test/testForm.json"
-     * -> ["test", "forms", "includes"]
-     * ```
+     * Starts traversing from [referencedFormVirtualFile]. If it is null, then every
+     * [VirtualFile] in the chain will be null.
      */
-    private fun getParentDirectoryChain(): List<String>? {
-        val pathWithoutFormName = pathWithoutFormName ?: return null
-        return pathWithoutFormName.split("/").reversed()
+    val virtualFileChain: List<Pair<TextRange, VirtualFile?>> by lazy {
+        val resultChain = mutableListOf<Pair<TextRange, VirtualFile?>>()
+        var currentVirtualFile = referencedFormVirtualFile
+
+        reversedPathChain.forEach {
+            resultChain.add(it.range to currentVirtualFile)
+            currentVirtualFile = currentVirtualFile?.parent
+        }
+
+        return@lazy resultChain
     }
 
     enum class JsonIncludeType(

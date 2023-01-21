@@ -26,13 +26,13 @@ class L10nFieldDeclarationProvider : PsiSymbolDeclarationProvider {
 
         val considerOffset = offsetInElement != -1
 
-        val dotSplit = (element as JsonStringLiteral).dotSplit()
-        val declarations = dotSplit.mapNotNull { (textRange, _) ->
-            if(considerOffset && !textRange.contains(offsetInElement)) {
+        val rangeSplit = RangeSplit.from(element as JsonStringLiteral)
+        val declarations = rangeSplit.mapNotNull {
+            if(considerOffset && !it.range.contains(offsetInElement)) {
                 return@mapNotNull null
             }
 
-            val existingPsiReference = element.findReferenceAt(textRange.startOffset)
+            val existingPsiReference = element.findReferenceAt(it.range.startOffset)
             if(existingPsiReference is FieldReference) {
                 val referencedField = existingPsiReference.resolve()
                 if(referencedField != null) {
@@ -43,7 +43,7 @@ class L10nFieldDeclarationProvider : PsiSymbolDeclarationProvider {
 
             return@mapNotNull FormSymbolDeclaration(
                 element,
-                FormSymbol.withElementTextRange(element, textRange, FormSymbolType.FIELD)
+                FormSymbol.withElementTextRange(element, it.range, FormSymbolType.FIELD)
             )
         }
 

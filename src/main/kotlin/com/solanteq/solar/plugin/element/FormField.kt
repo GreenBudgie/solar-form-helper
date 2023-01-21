@@ -11,7 +11,7 @@ import com.solanteq.solar.plugin.l10n.FormL10n
 import com.solanteq.solar.plugin.l10n.L10nService
 import com.solanteq.solar.plugin.symbol.FormSymbol
 import com.solanteq.solar.plugin.symbol.FormSymbolType
-import com.solanteq.solar.plugin.util.dotSplit
+import com.solanteq.solar.plugin.util.RangeSplit
 import com.solanteq.solar.plugin.util.valueAsString
 import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.uast.UClass
@@ -92,7 +92,9 @@ class FormField(
      * ```
      *
      */
-    val fieldNameChain by lazy { namePropertyValue?.dotSplit() ?: emptyList() }
+    val fieldNameChain by lazy {
+        namePropertyValue?.let { RangeSplit.from(it) } ?: RangeSplit.empty()
+    }
 
     /**
      * A list of [FieldProperty] as a chain from main to nested ones represented as UAST fields.

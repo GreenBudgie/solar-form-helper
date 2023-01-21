@@ -16,8 +16,8 @@ object FormModuleSearch {
 
     private val ROOT_MODULES_KEY =
         Key<CachedValue<List<VirtualFile>>>("solar.rootFormModules")
-    private val INCLUDED_MODULES_KEY =
-        Key<CachedValue<List<VirtualFile>>>("solar.includedFormModules")
+    private val INCLUDED_BASE_DIRECTORIES_KEY =
+        Key<CachedValue<List<VirtualFile>>>("solar.includedFormBaseDirectories")
 
     fun findRootFormModules(project: Project): List<VirtualFile> {
         return CachedValuesManager.getManager(project).getCachedValue(
@@ -33,10 +33,10 @@ object FormModuleSearch {
         )
     }
 
-    fun findIncludedFormModules(project: Project): List<VirtualFile> {
+    fun findIncludedFormBaseDirectories(project: Project): List<VirtualFile> {
         return CachedValuesManager.getManager(project).getCachedValue(
             project,
-            INCLUDED_MODULES_KEY,
+            INCLUDED_BASE_DIRECTORIES_KEY,
             {
                 CachedValueProvider.Result(
                     getIncludedFormModules(project),
@@ -48,7 +48,7 @@ object FormModuleSearch {
     }
 
     fun findFormModules(project: Project) =
-        findRootFormModules(project) + findIncludedFormModules(project)
+        findRootFormModules(project) + findIncludedFormBaseDirectories(project)
 
     private fun getConfigDirectories(project: Project): List<VirtualFile> {
         val sourceRoots = ProjectRootManager.getInstance(project).contentSourceRoots

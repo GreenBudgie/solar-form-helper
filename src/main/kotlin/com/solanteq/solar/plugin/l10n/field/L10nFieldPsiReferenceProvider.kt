@@ -24,7 +24,7 @@ object L10nFieldPsiReferenceProvider : PsiReferenceProvider() {
             return emptyArray()
         }
 
-        val l10nFieldNameChain = l10nFieldChain.map { it.second }
+        val l10nFieldNameChain = l10nFieldChain.strings
 
         return l10nFieldChain.mapIndexed { index, (textRange, _) ->
             L10nFieldPsiReference(

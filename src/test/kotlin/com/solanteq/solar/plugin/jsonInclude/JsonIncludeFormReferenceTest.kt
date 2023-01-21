@@ -1,4 +1,4 @@
-package com.solanteq.solar.plugin
+package com.solanteq.solar.plugin.jsonInclude
 
 import com.solanteq.solar.plugin.base.LightPluginTestBase
 import com.solanteq.solar.plugin.base.createFormAndConfigure
@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
-class JsonIncludeTest : LightPluginTestBase() {
+class JsonIncludeFormReferenceTest : LightPluginTestBase() {
 
     @ParameterizedTest
     @ValueSource(strings = [
@@ -40,21 +40,15 @@ class JsonIncludeTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test json include form completion`() {
-        fixture.createIncludedForm("includedForm1", "dir1/dir2", "{}")
-        fixture.createIncludedForm("includedForm2", "dir1/dir2", "{}")
-        fixture.createIncludedForm("includedForm3", "differentPath", "{}")
-        fixture.createIncludedForm("includedForm4", "dir1/differentPath", "{}")
+    fun `test reference to included form with empty path`() {
+        fixture.createIncludedForm("includedForm", "", "{}")
         fixture.createFormAndConfigure("form", """
             {
-                "json://includes/forms/dir1/dir2/<caret>"
+                "json://includes/forms/<caret>includedForm.json"
             }
         """.trimIndent())
 
-        assertCompletionsContainsExact(
-            "includedForm1.json",
-            "includedForm2.json"
-        )
+        assertReferencedElementNameEquals("includedForm.json")
     }
 
 }

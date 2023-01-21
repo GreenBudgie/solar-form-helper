@@ -5,6 +5,7 @@ import com.intellij.model.psi.PsiSymbolDeclarationProvider
 import com.intellij.model.psi.PsiSymbolReferenceHints
 import com.intellij.model.psi.PsiSymbolReferenceService
 import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.PsiReference
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import com.intellij.testFramework.junit5.RunInEdt
 import com.solanteq.solar.plugin.symbol.FormSymbol
@@ -23,6 +24,11 @@ abstract class PluginTestBase {
     val baseTestDataPath get() = "src/test/testData/${getTestDataSuffix()}"
 
     open fun getTestDataSuffix() = ""
+
+    protected inline fun <reified T : PsiReference> assertNoReferenceAtCaret() {
+        val reference = fixture.file.findReferenceAt(fixture.caretOffset)
+        Assertions.assertTrue(reference == null || !T::class.isInstance(reference))
+    }
 
     protected fun assertReferencedElementNameEquals(expectedName: String) {
         val reference = fixture.file.findReferenceAt(fixture.caretOffset)

@@ -16,6 +16,10 @@ class FormReference(
     private val referencedForm: PsiFile?
 ) : PsiReferenceBase<JsonStringLiteral>(element)  {
 
+    override fun bindToElement(element: PsiElement): PsiElement {
+        return super.bindToElement(element)
+    }
+
     override fun handleElementRename(newElementName: String): PsiElement {
         val referencedFormModule = referencedForm?.getFormModuleName()
             ?: return super.handleElementRename(newElementName)

@@ -4,7 +4,6 @@ import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonProperty
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.util.Key
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.CachedValue
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
@@ -12,7 +11,8 @@ import com.intellij.psi.util.PsiModificationTracker
 import com.solanteq.solar.plugin.element.FormRootFile
 import com.solanteq.solar.plugin.element.toFormElement
 import com.solanteq.solar.plugin.search.FormSearch
-import com.solanteq.solar.plugin.util.dotSplit
+import com.solanteq.solar.plugin.util.RangeSplit
+import com.solanteq.solar.plugin.util.convert
 import com.solanteq.solar.plugin.util.getFormModuleDirectory
 import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.kotlin.idea.core.util.toPsiDirectory
@@ -44,7 +44,7 @@ import org.jetbrains.kotlin.idea.core.util.toPsiFile
 class FormL10n private constructor(
     keyElement: JsonStringLiteral,
     valueElement: JsonStringLiteral,
-    val chain: List<Pair<TextRange, String>>,
+    val chain: RangeSplit,
 ) : L10n(keyElement, valueElement) {
 
     val project = keyElement.project
@@ -54,21 +54,21 @@ class FormL10n private constructor(
      *
      * "**module**.form.formName.group.field1.field2"
      */
-    val moduleName = chain.getOrNull(moduleNameChainIndex)?.second
+    val moduleName = chain.getOrNull(moduleNameChainIndex)?.text
 
     /**
      * Form name in l10n chain. Provided as is. May be named as non-existing form.
      *
      * "module.form.**formName**.group.field1.field2"
      */
-    val formName = chain.getOrNull(formNameChainIndex)?.second
+    val formName = chain.getOrNull(formNameChainIndex)?.text
 
     /**
      * Group name in l10n chain. Provided as is. May be named as non-existing group.
      *
      * "module.form.formName.**group**.field1.field2"
      */
-    val groupName = chain.getOrNull(groupNameChainIndex)?.second
+    val groupName = chain.getOrNull(groupNameChainIndex)?.text
 
     /**
      * Text range of the module in l10n chain.
@@ -76,7 +76,7 @@ class FormL10n private constructor(
      * "**module**.form.formName.group.field1.field2"
      */
     val moduleTextRange by lazy {
-        chain.getOrNull(moduleNameChainIndex)?.first
+        chain.getOrNull(moduleNameChainIndex)?.range
     }
 
     /**
@@ -134,7 +134,7 @@ class FormL10n private constructor(
      * "module.form.**formName**.group.field1.field2"
      */
     val formTextRange by lazy {
-        chain.getOrNull(formNameChainIndex)?.first
+        chain.getOrNull(formNameChainIndex)?.range
     }
 
     /**
@@ -161,7 +161,7 @@ class FormL10n private constructor(
      * "module.form.formName.**group**.field1.field2"
      */
     val groupTextRange by lazy {
-        chain.getOrNull(groupNameChainIndex)?.first
+        chain.getOrNull(groupNameChainIndex)?.range
     }
 
     /**
@@ -171,7 +171,7 @@ class FormL10n private constructor(
      */
     val fieldChain by lazy {
         val fieldChainIndexRange = fieldChainStartIndex until chain.size
-        return@lazy fieldChainIndexRange.map { chain[it] }
+        return@lazy fieldChainIndexRange.map { chain[it] }.convert()
     }
 
     /**
@@ -181,13 +181,13 @@ class FormL10n private constructor(
      * "module.form.formName.group.field1.**field2**"
      */
     val referencedFieldElement by lazy {
-        val l10nFieldNameChain = fieldChain.map { it.second }
+        val l10nFieldNameChain = fieldChain.strings
         if(l10nFieldNameChain.isEmpty()) {
             return@lazy null
         }
         val group = referencedGroupElement ?: return@lazy null
         return@lazy group.allFields.find { field ->
-            val fieldNameChain = field.fieldNameChain.map { it.second }
+            val fieldNameChain = field.fieldNameChain.strings
             l10nFieldNameChain == fieldNameChain
         }
     }
@@ -260,11 +260,11 @@ class FormL10n private constructor(
         private fun createChain(property: JsonProperty): FormL10n? {
             val keyElement = property.nameElement as? JsonStringLiteral ?: return null
             val valueElement = property.value as? JsonStringLiteral ?: return null
-            val dotSplit = keyElement.dotSplit()
-            if(dotSplit.size < 3) return null
-            val l10nType = dotSplit[1].second
+            val rangeSplit = RangeSplit.from(keyElement)
+            if(rangeSplit.size < 3) return null
+            val l10nType = rangeSplit[1].text
             if(l10nType != "form") return null
-            return FormL10n(keyElement, valueElement, dotSplit)
+            return FormL10n(keyElement, valueElement, rangeSplit)
         }
 
     }

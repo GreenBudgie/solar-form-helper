@@ -1,7 +1,6 @@
 package com.solanteq.solar.plugin.reference.include
 
 import com.intellij.json.psi.JsonStringLiteral
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiReference
 import com.intellij.psi.PsiReferenceProvider
@@ -15,15 +14,17 @@ object JsonIncludeReferenceProvider : PsiReferenceProvider()  {
         val stringLiteral = element as JsonStringLiteral
         val jsonIncludeElement = stringLiteral.toFormElement<FormJsonInclude>() ?: return emptyArray()
 
-        val stringLength = stringLiteral.value.length
-        val formNameLength = jsonIncludeElement.formNameWithExtension?.length ?: return emptyArray()
-        return arrayOf(
-            JsonIncludeFormReference(
-                stringLiteral,
-                TextRange.create(stringLength - formNameLength + 1, stringLength + 1),
+        val virtualFileChain = jsonIncludeElement.virtualFileChain
+        val references = virtualFileChain.map {
+            JsonIncludeReference(
+                element,
+                it.first,
+                it.second,
                 jsonIncludeElement
             )
-        )
+        }
+
+        return references.toTypedArray()
     }
 
 }

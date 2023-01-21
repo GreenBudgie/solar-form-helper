@@ -44,9 +44,10 @@ fun CodeInsightTestFixture.createIncludedForm(
     text: String
 ): JsonFile {
     val realFileName = "$formName.json"
+    val realRelativePath = if(relativePath.isBlank()) "" else "$relativePath/"
 
     return addFileToProject(
-        "main/resources/config/includes/forms/$relativePath/$realFileName",
+        "main/resources/config/includes/forms/$realRelativePath$realFileName",
         text
     ) as JsonFile
 }

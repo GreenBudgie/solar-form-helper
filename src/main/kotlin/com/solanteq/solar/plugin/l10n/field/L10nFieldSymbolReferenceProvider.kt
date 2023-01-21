@@ -45,7 +45,7 @@ class L10nFieldSymbolReferenceProvider : PsiSymbolReferenceProvider {
             return emptyList()
         }
 
-        val l10nFieldNameChain = l10nFieldChain.map { it.second }
+        val l10nFieldNameChain = l10nFieldChain.strings
 
         return l10nFieldChain.mapIndexedNotNull { index, (textRange, _) ->
             if(offset != -1 && !textRange.contains(offset)) {
