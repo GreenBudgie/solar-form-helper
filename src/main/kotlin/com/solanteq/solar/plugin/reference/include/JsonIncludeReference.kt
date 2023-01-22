@@ -44,7 +44,8 @@ class JsonIncludeReference(
     }
 
     private fun findApplicableDirectories(pathDepth: Int): List<VirtualFile> {
-        val baseDirectories = FormModuleSearch.findIncludedFormBaseDirectories(element.project)
+        val baseDirectories = FormModuleSearch.findProjectIncludedFormBaseDirectories(element.project) +
+                FormModuleSearch.findLibrariesIncludedFormDirectories(element.project)
         var currentDirectories = baseDirectories
         repeat(pathDepth) {
             currentDirectories = currentDirectories
