@@ -15,7 +15,7 @@ import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.file.RootFormFileType
 import com.solanteq.solar.plugin.l10n.FormL10n
 import com.solanteq.solar.plugin.l10n.L10nService
-import com.solanteq.solar.plugin.reference.form.FormReference
+import com.solanteq.solar.plugin.reference.form.FormNameReference
 import com.solanteq.solar.plugin.search.FormSearch
 import com.solanteq.solar.plugin.util.FormPsiUtils
 import com.solanteq.solar.plugin.util.valueAsString
@@ -160,7 +160,7 @@ class FormRootFile(
      * All requests from inline elements that reference this form
      */
     val inlineRequests: List<FormRequest> by lazy {
-        val formPropertyValueElements = formReferences.filterIsInstance<FormReference>().map { it.element }
+        val formPropertyValueElements = formReferences.filterIsInstance<FormNameReference>().map { it.element }
         val formInlineElements = formPropertyValueElements.mapNotNull {
             val formProperty = it.parent as? JsonProperty ?: return@mapNotNull null
             val inlineValueObject = formProperty.parent as? JsonObject ?: return@mapNotNull null
@@ -208,7 +208,7 @@ class FormRootFile(
      * All fields from other forms with `LIST` type that relate to this form
      */
     val relatedListFields: List<FormField> by lazy {
-        val formPropertyValueElements = formReferences.filterIsInstance<FormReference>().map { it.element }
+        val formPropertyValueElements = formReferences.filterIsInstance<FormNameReference>().map { it.element }
         val fieldElements = formPropertyValueElements
             .flatMap {
                 FormPsiUtils.firstParentsOfType(it, JsonObject::class)

@@ -51,11 +51,11 @@ abstract class PluginTestBase {
     protected fun assertCompletionsContainsExact(
         vararg expectedCompletions: String
     ) {
-        val actualCompletions = fixture.completeBasic().map { it.lookupString }
-        Assertions.assertEquals(expectedCompletions.size, actualCompletions.size)
-        Assertions.assertTrue(
-            actualCompletions.containsAll(listOf(*expectedCompletions))
-        )
+        val expectedCompletionsList = listOf(*expectedCompletions)
+        val actualCompletionsList = fixture.completeBasic().map { it.lookupString }
+        expectedCompletionsList.sorted()
+        actualCompletionsList.sorted()
+        Assertions.assertIterableEquals(actualCompletionsList, expectedCompletionsList)
     }
 
     protected fun assertJsonStringLiteralValueEquals(expectedValue: String) {

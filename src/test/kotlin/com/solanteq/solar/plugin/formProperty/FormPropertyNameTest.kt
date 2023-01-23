@@ -1,75 +1,83 @@
-package com.solanteq.solar.plugin
+package com.solanteq.solar.plugin.formProperty
 
 import com.solanteq.solar.plugin.base.*
 import org.junit.jupiter.api.Test
 
-class FormPropertyTest : LightPluginTestBase() {
+class FormPropertyNameTest : LightPluginTestBase() {
 
     @Test
-    fun `test form reference with group`() {
+    fun `test form name reference`() {
         fixture.createForm(
-            "testFormNoGroup",
-            "{}"
-        )
-        fixture.createForm(
-            "testFormWithGroup",
+            "testForm",
             "{}",
             "test"
-        )
-        fixture.createForm(
-            "testFormWithGroup",
-            "{}",
-            "test2"
         )
 
         fixture.configureByFormText("""
             {
-              "form": "<caret>test.testFormWithGroup"
+              "form": "test.<caret>testForm"
             }
         """.trimIndent()
         )
 
-        assertReferencedElementNameEquals("testFormWithGroup.json")
+        assertReferencedElementNameEquals("testForm.json")
     }
 
     @Test
-    fun `test form completion`() {
+    fun `test form name completion`() {
         fixture.createForm(
-            "testFormNoGroup",
-            "{}"
-        )
-        fixture.createForm(
-            "testFormWithGroup",
+            "testForm1",
             "{}",
             "test"
         )
         fixture.createForm(
-            "testFormWithGroup",
+            "testForm2",
+            "{}",
+            "test"
+        )
+        fixture.createForm(
+            "testForm3",
             "{}",
             "test2"
         )
 
         fixture.createIncludedForm(
             "includedForm",
-            "test2",
+            "test",
             "{}"
         )
 
         fixture.createFormAndConfigure("testForm", """
             {
-              "form": "<caret>"
+              "form": "test.<caret>"
             }
-        """.trimIndent(), "test")
+        """.trimIndent(), "test3")
 
         assertCompletionsContainsExact(
-            "testFormNoGroup",
-            "test.testFormWithGroup",
-            "test2.testFormWithGroup"
+            "testForm1",
+            "testForm2"
         )
     }
 
     @Test
-    fun `test form rename`() {
+    fun `test completions do not contain this form`() {
+        fixture.createForm(
+            "testForm1",
+            "{}",
+            "test"
+        )
+
+        fixture.createFormAndConfigure("testForm", """
+            {
+              "form": "test.<caret>"
+            }
+        """.trimIndent(), "test")
+
+        assertCompletionsContainsExact("testForm1")
+    }
+
+    @Test
+    fun `test form name rename`() {
         fixture.createForm(
             "testForm",
             "{}",

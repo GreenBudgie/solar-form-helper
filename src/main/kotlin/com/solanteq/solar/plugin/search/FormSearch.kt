@@ -23,12 +23,14 @@ object FormSearch {
         findRootForms(scope) + findIncludedForms(scope)
 
     fun findRootFormsInModule(scope: GlobalSearchScope, moduleName: String): Collection<VirtualFile> {
+        if(moduleName.isBlank()) return emptySet()
         return findRootForms(scope).filter {
             it.getFormModuleName() == moduleName
         }
     }
 
     fun findIncludedFormsInModule(scope: GlobalSearchScope, moduleName: String): Collection<VirtualFile> {
+        if(moduleName.isBlank()) return emptySet()
         return findIncludedForms(scope).filter {
             it.getFormModuleName() == moduleName
         }
