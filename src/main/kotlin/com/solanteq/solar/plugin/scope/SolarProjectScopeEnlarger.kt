@@ -6,6 +6,7 @@ import com.intellij.psi.search.UseScopeEnlarger
 import com.solanteq.solar.plugin.util.isCallableMethod
 import com.solanteq.solar.plugin.util.isCallableServiceClassImpl
 import com.solanteq.solar.plugin.util.isForm
+import com.solanteq.solar.plugin.util.isFormModuleOrDirectory
 import org.jetbrains.kotlin.idea.base.util.projectScope
 
 class SolarProjectScopeEnlarger : UseScopeEnlarger() {
@@ -23,6 +24,9 @@ class SolarProjectScopeEnlarger : UseScopeEnlarger() {
         }
 
         if(this is PsiFile && isForm()) {
+            return projectScope
+        }
+        if(this is PsiDirectory && isFormModuleOrDirectory()) {
             return projectScope
         }
         return null

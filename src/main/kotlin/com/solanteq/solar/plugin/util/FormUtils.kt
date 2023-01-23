@@ -1,6 +1,7 @@
 package com.solanteq.solar.plugin.util
 
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiFile
 import com.solanteq.solar.plugin.file.IncludedFormFileType
 import com.solanteq.solar.plugin.file.RootFormFileType
@@ -80,8 +81,36 @@ fun VirtualFile.getFormSolarName(): String {
  */
 fun PsiFile.getFormSolarName() = virtualFile?.getFormSolarName()
 
+/**
+ * Whether this [VirtualFile] is a directory and can be considered a form module
+ */
+fun VirtualFile.isRootFormModule() = isDirectory && path.endsWith("config/forms/$name")
 
+/**
+ * Whether this [PsiDirectory] can be considered a form module
+ */
+fun PsiDirectory.isRootFormModule() = virtualFile.isRootFormModule()
 
+/**
+ * Whether this [VirtualFile] is a directory and can contain included forms
+ */
+fun VirtualFile.isIncludedFormDirectory() = isDirectory && path.contains("config/includes/forms/")
+
+/**
+ * Whether this [PsiDirectory] can contain included forms
+ */
+fun PsiDirectory.isIncludedFormDirectory() = virtualFile.isIncludedFormDirectory()
+
+/**
+ * Whether this [VirtualFile] is a directory and can be considered
+ * a root form module or can contain included forms
+ */
+fun VirtualFile.isFormModuleOrDirectory() = isRootFormModule() || isIncludedFormDirectory()
+
+/**
+ * Whether this [PsiDirectory] can be considered a root form module or can contain included forms
+ */
+fun PsiDirectory.isFormModuleOrDirectory() = isRootFormModule() || isIncludedFormDirectory()
 
 
 

@@ -90,7 +90,7 @@ class FormPropertyModuleTest : LightPluginTestBase() {
             }
         """.trimIndent())
 
-        fixture.renameElementAtCaretUsingHandler("test2")
+        fixture.renameElementAtCaret("test2")
         assertJsonStringLiteralValueEquals("test2.testForm")
     }
 

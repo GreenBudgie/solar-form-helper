@@ -53,9 +53,7 @@ abstract class PluginTestBase {
     ) {
         val expectedCompletionsList = listOf(*expectedCompletions)
         val actualCompletionsList = fixture.completeBasic().map { it.lookupString }
-        expectedCompletionsList.sorted()
-        actualCompletionsList.sorted()
-        Assertions.assertIterableEquals(actualCompletionsList, expectedCompletionsList)
+        Assertions.assertIterableEquals(expectedCompletionsList.sorted(), actualCompletionsList.sorted())
     }
 
     protected fun assertJsonStringLiteralValueEquals(expectedValue: String) {
