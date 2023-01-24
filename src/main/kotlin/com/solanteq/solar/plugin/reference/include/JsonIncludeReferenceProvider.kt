@@ -15,11 +15,12 @@ object JsonIncludeReferenceProvider : PsiReferenceProvider()  {
         val jsonIncludeElement = stringLiteral.toFormElement<FormJsonInclude>() ?: return emptyArray()
 
         val virtualFileChain = jsonIncludeElement.virtualFileChain
-        val references = virtualFileChain.map {
+        val references = virtualFileChain.mapIndexed { index, (range, referencedFile) ->
             JsonIncludeReference(
                 element,
-                it.first,
-                it.second,
+                range,
+                referencedFile,
+                index,
                 jsonIncludeElement
             )
         }

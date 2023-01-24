@@ -19,11 +19,12 @@ class JsonIncludeReference(
     element: JsonStringLiteral,
     textRange: TextRange,
     private val referencedVirtualFile: VirtualFile?,
+    private val pathIndex: Int,
     private val jsonIncludeElement: FormJsonInclude
 ) : PsiReferenceBase<JsonStringLiteral>(element, textRange)  {
 
     override fun getVariants(): Array<LookupElementBuilder> {
-        val pathChain = jsonIncludeElement.pathChain.dropLast(1).convert()
+        val pathChain = jsonIncludeElement.pathChain.dropLast(pathIndex + 1).convert()
         val path = pathChain.strings.joinToString("/")
         val directories = findApplicableDirectories(pathChain.size)
         val forms = FormSearch.findIncludedForms(element.project.allScope())
