@@ -10,8 +10,8 @@ import com.solanteq.solar.plugin.reference.field.FieldReferenceProvider
 import com.solanteq.solar.plugin.reference.form.FormReferenceProvider
 import com.solanteq.solar.plugin.reference.include.JsonIncludeReferenceProvider
 import com.solanteq.solar.plugin.reference.request.RequestReferenceProvider
-import com.solanteq.solar.plugin.reference.rootForm.FormNameReferenceProvider
-import com.solanteq.solar.plugin.reference.rootModule.FormModuleReferenceProvider
+import com.solanteq.solar.plugin.reference.topLevelFile.FormTopLevelFileReferenceProvider
+import com.solanteq.solar.plugin.reference.topLevelModule.FormTopLevelModuleReferenceProvider
 import com.solanteq.solar.plugin.util.*
 
 class FormReferenceContributor : PsiReferenceContributor() {
@@ -47,7 +47,7 @@ class FormReferenceContributor : PsiReferenceContributor() {
                 .notJsonIncludeDeclaration()
                 .isPropertyValueWithKey("name")
                 .isAtTopLevelObject(),
-            FormNameReferenceProvider
+            FormTopLevelFileReferenceProvider
         )
 
         registrar.registerReferenceProvider(
@@ -55,7 +55,7 @@ class FormReferenceContributor : PsiReferenceContributor() {
                 .notJsonIncludeDeclaration()
                 .isPropertyValueWithKey("module")
                 .isAtTopLevelObject(),
-            FormModuleReferenceProvider
+            FormTopLevelModuleReferenceProvider
         )
     }
 

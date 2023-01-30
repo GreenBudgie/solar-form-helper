@@ -3,16 +3,28 @@ package com.solanteq.solar.plugin.reference.form
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.PsiFile
-import com.intellij.psi.PsiReferenceBase
+import com.intellij.psi.*
 import com.solanteq.solar.plugin.search.FormModuleSearch
+import com.solanteq.solar.plugin.util.isRootFormModule
 import org.jetbrains.kotlin.idea.core.util.toPsiDirectory
 
 class FormModuleReference(
     element: JsonStringLiteral,
     textRange: TextRange,
     private val referencedForm: PsiFile?
-) : PsiReferenceBase<JsonStringLiteral>(element, textRange)  {
+) : PsiReferenceBase<JsonStringLiteral>(element, textRange) {
+
+    override fun bindToElement(element: PsiElement): PsiElement {
+        if(element !is PsiDirectory || !element.isRootFormModule()) {
+            throw IllegalArgumentException("Rebind can only be performed on root form module")
+        }
+        ElementManipulators.getManipulator(this.element).handleContentChange(
+            this.element,
+            this.rangeInElement,
+            element.name
+        )
+        return element
+    }
 
     override fun getVariants(): Array<Any> {
         val project = element.project

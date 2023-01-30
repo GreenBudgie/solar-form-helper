@@ -1,11 +1,11 @@
-package com.solanteq.solar.plugin.reference.rootModule
+package com.solanteq.solar.plugin.reference.topLevelModule
 
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiReferenceBase
 
-class FormModuleReference(
+class FormTopLevelModuleReference(
     element: JsonStringLiteral
 ) : PsiReferenceBase<JsonStringLiteral>(element) {
 

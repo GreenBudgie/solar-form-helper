@@ -1,8 +1,26 @@
 package com.solanteq.solar.plugin.base
 
 import com.intellij.json.psi.JsonFile
+import com.intellij.psi.PsiDirectory
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import com.solanteq.solar.plugin.file.RootFormFileType
+
+/**
+ * Creates a new directory by placing `.placeholder` file in it
+ *
+ * @param path The directory path relative to `src`
+ *
+ * @return Created directory psi
+ */
+fun CodeInsightTestFixture.createDirectory(
+    path: String
+): PsiDirectory {
+    val file = addFileToProject(
+        "$path/.placeholder",
+        ""
+    )
+    return file.parent!!
+}
 
 /**
  * Creates new form in the correct directory with specified text

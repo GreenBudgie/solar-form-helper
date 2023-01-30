@@ -18,6 +18,10 @@ class FormNameReference(
     private val formName: String
 ) : PsiReferenceBase<JsonStringLiteral>(element, textRange)  {
 
+    override fun bindToElement(element: PsiElement): PsiElement {
+        return element
+    }
+
     override fun handleElementRename(newElementName: String): PsiElement {
         if(!newElementName.endsWith(".json")) {
             return super.handleElementRename(newElementName)

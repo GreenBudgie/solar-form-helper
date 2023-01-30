@@ -10,8 +10,12 @@ import com.solanteq.solar.plugin.search.FormSearch
 import org.jetbrains.kotlin.idea.base.util.projectScope
 
 class L10nFormPsiReference(
-    val l10nChain: FormL10n
+    private val l10nChain: FormL10n
 ) : PsiReferenceBase<JsonStringLiteral>(l10nChain.keyElement, l10nChain.formTextRange, false) {
+
+    override fun bindToElement(element: PsiElement): PsiElement {
+        return element
+    }
 
     //TODO Extract duplicate code
     override fun handleElementRename(newElementName: String): PsiElement {

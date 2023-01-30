@@ -8,7 +8,7 @@ object L10nTestUtils {
     fun generateL10nFileText(vararg l10ns: Pair<String, String>): String {
         if(l10ns.isEmpty()) error("You need to provide at least one l10n entry")
 
-        val l10nJsonEntries = l10ns.joinToString { (l10nKey, l10nValue) ->
+        val l10nJsonEntries = l10ns.joinToString() { (l10nKey, l10nValue) ->
             "\"$l10nKey\": \"$l10nValue\",\n"
         }.dropLast(2)
 

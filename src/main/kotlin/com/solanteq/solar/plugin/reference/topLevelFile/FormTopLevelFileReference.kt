@@ -1,4 +1,4 @@
-package com.solanteq.solar.plugin.reference.rootForm
+package com.solanteq.solar.plugin.reference.topLevelFile
 
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.json.psi.JsonStringLiteral
@@ -6,9 +6,13 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiReferenceBase
 
-class FormFileReference(
+class FormTopLevelFileReference(
     element: JsonStringLiteral
 ) : PsiReferenceBase<JsonStringLiteral>(element) {
+
+    override fun bindToElement(element: PsiElement): PsiElement {
+        return element
+    }
 
     override fun handleElementRename(newElementName: String): PsiElement {
         if(!newElementName.endsWith(".json")) return super.handleElementRename(newElementName)
