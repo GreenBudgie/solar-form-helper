@@ -35,6 +35,7 @@
         <referencesSearch implementation="com.solanteq.solar.plugin.reference.request.ServiceNameQueryExecutor" />
 
         <moveFileHandler implementation="com.solanteq.solar.plugin.move.RootFormMoveHandler" />
+        <moveFileHandler implementation="com.solanteq.solar.plugin.move.IncludedFormMoveHandler" />
 
         <localInspection language="JSON"
                          displayName="Invalid form module declaration"

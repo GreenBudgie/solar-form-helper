@@ -9,6 +9,10 @@ class FormTopLevelModuleReference(
     element: JsonStringLiteral
 ) : PsiReferenceBase<JsonStringLiteral>(element) {
 
+    override fun bindToElement(element: PsiElement): PsiElement {
+        return element
+    }
+
     override fun getVariants(): Array<Any> {
         val directory = getDirectory() ?: return emptyArray()
         if(!directory.isDirectory) return emptyArray()

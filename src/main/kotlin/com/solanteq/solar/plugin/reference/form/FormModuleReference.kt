@@ -16,7 +16,7 @@ class FormModuleReference(
 
     override fun bindToElement(element: PsiElement): PsiElement {
         if(element !is PsiDirectory || !element.isRootFormModule()) {
-            throw IllegalArgumentException("Rebind can only be performed on root form module")
+            return element
         }
         ElementManipulators.getManipulator(this.element).handleContentChange(
             this.element,

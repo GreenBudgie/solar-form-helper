@@ -19,9 +19,20 @@ class JsonIncludeReference(
     element: JsonStringLiteral,
     textRange: TextRange,
     private val referencedVirtualFile: VirtualFile?,
+    /**
+     * Nesting level of this file or directory (reversed)
+     * - 0 for form file
+     * - 1 for parent directory
+     * - 2 for parent directory of parent directory
+     * and so on
+     */
     private val pathIndex: Int,
-    private val jsonIncludeElement: FormJsonInclude
+    val jsonIncludeElement: FormJsonInclude
 ) : PsiReferenceBase<JsonStringLiteral>(element, textRange)  {
+
+    override fun bindToElement(element: PsiElement): PsiElement {
+        return element
+    }
 
     override fun getVariants(): Array<LookupElementBuilder> {
         val pathChain = jsonIncludeElement.pathChain.dropLast(pathIndex + 1).convert()
@@ -43,6 +54,8 @@ class JsonIncludeReference(
             referencedVirtualFile.toPsiFile(element.project)
         }
     }
+
+    fun isDirectoryReference() = referencedVirtualFile?.isDirectory == true
 
     private fun findApplicableDirectories(pathDepth: Int): List<VirtualFile> {
         val baseDirectories = FormModuleSearch.findProjectIncludedFormBaseDirectories(element.project) +

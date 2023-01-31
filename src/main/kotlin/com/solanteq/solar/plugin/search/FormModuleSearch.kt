@@ -7,7 +7,8 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.util.CachedValue
-import com.solanteq.solar.plugin.util.cacheByKey
+import com.intellij.psi.util.CachedValueProvider
+import com.intellij.psi.util.CachedValuesManager
 
 /**
  * Helps find directories corresponding to form modules. Uses caching.
@@ -27,22 +28,22 @@ object FormModuleSearch {
         Key<CachedValue<List<VirtualFile>>>("solar.libraryIncludedFormBaseDirectories")
 
     fun findProjectRootFormModules(project: Project) =
-        cacheByKey(project, PROJECT_ROOT_MODULES_KEY, VirtualFileManager.VFS_STRUCTURE_MODIFICATIONS) {
+        cacheByKey(project, PROJECT_ROOT_MODULES_KEY) {
             getProjectConfigDirectories(project).getRootFormModulesInConfigDirectories()
         }
 
     fun findProjectIncludedFormBaseDirectories(project: Project) =
-        cacheByKey(project, PROJECT_INCLUDED_BASE_DIRECTORIES_KEY, VirtualFileManager.VFS_STRUCTURE_MODIFICATIONS) {
+        cacheByKey(project, PROJECT_INCLUDED_BASE_DIRECTORIES_KEY) {
             getProjectConfigDirectories(project).getIncludedFormModulesInConfigDirectories()
         }
 
     fun findLibrariesRootFormModules(project: Project) =
-        cacheByKey(project, LIBRARY_ROOT_MODULES_KEY, VirtualFileManager.VFS_STRUCTURE_MODIFICATIONS) {
+        cacheByKey(project, LIBRARY_ROOT_MODULES_KEY) {
             getLibrariesConfigDirectories(project).getRootFormModulesInConfigDirectories()
         }
 
     fun findLibrariesIncludedFormDirectories(project: Project) =
-        cacheByKey(project, LIBRARY_INCLUDED_BASE_DIRECTORIES_KEY, VirtualFileManager.VFS_STRUCTURE_MODIFICATIONS) {
+        cacheByKey(project, LIBRARY_INCLUDED_BASE_DIRECTORIES_KEY, ) {
             getLibrariesConfigDirectories(project).getIncludedFormModulesInConfigDirectories()
         }
 
@@ -91,6 +92,24 @@ object FormModuleSearch {
                 childDirectory.isDirectory && childDirectory.name == name
             }
         }
+    }
+
+    private inline fun <T> cacheByKey(
+        project: Project,
+        key: Key<CachedValue<T>>,
+        crossinline computation: () -> T
+    ) : T {
+        return CachedValuesManager.getManager(project).getCachedValue(
+            project,
+            key,
+            {
+                CachedValueProvider.Result(
+                    computation(),
+                    VirtualFileManager.VFS_STRUCTURE_MODIFICATIONS
+                )
+            },
+            false
+        )
     }
 
 }

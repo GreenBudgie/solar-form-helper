@@ -19,7 +19,7 @@ import com.solanteq.solar.plugin.file.RootFormFileType
 import com.solanteq.solar.plugin.l10n.module.L10nModulePsiReference
 import com.solanteq.solar.plugin.reference.form.FormModuleReference
 import com.solanteq.solar.plugin.util.isRootFormModule
-import org.jetbrains.kotlin.idea.base.util.allScope
+import org.jetbrains.kotlin.idea.base.util.projectScope
 
 class RootFormMoveHandler : MoveFileHandler() {
 
@@ -39,7 +39,7 @@ class RootFormMoveHandler : MoveFileHandler() {
     ): List<UsageInfo> {
         if(!newParent.isRootFormModule()) return emptyList()
         val scope = GlobalSearchScope.getScopeRestrictedByFileTypes(
-            psiFile.project.allScope(),
+            psiFile.project.projectScope(),
             RootFormFileType,
             IncludedFormFileType,
             L10nFileType
@@ -60,9 +60,10 @@ class RootFormMoveHandler : MoveFileHandler() {
             .filterIsInstance<MoveRenameUsageInfo>()
             .forEach {
                 val reference = it.reference ?: return@forEach
-                val newDirectory = it.referencedElement?.parent ?: it.upToDateReferencedElement ?: return@forEach
+                val newDirectory = it.referencedElement?.parent
+                    ?: it.upToDateReferencedElement?.parent ?: return@forEach
                 reference.bindToElement(newDirectory)
-        }
+            }
     }
 
     override fun updateMovedFile(file: PsiFile) {
