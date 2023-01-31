@@ -45,7 +45,7 @@ class FormNameReference(
 
     override fun resolve(): PsiFile? {
         val project = element.project
-        return FormSearch.findFormByModuleAndName(
+        return FormSearch.findRootFormByModuleAndName(
             moduleName,
             formName,
             project.allScope()

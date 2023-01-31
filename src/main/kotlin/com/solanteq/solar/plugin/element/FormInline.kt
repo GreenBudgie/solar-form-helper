@@ -27,7 +27,7 @@ class FormInline(
     val formFile by lazy {
         val formProperty = valueObject.findProperty("form") ?: return@lazy null
         val stringValue = formProperty.valueAsString() ?: return@lazy null
-        return@lazy FormSearch.findFormBySolarName(stringValue, project.allScope())?.toPsiFile(project) as? JsonFile
+        return@lazy FormSearch.findRootFormBySolarName(stringValue, project.allScope())?.toPsiFile(project) as? JsonFile
     }
 
     val formElement by lazy {

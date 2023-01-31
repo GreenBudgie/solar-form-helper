@@ -8,6 +8,7 @@ import com.solanteq.solar.plugin.file.L10nFileType
 import com.solanteq.solar.plugin.file.RootFormFileType
 import com.solanteq.solar.plugin.util.getFormModuleName
 import com.solanteq.solar.plugin.util.getFormSolarName
+import org.jetbrains.kotlin.idea.base.util.projectScope
 
 object FormSearch {
 
@@ -41,34 +42,41 @@ object FormSearch {
         findRootFormsInModule(scope, moduleName) + findIncludedFormsInModule(scope, moduleName)
 
     /**
-     * Finds a form by its full solar name, for example: `test.testForm`
+     * Finds a root form by its full solar name, for example: `test.testForm`
      */
-    fun findFormBySolarName(
+    fun findRootFormBySolarName(
         fullName: String,
         scope: GlobalSearchScope
     ): VirtualFile? {
         val (module, name) = getModuleAndNameByFormName(fullName) ?: return null
-        return findFormByModuleAndName(module, name, scope)
+        return findRootFormByModuleAndName(module, name, scope)
     }
 
     /**
-     * Finds a form by its module and name, for example:
+     * Finds root form by its module and name, for example:
      * ```
      * module = "test"
      * name = "testForm"
      * -> "test.testForm"
      * ```
+     *
+     * If multiple forms are found in project and libraries, forms in the project are prioritized.
      */
-    fun findFormByModuleAndName(
+    fun findRootFormByModuleAndName(
         module: String,
         name: String,
         scope: GlobalSearchScope
     ): VirtualFile? {
-        val applicableForms = findAllForms(scope).filter {
-            it.name == "$name.json"
-        }
-        return applicableForms.firstOrNull {
-            it.getFormSolarName() == "$module.$name"
+        val applicableForms = findRootForms(scope)
+            .filter { it.name == "$name.json" }
+            .filter { it.getFormSolarName() == "$module.$name" }
+        val firstApplicableForm = applicableForms.firstOrNull() ?: return null
+        val projectScope = scope.project?.projectScope() ?: return firstApplicableForm
+        val onlyProjectForms = applicableForms.filter { projectScope.contains(it) }
+        return if(onlyProjectForms.isEmpty()) {
+            firstApplicableForm
+        } else {
+            onlyProjectForms.first()
         }
     }
 

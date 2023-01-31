@@ -106,7 +106,7 @@ class FormL10n private constructor(
         if(moduleName == null || formName == null) {
             return@lazy null
         }
-        return@lazy FormSearch.findFormByModuleAndName(
+        return@lazy FormSearch.findRootFormByModuleAndName(
             moduleName,
             formName,
             project.projectScope()
