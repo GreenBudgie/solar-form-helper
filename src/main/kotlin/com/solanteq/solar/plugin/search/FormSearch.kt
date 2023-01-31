@@ -4,6 +4,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.search.GlobalSearchScope
 import com.solanteq.solar.plugin.file.IncludedFormFileType
+import com.solanteq.solar.plugin.file.L10nFileType
 import com.solanteq.solar.plugin.file.RootFormFileType
 import com.solanteq.solar.plugin.util.getFormModuleName
 import com.solanteq.solar.plugin.util.getFormSolarName
@@ -77,6 +78,14 @@ object FormSearch {
     fun getFormSearchScope(initialScope: GlobalSearchScope): GlobalSearchScope {
         return GlobalSearchScope.getScopeRestrictedByFileTypes(initialScope,
             RootFormFileType, IncludedFormFileType)
+    }
+
+    /**
+     * Returns the search scope restricted to only search in form and localization files
+     */
+    fun getFormAndL10nSearchScope(initialScope: GlobalSearchScope): GlobalSearchScope {
+        return GlobalSearchScope.getScopeRestrictedByFileTypes(initialScope,
+            RootFormFileType, IncludedFormFileType, L10nFileType)
     }
 
     /**
