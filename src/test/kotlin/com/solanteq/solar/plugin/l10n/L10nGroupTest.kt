@@ -6,6 +6,7 @@ import com.solanteq.solar.plugin.l10n.group.L10nGroupDeclarationProvider
 import com.solanteq.solar.plugin.l10n.group.L10nGroupRenameUsageSearcher
 import com.solanteq.solar.plugin.l10n.group.L10nGroupUsageSearcher
 import org.jetbrains.kotlin.idea.base.util.projectScope
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class L10nGroupTest : LightPluginTestBase() {
@@ -114,6 +115,42 @@ class L10nGroupTest : LightPluginTestBase() {
         )
 
         assertReferencedSymbolNameEquals("groupName")
+    }
+
+    @Test
+    fun `test l10n group rename in included form`() {
+        val formTextBefore = """
+            {
+              "name": "groupName"
+            }
+        """.trimIndent()
+        val formTextAfter = """
+            {
+              "name": "renamed"
+            }
+        """.trimIndent()
+
+        fixture.createForm("rootForm", """
+            {
+              "groups": [
+                "json://includes/forms/test/includedForm.json"
+              ]
+            }
+        """.trimIndent(), "test")
+
+        val form = fixture.createIncludedForm("includedForm", "test", formTextBefore)
+
+        val l10nTextAfter = L10nTestUtils.generateL10nFileText(
+            "test.form.rootForm.renamed" to "Group name"
+        )
+
+        val l10n = L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
+            "test.form.rootForm.<caret>groupName" to "Group name"
+        )
+
+        renameFormSymbolReference("renamed")
+        Assertions.assertEquals(formTextAfter, form.text)
+        Assertions.assertEquals(l10nTextAfter, l10n.text)
     }
 
     @Test

@@ -34,11 +34,11 @@ class L10nFieldUsageSearchQuery(
             includedForm?.allRootForms ?: emptyList()
         }
 
-        val formsInScope = allRootForms.filter { it.sourceElement in searchScope }
-        val allFields = formsInScope.flatMap { it.allFields }
+        val allFields = allRootForms.flatMap { it.allFields }
+        val fieldsInScope = allFields.filter { it.sourceElement in searchScope }
 
         val provider = L10nFieldDeclarationProvider()
-        allFields.forEach {
+        fieldsInScope.forEach {
             if(!processDeclarationsInField(it, provider, consumer)) {
                 return false
             }

@@ -183,6 +183,60 @@ class L10nFakeFieldTest : LightPluginTestBase() {
     }
 
     @Test
+    fun `test l10n fake field rename in included form`() {
+        val formTextBefore = """
+            {
+              "name": "groupName"
+              "rows": [
+                {
+                  "fields": [
+                    {
+                      "name": "fieldName"
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent()
+        val formTextAfter = """
+            {
+              "name": "groupName"
+              "rows": [
+                {
+                  "fields": [
+                    {
+                      "name": "renamed"
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent()
+
+        fixture.createForm("rootForm", """
+            {
+              "groups": [
+                "json://includes/forms/test/includedForm.json"
+              ]
+            }
+        """.trimIndent(), "test")
+
+        val form = fixture.createIncludedForm("includedForm", "test", formTextBefore)
+
+        val l10nTextAfter = L10nTestUtils.generateL10nFileText(
+            "test.form.rootForm.groupName.renamed" to "Field name"
+        )
+
+        val l10n = L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
+            "test.form.rootForm.groupName.<caret>fieldName" to "Field name"
+        )
+
+        renameFormSymbolReference("renamed")
+        Assertions.assertEquals(formTextAfter, form.text)
+        Assertions.assertEquals(l10nTextAfter, l10n.text)
+    }
+
+    @Test
     fun `test find usages in project scope`() {
         fixture.configureByForms("testForm1.json", module = "test")
 
