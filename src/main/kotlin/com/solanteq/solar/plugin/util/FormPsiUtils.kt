@@ -93,14 +93,15 @@ object FormPsiUtils {
      */
     fun parents(element: JsonElement): List<JsonElement> {
         val containingJsonFile = element.containingFile as? JsonFile ?: return emptyList()
-        val topLevelValue = containingJsonFile.topLevelValue
-        val isRootForm = containingJsonFile.fileType == RootFormFileType
 
         val parentInThisForm = element.parent as? JsonElement ?: return emptyList()
+        val isRootForm = containingJsonFile.fileType == RootFormFileType
+        if(isRootForm) {
+            return parentInThisForm.asList()
+        }
 
-        val needToConsiderJsonFlat = topLevelValue is JsonArray
-                && parentInThisForm == topLevelValue
-                && !isRootForm
+        val topLevelValue = containingJsonFile.topLevelValue
+        val needToConsiderJsonFlat = topLevelValue is JsonArray && parentInThisForm == topLevelValue
         if(!needToConsiderJsonFlat && parentInThisForm !is JsonFile) {
             return parentInThisForm.asList()
         }

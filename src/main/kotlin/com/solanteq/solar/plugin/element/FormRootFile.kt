@@ -14,7 +14,7 @@ import com.intellij.psi.util.TypeConversionUtil
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.file.RootFormFileType
 import com.solanteq.solar.plugin.l10n.FormL10n
-import com.solanteq.solar.plugin.l10n.L10nService
+import com.solanteq.solar.plugin.l10n.search.L10nSearch
 import com.solanteq.solar.plugin.reference.form.FormNameReference
 import com.solanteq.solar.plugin.search.FormSearch
 import com.solanteq.solar.plugin.util.FormPsiUtils
@@ -59,7 +59,7 @@ class FormRootFile(
     val module by lazy { moduleProperty.valueAsString() }
 
     override val localizations: List<String> by lazy {
-        val formL10ns = L10nService.findFormL10ns(project, project.projectScope())
+        val formL10ns = L10nSearch.findFormL10ns(project, project.projectScope())
         return@lazy formL10ns
             .filter { it.type == FormL10n.L10nType.FORM }
             .filter { this == it.referencedFormFileElement }

@@ -8,7 +8,7 @@ import com.intellij.psi.PsiType
 import com.intellij.psi.util.CachedValue
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.l10n.FormL10n
-import com.solanteq.solar.plugin.l10n.L10nService
+import com.solanteq.solar.plugin.l10n.search.L10nSearch
 import com.solanteq.solar.plugin.symbol.FormSymbol
 import com.solanteq.solar.plugin.symbol.FormSymbolType
 import com.solanteq.solar.plugin.util.RangeSplit
@@ -50,7 +50,7 @@ class FormField(
 ) : FormLocalizableElement<JsonObject>(sourceElement, sourceElement) {
 
     override val localizations: List<String> by lazy {
-        val formL10ns = L10nService.findFormL10ns(project, project.projectScope())
+        val formL10ns = L10nSearch.findFormL10ns(project, project.projectScope())
         return@lazy formL10ns
             .filter { it.type == FormL10n.L10nType.FIELD }
             .filter { this == it.referencedFieldElement }

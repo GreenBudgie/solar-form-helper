@@ -11,8 +11,8 @@ import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
 import com.solanteq.solar.plugin.element.FormRequest
 import com.solanteq.solar.plugin.search.CallableServiceSearch
+import com.solanteq.solar.plugin.util.javaKotlinModificationTracker
 import com.solanteq.solar.plugin.util.serviceSolarName
-import com.solanteq.solar.plugin.util.uastModificationTracker
 import org.jetbrains.uast.UClass
 
 class ServiceNameReference(
@@ -44,7 +44,7 @@ class ServiceNameReference(
 
                 CachedValueProvider.Result(
                     lookups,
-                    project.uastModificationTracker()
+                    project.javaKotlinModificationTracker()
                 )
             },
             false)

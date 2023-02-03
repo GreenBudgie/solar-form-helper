@@ -42,7 +42,7 @@ abstract class FormSymbolUsageSearchQuery(
                                              consumer: Processor<in FormSymbolUsage>): Boolean
 
     /**
-     * Processes provided references of they resolve to [resolveTarget]
+     * Processes provided references if they resolve to [resolveTarget]
      *
      * @return Whether it makes sense to continue the processing
      */

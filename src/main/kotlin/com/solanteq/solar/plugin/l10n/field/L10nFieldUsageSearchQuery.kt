@@ -10,7 +10,7 @@ import com.solanteq.solar.plugin.element.FormIncludedFile
 import com.solanteq.solar.plugin.element.FormRootFile
 import com.solanteq.solar.plugin.element.toFormElement
 import com.solanteq.solar.plugin.file.RootFormFileType
-import com.solanteq.solar.plugin.l10n.L10nService
+import com.solanteq.solar.plugin.l10n.search.L10nSearch
 import com.solanteq.solar.plugin.symbol.FormSymbol
 import com.solanteq.solar.plugin.symbol.FormSymbolType
 import com.solanteq.solar.plugin.symbol.FormSymbolUsage
@@ -67,8 +67,8 @@ class L10nFieldUsageSearchQuery(
     }
 
     override fun processReferences(globalSearchScope: GlobalSearchScope,
-                                  consumer: Processor<in FormSymbolUsage>): Boolean {
-        val formL10ns = L10nService.findFormL10ns(resolveTarget.project, globalSearchScope)
+                                   consumer: Processor<in FormSymbolUsage>): Boolean {
+        val formL10ns = L10nSearch.findFormL10ns(resolveTarget.project, globalSearchScope)
         val keys = formL10ns.map { it.keyElement }
         val symbolReferenceService = PsiSymbolReferenceService.getService()
         keys.forEach {

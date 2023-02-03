@@ -4,7 +4,7 @@ import com.intellij.model.psi.PsiSymbolReferenceService
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.SearchScope
 import com.intellij.util.Processor
-import com.solanteq.solar.plugin.l10n.L10nService
+import com.solanteq.solar.plugin.l10n.search.L10nSearch
 import com.solanteq.solar.plugin.symbol.FormSymbol
 import com.solanteq.solar.plugin.symbol.FormSymbolUsage
 import com.solanteq.solar.plugin.symbol.FormSymbolUsageSearchQuery
@@ -22,7 +22,7 @@ class L10nGroupUsageSearchQuery(
 
     override fun processReferences(globalSearchScope: GlobalSearchScope,
                                    consumer: Processor<in FormSymbolUsage>): Boolean {
-        val formL10ns = L10nService.findFormL10ns(resolveTarget.project, globalSearchScope)
+        val formL10ns = L10nSearch.findFormL10ns(resolveTarget.project, globalSearchScope)
         val keys = formL10ns.map { it.keyElement }
         val symbolReferenceService = PsiSymbolReferenceService.getService()
         keys.forEach {

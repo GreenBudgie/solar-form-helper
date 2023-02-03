@@ -1,16 +1,22 @@
 package com.solanteq.solar.plugin.base
 
+import com.intellij.find.usages.api.UsageSearchParameters
+import com.intellij.find.usages.api.UsageSearcher
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.model.psi.PsiSymbolDeclarationProvider
 import com.intellij.model.psi.PsiSymbolReferenceHints
 import com.intellij.model.psi.PsiSymbolReferenceService
 import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.PsiReference
+import com.intellij.psi.search.SearchScope
+import com.intellij.refactoring.rename.api.RenameUsageSearchParameters
+import com.intellij.refactoring.rename.api.RenameUsageSearcher
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import com.intellij.testFramework.junit5.RunInEdt
 import com.solanteq.solar.plugin.symbol.FormSymbol
 import com.solanteq.solar.plugin.symbol.FormSymbolDeclaration
 import com.solanteq.solar.plugin.symbol.FormSymbolReference
+import com.solanteq.solar.plugin.symbol.FormSymbolUsage
 import org.junit.jupiter.api.Assertions
 
 /**
@@ -113,6 +119,59 @@ abstract class PluginTestBase {
 
         Assertions.assertNotNull(reference)
         return reference!!
+    }
+
+    protected fun findUsagesOfSymbol(symbol: FormSymbol,
+                                     usageSearcher: UsageSearcher,
+                                     scope: SearchScope): List<FormSymbolUsage> {
+        val parameters = object : UsageSearchParameters {
+            override val searchScope = scope
+            override val target = symbol
+            override fun areValid() = true
+            override fun getProject() = fixture.project
+        }
+
+        val queries = usageSearcher.collectSearchRequests(parameters)
+        return queries.flatMap { it.findAll() }.filterIsInstance<FormSymbolUsage>()
+    }
+
+    protected fun findRenameUsagesOfSymbol(symbol: FormSymbol,
+                                           usageSearcher: RenameUsageSearcher,
+                                           scope: SearchScope): List<FormSymbolUsage> {
+        val parameters = object : RenameUsageSearchParameters {
+            override val searchScope = scope
+            override val target = symbol
+            override fun areValid() = true
+            override fun getProject() = fixture.project
+        }
+
+        val queries = usageSearcher.collectSearchRequests(parameters)
+        return queries.flatMap { it.findAll() }.filterIsInstance<FormSymbolUsage>()
+    }
+
+    /**
+     * Finds usages and rename usages of the [symbol] in the specified [scope]
+     * and tests if their lengths are equal to the [expectedSize].
+     *
+     * Also checks whether all usages have the same text.
+     */
+    protected fun assertSymbolUsagesAndRenameUsagesSizeEquals(symbol: FormSymbol,
+                                                              usageSearcher: UsageSearcher,
+                                                              renameUsageSearcher: RenameUsageSearcher,
+                                                              scope: SearchScope,
+                                                              expectedSize: Int) {
+        val usages = findUsagesOfSymbol(symbol, usageSearcher, scope)
+        val renameUsages = findRenameUsagesOfSymbol(symbol, renameUsageSearcher, scope)
+
+        Assertions.assertEquals(expectedSize, usages.size, "Symbol usages differ in length")
+        Assertions.assertEquals(expectedSize, renameUsages.size, "Symbol rename usages differ in length")
+
+        val allUsages = usages + renameUsages
+        val doUsagesHaveSameText = allUsages.all {
+            val textInRange = it.range.substring(it.file.text)
+            textInRange == symbol.targetName
+        }
+        Assertions.assertTrue(doUsagesHaveSameText, "The text of some usages or rename usages differ")
     }
 
 }

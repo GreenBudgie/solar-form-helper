@@ -22,7 +22,11 @@ intellij {
     version.set("2022.3.1")
     type.set("IC") // Target IDE Platform
 
-    plugins.set(listOf("com.intellij.java", "org.jetbrains.kotlin"))
+    plugins.set(listOf(
+        "com.intellij.java",
+        "org.jetbrains.kotlin",
+        "com.google.ide-perf:1.3.0"
+    ))
 }
 
 tasks {

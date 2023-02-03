@@ -1,7 +1,11 @@
 package com.solanteq.solar.plugin.l10n
 
+import com.intellij.psi.search.GlobalSearchScope
 import com.solanteq.solar.plugin.base.*
 import com.solanteq.solar.plugin.l10n.field.L10nFieldDeclarationProvider
+import com.solanteq.solar.plugin.l10n.field.L10nFieldRenameUsageSearcher
+import com.solanteq.solar.plugin.l10n.field.L10nFieldUsageSearcher
+import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
@@ -176,6 +180,54 @@ class L10nFakeFieldTest : LightPluginTestBase() {
         )
 
         assertReferencedSymbolNameEquals("fieldName")
+    }
+
+    @Test
+    fun `test find usages in project scope`() {
+        fixture.configureByForms("testForm1.json", module = "test")
+
+        L10nTestUtils.createL10nFile(fixture, "l10n_2",
+            "test.form.testForm1.group1.field1" to "Field Name!",
+            "test.form.testForm1.group1.field1.randomText" to "Field Name!"
+        )
+
+        L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
+            "test.form.testForm1.group1.<caret>field1" to "Field Name!"
+        )
+
+        val symbol = getFormSymbolReferenceAtCaret().resolveReference().first()
+
+        assertSymbolUsagesAndRenameUsagesSizeEquals(
+            symbol,
+            L10nFieldUsageSearcher(),
+            L10nFieldRenameUsageSearcher(),
+            fixture.project.projectScope(),
+            expectedSize = 4
+        )
+    }
+
+    @Test
+    fun `test find usages in file scope`() {
+        fixture.configureByForms("testForm1.json", module = "test")
+
+        L10nTestUtils.createL10nFile(fixture, "l10n_2",
+            "test.form.testForm1.group1.field1" to "Field Name!"
+        )
+
+        val file = L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
+            "test.form.testForm1.group1.field1" to "Field Name!",
+            "test.form.testForm1.group1.<caret>field1.randomText" to "Field Name!"
+        )
+
+        val symbol = getFormSymbolReferenceAtCaret().resolveReference().first()
+
+        assertSymbolUsagesAndRenameUsagesSizeEquals(
+            symbol,
+            L10nFieldUsageSearcher(),
+            L10nFieldRenameUsageSearcher(),
+            GlobalSearchScope.fileScope(file),
+            expectedSize = 2
+        )
     }
 
 }

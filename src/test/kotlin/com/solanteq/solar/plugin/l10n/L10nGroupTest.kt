@@ -1,7 +1,11 @@
 package com.solanteq.solar.plugin.l10n
 
+import com.intellij.psi.search.GlobalSearchScope
 import com.solanteq.solar.plugin.base.*
 import com.solanteq.solar.plugin.l10n.group.L10nGroupDeclarationProvider
+import com.solanteq.solar.plugin.l10n.group.L10nGroupRenameUsageSearcher
+import com.solanteq.solar.plugin.l10n.group.L10nGroupUsageSearcher
+import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.junit.jupiter.api.Test
 
 class L10nGroupTest : LightPluginTestBase() {
@@ -110,6 +114,54 @@ class L10nGroupTest : LightPluginTestBase() {
         )
 
         assertReferencedSymbolNameEquals("groupName")
+    }
+
+    @Test
+    fun `test find usages in project scope`() {
+        fixture.configureByForms("testForm1.json", module = "test")
+
+        L10nTestUtils.createL10nFile(fixture, "l10n_2",
+            "test.form.testForm1.group1" to "Group Name22!",
+            "test.form.testForm1.group1.randomText3" to "Group Name!",
+        )
+
+        L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
+            "test.form.testForm1.<caret>group1.randomText" to "Group Name!",
+        )
+
+        val symbol = getFormSymbolReferenceAtCaret().resolveReference().first()
+
+        assertSymbolUsagesAndRenameUsagesSizeEquals(
+            symbol,
+            L10nGroupUsageSearcher(),
+            L10nGroupRenameUsageSearcher(),
+            fixture.project.projectScope(),
+            expectedSize = 4
+        )
+    }
+
+    @Test
+    fun `test find usages in l10n file scope`() {
+        fixture.configureByForms("testForm1.json", module = "test")
+
+        L10nTestUtils.createL10nFile(fixture, "l10n_2",
+            "test.form.testForm1.group" to "Group Name22!",
+            "test.form.testForm1.group.text" to "Group Name22!",
+        )
+
+        val file = L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
+            "test.form.testForm1.<caret>group1.randomText" to "Group Name!",
+            "test.form.testForm1.group1.randomText2" to "Group Name!",
+        )
+
+        val symbol = getFormSymbolReferenceAtCaret().resolveReference().first()
+        assertSymbolUsagesAndRenameUsagesSizeEquals(
+            symbol,
+            L10nGroupUsageSearcher(),
+            L10nGroupRenameUsageSearcher(),
+            GlobalSearchScope.fileScope(file),
+            expectedSize = 2
+        )
     }
 
 }

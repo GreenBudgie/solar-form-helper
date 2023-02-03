@@ -72,7 +72,7 @@ object FormSearch {
             .filter { it.getFormSolarName() == "$module.$name" }
         val firstApplicableForm = applicableForms.firstOrNull() ?: return null
         val projectScope = scope.project?.projectScope() ?: return firstApplicableForm
-        val onlyProjectForms = applicableForms.filter { projectScope.contains(it) }
+        val onlyProjectForms = applicableForms.filter { it in projectScope }
         return if(onlyProjectForms.isEmpty()) {
             firstApplicableForm
         } else {
