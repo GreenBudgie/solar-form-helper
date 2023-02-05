@@ -4,19 +4,19 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.search.GlobalSearchScope
 import com.solanteq.solar.plugin.file.IncludedFormFileType
-import com.solanteq.solar.plugin.file.L10nFileType
 import com.solanteq.solar.plugin.file.RootFormFileType
 import com.solanteq.solar.plugin.util.getFormModuleName
 import com.solanteq.solar.plugin.util.getFormSolarName
+import com.solanteq.solar.plugin.util.restrictedByFormFiles
 import org.jetbrains.kotlin.idea.base.util.projectScope
 
 object FormSearch {
 
     fun findRootForms(scope: GlobalSearchScope): Collection<VirtualFile> =
-        FileTypeIndex.getFiles(RootFormFileType, getFormSearchScope(scope))
+        FileTypeIndex.getFiles(RootFormFileType, scope.restrictedByFormFiles())
 
     fun findIncludedForms(scope: GlobalSearchScope): Collection<VirtualFile> =
-        FileTypeIndex.getFiles(IncludedFormFileType, getFormSearchScope(scope))
+        FileTypeIndex.getFiles(IncludedFormFileType, scope.restrictedByFormFiles())
 
     /**
      * Finds included and root forms
@@ -78,22 +78,6 @@ object FormSearch {
         } else {
             onlyProjectForms.first()
         }
-    }
-
-    /**
-     * Returns the search scope restricted to only search in form files, root and included
-     */
-    fun getFormSearchScope(initialScope: GlobalSearchScope): GlobalSearchScope {
-        return GlobalSearchScope.getScopeRestrictedByFileTypes(initialScope,
-            RootFormFileType, IncludedFormFileType)
-    }
-
-    /**
-     * Returns the search scope restricted to only search in form and localization files
-     */
-    fun getFormAndL10nSearchScope(initialScope: GlobalSearchScope): GlobalSearchScope {
-        return GlobalSearchScope.getScopeRestrictedByFileTypes(initialScope,
-            RootFormFileType, IncludedFormFileType, L10nFileType)
     }
 
     /**

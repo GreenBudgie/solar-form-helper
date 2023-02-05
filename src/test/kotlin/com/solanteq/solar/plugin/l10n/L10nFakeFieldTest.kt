@@ -57,27 +57,29 @@ class L10nFakeFieldTest : LightPluginTestBase() {
             "test.form.form.group.fakeField.field2" to "field2",
         )
 
-        fixture.createFormAndConfigure("form", """
-            {
-              "groups": [
+        fixture.createFormAndConfigure(
+            "form", "test", """
                 {
-                  "name": "group",
-                  "rows": [
+                  "groups": [
                     {
-                      "fields": [
+                      "name": "group",
+                      "rows": [
                         {
-                          "name": "<caret>fakeField.field1"
-                        },
-                        {
-                          "name": "fakeField.field2"
+                          "fields": [
+                            {
+                              "name": "<caret>fakeField.field1"
+                            },
+                            {
+                              "name": "fakeField.field2"
+                            }
+                          ]
                         }
                       ]
                     }
                   ]
                 }
-              ]
-            }
-        """.trimIndent(), "test")
+            """.trimIndent()
+        )
 
         val expectedFormText = """
             {
@@ -148,11 +150,13 @@ class L10nFakeFieldTest : LightPluginTestBase() {
 
     @Test
     fun `test l10n reference to fake field in included form`() {
-        fixture.createForm("rootForm", """
-            {
-              "groups": "json://includes/forms/test/includedFormGroups.json"
-            }
-        """.trimIndent(), "test")
+        fixture.createForm(
+            "rootForm", "test", """
+                {
+                  "groups": "json://includes/forms/test/includedFormGroups.json"
+                }
+            """.trimIndent()
+        )
 
         fixture.createIncludedForm("includedFormGroups", "test", """
             [
@@ -213,13 +217,15 @@ class L10nFakeFieldTest : LightPluginTestBase() {
             }
         """.trimIndent()
 
-        fixture.createForm("rootForm", """
-            {
-              "groups": [
-                "json://includes/forms/test/includedForm.json"
-              ]
-            }
-        """.trimIndent(), "test")
+        fixture.createForm(
+            "rootForm", "test", """
+                {
+                  "groups": [
+                    "json://includes/forms/test/includedForm.json"
+                  ]
+                }
+            """.trimIndent()
+        )
 
         val form = fixture.createIncludedForm("includedForm", "test", formTextBefore)
 
@@ -281,6 +287,84 @@ class L10nFakeFieldTest : LightPluginTestBase() {
             L10nFieldRenameUsageSearcher(),
             GlobalSearchScope.fileScope(file),
             expectedSize = 2
+        )
+    }
+
+    @Test
+    fun `test find usages in project scope for the same field in different included forms`() {
+        fixture.createForm(
+            "rootForm", "test", """
+                {
+                  "groups": [
+                    {
+                      "name": "group1"
+                      "rows": [
+                        {
+                          "fields": [
+                            {
+                              "name": "field1.field2"
+                            },
+                            "json://includes/forms/test/field.json",
+                          ]
+                        },
+                        "json://includes/forms/test/row.json"
+                      ]
+                    },
+                    "json://includes/forms/test2/group.json"
+                  ]
+                }
+            """.trimIndent()
+        )
+
+        fixture.createIncludedForm("field", "test", """
+            {
+              "name": "field1.field2.field3"
+            }
+        """.trimIndent())
+
+        fixture.createIncludedForm("row", "test", """
+            {
+              "fields": [
+                {
+                  "name": "field1.field2.text..random."
+                }
+              ]
+            }
+        """.trimIndent())
+
+        fixture.createIncludedForm("group", "test2", """
+            {
+              "name": "group2",
+              "rows": [
+                {
+                  "fields": [
+                    {
+                      "name": "field1.field2.field3"
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent())
+
+        L10nTestUtils.createL10nFile(fixture, "l10n",
+            "test.form.rootForm.group2.field1.field2.field3" to "Field Name!",
+            "test.form.rootForm.group1.field1.field2.randomText" to "Field Name!"
+        )
+
+        L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n_2",
+            "test.form.rootForm.group1.field1.<caret>field2" to "Field Name!",
+        )
+
+
+        val symbol = getFormSymbolReferenceAtCaret().resolveReference().first()
+
+        assertSymbolUsagesAndRenameUsagesSizeEquals(
+            symbol,
+            L10nFieldUsageSearcher(),
+            L10nFieldRenameUsageSearcher(),
+            fixture.project.projectScope(),
+            expectedSize = 6
         )
     }
 

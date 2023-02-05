@@ -94,6 +94,7 @@ abstract class PluginTestBase {
         val elementAtCaret = getJsonStringLiteralAtCaret()
         val elementAbsoluteTextRangeStart = elementAtCaret.textRange.startOffset
         val offset = fixture.caretOffset - elementAbsoluteTextRangeStart
+
         return declarationProvider
             .getDeclarations(elementAtCaret, offset)
             .firstOrNull() as? FormSymbolDeclaration

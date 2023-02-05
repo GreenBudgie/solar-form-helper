@@ -16,8 +16,8 @@ import com.solanteq.solar.plugin.file.RootFormFileType
 import com.solanteq.solar.plugin.l10n.FormL10n
 import com.solanteq.solar.plugin.l10n.search.L10nSearch
 import com.solanteq.solar.plugin.reference.form.FormNameReference
-import com.solanteq.solar.plugin.search.FormSearch
 import com.solanteq.solar.plugin.util.FormPsiUtils
+import com.solanteq.solar.plugin.util.restrictedByFormFiles
 import com.solanteq.solar.plugin.util.valueAsString
 import org.jetbrains.kotlin.idea.base.util.allScope
 import org.jetbrains.kotlin.idea.base.util.projectScope
@@ -240,7 +240,7 @@ class FormRootFile(
 
     private val formReferences by lazy {
         val containingFile = containingFile ?: return@lazy emptyList()
-        val searchScope = FormSearch.getFormSearchScope(project.allScope())
+        val searchScope = project.allScope().restrictedByFormFiles()
         return@lazy ProgressManager.getInstance().runProcess<Collection<PsiReference>>({
             ReferencesSearch.search(containingFile, searchScope).findAll()
         }, EmptyProgressIndicator())

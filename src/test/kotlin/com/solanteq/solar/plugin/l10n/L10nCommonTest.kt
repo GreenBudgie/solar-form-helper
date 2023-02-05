@@ -15,7 +15,7 @@ class L10nCommonTest : LightPluginTestBase() {
 
     @Test
     fun `test l10n module reference`() {
-        fixture.createForm("testForm", "{}", "test")
+        fixture.createForm("testForm", "test", "{}")
 
         L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
             "<caret>test.form.testForm.randomGroup" to "Group Name!"
@@ -31,10 +31,10 @@ class L10nCommonTest : LightPluginTestBase() {
         "<caret>.form.testForm"
     ])
     fun `test l10n module completion`(l10nKey: String) {
-        fixture.createForm("testForm", "{}", "test")
-        fixture.createForm("testForm2", "{}", "test")
-        fixture.createForm("testForm", "{}", "test2")
-        fixture.createForm("testForm", "{}", "test3")
+        fixture.createForm("testForm", "test", "{}")
+        fixture.createForm("testForm2", "test", "{}")
+        fixture.createForm("testForm", "test2", "{}")
+        fixture.createForm("testForm", "test3", "{}")
 
         L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
             l10nKey to "some l10n"
@@ -52,7 +52,7 @@ class L10nCommonTest : LightPluginTestBase() {
         "test.<caret>.form.testForm"
     ])
     fun `test l10n type completion`(l10nKey: String) {
-        fixture.createForm("testForm", "{}", "test")
+        fixture.createForm("testForm", "test", "{}")
 
         L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
             l10nKey to "some l10n"
@@ -63,26 +63,28 @@ class L10nCommonTest : LightPluginTestBase() {
 
     @Test
     fun `test field declaration does not exist in request name inside field`() {
-        fixture.createFormAndConfigure("testForm", """
-            {
-              "groups": [
+        fixture.createFormAndConfigure(
+            "testForm", "test", """
                 {
-                  "rows": [
+                  "groups": [
                     {
-                      "fields": [
+                      "rows": [
                         {
-                          "name": "field",
-                          "source": {
-                            "name": "test.test<caret>Service.findData"
-                          }
+                          "fields": [
+                            {
+                              "name": "field",
+                              "source": {
+                                "name": "test.test<caret>Service.findData"
+                              }
+                            }
+                          ]
                         }
                       ]
                     }
                   ]
                 }
-              ]
-            }
-        """.trimIndent(), "test")
+            """.trimIndent()
+        )
 
         val declaration = getFormSymbolDeclarationAtCaret(L10nFieldDeclarationProvider())
         Assertions.assertNull(declaration)
@@ -90,17 +92,19 @@ class L10nCommonTest : LightPluginTestBase() {
 
     @Test
     fun `test no extra l10n`() {
-        val form = fixture.createFormAndConfigure("testForm", """
-            {
-              "name": "testForm",
-              "module": "test",
-              "groups": [
+        val form = fixture.createFormAndConfigure(
+            "testForm", "test", """
                 {
-                  "name": "group"
+                  "name": "testForm",
+                  "module": "test",
+                  "groups": [
+                    {
+                      "name": "group"
+                    }
+                  ]
                 }
-              ]
-            }
-        """.trimIndent(), "test")
+            """.trimIndent()
+        )
 
         L10nTestUtils.createL10nFile(fixture, "l10n",
             "test.form.testForm.group" to "Group l10n"

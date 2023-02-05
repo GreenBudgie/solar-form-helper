@@ -12,7 +12,7 @@ import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.CachedValue
 import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.file.IncludedFormFileType
-import com.solanteq.solar.plugin.search.FormSearch
+import com.solanteq.solar.plugin.util.restrictedByFormFiles
 import org.jetbrains.kotlin.idea.base.util.allScope
 import org.jetbrains.kotlin.idea.base.util.minus
 
@@ -53,7 +53,7 @@ class FormIncludedFile(
         }
         val containingFile = containingFile ?: return emptyList()
         isSearchingForDeclarations = true
-        val searchScope = FormSearch.getFormSearchScope(project.allScope())
+        val searchScope = project.allScope().restrictedByFormFiles()
             .minus(GlobalSearchScope.fileScope(containingFile))
 
         val references = ProgressManager.getInstance().runProcess<Collection<PsiReference>>({

@@ -6,8 +6,6 @@ import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.search.LocalSearchScope
-import com.intellij.psi.search.SearchScope
 import com.solanteq.solar.plugin.file.L10nFileType
 import com.solanteq.solar.plugin.l10n.FormL10n
 import com.solanteq.solar.plugin.l10n.L10n
@@ -90,12 +88,6 @@ object L10nSearch {
                 return@mapNotNull FormL10n.fromElement(it)
             }
         }
-    }
-
-    fun getL10nFilesScope(initialScope: SearchScope) = when(initialScope) {
-        is GlobalSearchScope -> GlobalSearchScope.getScopeRestrictedByFileTypes(initialScope, L10nFileType)
-        is LocalSearchScope -> LocalSearchScope.getScopeRestrictedByFileTypes(initialScope, L10nFileType)
-        else -> initialScope
     }
 
 }

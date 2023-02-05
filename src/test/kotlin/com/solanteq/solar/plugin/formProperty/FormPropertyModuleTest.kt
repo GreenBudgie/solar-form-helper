@@ -9,8 +9,8 @@ class FormPropertyModuleTest : LightPluginTestBase() {
     fun `test form module reference`() {
         fixture.createForm(
             "testForm",
-            "{}",
-            "test"
+            "test",
+            "{}"
         )
 
         fixture.configureByFormText("""
@@ -27,18 +27,18 @@ class FormPropertyModuleTest : LightPluginTestBase() {
     fun `test form module completion`() {
         fixture.createForm(
             "testForm1",
-            "{}",
-            "test"
+            "test",
+            "{}"
         )
         fixture.createForm(
             "testForm2",
-            "{}",
-            "test"
+            "test",
+            "{}"
         )
         fixture.createForm(
             "testForm3",
-            "{}",
-            "test2"
+            "test2",
+            "{}"
         )
 
         fixture.createIncludedForm(
@@ -47,11 +47,13 @@ class FormPropertyModuleTest : LightPluginTestBase() {
             "{}"
         )
 
-        fixture.createFormAndConfigure("testForm", """
-            {
-              "form": "<caret>"
-            }
-        """.trimIndent(), "test")
+        fixture.createFormAndConfigure(
+            "testForm", "test", """
+                {
+                  "form": "<caret>"
+                }
+            """.trimIndent()
+        )
 
         assertCompletionsContainsExact(
             "test",
@@ -63,15 +65,17 @@ class FormPropertyModuleTest : LightPluginTestBase() {
     fun `test form module completion when form name is already filled in`() {
         fixture.createForm(
             "testForm1",
-            "{}",
-            "test"
+            "test",
+            "{}"
         )
 
-        fixture.createFormAndConfigure("testForm", """
-            {
-              "form": "<caret>.testForm"
-            }
-        """.trimIndent(), "test")
+        fixture.createFormAndConfigure(
+            "testForm", "test", """
+                {
+                  "form": "<caret>.testForm"
+                }
+            """.trimIndent()
+        )
 
         assertCompletionsContainsExact("test")
     }
@@ -80,8 +84,8 @@ class FormPropertyModuleTest : LightPluginTestBase() {
     fun `test form module rename`() {
         fixture.createForm(
             "testForm",
-            "{}",
-            "test"
+            "test",
+            "{}"
         )
 
         fixture.configureByFormText("""

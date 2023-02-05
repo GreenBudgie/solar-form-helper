@@ -18,11 +18,12 @@ class JsonIncludeFormReferenceTest : LightPluginTestBase() {
     ])
     fun `test reference to included form`(prefix: String) {
         fixture.createIncludedForm("includedForm", "test", "{}")
-        fixture.createFormAndConfigure("form", """
+        fixture.createFormAndConfigure("form", "module", """
             {
                 "$prefix://includes/forms/test/<caret>includedForm.json"
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         assertReferencedElementNameEquals("includedForm.json")
     }
@@ -30,11 +31,12 @@ class JsonIncludeFormReferenceTest : LightPluginTestBase() {
     @Test
     fun `test reference to included form with non convenient path`() {
         fixture.createIncludedForm("includedForm", "dir1/dir2", "{}")
-        fixture.createFormAndConfigure("form", """
+        fixture.createFormAndConfigure("form", "module", """
             {
                 "json://includes/forms/dir1/dir2/<caret>includedForm.json"
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         assertReferencedElementNameEquals("includedForm.json")
     }
@@ -42,11 +44,12 @@ class JsonIncludeFormReferenceTest : LightPluginTestBase() {
     @Test
     fun `test reference to included form with empty path`() {
         fixture.createIncludedForm("includedForm", "", "{}")
-        fixture.createFormAndConfigure("form", """
+        fixture.createFormAndConfigure("form", "module", """
             {
                 "json://includes/forms/<caret>includedForm.json"
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         assertReferencedElementNameEquals("includedForm.json")
     }

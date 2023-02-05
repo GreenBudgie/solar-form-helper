@@ -11,8 +11,8 @@ import com.intellij.refactoring.util.MoveRenameUsageInfo
 import com.intellij.usageView.UsageInfo
 import com.solanteq.solar.plugin.file.IncludedFormFileType
 import com.solanteq.solar.plugin.reference.include.JsonIncludeReference
-import com.solanteq.solar.plugin.search.FormSearch
 import com.solanteq.solar.plugin.util.isIncludedFormDirectory
+import com.solanteq.solar.plugin.util.restrictedByFormFiles
 import com.solanteq.solar.plugin.util.textRangeWithoutQuotes
 import org.jetbrains.kotlin.idea.base.util.projectScope
 
@@ -33,7 +33,7 @@ class IncludedFormMoveHandler : MoveFileHandler() {
         searchInNonJavaFiles: Boolean
     ): List<UsageInfo> {
         if(!newParent.isIncludedFormDirectory()) return emptyList()
-        val scope = FormSearch.getFormSearchScope(psiFile.project.projectScope())
+        val scope = psiFile.project.projectScope().restrictedByFormFiles()
         return ReferencesSearch.search(psiFile, scope)
             .filterIsInstance<JsonIncludeReference>()
             .map { MoveRenameUsageInfo(it, psiFile) }

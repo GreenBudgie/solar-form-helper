@@ -37,15 +37,17 @@ class L10nGroupTest : LightPluginTestBase() {
 
     @Test
     fun `test l10n group reference rename`() {
-        val formFile = fixture.createForm("testForm", """
-            {
-              "groups": [
+        val formFile = fixture.createForm(
+            "testForm", "test", """
                 {
-                  "name": "group1"
+                  "groups": [
+                    {
+                      "name": "group1"
+                    }
+                  ]
                 }
-              ]
-            }
-        """.trimIndent(), "test")
+            """.trimIndent()
+        )
 
         L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
             "test.form.testForm.<caret>group1" to "Group Name!"
@@ -69,15 +71,17 @@ class L10nGroupTest : LightPluginTestBase() {
 
     @Test
     fun `test l10n group declaration rename`() {
-        fixture.createFormAndConfigure("testForm", """
-            {
-              "groups": [
+        fixture.createFormAndConfigure(
+            "testForm", "test", """
                 {
-                  "name": "<caret>group1"
+                  "groups": [
+                    {
+                      "name": "<caret>group1"
+                    }
+                  ]
                 }
-              ]
-            }
-        """.trimIndent(), "test")
+            """.trimIndent()
+        )
 
         val l10nFile = L10nTestUtils.createL10nFile(fixture, "l10n",
             "test.form.testForm.group1" to "Group Name!"
@@ -96,11 +100,13 @@ class L10nGroupTest : LightPluginTestBase() {
 
     @Test
     fun `test l10n reference to group in included form`() {
-        fixture.createForm("rootForm", """
-            {
-              "groups": "json://includes/forms/test/includedForm.json"
-            }
-        """.trimIndent(), "test")
+        fixture.createForm(
+            "rootForm", "test", """
+                {
+                  "groups": "json://includes/forms/test/includedForm.json"
+                }
+            """.trimIndent()
+        )
 
         fixture.createIncludedForm("includedForm", "test", """
             [
@@ -130,13 +136,15 @@ class L10nGroupTest : LightPluginTestBase() {
             }
         """.trimIndent()
 
-        fixture.createForm("rootForm", """
-            {
-              "groups": [
-                "json://includes/forms/test/includedForm.json"
-              ]
-            }
-        """.trimIndent(), "test")
+        fixture.createForm(
+            "rootForm", "test", """
+                {
+                  "groups": [
+                    "json://includes/forms/test/includedForm.json"
+                  ]
+                }
+            """.trimIndent()
+        )
 
         val form = fixture.createIncludedForm("includedForm", "test", formTextBefore)
 

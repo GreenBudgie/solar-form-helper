@@ -19,7 +19,7 @@ class IncludedFormMoveTest : LightPluginTestBase() {
             {"groups": "json://includes/forms/dir1_moved/includedForm.json"}
         """.trimIndent()
 
-        val form = fixture.createForm("references", textBefore, "test")
+        val form = fixture.createForm("references", "test", textBefore)
         val formToMove = fixture.createIncludedForm("includedForm", "dir1", "{}")
         MoveTestUtils.moveIncludedForm(fixture, formToMove, "dir1_moved")
 
@@ -35,7 +35,7 @@ class IncludedFormMoveTest : LightPluginTestBase() {
             {"groups": "json://includes/forms/dir1/dir2_moved/dir3_moved/includedForm.json"}
         """.trimIndent()
 
-        val form = fixture.createForm("references", textBefore, "test")
+        val form = fixture.createForm("references", "test", textBefore)
         val formToMove = fixture.createIncludedForm("includedForm", "dir1/dir2/dir3", "{}")
         MoveTestUtils.moveIncludedForm(fixture, formToMove, "dir1/dir2_moved/dir3_moved")
 
@@ -51,7 +51,7 @@ class IncludedFormMoveTest : LightPluginTestBase() {
             {"groups": "json://includes/forms/dir1/dir2/dir3/includedForm.json"}
         """.trimIndent()
 
-        val form = fixture.createForm("references", textBefore, "test")
+        val form = fixture.createForm("references", "test", textBefore)
         val formToMove = fixture.createIncludedForm("includedForm", "dir1", "{}")
         MoveTestUtils.moveIncludedForm(fixture, formToMove, "dir1/dir2/dir3")
 
@@ -75,7 +75,7 @@ class IncludedFormMoveTest : LightPluginTestBase() {
             }
         """.trimIndent()
 
-        val form = fixture.createForm("references", textBefore, "test")
+        val form = fixture.createForm("references", "test", textBefore)
         fixture.createIncludedForm("includedForm1", "dir1/dir2", "{}")
         fixture.createIncludedForm("includedForm2", "dir1/dir2", "{}")
         fixture.createIncludedForm("includedForm3", "dir1/dir2", "{}")
@@ -98,7 +98,7 @@ class IncludedFormMoveTest : LightPluginTestBase() {
             }
         """.trimIndent()
 
-        val form = fixture.createForm("references", text, "test")
+        val form = fixture.createForm("references", "test", text)
         fixture.createIncludedForm("includedForm1", "dir1/dir2", "{}")
         fixture.createIncludedForm("includedForm2", "dir1/dir2", "{}")
         fixture.createIncludedForm("includedForm3", "dir1/dir2", "{}")

@@ -244,51 +244,57 @@ class FieldTest : JavaPluginTestBase() {
             "TestServiceImpl.kt"
         )
 
-        fixture.createForm("dataClass", """
-            {
-              "groups": [
+        fixture.createForm(
+            "dataClass", "abc1", """
                 {
-                  "inline": {
-                    "form": "test.testForm",
-                    "request": {
-                      "name": "test.testService.findDataList"
-                    }
-                  }
-                }
-              ]
-            }
-        """.trimIndent(), "abc1")
-
-        fixture.createForm("cls", """
-            {
-              "groups": [
-                {
-                  "inline": {
-                    "form": "test.testForm",
-                    "request": "test.testService.findDataClsList"
-                  }
-                }
-              ]
-            }
-        """.trimIndent(), "abc2")
-
-        fixture.createFormAndConfigure("testForm", """
-            {
-              "groups": [
-                {
-                  "rows": [
+                  "groups": [
                     {
-                      "fields": [
+                      "inline": {
+                        "form": "test.testForm",
+                        "request": {
+                          "name": "test.testService.findDataList"
+                        }
+                      }
+                    }
+                  ]
+                }
+            """.trimIndent()
+        )
+
+        fixture.createForm(
+            "cls", "abc2", """
+                {
+                  "groups": [
+                    {
+                      "inline": {
+                        "form": "test.testForm",
+                        "request": "test.testService.findDataClsList"
+                      }
+                    }
+                  ]
+                }
+            """.trimIndent()
+        )
+
+        fixture.createFormAndConfigure(
+            "testForm", "test", """
+                {
+                  "groups": [
+                    {
+                      "rows": [
                         {
-                          "name": "<caret>"
+                          "fields": [
+                            {
+                              "name": "<caret>"
+                            }
+                          ]
                         }
                       ]
                     }
                   ]
                 }
-              ]
-            }
-        """.trimIndent(), "test")
+            """.trimIndent()
+        )
 
         assertCompletionsContainsExact(
             "a", //From Cls
@@ -309,36 +315,40 @@ class FieldTest : JavaPluginTestBase() {
             "DataClass.kt"
         )
 
-        fixture.createForm("dataClass", """
-            {
-              "groups": [
+        fixture.createForm(
+            "dataClass", "abc", """
                 {
-                  "inline": {
-                    "form": "test.testForm",
-                    "request": "test.customService.findDataList"
-                  }
-                }
-              ]
-            }
-        """.trimIndent(), "abc")
-
-        fixture.createFormAndConfigure("testForm", """
-            {
-              "groups": [
-                {
-                  "rows": [
+                  "groups": [
                     {
-                      "fields": [
+                      "inline": {
+                        "form": "test.testForm",
+                        "request": "test.customService.findDataList"
+                      }
+                    }
+                  ]
+                }
+            """.trimIndent()
+        )
+
+        fixture.createFormAndConfigure(
+            "testForm", "test", """
+                {
+                  "groups": [
+                    {
+                      "rows": [
                         {
-                          "name": "<caret>"
+                          "fields": [
+                            {
+                              "name": "<caret>"
+                            }
+                          ]
                         }
                       ]
                     }
                   ]
                 }
-              ]
-            }
-        """.trimIndent(), "test")
+            """.trimIndent()
+        )
 
         assertCompletionsContainsExact(
             "stringField",
@@ -357,36 +367,40 @@ class FieldTest : JavaPluginTestBase() {
             "DataClass.kt"
         )
 
-        fixture.createForm("dataClass", """
-            {
-              "groups": [
+        fixture.createForm(
+            "dataClass", "abc", """
                 {
-                  "inline": {
-                    "form": "test.testForm",
-                    "request": "test.customService.findDataList"
-                  }
-                }
-              ]
-            }
-        """.trimIndent(), "abc")
-
-        fixture.createFormAndConfigure("testForm", """
-            {
-              "groups": [
-                {
-                  "rows": [
+                  "groups": [
                     {
-                      "fields": [
+                      "inline": {
+                        "form": "test.testForm",
+                        "request": "test.customService.findDataList"
+                      }
+                    }
+                  ]
+                }
+            """.trimIndent()
+        )
+
+        fixture.createFormAndConfigure(
+            "testForm", "test", """
+                {
+                  "groups": [
+                    {
+                      "rows": [
                         {
-                          "name": "<caret>stringField"
+                          "fields": [
+                            {
+                              "name": "<caret>stringField"
+                            }
+                          ]
                         }
                       ]
                     }
                   ]
                 }
-              ]
-            }
-        """.trimIndent(), "test")
+            """.trimIndent()
+        )
 
         assertReferencedElementNameEquals("stringField")
     }
@@ -399,38 +413,42 @@ class FieldTest : JavaPluginTestBase() {
             "TestServiceImpl.kt"
         )
 
-        fixture.createForm("dataClass", """
-            {
-              "groups": [
+        fixture.createForm(
+            "dataClass", "abc", """
                 {
-                  "inline": {
-                    "form": "test.testForm",
-                    "request": {
-                      "name": "test.testService.findDataList"
-                    }
-                  }
-                }
-              ]
-            }
-        """.trimIndent(), "abc")
-
-        fixture.createFormAndConfigure("testForm", """
-            {
-              "groups": [
-                {
-                  "rows": [
+                  "groups": [
                     {
-                      "fields": [
+                      "inline": {
+                        "form": "test.testForm",
+                        "request": {
+                          "name": "test.testService.findDataList"
+                        }
+                      }
+                    }
+                  ]
+                }
+            """.trimIndent()
+        )
+
+        fixture.createFormAndConfigure(
+            "testForm", "test", """
+                {
+                  "groups": [
+                    {
+                      "rows": [
                         {
-                          "name": "<caret>stringField"
+                          "fields": [
+                            {
+                              "name": "<caret>stringField"
+                            }
+                          ]
                         }
                       ]
                     }
                   ]
                 }
-              ]
-            }
-        """.trimIndent(), "test")
+            """.trimIndent()
+        )
 
         assertReferencedElementNameEquals("stringField")
     }
@@ -443,20 +461,22 @@ class FieldTest : JavaPluginTestBase() {
             "TestServiceImpl.kt",
         )
 
-        fixture.createForm("rootForm", """
-            {
-              "source": "test.testService.findData",
-              "groups": [
+        fixture.createForm(
+            "rootForm", "test", """
                 {
-                  "rows": [
+                  "source": "test.testService.findData",
+                  "groups": [
                     {
-                      "fields": "json://includes/forms/test2/includedForm.json"
+                      "rows": [
+                        {
+                          "fields": "json://includes/forms/test2/includedForm.json"
+                        }
+                      ]
                     }
                   ]
                 }
-              ]
-            }
-        """.trimIndent(), "test")
+            """.trimIndent()
+        )
 
         fixture.createIncludedFormAndConfigure("includedForm", "test2", """
             [
@@ -479,35 +499,39 @@ class FieldTest : JavaPluginTestBase() {
             "SuperCls.java"
         )
 
-        fixture.createForm("dataClassForm", """
-            {
-              "source": "test.testService.findData",
-              "groups": [
+        fixture.createForm(
+            "dataClassForm", "test", """
                 {
-                  "rows": [
+                  "source": "test.testService.findData",
+                  "groups": [
                     {
-                      "fields": "json://includes/forms/test2/includedForm.json"
+                      "rows": [
+                        {
+                          "fields": "json://includes/forms/test2/includedForm.json"
+                        }
+                      ]
                     }
                   ]
                 }
-              ]
-            }
-        """.trimIndent(), "test")
+            """.trimIndent()
+        )
 
-        fixture.createForm("clsForm", """
-            {
-              "source": "test.testService.findDataClassWithSuperClass",
-              "groups": [
+        fixture.createForm(
+            "clsForm", "test", """
                 {
-                  "rows": [
+                  "source": "test.testService.findDataClassWithSuperClass",
+                  "groups": [
                     {
-                      "fields": "json://includes/forms/test2/includedForm.json"
+                      "rows": [
+                        {
+                          "fields": "json://includes/forms/test2/includedForm.json"
+                        }
+                      ]
                     }
                   ]
                 }
-              ]
-            }
-        """.trimIndent(), "test")
+            """.trimIndent()
+        )
 
         fixture.createIncludedFormAndConfigure("includedForm", "test2", """
             [
@@ -534,22 +558,24 @@ class FieldTest : JavaPluginTestBase() {
             "TestServiceImpl.kt",
         )
 
-        fixture.createForm("rootForm", """
-            {
-              "source": "test.testService.findData",
-              "groups": [
+        fixture.createForm(
+            "rootForm", "test", """
                 {
-                  "rows": [
+                  "source": "test.testService.findData",
+                  "groups": [
                     {
-                      "fields": [
-                        "json-flat://includes/forms/test2/includedForm.json"
+                      "rows": [
+                        {
+                          "fields": [
+                            "json-flat://includes/forms/test2/includedForm.json"
+                          ]
+                        }
                       ]
                     }
                   ]
                 }
-              ]
-            }
-        """.trimIndent(), "test")
+            """.trimIndent()
+        )
 
         fixture.createIncludedFormAndConfigure("includedForm", "test2", """
             [
@@ -570,22 +596,24 @@ class FieldTest : JavaPluginTestBase() {
             "TestServiceImpl.kt",
         )
 
-        fixture.createForm("rootForm", """
-            {
-              "source": "test.testService.findData",
-              "groups": [
+        fixture.createForm(
+            "rootForm", "test", """
                 {
-                  "rows": [
+                  "source": "test.testService.findData",
+                  "groups": [
                     {
-                      "fields": [
-                        "json-flat://includes/forms/test2/includedForm.json"
+                      "rows": [
+                        {
+                          "fields": [
+                            "json-flat://includes/forms/test2/includedForm.json"
+                          ]
+                        }
                       ]
                     }
                   ]
                 }
-              ]
-            }
-        """.trimIndent(), "test")
+            """.trimIndent()
+        )
 
         fixture.createIncludedFormAndConfigure("includedForm", "test2", """
             [
@@ -611,44 +639,48 @@ class FieldTest : JavaPluginTestBase() {
             "TestServiceImpl.kt",
         )
 
-        fixture.createForm("formWithListField", """
-            {
-              "source": "test.testService.findDataWithList",
-              "groups": [
+        fixture.createForm(
+            "formWithListField", "test", """
                 {
-                  "rows": [
+                  "source": "test.testService.findDataWithList",
+                  "groups": [
                     {
-                      "fields": [
+                      "rows": [
                         {
-                          "name": "dataClassList",
-                          "type": "LIST",
-                          "form": "test.listForm"
+                          "fields": [
+                            {
+                              "name": "dataClassList",
+                              "type": "LIST",
+                              "form": "test.listForm"
+                            }
+                          ]
                         }
                       ]
                     }
                   ]
                 }
-              ]
-            }
-        """.trimIndent(), "test")
+            """.trimIndent()
+        )
 
-        fixture.createFormAndConfigure("listForm", """
-            {
-              "groups": [
+        fixture.createFormAndConfigure(
+            "listForm", "test", """
                 {
-                  "rows": [
+                  "groups": [
                     {
-                      "fields": [
+                      "rows": [
                         {
-                          "name": "stringField<caret>"
+                          "fields": [
+                            {
+                              "name": "stringField<caret>"
+                            }
+                          ]
                         }
                       ]
                     }
                   ]
                 }
-              ]
-            }
-        """.trimIndent(), "test")
+            """.trimIndent()
+        )
 
         assertReferencedElementNameEquals("stringField")
     }
@@ -662,44 +694,48 @@ class FieldTest : JavaPluginTestBase() {
             "TestServiceImpl.kt",
         )
 
-        fixture.createForm("formWithListField", """
-            {
-              "source": "test.testService.findDataWithList",
-              "groups": [
+        fixture.createForm(
+            "formWithListField", "test", """
                 {
-                  "rows": [
+                  "source": "test.testService.findDataWithList",
+                  "groups": [
                     {
-                      "fields": [
+                      "rows": [
                         {
-                          "name": "dataClassList",
-                          "type": "LIST",
-                          "form": "test.listForm"
+                          "fields": [
+                            {
+                              "name": "dataClassList",
+                              "type": "LIST",
+                              "form": "test.listForm"
+                            }
+                          ]
                         }
                       ]
                     }
                   ]
                 }
-              ]
-            }
-        """.trimIndent(), "test")
+            """.trimIndent()
+        )
 
-        fixture.createFormAndConfigure("listForm", """
-            {
-              "groups": [
+        fixture.createFormAndConfigure(
+            "listForm", "test", """
                 {
-                  "rows": [
+                  "groups": [
                     {
-                      "fields": [
+                      "rows": [
                         {
-                          "name": "<caret>"
+                          "fields": [
+                            {
+                              "name": "<caret>"
+                            }
+                          ]
                         }
                       ]
                     }
                   ]
                 }
-              ]
-            }
-        """.trimIndent(), "test")
+            """.trimIndent()
+        )
 
         assertCompletionsContainsExact(
             "stringField",

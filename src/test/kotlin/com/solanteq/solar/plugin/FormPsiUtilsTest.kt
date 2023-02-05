@@ -10,15 +10,17 @@ class FormPsiUtilsTest : LightPluginTestBase() {
 
     @Test
     fun `test first parents of type on root form`() {
-        fixture.createFormAndConfigure("rootForm", """
-            {
-              "objectProperty": {
-                "arrayProperty": [
-                  "<caret>"
-                ]
-              }
-            }
-        """.trimIndent(), "test")
+        fixture.createFormAndConfigure(
+            "rootForm", "test", """
+                {
+                  "objectProperty": {
+                    "arrayProperty": [
+                      "<caret>"
+                    ]
+                  }
+                }
+            """.trimIndent()
+        )
 
         val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
 
@@ -34,13 +36,15 @@ class FormPsiUtilsTest : LightPluginTestBase() {
 
     @Test
     fun `test first parents of type in included form to root form`() {
-        fixture.createForm("rootForm", """
-            {
-              "objectProperty": {
-                "arrayProperty": "json://includes/forms/test/includedForm.json"
-              }
-            }
-        """.trimIndent(), "test")
+        fixture.createForm(
+            "rootForm", "test", """
+                {
+                  "objectProperty": {
+                    "arrayProperty": "json://includes/forms/test/includedForm.json"
+                  }
+                }
+            """.trimIndent()
+        )
 
         fixture.createIncludedFormAndConfigure("includedForm", "test", """
             [
@@ -70,21 +74,25 @@ class FormPsiUtilsTest : LightPluginTestBase() {
 
     @Test
     fun `test find multiple first parents`() {
-        fixture.createForm("rootForm", """
-            {
-              "objectProperty": {
-                "arrayProperty": "json://includes/forms/test/includedForm.json"
-              }
-            }
-        """.trimIndent(), "test")
+        fixture.createForm(
+            "rootForm", "test", """
+                {
+                  "objectProperty": {
+                    "arrayProperty": "json://includes/forms/test/includedForm.json"
+                  }
+                }
+            """.trimIndent()
+        )
 
-        fixture.createForm("rootForm2", """
-            {
-              "objectProperty2": {
-                "arrayProperty": "json://includes/forms/test/includedForm.json"
-              }
-            }
-        """.trimIndent(), "test")
+        fixture.createForm(
+            "rootForm2", "test", """
+                {
+                  "objectProperty2": {
+                    "arrayProperty": "json://includes/forms/test/includedForm.json"
+                  }
+                }
+            """.trimIndent()
+        )
 
         fixture.createIncludedFormAndConfigure("includedForm", "test", """
             [
@@ -106,17 +114,21 @@ class FormPsiUtilsTest : LightPluginTestBase() {
 
     @Test
     fun `test multiple parents`() {
-        fixture.createForm("rootForm", """
-            {
-              "objectProperty": "json://includes/forms/test/includedForm.json"
-            }
-        """.trimIndent(), "test")
+        fixture.createForm(
+            "rootForm", "test", """
+                {
+                  "objectProperty": "json://includes/forms/test/includedForm.json"
+                }
+            """.trimIndent()
+        )
 
-        fixture.createForm("rootForm2", """
-            {
-              "objectProperty2": "json://includes/forms/test/includedForm.json"
-            }
-        """.trimIndent(), "test")
+        fixture.createForm(
+            "rootForm2", "test", """
+                {
+                  "objectProperty2": "json://includes/forms/test/includedForm.json"
+                }
+            """.trimIndent()
+        )
 
         fixture.createIncludedFormAndConfigure("includedForm", "test", """
             <caret>{
@@ -138,19 +150,23 @@ class FormPsiUtilsTest : LightPluginTestBase() {
 
     @Test
     fun `test isPropertyValueWithKey for included form`() {
-        fixture.createForm("rootForm", """
-            {
-              "objectProperty": "json://includes/forms/test/includedForm.json"
-            }
-        """.trimIndent(), "test")
+        fixture.createForm(
+            "rootForm", "test", """
+                {
+                  "objectProperty": "json://includes/forms/test/includedForm.json"
+                }
+            """.trimIndent()
+        )
 
-        fixture.createForm("rootForm2", """
-            {
-              "arrayProperty": [
-                "json://includes/forms/test/includedForm.json"
-              ]
-            }
-        """.trimIndent(), "test")
+        fixture.createForm(
+            "rootForm2", "test", """
+                {
+                  "arrayProperty": [
+                    "json://includes/forms/test/includedForm.json"
+                  ]
+                }
+            """.trimIndent()
+        )
 
         fixture.createIncludedFormAndConfigure("includedForm", "test", """
             <caret>{
@@ -165,13 +181,15 @@ class FormPsiUtilsTest : LightPluginTestBase() {
 
     @Test
     fun `test isInObjectWithKey for included form`() {
-        fixture.createForm("rootForm", """
-            {
-              "objectProperty": {
-                "value": "json://includes/forms/test/includedForm.json"
-              }
-            }
-        """.trimIndent(), "test")
+        fixture.createForm(
+            "rootForm", "test", """
+                {
+                  "objectProperty": {
+                    "value": "json://includes/forms/test/includedForm.json"
+                  }
+                }
+            """.trimIndent()
+        )
 
         fixture.createIncludedFormAndConfigure("includedForm", "test", """
             [
@@ -186,11 +204,13 @@ class FormPsiUtilsTest : LightPluginTestBase() {
 
     @Test
     fun `test isInObjectWithKey for included form as direct object value`() {
-        fixture.createForm("rootForm", """
-            {
-              "objectProperty": "json://includes/forms/test/includedForm.json"
-            }
-        """.trimIndent(), "test")
+        fixture.createForm(
+            "rootForm", "test", """
+                {
+                  "objectProperty": "json://includes/forms/test/includedForm.json"
+                }
+            """.trimIndent()
+        )
 
         fixture.createIncludedFormAndConfigure("includedForm", "test", """
             {
@@ -205,13 +225,15 @@ class FormPsiUtilsTest : LightPluginTestBase() {
 
     @Test
     fun `test isInArrayWithKey for included form`() {
-        fixture.createForm("rootForm", """
-            {
-              "arrayProperty": [
-                "json://includes/forms/test/includedForm.json"
-              ]
-            }
-        """.trimIndent(), "test")
+        fixture.createForm(
+            "rootForm", "test", """
+                {
+                  "arrayProperty": [
+                    "json://includes/forms/test/includedForm.json"
+                  ]
+                }
+            """.trimIndent()
+        )
 
         fixture.createIncludedFormAndConfigure("includedForm", "test", """
             {
@@ -226,11 +248,13 @@ class FormPsiUtilsTest : LightPluginTestBase() {
 
     @Test
     fun `test isInArrayWithKey for included form as direct array value`() {
-        fixture.createForm("rootForm", """
-            {
-              "arrayProperty": "json://includes/forms/test/includedForm.json"
-            }
-        """.trimIndent(), "test")
+        fixture.createForm(
+            "rootForm", "test", """
+                {
+                  "arrayProperty": "json://includes/forms/test/includedForm.json"
+                }
+            """.trimIndent()
+        )
 
         fixture.createIncludedFormAndConfigure("includedForm", "test", """
             [
@@ -247,13 +271,15 @@ class FormPsiUtilsTest : LightPluginTestBase() {
 
     @Test
     fun `test isInArrayWithKey for included form with json-flat declaration`() {
-        fixture.createForm("rootForm", """
-            {
-              "arrayProperty": [
-                "json-flat://includes/forms/test/includedForm.json"
-              ]
-            }
-        """.trimIndent(), "test")
+        fixture.createForm(
+            "rootForm", "test", """
+                {
+                  "arrayProperty": [
+                    "json-flat://includes/forms/test/includedForm.json"
+                  ]
+                }
+            """.trimIndent()
+        )
 
         fixture.createIncludedFormAndConfigure("includedForm", "test", """
             [
@@ -270,13 +296,15 @@ class FormPsiUtilsTest : LightPluginTestBase() {
 
     @Test
     fun `test isInArrayWithKey for included form with json-flat declaration 2x deep`() {
-        fixture.createForm("rootForm", """
-            {
-              "arrayProperty": [
-                "json-flat://includes/forms/test/includedForm1.json"
-              ]
-            }
-        """.trimIndent(), "test")
+        fixture.createForm(
+            "rootForm", "test", """
+                {
+                  "arrayProperty": [
+                    "json-flat://includes/forms/test/includedForm1.json"
+                  ]
+                }
+            """.trimIndent()
+        )
 
         fixture.createIncludedFormAndConfigure("includedForm1", "test", """
             [
@@ -316,11 +344,13 @@ class FormPsiUtilsTest : LightPluginTestBase() {
 
     @Test
     fun `test isInObjectInArrayWithKey for included form positive scenario property`() {
-        fixture.createForm("rootForm", """
-            {
-              "fields": "json://includes/forms/test/includedForm.json"
-            }
-        """.trimIndent(), "test")
+        fixture.createForm(
+            "rootForm", "test", """
+                {
+                  "fields": "json://includes/forms/test/includedForm.json"
+                }
+            """.trimIndent()
+        )
 
         fixture.createIncludedFormAndConfigure("includedForm", "test", """
             [
@@ -337,13 +367,15 @@ class FormPsiUtilsTest : LightPluginTestBase() {
 
     @Test
     fun `test isInObjectInArrayWithKey for flat included form positive scenario property`() {
-        fixture.createForm("rootForm", """
-            {
-              "fields": [
-                "json-flat://includes/forms/test/includedForm.json"
-              ]
-            }
-        """.trimIndent(), "test")
+        fixture.createForm(
+            "rootForm", "test", """
+                {
+                  "fields": [
+                    "json-flat://includes/forms/test/includedForm.json"
+                  ]
+                }
+            """.trimIndent()
+        )
 
         fixture.createIncludedFormAndConfigure("includedForm", "test", """
             [
@@ -395,13 +427,15 @@ class FormPsiUtilsTest : LightPluginTestBase() {
 
     @Test
     fun `test isInObjectInArrayWithKey for included form negative scenario inner object property`() {
-        fixture.createForm("rootForm", """
-            {
-              "fields": [
-                "json://includes/forms/test/includedForm.json"
-              ]
-            }
-        """.trimIndent(), "test")
+        fixture.createForm(
+            "rootForm", "test", """
+                {
+                  "fields": [
+                    "json://includes/forms/test/includedForm.json"
+                  ]
+                }
+            """.trimIndent()
+        )
 
         fixture.createIncludedFormAndConfigure("includedForm", "test", """
             {
@@ -419,19 +453,23 @@ class FormPsiUtilsTest : LightPluginTestBase() {
 
     @Test
     fun `test different first parents for flat and non-flat json include declarations`() {
-        fixture.createForm("rootForm1", """
-            {
-              "arrayProperty": [
-                "json-flat://includes/forms/test/includedForm.json"
-              ]
-            }
-        """.trimIndent(), "test")
+        fixture.createForm(
+            "rootForm1", "test", """
+                {
+                  "arrayProperty": [
+                    "json-flat://includes/forms/test/includedForm.json"
+                  ]
+                }
+            """.trimIndent()
+        )
 
-        fixture.createForm("rootForm2", """
-            {
-              "arrayProperty": "json://includes/forms/test/includedForm.json"
-            }
-        """.trimIndent(), "test")
+        fixture.createForm(
+            "rootForm2", "test", """
+                {
+                  "arrayProperty": "json://includes/forms/test/includedForm.json"
+                }
+            """.trimIndent()
+        )
 
         fixture.createIncludedFormAndConfigure("includedForm", "test", """
             [
@@ -457,19 +495,23 @@ class FormPsiUtilsTest : LightPluginTestBase() {
 
     @Test
     fun `test different parents for flat and non-flat json include declarations`() {
-        fixture.createForm("rootForm1", """
-            {
-              "arrayProperty": [
-                "json-flat://includes/forms/test/includedForm.json"
-              ]
-            }
-        """.trimIndent(), "test")
+        fixture.createForm(
+            "rootForm1", "test", """
+                {
+                  "arrayProperty": [
+                    "json-flat://includes/forms/test/includedForm.json"
+                  ]
+                }
+            """.trimIndent()
+        )
 
-        fixture.createForm("rootForm2", """
-            {
-              "arrayProperty": "json://includes/forms/test/includedForm.json"
-            }
-        """.trimIndent(), "test")
+        fixture.createForm(
+            "rootForm2", "test", """
+                {
+                  "arrayProperty": "json://includes/forms/test/includedForm.json"
+                }
+            """.trimIndent()
+        )
 
         fixture.createIncludedFormAndConfigure("includedForm", "test", """
             [
@@ -494,19 +536,23 @@ class FormPsiUtilsTest : LightPluginTestBase() {
 
     @Test
     fun `test different parents for flat and non-flat json include declarations 2x deep`() {
-        fixture.createForm("rootForm1", """
-            {
-              "arrayProperty": [
-                "json-flat://includes/forms/test/includedForm1.json"
-              ]
-            }
-        """.trimIndent(), "test")
+        fixture.createForm(
+            "rootForm1", "test", """
+                {
+                  "arrayProperty": [
+                    "json-flat://includes/forms/test/includedForm1.json"
+                  ]
+                }
+            """.trimIndent()
+        )
 
-        fixture.createForm("rootForm2", """
-            {
-              "arrayProperty": "json://includes/forms/test/includedForm1.json"
-            }
-        """.trimIndent(), "test")
+        fixture.createForm(
+            "rootForm2", "test", """
+                {
+                  "arrayProperty": "json://includes/forms/test/includedForm1.json"
+                }
+            """.trimIndent()
+        )
 
         fixture.createIncludedFormAndConfigure("includedForm1", "test", """
             [
@@ -537,11 +583,13 @@ class FormPsiUtilsTest : LightPluginTestBase() {
 
     @Test
     fun `test get property value as json include declaration`() {
-        fixture.createFormAndConfigure("rootForm", """
-            {
-              "<caret>property": "json://includes/forms/test/includedForm.json"
-            }
-        """.trimIndent(), "test")
+        fixture.createFormAndConfigure(
+            "rootForm", "test", """
+                {
+                  "<caret>property": "json://includes/forms/test/includedForm.json"
+                }
+            """.trimIndent()
+        )
 
         fixture.createIncludedForm("includedForm", "test", """
             [

@@ -19,7 +19,7 @@ class RootFormMoveTest : LightPluginTestBase() {
             {"module": "test2"}
         """.trimIndent()
 
-        val form = fixture.createForm("test", textBefore, "test")
+        val form = fixture.createForm("test", "test", textBefore)
         MoveTestUtils.moveRootForm(fixture, form, "test2")
 
         Assertions.assertEquals(textAfter, form.text)
@@ -34,8 +34,8 @@ class RootFormMoveTest : LightPluginTestBase() {
             {"form": "test2.testForm"}
         """.trimIndent()
 
-        val form = fixture.createForm("references", textBefore, "test")
-        val formToMove = fixture.createForm("testForm", "{}", "test")
+        val form = fixture.createForm("references", "test", textBefore)
+        val formToMove = fixture.createForm("testForm", "test", "{}")
         MoveTestUtils.moveRootForm(fixture, formToMove, "test2")
 
         Assertions.assertEquals(textAfter, form.text)
@@ -50,7 +50,7 @@ class RootFormMoveTest : LightPluginTestBase() {
         val l10nFile = L10nTestUtils.createL10nFile(fixture, "l10n",
             "test.form.testForm.randomText" to "Test l10n"
         )
-        val formToMove = fixture.createForm("testForm", "{}", "test")
+        val formToMove = fixture.createForm("testForm", "test", "{}")
         MoveTestUtils.moveRootForm(fixture, formToMove, "test2")
 
         Assertions.assertEquals(textAfter, l10nFile.text)
@@ -66,10 +66,10 @@ class RootFormMoveTest : LightPluginTestBase() {
             }
         """.trimIndent()
 
-        val form = fixture.createForm("testForm", text, "test3")
-        fixture.createForm("form1", "{}", "test")
-        fixture.createForm("form2", "{}", "test")
-        fixture.createForm("form3", "{}", "test")
+        val form = fixture.createForm("testForm", "test3", text)
+        fixture.createForm("form1", "test", "{}")
+        fixture.createForm("form2", "test", "{}")
+        fixture.createForm("form3", "test", "{}")
 
         val directory = fixture.findFileInTempDir("main/resources/config/forms/test")
             .toPsiDirectory(fixture.project)!!

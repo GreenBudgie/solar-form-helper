@@ -33,14 +33,11 @@ fun CodeInsightTestFixture.createDirectory(
  */
 fun CodeInsightTestFixture.createForm(
     formName: String,
-    text: String,
-    module: String? = null
+    module: String,
+    text: String
 ): JsonFile {
-    val realFileName = "$formName.json"
-    val modulePath = if(module == null) "" else "$module/"
-
     return addFileToProject(
-        "main/resources/config/forms/$modulePath$realFileName",
+        "main/resources/config/forms/$module/$formName.json",
         text
     ) as JsonFile
 }
@@ -94,10 +91,10 @@ fun CodeInsightTestFixture.createIncludedFormAndConfigure(
  */
 fun CodeInsightTestFixture.createFormAndConfigure(
     formName: String,
-    text: String,
-    module: String? = null
+    module: String,
+    text: String
 ): JsonFile {
-    val psiFormFile = createForm(formName, text, module)
+    val psiFormFile = createForm(formName, module, text)
     configureFromExistingVirtualFile(psiFormFile.virtualFile)
     return file as JsonFile
 }
@@ -105,10 +102,9 @@ fun CodeInsightTestFixture.createFormAndConfigure(
 /**
  * Copies forms from testData directory to the correct directory and opens the first form in editor
  */
-fun CodeInsightTestFixture.configureByForms(vararg formPaths: String, module: String? = null): JsonFile? {
-    val modulePath = if(module == null) "" else "$module/"
+fun CodeInsightTestFixture.configureByForms(vararg formPaths: String, module: String): JsonFile? {
     val virtualFiles = formPaths.map {
-        copyFileToProject(it, "main/resources/config/forms/$modulePath$it")
+        copyFileToProject(it, "main/resources/config/forms/$module/$it")
     }
     virtualFiles.firstOrNull()?.let { configureFromExistingVirtualFile(it) }
     return file as? JsonFile

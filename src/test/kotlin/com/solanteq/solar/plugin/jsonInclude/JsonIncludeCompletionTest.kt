@@ -14,11 +14,12 @@ class JsonIncludeCompletionTest : LightPluginTestBase() {
         fixture.createIncludedForm("includedForm3", "differentPath", "{}")
         fixture.createIncludedForm("includedForm4", "dir1/differentPath", "{}")
         fixture.createIncludedForm("includedForm5", "", "{}")
-        fixture.createFormAndConfigure("form", """
+        fixture.createFormAndConfigure("form", "module", """
             {
                 "json://includes/forms/dir1/<caret>"
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         assertCompletionsContainsExact(
             "includedForm1.json",
@@ -34,11 +35,12 @@ class JsonIncludeCompletionTest : LightPluginTestBase() {
         fixture.createIncludedForm("includedForm3", "differentPath", "{}")
         fixture.createIncludedForm("includedForm4", "dir1/differentPath", "{}")
         fixture.createIncludedForm("includedForm4", "dir1/dir2/dir3", "{}")
-        fixture.createFormAndConfigure("form", """
+        fixture.createFormAndConfigure("form", "module", """
             {
                 "json://includes/forms/dir1/dir2/<caret>"
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         assertCompletionsContainsExact(
             "includedForm1.json",
@@ -53,11 +55,12 @@ class JsonIncludeCompletionTest : LightPluginTestBase() {
         fixture.createIncludedForm("includedForm2", "", "{}")
         fixture.createIncludedForm("includedForm3", "dir1", "{}")
         fixture.createIncludedForm("includedForm4", "dir2/dir3", "{}")
-        fixture.createFormAndConfigure("form", """
+        fixture.createFormAndConfigure("form", "module", """
             {
                 "json://includes/forms/<caret>"
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         assertCompletionsContainsExact(
             "includedForm1.json",
@@ -71,11 +74,12 @@ class JsonIncludeCompletionTest : LightPluginTestBase() {
     fun `test json include completion between slashes empty path`() {
         fixture.createIncludedForm("includedForm1", "", "{}")
         fixture.createIncludedForm("includedForm2", "test", "{}")
-        fixture.createFormAndConfigure("form", """
+        fixture.createFormAndConfigure("form", "module", """
             {
                 "json://includes/forms/<caret>//someText///"
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         assertCompletionsContainsExact(
             "includedForm1.json",
@@ -89,11 +93,12 @@ class JsonIncludeCompletionTest : LightPluginTestBase() {
         fixture.createIncludedForm("includedForm2", "test1", "{}")
         fixture.createIncludedForm("includedForm3", "test1", "{}")
         fixture.createIncludedForm("includedForm4", "test1/test2", "{}")
-        fixture.createFormAndConfigure("form", """
+        fixture.createFormAndConfigure("form", "module", """
             {
                 "json://includes/forms/test1/<caret>/"
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         assertCompletionsContainsExact(
             "includedForm2.json",

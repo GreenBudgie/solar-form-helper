@@ -1,10 +1,10 @@
 package com.solanteq.solar.plugin.l10n.group
 
 import com.intellij.psi.search.SearchScope
-import com.solanteq.solar.plugin.l10n.search.L10nSearch
 import com.solanteq.solar.plugin.symbol.FormSymbol
 import com.solanteq.solar.plugin.symbol.FormSymbolRenameUsageSearcher
 import com.solanteq.solar.plugin.symbol.FormSymbolType
+import com.solanteq.solar.plugin.util.restrictedByL10nFiles
 
 class L10nGroupRenameUsageSearcher : FormSymbolRenameUsageSearcher(FormSymbolType.GROUP) {
 
@@ -12,6 +12,6 @@ class L10nGroupRenameUsageSearcher : FormSymbolRenameUsageSearcher(FormSymbolTyp
         L10nGroupUsageSearchQuery(target, effectiveScope)
 
     override fun prepareSearchScope(initialScope: SearchScope) =
-        L10nSearch.getL10nFilesScope(initialScope)
+        initialScope.restrictedByL10nFiles()
 
 }

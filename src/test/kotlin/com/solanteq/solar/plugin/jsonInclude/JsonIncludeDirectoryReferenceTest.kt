@@ -12,11 +12,13 @@ class JsonIncludeDirectoryReferenceTest : LightPluginTestBase() {
     fun `test json include empty path no directory reference`() {
         fixture.createIncludedForm("includedForm", "", "{}")
 
-        fixture.createFormAndConfigure("rootForm", """
-            {
-              "json://includes/<caret>forms/includedForm.json"
-            }
-        """.trimIndent(), "module")
+        fixture.createFormAndConfigure(
+            "rootForm", "module", """
+                {
+                  "json://includes/<caret>forms/includedForm.json"
+                }
+            """.trimIndent()
+        )
 
         assertNoReferenceAtCaret<JsonIncludeReference>()
     }
@@ -25,11 +27,13 @@ class JsonIncludeDirectoryReferenceTest : LightPluginTestBase() {
     fun `test json include basic path directory reference`() {
         fixture.createIncludedForm("includedForm", "test", "{}")
 
-        fixture.createFormAndConfigure("rootForm", """
-            {
-              "json://includes/forms/<caret>test/includedForm.json"
-            }
-        """.trimIndent(), "module")
+        fixture.createFormAndConfigure(
+            "rootForm", "module", """
+                {
+                  "json://includes/forms/<caret>test/includedForm.json"
+                }
+            """.trimIndent()
+        )
 
         assertReferencedElementNameEquals("test")
     }
@@ -38,11 +42,13 @@ class JsonIncludeDirectoryReferenceTest : LightPluginTestBase() {
     fun `test json include non convenient path directory reference`() {
         fixture.createIncludedForm("includedForm", "test1/test2", "{}")
 
-        fixture.createFormAndConfigure("rootForm", """
-            {
-              "json://includes/forms/test1/<caret>test2/includedForm.json"
-            }
-        """.trimIndent(), "module")
+        fixture.createFormAndConfigure(
+            "rootForm", "module", """
+                {
+                  "json://includes/forms/test1/<caret>test2/includedForm.json"
+                }
+            """.trimIndent()
+        )
 
         assertReferencedElementNameEquals("test2")
     }

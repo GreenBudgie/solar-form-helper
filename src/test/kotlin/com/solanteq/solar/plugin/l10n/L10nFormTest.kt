@@ -28,7 +28,7 @@ class L10nFormTest : LightPluginTestBase() {
             module = "test"
         )
 
-        fixture.createForm("confusingForm", "{}", "notTest")
+        fixture.createForm("confusingForm", "notTest", "{}")
 
         L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
             "test.form.<caret>" to "Form Name!"
