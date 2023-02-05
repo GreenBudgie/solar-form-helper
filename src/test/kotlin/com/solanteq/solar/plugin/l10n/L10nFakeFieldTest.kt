@@ -368,4 +368,124 @@ class L10nFakeFieldTest : LightPluginTestBase() {
         )
     }
 
+    @Test
+    fun `test all declarations are found for fake field at the same nesting level`() {
+        fixture.createFormAndConfigure("rootForm", "test", """
+            {
+              "groups": [
+                {
+                  "name": "group"
+                  "rows": [
+                    {
+                      "fields": [
+                        {
+                          "name": "field.<caret>field2"
+                        },
+                        {
+                          "name": "field.field2."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                { 
+                  "name": "group2",
+                  "rows": [
+                    {
+                      "fields": [
+                        {
+                          "name": "field.field2.field3"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent())
+
+        val symbol = getFormSymbolAtCaret(L10nFieldDeclarationProvider())
+
+        assertSymbolUsagesAndRenameUsagesSizeEquals(
+            symbol,
+            L10nFieldUsageSearcher(),
+            L10nFieldRenameUsageSearcher(),
+            fixture.project.projectScope(),
+            expectedSize = 3
+        )
+    }
+
+    @Test
+    fun `test no extra declarations are found for fake field at the same nesting level`() {
+        fixture.createFormAndConfigure("rootForm", "test", """
+            {
+              "groups": [
+                {
+                  "name": "group"
+                  "rows": [
+                    {
+                      "fields": [
+                        {
+                          "name": "field.<caret>field2"
+                        },
+                        {
+                          "name": "anotherField.field2"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent())
+
+        val symbol = getFormSymbolAtCaret(L10nFieldDeclarationProvider())
+
+        assertSymbolUsagesAndRenameUsagesSizeEquals(
+            symbol,
+            L10nFieldUsageSearcher(),
+            L10nFieldRenameUsageSearcher(),
+            fixture.project.projectScope(),
+            expectedSize = 1
+        )
+    }
+
+    @Test
+    fun `test no extra declarations are found for fake field at different nesting levels`() {
+        fixture.createFormAndConfigure("rootForm", "test", """
+            {
+              "groups": [
+                {
+                  "name": "group"
+                  "rows": [
+                    {
+                      "fields": [
+                        {
+                          "name": "field1.field2.<caret>field3"
+                        },
+                        {
+                          "name": "field1.field3"
+                        },
+                        {
+                          "name": "field1.field2.anotherField.field3"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent())
+
+        val symbol = getFormSymbolAtCaret(L10nFieldDeclarationProvider())
+
+        assertSymbolUsagesAndRenameUsagesSizeEquals(
+            symbol,
+            L10nFieldUsageSearcher(),
+            L10nFieldRenameUsageSearcher(),
+            fixture.project.projectScope(),
+            expectedSize = 1
+        )
+    }
+
 }

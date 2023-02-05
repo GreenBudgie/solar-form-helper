@@ -42,10 +42,40 @@ class RangeSplit(
         val newEntries = map {
             RangeSplitEntry(
                 it.range.shiftRight(delta),
-                it.text
+                it.text,
+                it.index
             )
         }
         return RangeSplit(newEntries)
+    }
+
+    /**
+     * Returns the entry that is **fully and exactly contained** in the specified range,
+     * or null if not found
+     */
+    fun getEntryInRange(range: TextRange) = find { it.range == range }
+
+    /**
+     * Returns the entry at the specified position in range, or null if not found
+     */
+    fun getEntryAtOffset(offset: Int) = find { it.range.contains(offset) }
+
+    override fun equals(other: Any?): Boolean {
+        if(this === other) return true
+        if(javaClass != other?.javaClass) return false
+
+        other as RangeSplit
+
+        if(ranges != other.ranges) return false
+        if(strings != other.strings) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = ranges.hashCode()
+        result = 31 * result + strings.hashCode()
+        return result
     }
 
     companion object {
@@ -66,6 +96,7 @@ class RangeSplit(
          */
         fun from(string: String, delimiter: Char = '.'): RangeSplit {
             val entries = mutableListOf<RangeSplitEntry>()
+            var index = 0
             var currentPosition = 0
             do {
                 val nextDelimiterPosition = string.indexOf(delimiter, startIndex = currentPosition)
@@ -75,7 +106,7 @@ class RangeSplit(
                     TextRange.create(currentPosition, nextDelimiterPosition)
                 }
                 val stringInRange = textRange.substring(string)
-                entries += RangeSplitEntry(textRange, stringInRange)
+                entries += RangeSplitEntry(textRange, stringInRange, index++)
 
                 currentPosition = nextDelimiterPosition + 1
             } while(nextDelimiterPosition != -1)
@@ -91,7 +122,8 @@ class RangeSplit(
 
 data class RangeSplitEntry(
     val range: TextRange,
-    val text: String
+    val text: String,
+    val index: Int
 )
 
 /**
