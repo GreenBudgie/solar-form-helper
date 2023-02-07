@@ -43,6 +43,7 @@ class FormIncludedFile(
      *
      * Uses [isSearchingForDeclarations] field to prevent infinite recursion. See PLUGIN-2.
      */
+    @Synchronized
     fun findDeclarations(): List<FormJsonInclude> {
         if(isSearchingForDeclarations) {
             return emptyList()
