@@ -51,6 +51,13 @@
                          level="ERROR"
                          implementationClass="com.solanteq.solar.plugin.inspection.InvalidFormNameDeclarationInspection"/>
 
+        <localInspection language="JSON"
+                         displayName="Unresolved request reference"
+                         groupName="SOLAR form"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         implementationClass="com.solanteq.solar.plugin.inspection.UnresolvedRequestReferenceInspection"/>
+
         <!-- Localization -->
 
         <fileType name="SOLAR Localization"

@@ -1,5 +1,6 @@
 package com.solanteq.solar.plugin.reference.request
 
+import com.intellij.codeInsight.daemon.EmptyResolveMessageProvider
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.util.TextRange
@@ -16,7 +17,7 @@ class ServiceMethodReference(
     element: JsonStringLiteral,
     range: TextRange,
     requestElement: FormRequest?
-) : CallableServiceReference(element, range, requestElement) {
+) : CallableServiceReference(element, range, requestElement), EmptyResolveMessageProvider {
 
     override fun getVariants(): Array<Any> {
         val service = requestElement?.serviceFromRequest ?: return emptyArray()
@@ -64,5 +65,12 @@ class ServiceMethodReference(
 
         return PsiFormatUtil.formatType(returnType, 0, substitutor)
     }
+
+    override fun getUnresolvedMessagePattern() =
+        if(value.isBlank()) {
+            "Callable method name is not provided"
+        } else {
+            "Cannot resolve callable method with name '$value'"
+        }
 
 }

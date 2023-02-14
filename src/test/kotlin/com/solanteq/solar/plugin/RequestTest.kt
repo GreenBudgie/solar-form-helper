@@ -2,6 +2,8 @@ package com.solanteq.solar.plugin
 
 import com.solanteq.solar.plugin.base.JavaPluginTestBase
 import com.solanteq.solar.plugin.base.configureByFormText
+import com.solanteq.solar.plugin.base.createFormAndConfigure
+import com.solanteq.solar.plugin.inspection.UnresolvedRequestReferenceInspection
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -120,6 +122,44 @@ class RequestTest : JavaPluginTestBase() {
             "test.testService",
             "test.testServiceJava"
         )
+    }
+
+    @Test
+    fun `test unresolved service name inspection`() {
+        fixture.createFormAndConfigure("testForm", "abc", """
+                {
+                  "source": "<error>test.unresolved</error>.boilerplateMethod"
+                }
+            """.trimIndent())
+
+        fixture.enableInspections(UnresolvedRequestReferenceInspection::class.java)
+        fixture.checkHighlighting()
+    }
+
+    @Test
+    fun `test unresolved method name inspection`() {
+        fixture.configureByFiles("TestService.kt", "TestServiceImpl.kt")
+        fixture.createFormAndConfigure("testForm", "abc", """
+                {
+                  "source": "test.testService.<error>nonExistentMethod</error>"
+                }
+            """.trimIndent())
+
+        fixture.enableInspections(UnresolvedRequestReferenceInspection::class.java)
+        fixture.checkHighlighting()
+    }
+
+    @Test
+    fun `test unresolved request inspection does not report resolved methods`() {
+        fixture.configureByFiles("TestService.kt", "TestServiceImpl.kt")
+        fixture.createFormAndConfigure("testForm", "abc", """
+                {
+                  "source": "test.testService.callableMethod1"
+                }
+            """.trimIndent())
+
+        fixture.enableInspections(UnresolvedRequestReferenceInspection::class.java)
+        fixture.checkHighlighting()
     }
 
     private fun configureServicesForCompletion() {

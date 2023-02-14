@@ -58,23 +58,34 @@ class FormRequest(
     val isInline by lazy { sourceElement.value is JsonStringLiteral }
 
     /**
-     * Returns request string, or null if there is no request string.
-     * This property only returns the text after "name" literal (if it's not inline)
-     * or after request literal (if it's inline), so returned string might be invalid in terms of request pattern.
+     * Returns string literal element that represents the request string itself,
+     * or null if request string element does exist.
      *
-     * If you need a parsed request, use [requestData]
+     * Request string looks like `test.testService.method`.
      *
-     * @see isInline
+     * @see requestString
      */
-    val requestString by lazy {
-        if(isInline) {
-            val stringLiteral = sourceElement.value as? JsonStringLiteral ?: return@lazy null
-            return@lazy stringLiteral.value
+    val requestStringElement by lazy {
+        if (isInline) {
+            return@lazy sourceElement.value as? JsonStringLiteral
         }
         val jsonObject = sourceElement.value as? JsonObject ?: return@lazy null
         val requestNameElement = jsonObject.propertyList.find { it.name == "name" } ?: return@lazy null
-        val requestNameValue = requestNameElement.value as? JsonStringLiteral ?: return@lazy null
-        return@lazy requestNameValue.value
+        return@lazy requestNameElement.value as? JsonStringLiteral
+    }
+
+    /**
+     * Returns request string, or null if [requestStringElement] is also null.
+     * This property only returns the text after "name" literal (when [isInline] is false)
+     * or after request literal (when [isInline] is true), so returned string might be invalid
+     * in terms of request pattern.
+     *
+     * If you need a parsed request, consider using [requestData].
+     *
+     * @see requestStringElement
+     */
+    val requestString by lazy {
+        return@lazy requestStringElement?.value
     }
 
     /**
