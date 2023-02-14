@@ -2,10 +2,10 @@ package com.solanteq.solar.plugin.reference.request
 
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiReferenceBase
 import com.solanteq.solar.plugin.element.FormRequest
-import org.jetbrains.uast.UClass
 
 abstract class CallableServiceReference(
     element: JsonStringLiteral,
@@ -19,6 +19,6 @@ abstract class CallableServiceReference(
         return resolveReferenceInService(service)
     }
 
-    protected abstract fun resolveReferenceInService(serviceClass: UClass): PsiElement?
+    protected abstract fun resolveReferenceInService(serviceClass: PsiClass): PsiElement?
 
 }

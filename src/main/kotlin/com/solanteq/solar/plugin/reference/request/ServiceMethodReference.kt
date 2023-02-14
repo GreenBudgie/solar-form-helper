@@ -3,6 +3,7 @@ package com.solanteq.solar.plugin.reference.request
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiSubstitutor
@@ -10,7 +11,6 @@ import com.intellij.psi.util.PsiFormatUtil
 import com.intellij.psi.util.TypeConversionUtil
 import com.solanteq.solar.plugin.element.FormRequest
 import com.solanteq.solar.plugin.util.callableMethods
-import org.jetbrains.uast.UClass
 
 class ServiceMethodReference(
     element: JsonStringLiteral,
@@ -30,15 +30,15 @@ class ServiceMethodReference(
         }.toTypedArray()
     }
 
-    override fun resolveReferenceInService(serviceClass: UClass): PsiElement? {
-        return requestElement?.methodFromRequest?.sourcePsi
+    override fun resolveReferenceInService(serviceClass: PsiClass): PsiElement? {
+        return requestElement?.methodFromRequest
     }
 
-    private fun getTailText(service: UClass, method: PsiMethod): String? {
+    private fun getTailText(service: PsiClass, method: PsiMethod): String? {
         val containingClass = method.containingClass ?: return null
         val substitutor = TypeConversionUtil.getClassSubstitutor(
             containingClass,
-            service.javaPsi,
+            service,
             PsiSubstitutor.EMPTY
         ) ?: return null
 
@@ -53,12 +53,12 @@ class ServiceMethodReference(
         return "$methodParameters in ${containingClass.name}"
     }
 
-    private fun getTypeText(service: UClass, method: PsiMethod): String? {
+    private fun getTypeText(service: PsiClass, method: PsiMethod): String? {
         val returnType = method.returnType ?: return null
         val containingClass = method.containingClass ?: return null
         val substitutor = TypeConversionUtil.getClassSubstitutor(
             containingClass,
-            service.javaPsi,
+            service,
             PsiSubstitutor.EMPTY
         ) ?: return null
 

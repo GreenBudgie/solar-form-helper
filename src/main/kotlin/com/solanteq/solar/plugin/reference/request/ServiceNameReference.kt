@@ -5,6 +5,7 @@ import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.CachedValue
 import com.intellij.psi.util.CachedValueProvider
@@ -12,8 +13,6 @@ import com.intellij.psi.util.CachedValuesManager
 import com.solanteq.solar.plugin.element.FormRequest
 import com.solanteq.solar.plugin.search.CallableServiceSearch
 import com.solanteq.solar.plugin.util.javaKotlinModificationTracker
-import com.solanteq.solar.plugin.util.serviceSolarName
-import org.jetbrains.uast.UClass
 
 class ServiceNameReference(
     element: JsonStringLiteral,
@@ -28,18 +27,18 @@ class ServiceNameReference(
 
     override fun getVariants() = findAllCallableServiceLookups(element.project).toTypedArray()
 
-    override fun resolveReferenceInService(serviceClass: UClass) = serviceClass.sourcePsi
+    override fun resolveReferenceInService(serviceClass: PsiClass) = serviceClass
 
     private fun findAllCallableServiceLookups(project: Project): List<LookupElementBuilder> {
         return CachedValuesManager.getManager(project).getCachedValue(
             project,
             callableServiceLookupsKey,
             {
-                val lookups = CallableServiceSearch.findAllCallableServicesImpl(project).mapNotNull {
-                    val solarName = it.serviceSolarName ?: return@mapNotNull null
+                val serviceMap = CallableServiceSearch.findAllCallableServicesImpl(project)
+                val lookups = serviceMap.mapNotNull { (name, psiClass) ->
                     LookupElementBuilder
-                        .create(solarName)
-                        .withIcon(it.getIcon(0))
+                        .create(name)
+                        .withIcon(psiClass.getIcon(0))
                 }
 
                 CachedValueProvider.Result(

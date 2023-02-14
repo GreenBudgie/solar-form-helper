@@ -6,6 +6,7 @@ import com.intellij.json.psi.JsonProperty
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiMethod
 import com.intellij.psi.search.PsiShortNamesCache
 import com.intellij.psi.util.CachedValue
 import com.solanteq.solar.plugin.element.base.FormElement
@@ -13,9 +14,6 @@ import com.solanteq.solar.plugin.search.CallableServiceSearch
 import com.solanteq.solar.plugin.util.SERVICE_ANNOTATION_FQ_NAME
 import com.solanteq.solar.plugin.util.evaluateToString
 import org.jetbrains.kotlin.idea.base.util.allScope
-import org.jetbrains.uast.UClass
-import org.jetbrains.uast.UMethod
-import org.jetbrains.uast.toUElementOfType
 
 /**
  * Represents request definitions in forms
@@ -97,10 +95,10 @@ class FormRequest(
      * Returns UAST method to which the request points to,
      * or null if request is invalid or no method/service is found
      */
-    val methodFromRequest: UMethod? by lazy {
+    val methodFromRequest: PsiMethod? by lazy {
         val methodName = requestData?.methodName ?: return@lazy null
         val service = serviceFromRequest ?: return@lazy null
-        return@lazy service.allMethods.find { it.name == methodName }.toUElementOfType()
+        return@lazy service.allMethods.find { it.name == methodName }
     }
 
     /**
@@ -123,7 +121,7 @@ class FormRequest(
      * Not all SOLAR services follow this naming rule, so slow method might be used afterward.
      * No cache is used.
      */
-    private fun tryFindServiceByConventionalName(): UClass? {
+    private fun tryFindServiceByConventionalName(): PsiClass? {
         val requestData = requestData ?: return null
 
         val exactServiceName =
@@ -149,23 +147,22 @@ class FormRequest(
      * This method searches for every @Service annotation usage and finds a service by its value.
      * Uses caching.
      */
-    private fun tryFindServiceByAnnotation(): UClass? {
+    private fun tryFindServiceByAnnotation(): PsiClass? {
         val requestData = requestData ?: return null
 
         val groupDotServiceName = "${requestData.groupName}.${requestData.serviceName}"
 
-        val allServices = CallableServiceSearch.findAllCallableServicesImpl(project).toTypedArray()
-
-        return findApplicableService(allServices, groupDotServiceName)
+        val serviceMap = CallableServiceSearch.findAllCallableServicesImpl(project)
+        return serviceMap[groupDotServiceName]
     }
 
-    private fun findApplicableService(services: Array<PsiClass>, serviceName: String): UClass? {
+    private fun findApplicableService(services: Array<PsiClass>, serviceName: String): PsiClass? {
         return services.find {
             it
                 .getAnnotation(SERVICE_ANNOTATION_FQ_NAME)
                 ?.findAttributeValue("value")
                 ?.evaluateToString() == serviceName
-        }?.toUElementOfType()
+        }
     }
 
     /**
