@@ -5,11 +5,9 @@ import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiReference
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.psi.util.CachedValue
 import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.file.IncludedFormFileType
 import com.solanteq.solar.plugin.util.restrictedByFormFiles
@@ -94,8 +92,6 @@ class FormIncludedFile(
     }
 
     companion object : FormElementCreator<FormIncludedFile> {
-
-        override val key = Key<CachedValue<FormIncludedFile>>("solar.element.includedFile")
 
         override fun create(sourceElement: JsonElement): FormIncludedFile? {
             val jsonFile = sourceElement as? JsonFile ?: return null

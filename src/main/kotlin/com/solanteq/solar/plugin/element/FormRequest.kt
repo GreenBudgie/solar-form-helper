@@ -4,11 +4,9 @@ import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
 import com.intellij.json.psi.JsonStringLiteral
-import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.search.PsiShortNamesCache
-import com.intellij.psi.util.CachedValue
 import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.search.CallableServiceSearch
 import com.solanteq.solar.plugin.util.SERVICE_ANNOTATION_FQ_NAME
@@ -215,8 +213,6 @@ class FormRequest(
     }
 
     companion object : FormElementCreator<FormRequest> {
-
-        override val key = Key<CachedValue<FormRequest>>("solar.element.request")
 
         override fun create(sourceElement: JsonElement): FormRequest? {
             val jsonProperty = sourceElement as? JsonProperty ?: return null

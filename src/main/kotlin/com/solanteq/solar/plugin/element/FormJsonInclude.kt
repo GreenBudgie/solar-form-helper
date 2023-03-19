@@ -3,10 +3,8 @@ package com.solanteq.solar.plugin.element
 import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonStringLiteral
-import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.util.CachedValue
 import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.search.FormSearch
 import com.solanteq.solar.plugin.util.RangeSplit
@@ -145,8 +143,6 @@ class FormJsonInclude(
     }
 
     companion object : FormElementCreator<FormJsonInclude> {
-
-        override val key = Key<CachedValue<FormJsonInclude>>("solar.element.jsonInclude")
 
         override fun create(sourceElement: JsonElement): FormJsonInclude? {
             val stringLiteral = sourceElement as? JsonStringLiteral ?: return null

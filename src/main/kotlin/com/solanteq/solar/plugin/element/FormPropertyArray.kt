@@ -10,7 +10,8 @@ import com.solanteq.solar.plugin.util.asListOrEmpty
 import kotlin.reflect.KClass
 
 /**
- * Represents a json property with array value that contains form objects
+ * Represents a json property with array value that contains another form elements
+ * of the specified type.
  *
  * Example:
  * ```

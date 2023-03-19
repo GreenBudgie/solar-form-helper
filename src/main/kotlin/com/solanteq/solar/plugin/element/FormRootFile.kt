@@ -6,10 +6,8 @@ import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.util.Key
 import com.intellij.psi.*
 import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.psi.util.CachedValue
 import com.intellij.psi.util.TypeConversionUtil
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.file.RootFormFileType
@@ -276,8 +274,6 @@ class FormRootFile(
         topLevelObject.findProperty(type.requestLiteral).toFormElement()
 
     companion object : FormElementCreator<FormRootFile> {
-
-        override val key = Key<CachedValue<FormRootFile>>("solar.element.rootFile")
 
         override fun create(sourceElement: JsonElement): FormRootFile? {
             val jsonFile = sourceElement as? JsonFile ?: return null

@@ -2,10 +2,8 @@ package com.solanteq.solar.plugin.element
 
 import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonObject
-import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiType
-import com.intellij.psi.util.CachedValue
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.l10n.FormL10n
 import com.solanteq.solar.plugin.l10n.search.L10nSearch
@@ -195,8 +193,6 @@ class FormField(
     companion object : FormElementCreator<FormField> {
 
         const val ARRAY_NAME = "fields"
-
-        override val key = Key<CachedValue<FormField>>("solar.element.field")
 
         override fun create(sourceElement: JsonElement): FormField? {
             if(canBeCreatedAsArrayElement(sourceElement, ARRAY_NAME)) {

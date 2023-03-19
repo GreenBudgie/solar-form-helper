@@ -3,8 +3,6 @@ package com.solanteq.solar.plugin.element.base
 import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonObject
-import com.intellij.openapi.util.Key
-import com.intellij.psi.util.CachedValue
 import com.solanteq.solar.plugin.element.base.FormElement.FormElementCreator
 import com.solanteq.solar.plugin.element.toFormElement
 import com.solanteq.solar.plugin.util.FormPsiUtils
@@ -81,8 +79,6 @@ abstract class FormElement<T : JsonElement> protected constructor(
      * It is used to create element from the factory using [toFormElement].
      */
     interface FormElementCreator<T : FormElement<*>> {
-
-        val key: Key<CachedValue<T>>
 
         fun create(sourceElement: JsonElement): T?
 
