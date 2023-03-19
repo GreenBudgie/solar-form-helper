@@ -47,7 +47,7 @@ class FormField(
     sourceElement: JsonObject
 ) : FormLocalizableElement<JsonObject>(sourceElement, sourceElement) {
 
-    override val localizations: List<String> by lazy {
+    override val localizations: List<String> by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val formL10ns = L10nSearch.findFormL10ns(project, project.projectScope())
         return@lazy formL10ns
             .filter { it.type == FormL10n.L10nType.FIELD }
@@ -60,7 +60,7 @@ class FormField(
      *
      * TODO introduce enum with field types
      */
-    val type by lazy {
+    val type by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val typeProperty = sourceElement.findProperty("type") ?: return@lazy null
         return@lazy typeProperty.valueAsString()
     }
@@ -90,7 +90,7 @@ class FormField(
      * ```
      *
      */
-    val fieldNameChain by lazy {
+    val fieldNameChain by lazy(LazyThreadSafetyMode.PUBLICATION) {
         namePropertyValue?.let { RangeSplit.from(it) } ?: RangeSplit.empty()
     }
 
@@ -105,7 +105,7 @@ class FormField(
      * If we make a typo at `field3`, then only `field1` and `field2` will be resolved.
      * Further fields will be considered "fake", and symbols will be used to describe them.
      */
-    val propertyChain by lazy {
+    val propertyChain by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val stringPropertyChain = fieldNameChain
         if(stringPropertyChain.isEmpty()) {
             return@lazy emptyList()

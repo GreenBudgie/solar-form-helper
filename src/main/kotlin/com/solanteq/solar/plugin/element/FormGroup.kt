@@ -17,7 +17,7 @@ class FormGroup(
     sourceElement: JsonObject
 ) : FormLocalizableElement<JsonObject>(sourceElement, sourceElement) {
 
-    override val localizations: List<String> by lazy {
+    override val localizations: List<String> by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val formL10ns = L10nSearch.findFormL10ns(project, project.projectScope())
         return@lazy formL10ns
             .filter { it.type == FormL10n.L10nType.GROUP }
@@ -28,7 +28,7 @@ class FormGroup(
     /**
      * A list of [FormField] elements from all rows in this group
      */
-    val allFields by lazy {
+    val allFields by lazy(LazyThreadSafetyMode.PUBLICATION) {
         rows?.flatMap { it.fields ?: emptyList() } ?: emptyList()
     }
 
@@ -37,7 +37,7 @@ class FormGroup(
      *
      * Not null when type is [GroupContentType.ROWS].
      */
-    val rows by lazy {
+    val rows by lazy(LazyThreadSafetyMode.PUBLICATION) {
         sourceElement.findProperty(FormRow.ARRAY_NAME).toFormArrayElement<FormRow>()
     }
 
@@ -46,11 +46,11 @@ class FormGroup(
      *
      * Not null when type is [GroupContentType.INLINE].
      */
-    val inline by lazy {
+    val inline by lazy(LazyThreadSafetyMode.PUBLICATION) {
         sourceElement.findProperty("inline").toFormElement<FormInline>()
     }
 
-    val contentType by lazy {
+    val contentType by lazy(LazyThreadSafetyMode.PUBLICATION) {
         rows?.let { return@lazy GroupContentType.ROWS }
         inline?.let { return@lazy GroupContentType.INLINE }
         return@lazy GroupContentType.INVALID

@@ -30,14 +30,14 @@ abstract class FormNamedElement<T : JsonElement>(
     /**
      * An actual json property element that represents name of this form
      */
-    val nameProperty by lazy {
+    val nameProperty by lazy(LazyThreadSafetyMode.PUBLICATION) {
         objectWithNameProperty.findProperty("name")
     }
 
     /**
      * An actual json property value element that represents name of this form
      */
-    val namePropertyValue by lazy {
+    val namePropertyValue by lazy(LazyThreadSafetyMode.PUBLICATION) {
         nameProperty?.value as? JsonStringLiteral
     }
 
@@ -47,7 +47,7 @@ abstract class FormNamedElement<T : JsonElement>(
      * It might return null if [sourceElement] does not have a `name` property or
      * this property has non-string value.
      */
-    val name by lazy {
+    val name by lazy(LazyThreadSafetyMode.PUBLICATION) {
         nameProperty.valueAsString()
     }
 

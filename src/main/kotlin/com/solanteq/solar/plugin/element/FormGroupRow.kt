@@ -11,7 +11,7 @@ class FormGroupRow(
     sourceElement: JsonObject
 ) : FormElement<JsonObject>(sourceElement) {
 
-    val groups by lazy {
+    val groups by lazy(LazyThreadSafetyMode.PUBLICATION) {
         sourceElement.findProperty(FormGroup.ARRAY_NAME).toFormArrayElement<FormGroup>()
     }
 

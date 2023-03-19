@@ -14,7 +14,7 @@ object IncludedFormFileType : JsonFileType(), FileTypeIdentifiableByVirtualFile 
     override fun getIcon() = Icons.INCLUDED_FORM_ICON
 
     override fun isMyFileType(file: VirtualFile) =
-        file.path.contains("config/includes/forms")
+        file.extension == "json" && file.path.contains("config/includes/forms")
 
     override fun getDisplayName() = name
 

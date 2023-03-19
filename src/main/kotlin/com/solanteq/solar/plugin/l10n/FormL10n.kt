@@ -75,7 +75,7 @@ class FormL10n private constructor(
      *
      * "**module**.form.formName.group.field1.field2"
      */
-    val moduleTextRange by lazy {
+    val moduleTextRange by lazy(LazyThreadSafetyMode.PUBLICATION) {
         chain.getOrNull(moduleNameChainIndex)?.range
     }
 
@@ -83,7 +83,7 @@ class FormL10n private constructor(
      * A real directory (form module) that this l10n references to.
      * Cannot exist without [referencedFormVirtualFile].
      */
-    val referencedModuleDirectory by lazy {
+    val referencedModuleDirectory by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val directory = referencedFormVirtualFile?.getFormModuleDirectory() ?: return@lazy null
         if(moduleName != directory.name) {
             return@lazy null
@@ -94,7 +94,7 @@ class FormL10n private constructor(
     /**
      * The same as [referencedModuleDirectory], but represented as PSI directory.
      */
-    val referencedModulePsiDirectory by lazy {
+    val referencedModulePsiDirectory by lazy(LazyThreadSafetyMode.PUBLICATION) {
         referencedModuleDirectory?.toPsiDirectory(project)
     }
 
@@ -102,7 +102,7 @@ class FormL10n private constructor(
      * A real virtual file of the form that this l10n references to.
      * Only exists if valid [moduleName] and [formName] are provided.
      */
-    val referencedFormVirtualFile by lazy {
+    val referencedFormVirtualFile by lazy(LazyThreadSafetyMode.PUBLICATION) {
         if(moduleName == null || formName == null) {
             return@lazy null
         }
@@ -116,7 +116,7 @@ class FormL10n private constructor(
     /**
      * The same as [referencedFormVirtualFile], but represented as PSI file.
      */
-    val referencedFormPsiFile by lazy {
+    val referencedFormPsiFile by lazy(LazyThreadSafetyMode.PUBLICATION) {
         referencedFormVirtualFile?.toPsiFile(project) as? JsonFile
     }
 
@@ -124,7 +124,7 @@ class FormL10n private constructor(
      * [referencedFormPsiFile] converted to root form.
      * Should not be null if [referencedFormPsiFile] is not null.
      */
-    val referencedFormFileElement by lazy {
+    val referencedFormFileElement by lazy(LazyThreadSafetyMode.PUBLICATION) {
         referencedFormPsiFile.toFormElement<FormRootFile>()
     }
 
@@ -133,7 +133,7 @@ class FormL10n private constructor(
      *
      * "module.form.**formName**.group.field1.field2"
      */
-    val formTextRange by lazy {
+    val formTextRange by lazy(LazyThreadSafetyMode.PUBLICATION) {
         chain.getOrNull(formNameChainIndex)?.range
     }
 
@@ -141,7 +141,7 @@ class FormL10n private constructor(
      * A group in [referencedFormFileElement] that this l10n references.
      * Represented as [JsonStringLiteral] property value element.
      */
-    val referencedGroup by lazy {
+    val referencedGroup by lazy(LazyThreadSafetyMode.PUBLICATION) {
         referencedGroupElement?.namePropertyValue
     }
 
@@ -149,7 +149,7 @@ class FormL10n private constructor(
      * [referencedGroup] converted to form element.
      * Should not be null if [referencedGroup] is not null.
      */
-    val referencedGroupElement by lazy {
+    val referencedGroupElement by lazy(LazyThreadSafetyMode.PUBLICATION) {
         groupName ?: return@lazy null
         val groups = referencedFormFileElement?.allGroups ?: return@lazy null
         return@lazy groups.find { it.name == groupName }
@@ -160,7 +160,7 @@ class FormL10n private constructor(
      *
      * "module.form.formName.**group**.field1.field2"
      */
-    val groupTextRange by lazy {
+    val groupTextRange by lazy(LazyThreadSafetyMode.PUBLICATION) {
         chain.getOrNull(groupNameChainIndex)?.range
     }
 
@@ -169,7 +169,7 @@ class FormL10n private constructor(
      *
      * "module.form.formName.group.**field1**.**field2**"
      */
-    val fieldChain by lazy {
+    val fieldChain by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val fieldChainIndexRange = fieldChainStartIndex until chain.size
         return@lazy fieldChainIndexRange.map { chain[it] }.convert()
     }
@@ -180,7 +180,7 @@ class FormL10n private constructor(
      *
      * "module.form.formName.group.field1.**field2**"
      */
-    val referencedFieldElement by lazy {
+    val referencedFieldElement by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val l10nFieldNameChain = fieldChain.strings
         if(l10nFieldNameChain.isEmpty()) {
             return@lazy null
@@ -195,7 +195,7 @@ class FormL10n private constructor(
     /**
      * Describes which form element this l10n string actually represents
      */
-    val type by lazy {
+    val type by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val chainLength = chain.size
         if(chainLength == formNameChainIndex) return@lazy L10nType.FORM
         if(chainLength == groupNameChainIndex) return@lazy L10nType.GROUP

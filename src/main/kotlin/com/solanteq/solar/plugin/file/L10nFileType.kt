@@ -14,6 +14,6 @@ object L10nFileType : JsonFileType(), FileTypeIdentifiableByVirtualFile {
     override fun getIcon() = Icons.L10N_FILE_ICON
 
     override fun isMyFileType(file: VirtualFile) =
-        file.path.contains("config/l10n")
+        file.extension == "json" && file.path.contains("config/l10n")
 
 }

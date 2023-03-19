@@ -14,7 +14,7 @@ object RootFormFileType : JsonFileType(), FileTypeIdentifiableByVirtualFile {
     override fun getIcon() = Icons.ROOT_FORM_ICON
 
     override fun isMyFileType(file: VirtualFile) =
-        file.path.contains("config/forms")
+        file.extension == "json" && file.path.contains("config/forms")
 
     override fun getDisplayName() = name
 

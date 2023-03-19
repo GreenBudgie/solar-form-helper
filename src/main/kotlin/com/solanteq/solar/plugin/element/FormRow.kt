@@ -11,7 +11,7 @@ class FormRow(
     sourceElement: JsonObject
 ) : FormElement<JsonObject>(sourceElement) {
 
-    val fields by lazy {
+    val fields by lazy(LazyThreadSafetyMode.PUBLICATION) {
         sourceElement.findProperty(FormField.ARRAY_NAME).toFormArrayElement<FormField>()
     }
 

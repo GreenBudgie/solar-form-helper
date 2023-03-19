@@ -8,8 +8,10 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiReference
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
+import com.intellij.util.indexing.FileBasedIndex
 import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.file.IncludedFormFileType
+import com.solanteq.solar.plugin.index.JsonIncludeFileIndex
 import com.solanteq.solar.plugin.util.restrictedByFormFiles
 import org.jetbrains.kotlin.idea.base.util.allScope
 import org.jetbrains.kotlin.idea.base.util.minus
@@ -23,48 +25,34 @@ class FormIncludedFile(
     sourceElement: JsonFile
 ) : FormElement<JsonFile>(sourceElement) {
 
-    private var declarations: List<FormJsonInclude>? = null
-
-    /**
-     * Prevents infinite recursion
-     */
-    private var isSearchingForDeclarations = false
-
     /**
      * Finds [FormJsonInclude] elements that have a reference to this form.
      * Uses all scope to search for dependencies.
      *
-     * Please note that some references might be in the modules that are not included as
-     * dependencies so this is not guaranteed to return all JSON include declarations.
-     *
      * Does not return declarations in the same file to prevent infinite recursion.
-     *
-     * Uses [isSearchingForDeclarations] field to prevent infinite recursion. See PLUGIN-2.
      */
-    @Synchronized
     fun findDeclarations(): List<FormJsonInclude> {
-        if(isSearchingForDeclarations) {
-            return emptyList()
-        }
-        val foundDeclarations = declarations
-        if(foundDeclarations != null) {
-            return foundDeclarations
-        }
         val containingFile = containingFile ?: return emptyList()
-        isSearchingForDeclarations = true
-        val searchScope = project.allScope().restrictedByFormFiles()
-            .minus(GlobalSearchScope.fileScope(containingFile))
+        val baseSearchScope = project.allScope()
+            .restrictedByFormFiles()
+            .minus(GlobalSearchScope.fileScope(containingFile)) as GlobalSearchScope
+
+        val filesToSearch = FileBasedIndex.getInstance().getContainingFiles(
+            JsonIncludeFileIndex.NAME,
+            containingFile.name,
+            baseSearchScope
+        )
+
+        val effectiveFileScope = GlobalSearchScope.filesScope(project, filesToSearch)
 
         val references = ProgressManager.getInstance().runProcess<Collection<PsiReference>>({
-            ReferencesSearch.search(containingFile, searchScope).findAll()
+            ReferencesSearch.search(containingFile, effectiveFileScope).findAll()
         }, EmptyProgressIndicator())
 
         val referencedJsonElements = references.mapNotNull {
             it.element as? JsonStringLiteral
         }
-        isSearchingForDeclarations = false
-        declarations = referencedJsonElements.mapNotNull { it.toFormElement() }
-        return declarations!!
+        return referencedJsonElements.mapNotNull { it.toFormElement() }
     }
 
     /**
@@ -72,7 +60,7 @@ class FormIncludedFile(
      *
      * Traverses up recursively through all included forms until the root form is found.
      */
-    val allRootForms: List<FormRootFile> by lazy {
+    val allRootForms: List<FormRootFile> by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val containingFilesOfDeclarations = findDeclarations().mapNotNull {
             it.sourceElement.containingFile?.originalFile as? JsonFile
         }.distinct().filter { it != containingFile?.originalFile }

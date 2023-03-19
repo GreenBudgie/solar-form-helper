@@ -53,7 +53,7 @@ class FormRequest(
      * }
      * ```
      */
-    val isInline by lazy { sourceElement.value is JsonStringLiteral }
+    val isInline by lazy(LazyThreadSafetyMode.PUBLICATION) { sourceElement.value is JsonStringLiteral }
 
     /**
      * Returns string literal element that represents the request string itself,
@@ -63,7 +63,7 @@ class FormRequest(
      *
      * @see requestString
      */
-    val requestStringElement by lazy {
+    val requestStringElement by lazy(LazyThreadSafetyMode.PUBLICATION) {
         if (isInline) {
             return@lazy sourceElement.value as? JsonStringLiteral
         }
@@ -82,7 +82,7 @@ class FormRequest(
      *
      * @see requestStringElement
      */
-    val requestString by lazy {
+    val requestString by lazy(LazyThreadSafetyMode.PUBLICATION) {
         return@lazy requestStringElement?.value
     }
 
@@ -90,7 +90,7 @@ class FormRequest(
      * Parses the request string and returns the valid data,
      * or null if there is no request string or request is invalid
      */
-    val requestData by lazy {
+    val requestData by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val requestString = requestString ?: return@lazy null
         return@lazy parseRequestString(requestString)
     }
@@ -98,13 +98,13 @@ class FormRequest(
     /**
      * Whether this request has a valid request data (contains service and method names)
      */
-    val isRequestValid by lazy { requestData != null }
+    val isRequestValid by lazy(LazyThreadSafetyMode.PUBLICATION) { requestData != null }
 
     /**
      * Returns UAST method to which the request points to,
      * or null if request is invalid or no method/service is found
      */
-    val methodFromRequest: PsiMethod? by lazy {
+    val methodFromRequest: PsiMethod? by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val methodName = requestData?.methodName ?: return@lazy null
         val service = serviceFromRequest ?: return@lazy null
         return@lazy service.allMethods.find { it.name == methodName }
@@ -114,7 +114,7 @@ class FormRequest(
      * Returns UAST service to which the request points to,
      * or null if request is invalid or no service is found
      */
-    val serviceFromRequest by lazy {
+    val serviceFromRequest by lazy(LazyThreadSafetyMode.PUBLICATION) {
         tryFindServiceByConventionalName()?.let { return@lazy it }
 
         return@lazy tryFindServiceByAnnotation()

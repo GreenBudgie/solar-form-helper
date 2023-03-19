@@ -87,7 +87,7 @@ class FormSymbol private constructor(
 
     inner class FormSymbolNavigationTarget : NavigationTarget {
 
-        private val offset by lazy {
+        private val offset by lazy(LazyThreadSafetyMode.PUBLICATION) {
             fileTextRange.startOffset
         }
 

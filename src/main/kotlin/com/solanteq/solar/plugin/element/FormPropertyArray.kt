@@ -30,7 +30,7 @@ class FormPropertyArray<T : FormElement<JsonObject>>(
     private val formObjectClass: KClass<out T>
 ) : FormElement<JsonProperty>(sourceElement), List<T> {
 
-    val valueArray by lazy {
+    val valueArray by lazy(LazyThreadSafetyMode.PUBLICATION) {
         FormPsiUtils.getPropertyValue(sourceElement) as JsonArray
     }
 
@@ -38,7 +38,7 @@ class FormPropertyArray<T : FormElement<JsonObject>>(
      * Contents of this array represented as form object elements that this array stores.
      * It only returns valid form elements that can be resolved via [toFormElement].
      */
-    val contents by lazy {
+    val contents by lazy(LazyThreadSafetyMode.PUBLICATION) {
         valueArray.valueList.flatMap { resolveValueToFormElements(it) }
     }
 

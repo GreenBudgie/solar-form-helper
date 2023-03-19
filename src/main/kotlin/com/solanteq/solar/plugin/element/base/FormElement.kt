@@ -35,14 +35,14 @@ abstract class FormElement<T : JsonElement> protected constructor(
     /**
      * Project lazy value to only call it once for performance
      */
-    protected val project by lazy {
+    protected val project by lazy(LazyThreadSafetyMode.PUBLICATION) {
         sourceElement.project
     }
 
     /**
      * Containing file (original) lazy value to only call it once for performance
      */
-    protected val containingFile by lazy {
+    protected val containingFile by lazy(LazyThreadSafetyMode.PUBLICATION) {
         sourceElement.containingFile?.originalFile as? JsonFile
     }
 

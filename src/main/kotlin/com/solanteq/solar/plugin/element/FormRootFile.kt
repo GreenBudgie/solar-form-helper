@@ -46,7 +46,7 @@ class FormRootFile(
     /**
      * An actual json property element that represents module of this form
      */
-    val moduleProperty by lazy { topLevelObject.findProperty("module") }
+    val moduleProperty by lazy(LazyThreadSafetyMode.PUBLICATION) { topLevelObject.findProperty("module") }
 
     /**
      * Module of this form object.
@@ -54,9 +54,9 @@ class FormRootFile(
      * It might return null if [sourceElement] does not have a `module` property or
      * this property has non-string value.
      */
-    val module by lazy { moduleProperty.valueAsString() }
+    val module by lazy(LazyThreadSafetyMode.PUBLICATION) { moduleProperty.valueAsString() }
 
-    override val localizations: List<String> by lazy {
+    override val localizations: List<String> by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val formL10ns = L10nSearch.findFormL10ns(project, project.projectScope())
         return@lazy formL10ns
             .filter { it.type == FormL10n.L10nType.FORM }
@@ -67,7 +67,7 @@ class FormRootFile(
     /**
      * Fully-qualified SOLAR form name
      */
-    val fullName by lazy {
+    val fullName by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val name = name ?: return@lazy null
         val module = module ?: return@lazy name
         return@lazy "$module.$name"
@@ -78,7 +78,7 @@ class FormRootFile(
      * - An empty array if `groupRows` property is declared in this form, but the array is empty
      * - `null` if `groupRows` property is not declared
      */
-    val groupRows by lazy {
+    val groupRows by lazy(LazyThreadSafetyMode.PUBLICATION) {
         topLevelObject.findProperty(FormGroupRow.ARRAY_NAME).toFormArrayElement<FormGroupRow>()
     }
 
@@ -87,7 +87,7 @@ class FormRootFile(
      * - An empty array if `groups` property is declared in this form, but the array is empty
      * - `null` if `groups` property is not declared
      */
-    val groups by lazy {
+    val groups by lazy(LazyThreadSafetyMode.PUBLICATION) {
         topLevelObject.findProperty(FormGroup.ARRAY_NAME).toFormArrayElement<FormGroup>()
     }
 
@@ -98,7 +98,7 @@ class FormRootFile(
      *
      * Never returns null, only empty list.
      */
-    val allGroups by lazy {
+    val allGroups by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val groupRows = groupRows
         if(groupRows != null) {
             return@lazy groupRows.flatMap { it.groups ?: emptyList() }
@@ -113,7 +113,7 @@ class FormRootFile(
     /**
      * All fields from [allGroups] in this form
      */
-    val allFields by lazy {
+    val allFields by lazy(LazyThreadSafetyMode.PUBLICATION) {
         allGroups.flatMap { it.allFields }
     }
 
@@ -124,7 +124,7 @@ class FormRootFile(
      * - remove
      * - createSource
      */
-    val requests by lazy {
+    val requests by lazy(LazyThreadSafetyMode.PUBLICATION) {
         listOfNotNull(
             sourceRequest,
             saveRequest,
@@ -133,15 +133,15 @@ class FormRootFile(
         )
     }
 
-    val sourceRequest by lazy { getRequestByType(FormRequest.RequestType.SOURCE) }
-    val saveRequest by lazy { getRequestByType(FormRequest.RequestType.SAVE) }
-    val removeRequest by lazy { getRequestByType(FormRequest.RequestType.REMOVE) }
-    val createSourceRequest by lazy { getRequestByType(FormRequest.RequestType.CREATE_SOURCE) }
+    val sourceRequest by lazy(LazyThreadSafetyMode.PUBLICATION) { getRequestByType(FormRequest.RequestType.SOURCE) }
+    val saveRequest by lazy(LazyThreadSafetyMode.PUBLICATION) { getRequestByType(FormRequest.RequestType.SAVE) }
+    val removeRequest by lazy(LazyThreadSafetyMode.PUBLICATION) { getRequestByType(FormRequest.RequestType.REMOVE) }
+    val createSourceRequest by lazy(LazyThreadSafetyMode.PUBLICATION) { getRequestByType(FormRequest.RequestType.CREATE_SOURCE) }
 
     /**
      * Data class from source request that this field uses
      */
-    val dataClassFromSourceRequest by lazy {
+    val dataClassFromSourceRequest by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val sourceRequest = sourceRequest ?: return@lazy null
         val method = sourceRequest.methodFromRequest ?: return@lazy null
         val derivedClass = sourceRequest.serviceFromRequest ?: return@lazy null
@@ -157,7 +157,7 @@ class FormRootFile(
     /**
      * All requests from inline elements that reference this form
      */
-    val inlineRequests: List<FormRequest> by lazy {
+    val inlineRequests: List<FormRequest> by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val formPropertyValueElements = formReferences.filterIsInstance<FormNameReference>().map { it.element }
         val formInlineElements = formPropertyValueElements.mapNotNull {
             val formProperty = it.parent as? JsonProperty ?: return@mapNotNull null
@@ -171,7 +171,7 @@ class FormRootFile(
     /**
      * All data classes from inline elements that reference this form
      */
-    val dataClassesFromInlineRequests by lazy {
+    val dataClassesFromInlineRequests by lazy(LazyThreadSafetyMode.PUBLICATION) {
         inlineRequests.mapNotNull {
             getDataClassFromInlineRequest(it)
         }
@@ -185,7 +185,7 @@ class FormRootFile(
      * 2. Inline requests from other forms
      * 3. List field in other forms
      */
-    val allDataClassesFromRequests: List<UClass> by lazy {
+    val allDataClassesFromRequests: List<UClass> by lazy(LazyThreadSafetyMode.PUBLICATION) {
         dataClassFromSourceRequest?.let { return@lazy listOf(it) }
 
         val inlineDataClasses = dataClassesFromInlineRequests
@@ -205,7 +205,7 @@ class FormRootFile(
     /**
      * All fields from other forms with `LIST` type that relate to this form
      */
-    val relatedListFields: List<FormField> by lazy {
+    val relatedListFields: List<FormField> by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val formPropertyValueElements = formReferences.filterIsInstance<FormNameReference>().map { it.element }
         val fieldElements = formPropertyValueElements
             .flatMap {
@@ -222,7 +222,7 @@ class FormRootFile(
     /**
      * All applicable data classes from list fields
      */
-    val dataClassesFromListFields: List<UClass> by lazy {
+    val dataClassesFromListFields: List<UClass> by lazy(LazyThreadSafetyMode.PUBLICATION) {
         relatedListFields.mapNotNull {
             val referencedField = it.propertyChain.lastOrNull()?.referencedField ?: return@mapNotNull null
             val fieldContainingClass = referencedField.containingClass ?: return@mapNotNull null
@@ -236,7 +236,7 @@ class FormRootFile(
         }
     }
 
-    private val formReferences by lazy {
+    private val formReferences by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val containingFile = containingFile ?: return@lazy emptyList()
         val searchScope = project.allScope().restrictedByFormFiles()
         return@lazy ProgressManager.getInstance().runProcess<Collection<PsiReference>>({

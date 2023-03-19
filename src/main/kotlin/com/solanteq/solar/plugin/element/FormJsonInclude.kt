@@ -52,7 +52,7 @@ class FormJsonInclude(
      * -> ""
      * ```
      */
-    val path by lazy {
+    val path by lazy(LazyThreadSafetyMode.PUBLICATION) {
         sourceElement.value.substring(type.prefix.length)
     }
 
@@ -60,11 +60,11 @@ class FormJsonInclude(
      * A chain of [RangeSplit]s containing text ranges and corresponding directory/form names.
      * Uses real text ranges in string literal.
      */
-    val pathChain by lazy {
+    val pathChain by lazy(LazyThreadSafetyMode.PUBLICATION) {
         RangeSplit.from(path, '/').shiftedRight(type.prefix.length + 1)
     }
 
-    private val reversedPathChain by lazy {
+    private val reversedPathChain by lazy(LazyThreadSafetyMode.PUBLICATION) {
         pathChain.reversed().convert()
     }
 
@@ -72,7 +72,7 @@ class FormJsonInclude(
      * Form name with `.json` extension, or null if this declaration is incomplete and
      * no form is present for now
      */
-    val formName by lazy {
+    val formName by lazy(LazyThreadSafetyMode.PUBLICATION) {
         if(!path.endsWith(".json")) return@lazy null
         val lastSeparatorIndex = path.lastIndexOf("/")
         if(lastSeparatorIndex == -1) return@lazy path
@@ -83,7 +83,7 @@ class FormJsonInclude(
      * A file that this element points to.
      * Can be null if this declaration is incomplete, invalid, or points to non-existent file.
      */
-    val referencedFormVirtualFile by lazy {
+    val referencedFormVirtualFile by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val formName = formName ?: return@lazy null
         val includedForms = FormSearch.findIncludedForms(project.allScope())
         val applicableFormsByName = includedForms.filter {
@@ -102,11 +102,11 @@ class FormJsonInclude(
         }
     }
 
-    val referencedFormPsiFile by lazy {
+    val referencedFormPsiFile by lazy(LazyThreadSafetyMode.PUBLICATION) {
         referencedFormVirtualFile?.toPsiFile(project) as? JsonFile
     }
 
-    val referencedForm by lazy {
+    val referencedForm by lazy(LazyThreadSafetyMode.PUBLICATION) {
         referencedFormPsiFile.toFormElement<FormIncludedFile>()
     }
 
@@ -117,7 +117,7 @@ class FormJsonInclude(
      * Starts traversing from [referencedFormVirtualFile]. If it is null, then every
      * [VirtualFile] in the chain will be null.
      */
-    val virtualFileChain: List<Pair<TextRange, VirtualFile?>> by lazy {
+    val virtualFileChain: List<Pair<TextRange, VirtualFile?>> by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val resultChain = mutableListOf<Pair<TextRange, VirtualFile?>>()
         var currentVirtualFile = referencedFormVirtualFile
 

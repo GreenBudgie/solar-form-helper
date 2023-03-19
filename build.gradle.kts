@@ -13,8 +13,8 @@ repositories {
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.1")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.2")
 }
 
 // Configure Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
@@ -25,7 +25,8 @@ intellij {
     plugins.set(listOf(
         "com.intellij.java",
         "org.jetbrains.kotlin",
-        "com.google.ide-perf:1.3.0"
+        "com.google.ide-perf:1.3.0",
+        "com.jetbrains.hackathon.indices.viewer:1.23"
     ))
 }
 
