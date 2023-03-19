@@ -15,6 +15,8 @@ import com.solanteq.solar.plugin.index.JsonIncludeFileIndex
 import com.solanteq.solar.plugin.util.restrictedByFormFiles
 import org.jetbrains.kotlin.idea.base.util.allScope
 import org.jetbrains.kotlin.idea.base.util.minus
+import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Represents an included form file.
@@ -30,9 +32,15 @@ class FormIncludedFile(
      * Uses all scope to search for dependencies.
      *
      * Does not return declarations in the same file to prevent infinite recursion.
+     *
+     * TODO It uses a very unsafe approach of returning empty list when this file is already processing.
+     * This can cause issues that are unknown for now
      */
     fun findDeclarations(): List<FormJsonInclude> {
         val containingFile = containingFile ?: return emptyList()
+        if(!concurrentProcessingFileSet.add(containingFile)) {
+            return emptyList()
+        }
         val baseSearchScope = project.allScope()
             .restrictedByFormFiles()
             .minus(GlobalSearchScope.fileScope(containingFile)) as GlobalSearchScope
@@ -52,7 +60,10 @@ class FormIncludedFile(
         val referencedJsonElements = references.mapNotNull {
             it.element as? JsonStringLiteral
         }
-        return referencedJsonElements.mapNotNull { it.toFormElement() }
+        val result: List<FormJsonInclude> = referencedJsonElements.mapNotNull { it.toFormElement() }
+
+        concurrentProcessingFileSet.remove(containingFile)
+        return result
     }
 
     /**
@@ -80,6 +91,8 @@ class FormIncludedFile(
     }
 
     companion object : FormElementCreator<FormIncludedFile> {
+
+        private val concurrentProcessingFileSet = Collections.newSetFromMap(ConcurrentHashMap<Any, Boolean>())
 
         override fun create(sourceElement: JsonElement): FormIncludedFile? {
             val jsonFile = sourceElement as? JsonFile ?: return null
