@@ -6,12 +6,13 @@ import com.intellij.json.psi.JsonProperty
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiMethod
-import com.intellij.psi.search.PsiShortNamesCache
 import com.solanteq.solar.plugin.element.base.FormElement
-import com.solanteq.solar.plugin.search.CallableServiceSearch
-import com.solanteq.solar.plugin.util.SERVICE_ANNOTATION_FQ_NAME
-import com.solanteq.solar.plugin.util.evaluateToString
+import com.solanteq.solar.plugin.index.CallableServiceImplIndex
+import com.solanteq.solar.plugin.util.serviceSolarName
 import org.jetbrains.kotlin.idea.base.util.allScope
+import org.jetbrains.kotlin.idea.core.util.toPsiFile
+import org.jetbrains.uast.UFile
+import org.jetbrains.uast.toUElementOfType
 
 /**
  * Represents request definitions in forms
@@ -115,62 +116,21 @@ class FormRequest(
      * or null if request is invalid or no service is found
      */
     val serviceFromRequest by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        tryFindServiceByConventionalName()?.let { return@lazy it }
+        val requestData = requestData ?: return@lazy null
+        val fullServiceName = "${requestData.groupName}.${requestData.serviceName}"
 
-        return@lazy tryFindServiceByAnnotation()
+        val applicableFiles = CallableServiceImplIndex.getFilesContainingCallableServiceImpl(
+            fullServiceName, project.allScope()
+        ).mapNotNull { it.toPsiFile(project)?.toUElementOfType<UFile>() }
+        val possibleServices = applicableFiles.flatMap { it.classes }
+
+        findApplicableService(possibleServices, fullServiceName)
     }
 
-    /**
-     * A fast way to search for applicable service.
-     *
-     * This method tries to find a service by conventional SOLAR service naming:
-     * ```
-     * "test.testService" -> TestServiceImpl
-     * ```
-     * Not all SOLAR services follow this naming rule, so slow method might be used afterward.
-     * No cache is used.
-     */
-    private fun tryFindServiceByConventionalName(): PsiClass? {
-        val requestData = requestData ?: return null
-
-        val exactServiceName =
-            requestData.serviceName.replaceFirstChar { it.uppercaseChar() } + "Impl"
-
-        val groupDotServiceName = "${requestData.groupName}.${requestData.serviceName}"
-
-        val applicableServiceClasses = PsiShortNamesCache.getInstance(project).getClassesByName(
-            exactServiceName,
-            project.allScope()
-        )
-
-        if(applicableServiceClasses.isNotEmpty()) {
-            findApplicableService(applicableServiceClasses, groupDotServiceName)?.let { return it }
-        }
-
-        return null
-    }
-
-    /**
-     * A slower way to search for applicable service. Used when fast method has failed.
-     *
-     * This method searches for every @Service annotation usage and finds a service by its value.
-     * Uses caching.
-     */
-    private fun tryFindServiceByAnnotation(): PsiClass? {
-        val requestData = requestData ?: return null
-
-        val groupDotServiceName = "${requestData.groupName}.${requestData.serviceName}"
-
-        val serviceMap = CallableServiceSearch.findAllCallableServicesImpl(project)
-        return serviceMap[groupDotServiceName]
-    }
-
-    private fun findApplicableService(services: Array<PsiClass>, serviceName: String): PsiClass? {
-        return services.find {
-            it
-                .getAnnotation(SERVICE_ANNOTATION_FQ_NAME)
-                ?.findAttributeValue("value")
-                ?.evaluateToString() == serviceName
+    private fun findApplicableService(possibleServices: Collection<PsiClass>,
+                                      requiredServiceName: String): PsiClass? {
+        return possibleServices.find {
+            it.serviceSolarName == requiredServiceName
         }
     }
 

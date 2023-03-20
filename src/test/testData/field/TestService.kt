@@ -8,7 +8,7 @@ interface TestService {
     fun findData(): DataClass
 
     @Callable
-    fun findData(): DataClassWithList
+    fun findDataWithList(): DataClassWithList
 
     @Callable
     fun findDataClassWithSuperClass(): Cls

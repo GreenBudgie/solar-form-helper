@@ -8,7 +8,6 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiReference
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.util.indexing.FileBasedIndex
 import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.file.IncludedFormFileType
 import com.solanteq.solar.plugin.index.JsonIncludeFileIndex
@@ -45,10 +44,8 @@ class FormIncludedFile(
             .restrictedByFormFiles()
             .minus(GlobalSearchScope.fileScope(containingFile)) as GlobalSearchScope
 
-        val filesToSearch = FileBasedIndex.getInstance().getContainingFiles(
-            JsonIncludeFileIndex.NAME,
-            containingFile.name,
-            baseSearchScope
+        val filesToSearch = JsonIncludeFileIndex.getFilesContainingDeclaration(
+            containingFile.name, baseSearchScope
         )
 
         val effectiveFileScope = GlobalSearchScope.filesScope(project, filesToSearch)

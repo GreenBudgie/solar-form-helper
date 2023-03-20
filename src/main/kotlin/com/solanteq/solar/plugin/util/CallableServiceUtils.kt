@@ -21,7 +21,8 @@ fun PsiClass.isCallableServiceInterface() =
 
 fun UClass.isCallableServiceClassImpl() = javaPsi.isCallableServiceClassImpl()
 
-fun PsiClass.isCallableServiceClassImpl() = interfaces.any { it.isCallableServiceInterface() }
+fun PsiClass.isCallableServiceClassImpl() =
+    hasAnnotation(SERVICE_ANNOTATION_FQ_NAME) && interfaces.any { it.isCallableServiceInterface() }
 
 val UClass.callableMethods: List<PsiMethod>
     get() = javaPsi.callableMethods

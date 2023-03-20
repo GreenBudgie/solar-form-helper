@@ -59,6 +59,7 @@
                          implementationClass="com.solanteq.solar.plugin.inspection.UnresolvedRequestReferenceInspection"/>
 
         <fileBasedIndex implementation="com.solanteq.solar.plugin.index.JsonIncludeFileIndex" />
+        <fileBasedIndex implementation="com.solanteq.solar.plugin.index.CallableServiceImplIndex" />
 
         <!-- Localization -->
 

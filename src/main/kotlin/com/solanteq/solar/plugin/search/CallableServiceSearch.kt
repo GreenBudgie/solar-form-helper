@@ -1,23 +1,22 @@
 package com.solanteq.solar.plugin.search
 
-import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import com.intellij.openapi.vfs.VirtualFileManager
-import com.intellij.psi.JavaPsiFacade
 import com.intellij.psi.PsiClass
-import com.intellij.psi.search.searches.AnnotatedElementsSearch
 import com.intellij.psi.util.CachedValue
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
-import com.solanteq.solar.plugin.util.*
-import org.jetbrains.kotlin.idea.KotlinFileType
-import org.jetbrains.kotlin.idea.base.util.allScope
+import com.solanteq.solar.plugin.index.CallableServiceImplIndex
+import com.solanteq.solar.plugin.util.isCallableServiceClassImpl
+import com.solanteq.solar.plugin.util.javaKotlinModificationTracker
+import com.solanteq.solar.plugin.util.serviceSolarName
+import org.jetbrains.kotlin.idea.core.util.toPsiFile
+import org.jetbrains.uast.UFile
+import org.jetbrains.uast.toUElementOfType
 
 object CallableServiceSearch {
 
     private val CALLABLE_SERVICES_KEY = Key<CachedValue<Map<String, PsiClass>>>("solar.callableServices")
-    private val SERVICE_ANNOTATION_CLASS_KEY = Key<CachedValue<PsiClass?>>("solar.serviceAnnotation")
 
     fun findAllCallableServicesImpl(project: Project): Map<String, PsiClass> {
         return CachedValuesManager.getManager(project).getCachedValue(
@@ -29,45 +28,27 @@ object CallableServiceSearch {
                     project.javaKotlinModificationTracker()
                 )
             },
-            false)
+            false
+        )
     }
 
     private fun doFindAllCallableServicesImpl(project: Project): Map<String, PsiClass> {
-        val serviceAnnotation = findServiceAnnotation(project) ?: return emptyMap()
+        val allPossibleCallableServiceImplFiles = CallableServiceImplIndex
+            .getAllPossibleFilesWithCallableServices(project)
 
-        val effectiveScope = project.allScope().restrictedByFileTypes(
-            JavaFileType.INSTANCE,
-            KotlinFileType.INSTANCE
-        )
-
-        val services = AnnotatedElementsSearch.searchPsiClasses(serviceAnnotation, effectiveScope)
+        val callableServiceClasses = allPossibleCallableServiceImplFiles
+            .mapNotNull { it.toPsiFile(project)?.toUElementOfType<UFile>() }
+            .flatMap { it.classes }
             .filter { it.isCallableServiceClassImpl() }
+            .map { it.javaPsi }
             .sortedBy { it.name }
 
         val result = mutableMapOf<String, PsiClass>()
-        services.forEach {
+        callableServiceClasses.forEach {
             val serviceName = it.serviceSolarName ?: return@forEach
             result += serviceName to it
         }
         return result
-    }
-
-    private fun findServiceAnnotation(project: Project): PsiClass? {
-        return CachedValuesManager.getManager(project).getCachedValue(
-            project,
-            SERVICE_ANNOTATION_CLASS_KEY,
-            {
-                val serviceAnnotation = JavaPsiFacade.getInstance(project).findClass(
-                    SERVICE_ANNOTATION_FQ_NAME,
-                    project.allScope()
-                )
-
-                CachedValueProvider.Result(
-                    serviceAnnotation,
-                    VirtualFileManager.VFS_STRUCTURE_MODIFICATIONS
-                )
-            },
-            false)
     }
 
 }
