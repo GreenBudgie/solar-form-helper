@@ -3,9 +3,6 @@ package com.solanteq.solar.plugin.element
 import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonObject
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
-import com.solanteq.solar.plugin.l10n.FormL10n
-import com.solanteq.solar.plugin.l10n.search.L10nSearch
-import org.jetbrains.kotlin.idea.base.util.projectScope
 
 /**
  * A single object inside `groups` array in form or [FormGroupRow] element.
@@ -17,18 +14,17 @@ class FormGroup(
     sourceElement: JsonObject
 ) : FormLocalizableElement<JsonObject>(sourceElement, sourceElement) {
 
-    override val localizations: List<String> by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        val formL10ns = L10nSearch.findFormL10ns(project, project.projectScope())
-        return@lazy formL10ns
-            .filter { it.type == FormL10n.L10nType.GROUP }
-            .filter { this == it.referencedGroupElement }
-            .map { it.value }
+    override val l10nKeys: List<String> by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        val groupName = name ?: return@lazy emptyList()
+        containingRootForms.flatMap {
+            it.l10nKeys.map { key -> "$key.$groupName" }
+        }
     }
 
     /**
      * A list of [FormField] elements from all rows in this group
      */
-    val allFields by lazy(LazyThreadSafetyMode.PUBLICATION) {
+    val fields by lazy(LazyThreadSafetyMode.PUBLICATION) {
         rows?.flatMap { it.fields ?: emptyList() } ?: emptyList()
     }
 

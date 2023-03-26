@@ -5,13 +5,11 @@ import com.intellij.json.psi.JsonObject
 import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiType
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
-import com.solanteq.solar.plugin.l10n.FormL10n
-import com.solanteq.solar.plugin.l10n.search.L10nSearch
 import com.solanteq.solar.plugin.symbol.FormSymbol
 import com.solanteq.solar.plugin.symbol.FormSymbolType
+import com.solanteq.solar.plugin.util.FormPsiUtils
 import com.solanteq.solar.plugin.util.RangeSplit
-import com.solanteq.solar.plugin.util.valueAsString
-import org.jetbrains.kotlin.idea.base.util.projectScope
+import com.solanteq.solar.plugin.util.valueAsStringOrNull
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UField
 import org.jetbrains.uast.toUElementOfType
@@ -47,12 +45,11 @@ class FormField(
     sourceElement: JsonObject
 ) : FormLocalizableElement<JsonObject>(sourceElement, sourceElement) {
 
-    override val localizations: List<String> by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        val formL10ns = L10nSearch.findFormL10ns(project, project.projectScope())
-        return@lazy formL10ns
-            .filter { it.type == FormL10n.L10nType.FIELD }
-            .filter { this == it.referencedFieldElement }
-            .map { it.value }
+    override val l10nKeys: List<String> by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        val containingGroups = containingGroups
+        containingGroups.flatMap {
+            it.l10nKeys.map { key -> "$key.$name" }
+        }
     }
 
     /**
@@ -62,7 +59,27 @@ class FormField(
      */
     val type by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val typeProperty = sourceElement.findProperty("type") ?: return@lazy null
-        return@lazy typeProperty.valueAsString()
+        return@lazy typeProperty.valueAsStringOrNull()
+    }
+
+    /**
+     * All rows that contain this field.
+     *
+     * Multiple containing rows can exist if this field is in included form
+     */
+    val containingRows: List<FormRow> by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        FormPsiUtils.firstParentsOfType(sourceElement, JsonObject::class).mapNotNull {
+            it.toFormElement()
+        }
+    }
+
+    /**
+     * All groups that contain this field.
+     *
+     * Multiple containing groups can exist if this field is in included form
+     */
+    val containingGroups: List<FormGroup> by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        containingRows.flatMap { it.containingGroups }
     }
 
     /**

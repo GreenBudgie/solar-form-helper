@@ -40,7 +40,7 @@ class L10nFieldSymbolReferenceProvider : PsiSymbolReferenceProvider {
         }
 
         val group = l10nChain.referencedGroupElement ?: return emptyList()
-        val fieldsInGroup = group.allFields
+        val fieldsInGroup = group.fields
         if(fieldsInGroup.isEmpty()) {
             return emptyList()
         }

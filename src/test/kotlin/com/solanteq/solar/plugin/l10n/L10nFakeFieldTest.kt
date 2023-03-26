@@ -356,7 +356,6 @@ class L10nFakeFieldTest : LightPluginTestBase() {
             "test.form.rootForm.group1.field1.<caret>field2" to "Field Name!",
         )
 
-
         val symbol = getFormSymbolReferenceAtCaret().resolveReference().first()
 
         assertSymbolUsagesAndRenameUsagesSizeEquals(

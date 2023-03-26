@@ -1,5 +1,7 @@
 package com.solanteq.solar.plugin.l10n
 
+import com.intellij.json.psi.JsonFile
+import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
 import com.intellij.openapi.util.Condition
 import com.intellij.psi.PsiElement
@@ -10,7 +12,8 @@ class L10nVetoPropertyRename : Condition<PsiElement> {
     override fun value(element: PsiElement?): Boolean {
         if(element !is JsonProperty) return false
         if(element.containingFile?.fileType != L10nFileType) return false
-        return FormL10n.isFormL10n(element)
+        val parentObject = element.parent as? JsonObject ?: return false
+        return parentObject.parent is JsonFile
     }
 
 }

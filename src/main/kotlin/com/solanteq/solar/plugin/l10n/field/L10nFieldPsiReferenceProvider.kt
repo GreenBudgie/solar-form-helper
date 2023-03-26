@@ -19,7 +19,7 @@ object L10nFieldPsiReferenceProvider : PsiReferenceProvider() {
         }
 
         val group = formL10n.referencedGroupElement ?: return emptyArray()
-        val fieldsInGroup = group.allFields
+        val fieldsInGroup = group.fields
         if(fieldsInGroup.isEmpty()) {
             return emptyArray()
         }

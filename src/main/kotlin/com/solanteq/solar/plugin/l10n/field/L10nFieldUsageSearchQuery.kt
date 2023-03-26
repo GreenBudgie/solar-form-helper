@@ -1,5 +1,6 @@
 package com.solanteq.solar.plugin.l10n.field
 
+import com.intellij.json.psi.JsonObject
 import com.intellij.model.psi.PsiSymbolReferenceService
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.search.GlobalSearchScope
@@ -10,7 +11,7 @@ import com.solanteq.solar.plugin.element.FormIncludedFile
 import com.solanteq.solar.plugin.element.FormRootFile
 import com.solanteq.solar.plugin.element.toFormElement
 import com.solanteq.solar.plugin.file.RootFormFileType
-import com.solanteq.solar.plugin.l10n.search.L10nSearch
+import com.solanteq.solar.plugin.l10n.L10nSearchQueryUtil
 import com.solanteq.solar.plugin.symbol.FormSymbol
 import com.solanteq.solar.plugin.symbol.FormSymbolType
 import com.solanteq.solar.plugin.symbol.FormSymbolUsage
@@ -52,6 +53,33 @@ class L10nFieldUsageSearchQuery(
         return true
     }
 
+    override fun processReferences(globalSearchScope: GlobalSearchScope,
+                                   consumer: Processor<in FormSymbolUsage>): Boolean {
+        val project = resolveTarget.project
+        val fieldObject = resolveTarget.element.parent?.parent as? JsonObject ?: return true
+        val fieldElement = fieldObject.toFormElement<FormField>() ?: return true
+        val formL10nKeys = fieldElement.containingRootForms.flatMap { it.l10nKeys }
+        val propertyKeys = L10nSearchQueryUtil.getPropertyKeysForL10nKeys(
+            formL10nKeys, formL10nKeys, globalSearchScope, project
+        )
+        val symbolReferenceService = PsiSymbolReferenceService.getService()
+        propertyKeys.forEach {
+            val references = symbolReferenceService.getReferences(it)
+            val fieldReferences = references.filterIsInstance<L10nFieldSymbolReference>()
+            if(!processReferences(fieldReferences, consumer)) {
+                return false
+            }
+        }
+        return true
+    }
+
+    private fun compareChains(source: RangeSplit, compareTo: RangeSplit, untilIndex: Int): Boolean {
+        if(compareTo.size < source.size) return false
+        val trimmedSource = source.take(untilIndex).convert()
+        val trimmedCompareTo = compareTo.take(untilIndex).convert()
+        return trimmedSource == trimmedCompareTo
+    }
+
     private fun processDeclarationsInField(field: FormField,
                                            sourceFieldChain: RangeSplit,
                                            compareUntilIndex: Int,
@@ -71,28 +99,6 @@ class L10nFieldUsageSearchQuery(
                 return@forEach
             }
             if(!consumer.process(FormSymbolUsage(fieldDeclaration.symbol, true))) {
-                return false
-            }
-        }
-        return true
-    }
-
-    private fun compareChains(source: RangeSplit, compareTo: RangeSplit, untilIndex: Int): Boolean {
-        if(compareTo.size < source.size) return false
-        val trimmedSource = source.take(untilIndex).convert()
-        val trimmedCompareTo = compareTo.take(untilIndex).convert()
-        return trimmedSource == trimmedCompareTo
-    }
-
-    override fun processReferences(globalSearchScope: GlobalSearchScope,
-                                   consumer: Processor<in FormSymbolUsage>): Boolean {
-        val formL10ns = L10nSearch.findFormL10ns(resolveTarget.project, globalSearchScope)
-        val keys = formL10ns.map { it.keyElement }
-        val symbolReferenceService = PsiSymbolReferenceService.getService()
-        keys.forEach {
-            val references = symbolReferenceService.getReferences(it)
-            val fieldReferences = references.filterIsInstance<L10nFieldSymbolReference>()
-            if(!processReferences(fieldReferences, consumer)) {
                 return false
             }
         }

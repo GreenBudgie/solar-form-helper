@@ -73,12 +73,12 @@ class L10nInlayProvider : InlayHintsProvider<NoSettings> {
                 return
             }
             //TODO add ru/en selection support
-            val localization = formElement.localizations.firstOrNull() ?: return
+            val localizationValue = formElement.l10nValues.firstOrNull() ?: return
             val valueElement = formElement.namePropertyValue ?: return
             val offset = valueElement.textRange.endOffset
 
             val factory = PresentationFactory(editor)
-            val presentation = factory.smallText(localization)
+            val presentation = factory.smallText(localizationValue)
             sink.addInlineElement(offset, false, presentation, true)
         }
 

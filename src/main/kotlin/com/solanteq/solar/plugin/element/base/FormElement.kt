@@ -3,9 +3,12 @@ package com.solanteq.solar.plugin.element.base
 import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonObject
+import com.solanteq.solar.plugin.element.FormIncludedFile
+import com.solanteq.solar.plugin.element.FormRootFile
 import com.solanteq.solar.plugin.element.base.FormElement.FormElementCreator
 import com.solanteq.solar.plugin.element.toFormElement
 import com.solanteq.solar.plugin.util.FormPsiUtils
+import com.solanteq.solar.plugin.util.asList
 
 /**
  * Form element is a representation of a SOLAR form json element.
@@ -46,14 +49,29 @@ abstract class FormElement<T : JsonElement> protected constructor(
         sourceElement.containingFile?.originalFile as? JsonFile
     }
 
+    /**
+     * All root forms that contain this element.
+     * - If the element is in the root form, only one form will be returned.
+     * - If the element is in the included form, finds all root forms that contain this included form.
+     */
+    val containingRootForms by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        containingFile.toFormElement<FormRootFile>()?.let {
+            return@lazy it.asList()
+        }
+        containingFile.toFormElement<FormIncludedFile>()?.let {
+            return@lazy it.allRootForms
+        }
+        return@lazy emptyList()
+    }
+
     override fun equals(other: Any?): Boolean {
-        if(other is FormElement<*>) return other.sourceElement == sourceElement
+        if(other is FormElement<*>) {
+            return this === other || other.sourceElement == sourceElement
+        }
         return false
     }
 
-    override fun hashCode(): Int {
-        return sourceElement.hashCode()
-    }
+    override fun hashCode() = sourceElement.hashCode()
 
     companion object {
 

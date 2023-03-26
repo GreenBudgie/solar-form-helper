@@ -106,5 +106,9 @@
         <codeInsight.inlayProvider implementationClass="com.solanteq.solar.plugin.l10n.L10nInlayProvider"
                                    language="JSON" />
 
+        <fileBasedIndex implementation="com.solanteq.solar.plugin.index.L10nIndex" />
+        <fileBasedIndex implementation="com.solanteq.solar.plugin.index.FormL10nIndex" />
+        <fileBasedIndex implementation="com.solanteq.solar.plugin.index.FormNameL10nShortIndex" />
+
     </extensions>
 </idea-plugin>

@@ -11,14 +11,12 @@ import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.TypeConversionUtil
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.file.RootFormFileType
-import com.solanteq.solar.plugin.l10n.FormL10n
-import com.solanteq.solar.plugin.l10n.search.L10nSearch
 import com.solanteq.solar.plugin.reference.form.FormNameReference
 import com.solanteq.solar.plugin.util.FormPsiUtils
+import com.solanteq.solar.plugin.util.asList
 import com.solanteq.solar.plugin.util.restrictedByFormFiles
-import com.solanteq.solar.plugin.util.valueAsString
+import com.solanteq.solar.plugin.util.valueAsStringOrNull
 import org.jetbrains.kotlin.idea.base.util.allScope
-import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.toUElementOfType
 
@@ -44,24 +42,36 @@ class FormRootFile(
 ) : FormLocalizableElement<JsonFile>(sourceElement, topLevelObject) {
 
     /**
+     * The short name of this form.
+     *
+     * If the "name" property is not present in the form, it will return the name
+     * of the form file without extension
+     */
+    override val name by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        super.name?.let { return@lazy it }
+        containingFile?.virtualFile?.nameWithoutExtension
+    }
+
+    /**
      * An actual json property element that represents module of this form
      */
     val moduleProperty by lazy(LazyThreadSafetyMode.PUBLICATION) { topLevelObject.findProperty("module") }
 
     /**
-     * Module of this form object.
+     * Module name of this form file.
      *
-     * It might return null if [sourceElement] does not have a `module` property or
-     * this property has non-string value.
+     * If the "module" property is not present in the form, it will return the name
+     * of parent directory of the form file, which should correspond to its module
      */
-    val module by lazy(LazyThreadSafetyMode.PUBLICATION) { moduleProperty.valueAsString() }
+    val moduleName by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        moduleProperty.valueAsStringOrNull()?.let { return@lazy it }
+        containingFile?.parent?.name
+    }
 
-    override val localizations: List<String> by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        val formL10ns = L10nSearch.findFormL10ns(project, project.projectScope())
-        return@lazy formL10ns
-            .filter { it.type == FormL10n.L10nType.FORM }
-            .filter { this == it.referencedFormFileElement }
-            .map { it.value }
+    override val l10nKeys by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        val module = moduleName ?: return@lazy emptyList()
+        val name = name ?: return@lazy emptyList()
+        return@lazy "$module.form.$name".asList()
     }
 
     /**
@@ -69,7 +79,7 @@ class FormRootFile(
      */
     val fullName by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val name = name ?: return@lazy null
-        val module = module ?: return@lazy name
+        val module = moduleName ?: return@lazy name
         return@lazy "$module.$name"
     }
 
@@ -114,7 +124,7 @@ class FormRootFile(
      * All fields from [allGroups] in this form
      */
     val allFields by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        allGroups.flatMap { it.allFields }
+        allGroups.flatMap { it.fields }
     }
 
     /**

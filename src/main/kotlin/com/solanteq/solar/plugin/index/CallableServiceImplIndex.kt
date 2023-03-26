@@ -62,7 +62,7 @@ class CallableServiceImplIndex : ScalarIndexExtension<String>() {
 
     private fun getAnnotationValue(annotation: UAnnotation): String? {
         val annotationFullText = annotation.sourcePsi?.text ?: return null
-        val valueRegex = Regex("@\\w+\\((?=.*value\\s*=\\s*\"(.*?)\").*?\"(.*?)\"\\)|@\\w+\\(\"(.+?)\".*\\)")
+        val valueRegex = Regex(ANNOTATION_VALUE_REGEX)
         val matchResult = valueRegex.find(annotationFullText)
         val groupValues = matchResult?.groupValues ?: return null
         (1..3).forEach {
@@ -74,6 +74,9 @@ class CallableServiceImplIndex : ScalarIndexExtension<String>() {
     }
 
     companion object {
+
+        private const val ANNOTATION_VALUE_REGEX =
+            "@\\w+\\((?=.*value\\s*=\\s*\"(.*?)\").*?\"(.*?)\"\\)|@\\w+\\(\"(.+?)\".*\\)"
 
         val NAME = ID.create<String, Void>("CallableServiceImplIndex")
 

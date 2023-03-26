@@ -3,11 +3,6 @@ package com.solanteq.solar.plugin.l10n
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonProperty
 import com.intellij.json.psi.JsonStringLiteral
-import com.intellij.openapi.util.Key
-import com.intellij.psi.util.CachedValue
-import com.intellij.psi.util.CachedValueProvider
-import com.intellij.psi.util.CachedValuesManager
-import com.intellij.psi.util.PsiModificationTracker
 import com.solanteq.solar.plugin.element.FormRootFile
 import com.solanteq.solar.plugin.element.toFormElement
 import com.solanteq.solar.plugin.search.FormSearch
@@ -44,8 +39,9 @@ import org.jetbrains.kotlin.idea.core.util.toPsiFile
 class FormL10n private constructor(
     keyElement: JsonStringLiteral,
     valueElement: JsonStringLiteral,
+    locale: L10nLocale,
     val chain: RangeSplit,
-) : L10n(keyElement, valueElement) {
+) : L10n(keyElement, valueElement, locale) {
 
     val project = keyElement.project
 
@@ -186,7 +182,7 @@ class FormL10n private constructor(
             return@lazy null
         }
         val group = referencedGroupElement ?: return@lazy null
-        return@lazy group.allFields.find { field ->
+        return@lazy group.fields.find { field ->
             val fieldNameChain = field.fieldNameChain.strings
             l10nFieldNameChain == fieldNameChain
         }
@@ -216,8 +212,6 @@ class FormL10n private constructor(
         private const val groupNameChainIndex = 3
         private const val fieldChainStartIndex = 4
 
-        private val key = Key<CachedValue<FormL10n>>("solar.l10n.form")
-
         /**
          * Whether this property can be considered a form localization.
          * Note that the form may not be resolved, but it will still be considered a form l10n.
@@ -240,14 +234,7 @@ class FormL10n private constructor(
         /**
          * Creates form l10n from the given property if it's possible, or returns null
          */
-        fun fromElement(property: JsonProperty): FormL10n? {
-            return CachedValuesManager.getCachedValue(property, key) {
-                CachedValueProvider.Result(
-                    createChain(property),
-                    PsiModificationTracker.MODIFICATION_COUNT
-                )
-            }
-        }
+        fun fromElement(property: JsonProperty) = createChain(property)
 
         /**
          * Creates form l10n from the given property key element if it's possible, or returns null
@@ -257,6 +244,17 @@ class FormL10n private constructor(
             return fromElement(parentProperty)
         }
 
+        /**
+         * Whether this plain [L10n] can be considered a form localization.
+         * Note that the form may not be resolved, but it will still be considered a form l10n.
+         */
+        fun isFormL10n(l10n: L10n) = isFormL10n(l10n.keyElement)
+
+        /**
+         * Creates [FormL10n] from the given plain [L10n] if it is possible, or returns null
+         */
+        fun fromL10n(l10n: L10n) = fromElement(l10n.keyElement)
+
         private fun createChain(property: JsonProperty): FormL10n? {
             val keyElement = property.nameElement as? JsonStringLiteral ?: return null
             val valueElement = property.value as? JsonStringLiteral ?: return null
@@ -264,7 +262,9 @@ class FormL10n private constructor(
             if(rangeSplit.size < 3) return null
             val l10nType = rangeSplit[1].text
             if(l10nType != "form") return null
-            return FormL10n(keyElement, valueElement, rangeSplit)
+            val parentDirectory = property.containingFile?.originalFile?.parent ?: return null
+            val locale = L10nLocale.getByDirectoryName(parentDirectory.name) ?: return null
+            return FormL10n(keyElement, valueElement, locale, rangeSplit)
         }
 
     }

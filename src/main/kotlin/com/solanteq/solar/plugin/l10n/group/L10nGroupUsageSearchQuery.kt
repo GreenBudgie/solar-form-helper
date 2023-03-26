@@ -1,10 +1,13 @@
 package com.solanteq.solar.plugin.l10n.group
 
+import com.intellij.json.psi.JsonObject
 import com.intellij.model.psi.PsiSymbolReferenceService
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.SearchScope
 import com.intellij.util.Processor
-import com.solanteq.solar.plugin.l10n.search.L10nSearch
+import com.solanteq.solar.plugin.element.FormGroup
+import com.solanteq.solar.plugin.element.toFormElement
+import com.solanteq.solar.plugin.l10n.L10nSearchQueryUtil
 import com.solanteq.solar.plugin.symbol.FormSymbol
 import com.solanteq.solar.plugin.symbol.FormSymbolUsage
 import com.solanteq.solar.plugin.symbol.FormSymbolUsageSearchQuery
@@ -22,10 +25,16 @@ class L10nGroupUsageSearchQuery(
 
     override fun processReferences(globalSearchScope: GlobalSearchScope,
                                    consumer: Processor<in FormSymbolUsage>): Boolean {
-        val formL10ns = L10nSearch.findFormL10ns(resolveTarget.project, globalSearchScope)
-        val keys = formL10ns.map { it.keyElement }
+        val project = resolveTarget.project
+        val fieldObject = resolveTarget.element.parent?.parent as? JsonObject ?: return true
+        val groupElement = fieldObject.toFormElement<FormGroup>() ?: return true
+        val groupL10nKeys = groupElement.l10nKeys
+        val formL10nKeys = groupElement.containingRootForms.flatMap { it.l10nKeys }
+        val propertyKeys = L10nSearchQueryUtil.getPropertyKeysForL10nKeys(
+            formL10nKeys, groupL10nKeys, globalSearchScope, project
+        )
         val symbolReferenceService = PsiSymbolReferenceService.getService()
-        keys.forEach {
+        propertyKeys.forEach {
             val references = symbolReferenceService.getReferences(it)
             val groupReferences = references.filterIsInstance<L10nGroupSymbolReference>()
             if(!processReferences(groupReferences, consumer)) {

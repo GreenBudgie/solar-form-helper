@@ -6,7 +6,7 @@ import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
 import com.solanteq.solar.plugin.element.base.FormNamedElement
 import com.solanteq.solar.plugin.search.FormSearch
-import com.solanteq.solar.plugin.util.valueAsString
+import com.solanteq.solar.plugin.util.valueAsStringOrNull
 import org.jetbrains.kotlin.idea.base.util.allScope
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 
@@ -24,7 +24,7 @@ class FormInline(
 
     val formFile by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val formProperty = valueObject.findProperty("form") ?: return@lazy null
-        val stringValue = formProperty.valueAsString() ?: return@lazy null
+        val stringValue = formProperty.valueAsStringOrNull() ?: return@lazy null
         return@lazy FormSearch.findRootFormBySolarName(stringValue, project.allScope())?.toPsiFile(project) as? JsonFile
     }
 

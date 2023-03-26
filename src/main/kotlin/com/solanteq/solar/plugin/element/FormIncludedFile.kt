@@ -64,7 +64,7 @@ class FormIncludedFile(
     }
 
     /**
-     * All root forms that included forms can lead to.
+     * All root forms that included form can lead to.
      *
      * Traverses up recursively through all included forms until the root form is found.
      */
@@ -89,7 +89,8 @@ class FormIncludedFile(
 
     companion object : FormElementCreator<FormIncludedFile> {
 
-        private val concurrentProcessingFileSet = Collections.newSetFromMap(ConcurrentHashMap<Any, Boolean>())
+        private val concurrentProcessingFileSet =
+            Collections.newSetFromMap(ConcurrentHashMap<JsonFile, Boolean>())
 
         override fun create(sourceElement: JsonElement): FormIncludedFile? {
             val jsonFile = sourceElement as? JsonFile ?: return null

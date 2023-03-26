@@ -4,7 +4,7 @@ import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonStringLiteral
 import com.solanteq.solar.plugin.element.toFormElement
-import com.solanteq.solar.plugin.util.valueAsString
+import com.solanteq.solar.plugin.util.valueAsStringOrNull
 
 /**
  * Represents a json element with `name` property.
@@ -47,8 +47,8 @@ abstract class FormNamedElement<T : JsonElement>(
      * It might return null if [sourceElement] does not have a `name` property or
      * this property has non-string value.
      */
-    val name by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        nameProperty.valueAsString()
+    open val name by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        nameProperty.valueAsStringOrNull()
     }
 
 }
