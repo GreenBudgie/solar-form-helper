@@ -112,7 +112,7 @@ class FormRequest(
     }
 
     /**
-     * Returns UAST service to which the request points to,
+     * Returns service to which the request points to,
      * or null if request is invalid or no service is found
      */
     val serviceFromRequest by lazy(LazyThreadSafetyMode.PUBLICATION) {

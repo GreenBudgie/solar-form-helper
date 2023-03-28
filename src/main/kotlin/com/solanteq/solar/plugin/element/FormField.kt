@@ -2,7 +2,9 @@ package com.solanteq.solar.plugin.element
 
 import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonObject
+import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiClassType
+import com.intellij.psi.PsiField
 import com.intellij.psi.PsiType
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.symbol.FormSymbol
@@ -10,9 +12,6 @@ import com.solanteq.solar.plugin.symbol.FormSymbolType
 import com.solanteq.solar.plugin.util.FormPsiUtils
 import com.solanteq.solar.plugin.util.RangeSplit
 import com.solanteq.solar.plugin.util.valueAsStringOrNull
-import org.jetbrains.uast.UClass
-import org.jetbrains.uast.UField
-import org.jetbrains.uast.toUElementOfType
 
 /**
  * A single object inside `fields` array in [FormRow] element.
@@ -129,7 +128,7 @@ class FormField(
         }
 
         val propertyChain = mutableListOf<FieldProperty>()
-        var dataClasses: List<UClass> = findAllDataClassesFromRequests()
+        var dataClasses: List<PsiClass> = findAllDataClassesFromRequests()
 
         stringPropertyChain.forEach { (textRange, fieldName) ->
             if(dataClasses.isEmpty()) {
@@ -157,14 +156,14 @@ class FormField(
 
             propertyChain += FieldProperty(fieldName, dataClasses, containingClass, field, null)
 
-            val nextDataClass = psiTypeAsUClassOrNull(field.type)
+            val nextDataClass = psiTypeAsPsiClassOrNull(field.type)
             dataClasses = if(nextDataClass != null) listOf(nextDataClass) else emptyList()
         }
 
         return@lazy propertyChain.toList()
     }
 
-    private fun findAllDataClassesFromRequests(): List<UClass> {
+    private fun findAllDataClassesFromRequests(): List<PsiClass> {
         val containingRootForm = containingFile.toFormElement<FormRootFile>()
         if(containingRootForm != null) {
             return containingRootForm.allDataClassesFromRequests
@@ -176,18 +175,18 @@ class FormField(
         }
     }
 
-    private fun findClassAndFieldByNameInClasses(uClasses: List<UClass>, fieldName: String): Pair<UClass?, UField?> {
-        uClasses.forEach { uClass ->
-            uClass.javaPsi.allFields
+    private fun findClassAndFieldByNameInClasses(psiClasses: List<PsiClass>, fieldName: String): Pair<PsiClass?, PsiField?> {
+        psiClasses.forEach { psiClass ->
+            psiClass.allFields
                 .find { it.name == fieldName }
-                ?.let { return uClass to it.toUElementOfType() }
+                ?.let { return psiClass to it }
         }
         return null to null
     }
 
-    private fun psiTypeAsUClassOrNull(psiType: PsiType): UClass? {
+    private fun psiTypeAsPsiClassOrNull(psiType: PsiType): PsiClass? {
         val classReturnType = psiType as? PsiClassType ?: return null
-        return classReturnType.resolve().toUElementOfType()
+        return classReturnType.resolve()
     }
 
     /**
@@ -201,9 +200,9 @@ class FormField(
      */
     data class FieldProperty(
         val name: String,
-        val applicableClasses: List<UClass>,
-        val containingClass: UClass?,
-        val referencedField: UField?,
+        val applicableClasses: List<PsiClass>,
+        val containingClass: PsiClass?,
+        val referencedField: PsiField?,
         val symbol: FormSymbol?
     )
 

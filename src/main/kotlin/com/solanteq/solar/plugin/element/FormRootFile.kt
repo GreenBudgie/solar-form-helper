@@ -17,8 +17,6 @@ import com.solanteq.solar.plugin.util.asList
 import com.solanteq.solar.plugin.util.restrictedByFormFiles
 import com.solanteq.solar.plugin.util.valueAsStringOrNull
 import org.jetbrains.kotlin.idea.base.util.allScope
-import org.jetbrains.uast.UClass
-import org.jetbrains.uast.toUElementOfType
 
 /**
  * Represents a root (top-level) form file.
@@ -195,7 +193,7 @@ class FormRootFile(
      * 2. Inline requests from other forms
      * 3. List field in other forms
      */
-    val allDataClassesFromRequests: List<UClass> by lazy(LazyThreadSafetyMode.PUBLICATION) {
+    val allDataClassesFromRequests: List<PsiClass> by lazy(LazyThreadSafetyMode.PUBLICATION) {
         dataClassFromSourceRequest?.let { return@lazy listOf(it) }
 
         val inlineDataClasses = dataClassesFromInlineRequests
@@ -232,7 +230,7 @@ class FormRootFile(
     /**
      * All applicable data classes from list fields
      */
-    val dataClassesFromListFields: List<UClass> by lazy(LazyThreadSafetyMode.PUBLICATION) {
+    val dataClassesFromListFields: List<PsiClass> by lazy(LazyThreadSafetyMode.PUBLICATION) {
         relatedListFields.mapNotNull {
             val referencedField = it.propertyChain.lastOrNull()?.referencedField ?: return@mapNotNull null
             val fieldContainingClass = referencedField.containingClass ?: return@mapNotNull null
@@ -254,7 +252,7 @@ class FormRootFile(
         }, EmptyProgressIndicator())
     }
 
-    private fun getDataClassFromInlineRequest(request: FormRequest): UClass? {
+    private fun getDataClassFromInlineRequest(request: FormRequest): PsiClass? {
         val method = request.methodFromRequest ?: return null
         val derivedClass = request.serviceFromRequest ?: return null
         val superClass = method.containingClass ?: return null
@@ -267,14 +265,14 @@ class FormRootFile(
         )
     }
 
-    private fun substitutePsiType(superClass: PsiClass, derivedClass: PsiClass, psiType: PsiType): UClass? {
+    private fun substitutePsiType(superClass: PsiClass, derivedClass: PsiClass, psiType: PsiType): PsiClass? {
         val substitutedReturnType = TypeConversionUtil.getClassSubstitutor(
             superClass,
             derivedClass,
             PsiSubstitutor.EMPTY
         )?.substitute(psiType)
         val classReturnType = substitutedReturnType as? PsiClassType ?: return null
-        return classReturnType.resolve().toUElementOfType()
+        return classReturnType.resolve()
     }
 
     /**

@@ -14,7 +14,7 @@ class FieldReference(
 
     override fun getVariants(): Array<out Any> {
         val applicableClasses = fieldProperty.applicableClasses
-        val fields = applicableClasses.flatMap { it.javaPsi.allFields.toList() }
+        val fields = applicableClasses.flatMap { it.allFields.toList() }
         return fields
             .distinct()
             .map { field ->
@@ -29,6 +29,6 @@ class FieldReference(
             }.toTypedArray()
     }
 
-    override fun resolve() = fieldProperty.referencedField?.sourcePsi
+    override fun resolve() = fieldProperty.referencedField
 
 }

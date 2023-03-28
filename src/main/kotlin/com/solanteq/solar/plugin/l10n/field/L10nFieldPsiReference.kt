@@ -34,7 +34,7 @@ class L10nFieldPsiReference(
             l10nFieldNameChainIndex,
             false
         ).firstOrNull() ?: return null
-        return fieldProperty.referencedField?.sourcePsi
+        return fieldProperty.referencedField
     }
 
 }
