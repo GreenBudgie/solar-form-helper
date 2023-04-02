@@ -32,7 +32,7 @@
 
         <useScopeEnlarger implementation="com.solanteq.solar.plugin.scope.SolarProjectScopeEnlarger" />
 
-        <referencesSearch implementation="com.solanteq.solar.plugin.reference.request.ServiceNameQueryExecutor" />
+        <referencesSearch implementation="com.solanteq.solar.plugin.reference.request.CallableServiceQueryExecutor" />
 
         <moveFileHandler implementation="com.solanteq.solar.plugin.move.RootFormMoveHandler" />
         <moveFileHandler implementation="com.solanteq.solar.plugin.move.IncludedFormMoveHandler" />
@@ -60,6 +60,7 @@
 
         <fileBasedIndex implementation="com.solanteq.solar.plugin.index.JsonIncludeFileIndex" />
         <fileBasedIndex implementation="com.solanteq.solar.plugin.index.CallableServiceImplIndex" />
+        <fileBasedIndex implementation="com.solanteq.solar.plugin.index.DropdownIndex" />
 
         <!-- Localization -->
 

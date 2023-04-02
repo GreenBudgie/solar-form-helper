@@ -151,8 +151,8 @@ class FormRootFile(
      */
     val dataClassFromSourceRequest by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val sourceRequest = sourceRequest ?: return@lazy null
-        val method = sourceRequest.methodFromRequest ?: return@lazy null
-        val derivedClass = sourceRequest.serviceFromRequest ?: return@lazy null
+        val method = sourceRequest.referencedMethod ?: return@lazy null
+        val derivedClass = sourceRequest.referencedService ?: return@lazy null
         val superClass = method.containingClass ?: return@lazy null
         val rawReturnType = method.returnType ?: return@lazy null
         return@lazy substitutePsiType(
@@ -253,8 +253,8 @@ class FormRootFile(
     }
 
     private fun getDataClassFromInlineRequest(request: FormRequest): PsiClass? {
-        val method = request.methodFromRequest ?: return null
-        val derivedClass = request.serviceFromRequest ?: return null
+        val method = request.referencedMethod ?: return null
+        val derivedClass = request.referencedService ?: return null
         val superClass = method.containingClass ?: return null
         val rawReturnListType = method.returnType as? PsiClassType ?: return null
         val rawReturnType = rawReturnListType.parameters.firstOrNull() ?: return null

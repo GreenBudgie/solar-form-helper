@@ -10,6 +10,7 @@ import org.jetbrains.kotlin.idea.KotlinLanguage
 const val SERVICE_ANNOTATION_FQ_NAME = "org.springframework.stereotype.Service"
 const val CALLABLE_SERVICE_ANNOTATION_FQ_NAME = "com.solanteq.solar.commons.annotations.CallableService"
 const val CALLABLE_ANNOTATION_FQ_NAME = "com.solanteq.solar.commons.annotations.Callable"
+const val DROPDOWN_ANNOTATION_FQ_NAME = "com.solanteq.solar.commons.annotations.Dropdown"
 
 fun PsiAnnotationMemberValue.evaluateToString(): String? {
     return JavaPsiFacade.getInstance(project)

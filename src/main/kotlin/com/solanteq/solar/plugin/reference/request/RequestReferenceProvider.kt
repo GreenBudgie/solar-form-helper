@@ -9,35 +9,66 @@ import com.intellij.psi.PsiReferenceProvider
 import com.intellij.util.ProcessingContext
 import com.solanteq.solar.plugin.element.FormRequest
 import com.solanteq.solar.plugin.element.toFormElement
+import com.solanteq.solar.plugin.util.asArray
+import com.solanteq.solar.plugin.util.textRangeWithoutQuotes
 
 object RequestReferenceProvider : PsiReferenceProvider() {
 
-    override fun getReferencesByElement(element: PsiElement, context: ProcessingContext): Array<PsiReference> {
-        val valueLiteral = element as JsonStringLiteral
+    override fun getReferencesByElement(element: PsiElement, context: ProcessingContext): Array<out PsiReference> {
+        val stringLiteral = element as JsonStringLiteral
 
-        val requestElement = getRequestElement(valueLiteral) ?: return emptyArray()
+        val formRequest = getRequestElement(stringLiteral) ?: return emptyArray()
 
-        val requestData = requestElement.requestData
-            ?: return arrayOf(
-                ServiceNameReference(
-                    valueLiteral,
-                    TextRange(1, element.textLength - 1),
-                    null
-                )
+        return if(formRequest.isDropdownRequest) {
+            getDropdownReferences(stringLiteral, formRequest)
+        } else if(formRequest.hasGroup) {
+            getCallableServiceReferences(stringLiteral, formRequest)
+        } else {
+            arrayOf(
+                *getCallableServiceReferences(stringLiteral, formRequest),
+                *getDropdownReferences(stringLiteral, formRequest)
             )
+        }
+    }
 
-        val delimiterPosition = requestData.groupName.length + requestData.serviceName.length + 3
+    private fun getDropdownReferences(element: JsonStringLiteral,
+                                      formRequest: FormRequest): Array<out PsiReference> {
+        val fullRangeEmptyReference = DropdownReference(
+            element,
+            element.textRangeWithoutQuotes,
+            null
+        ).asArray()
 
-        val serviceNameReference = ServiceNameReference(
-            valueLiteral,
-            TextRange(1, delimiterPosition - 1),
-            requestElement
+        val requestData = formRequest.requestData ?: return fullRangeEmptyReference
+        val clazz = requestData.clazz ?: return fullRangeEmptyReference
+
+        return DropdownReference(element, clazz.range, formRequest).asArray()
+    }
+
+    private fun getCallableServiceReferences(element: JsonStringLiteral,
+                                             formRequest: FormRequest): Array<out PsiReference> {
+        val fullRangeEmptyReference = CallableServiceReference(
+            element,
+            element.textRangeWithoutQuotes,
+            null
+        ).asArray()
+
+        val requestData = formRequest.requestData ?: return fullRangeEmptyReference
+        val module = requestData.module ?: return fullRangeEmptyReference
+        val clazz = requestData.clazz ?: return fullRangeEmptyReference
+
+        val serviceNameReference = CallableServiceReference(
+            element,
+            TextRange(module.range.startOffset, clazz.range.endOffset),
+            formRequest
         )
 
-        val serviceMethodReference = ServiceMethodReference(
-            valueLiteral,
-            TextRange(delimiterPosition, delimiterPosition + requestData.methodName.length),
-            requestElement
+        val method = requestData.method ?: return serviceNameReference.asArray()
+
+        val serviceMethodReference = CallableMethodReference(
+            element,
+            method.range,
+            formRequest
         )
 
         return arrayOf(serviceNameReference, serviceMethodReference)

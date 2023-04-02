@@ -12,6 +12,9 @@ class SolarProjectScopeEnlarger : UseScopeEnlarger() {
         val projectScope = project.projectScope()
         val formsScope = projectScope.restrictedByFormFiles()
         val formsAndLocalizationsScope = projectScope.restrictedByFormAndL10nFiles()
+        if(this is PsiClass && hasAnnotation(DROPDOWN_ANNOTATION_FQ_NAME)) {
+            return formsScope
+        }
         if(this is PsiClass && isCallableServiceClassImpl()) {
             return formsScope
         }

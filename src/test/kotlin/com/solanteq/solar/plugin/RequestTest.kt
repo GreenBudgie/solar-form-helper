@@ -162,6 +162,96 @@ class RequestTest : JavaPluginTestBase() {
         fixture.checkHighlighting()
     }
 
+    @Test
+    fun `test java enum dropdown reference`() {
+        fixture.configureByFiles("DropdownJava.java")
+        fixture.createFormAndConfigure("testForm", "abc", """
+                {
+                  "source": {
+                    "name": "test.<caret>dropdownJava.findAll",
+                    "group": "${'$'}dropdown"
+                  }
+                }
+            """.trimIndent())
+
+        assertReferencedElementNameEquals("DropdownJava")
+    }
+
+    @Test
+    fun `test kotlin enum dropdown reference`() {
+        fixture.configureByFiles("DropdownKotlin.kt")
+        fixture.createFormAndConfigure("testForm", "abc", """
+                {
+                  "source": {
+                    "name": "test.<caret>dropdownKotlin.findAll",
+                    "group": "${'$'}dropdown"
+                  }
+                }
+            """.trimIndent())
+
+        assertReferencedElementNameEquals("DropdownKotlin")
+    }
+
+    //Only add dropdown completions if the $dropdown group is specified
+    @ParameterizedTest
+    @ValueSource(strings = [
+        "<caret>",
+        "test.<caret>.",
+        "test.<caret>.findAll"
+    ])
+    fun `test only enum dropdown completion`(request: String) {
+        configureServicesForCompletion()
+        fixture.configureByFiles("DropdownKotlin.kt", "DropdownJava.java")
+        fixture.createFormAndConfigure("testForm", "abc", """
+                {
+                  "source": {
+                    "name": "$request",
+                    "group": "${'$'}dropdown"
+                  }
+                }
+            """.trimIndent())
+
+        assertCompletionsContainsExact("test.dropdownKotlin.findAll", "test.dropdownJava.findAll")
+    }
+
+    //Do not add dropdown completions if $dropdown is not specified
+    @Test
+    fun `test no enum dropdown completion`() {
+        configureServicesForCompletion()
+        fixture.configureByFiles("DropdownKotlin.kt", "DropdownJava.java")
+        fixture.createFormAndConfigure("testForm", "abc", """
+                {
+                  "source": {
+                    "name": "<caret>",
+                    "group": "test"
+                  }
+                }
+            """.trimIndent())
+
+        assertCompletionsContainsExact("test.testService", "test.testServiceJava")
+    }
+
+    //Add both dropdowns and services to completions if no group is specified
+    @Test
+    fun `test both service and enum dropdown completion`() {
+        configureServicesForCompletion()
+        fixture.configureByFiles("DropdownKotlin.kt", "DropdownJava.java")
+        fixture.createFormAndConfigure("testForm", "abc", """
+                {
+                  "source": {
+                    "name": "<caret>"
+                  }
+                }
+            """.trimIndent())
+
+        assertCompletionsContainsExact(
+            "test.testService",
+            "test.testServiceJava",
+            "test.dropdownKotlin.findAll",
+            "test.dropdownJava.findAll"
+        )
+    }
+
     private fun configureServicesForCompletion() {
         fixture.configureByFiles(
             "TestService.kt",

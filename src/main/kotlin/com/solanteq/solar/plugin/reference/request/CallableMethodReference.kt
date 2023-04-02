@@ -4,23 +4,20 @@ import com.intellij.codeInsight.daemon.EmptyResolveMessageProvider
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.PsiClass
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiMethod
-import com.intellij.psi.PsiSubstitutor
+import com.intellij.psi.*
 import com.intellij.psi.util.PsiFormatUtil
 import com.intellij.psi.util.TypeConversionUtil
 import com.solanteq.solar.plugin.element.FormRequest
 import com.solanteq.solar.plugin.util.callableMethods
 
-class ServiceMethodReference(
+class CallableMethodReference(
     element: JsonStringLiteral,
     range: TextRange,
-    requestElement: FormRequest?
-) : CallableServiceReference(element, range, requestElement), EmptyResolveMessageProvider {
+    private val requestElement: FormRequest?
+) : PsiReferenceBase<JsonStringLiteral>(element, range, true), EmptyResolveMessageProvider {
 
     override fun getVariants(): Array<Any> {
-        val service = requestElement?.serviceFromRequest ?: return emptyArray()
+        val service = requestElement?.referencedService ?: return emptyArray()
         return service.callableMethods.map { method ->
             var lookup = LookupElementBuilder
                 .create(method.name)
@@ -31,8 +28,8 @@ class ServiceMethodReference(
         }.toTypedArray()
     }
 
-    override fun resolveReferenceInService(serviceClass: PsiClass): PsiElement? {
-        return requestElement?.methodFromRequest
+    override fun resolve(): PsiElement? {
+        return requestElement?.referencedMethod
     }
 
     private fun getTailText(service: PsiClass, method: PsiMethod): String? {

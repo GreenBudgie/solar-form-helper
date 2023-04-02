@@ -7,7 +7,7 @@ import com.intellij.psi.search.searches.ReferencesSearch.SearchParameters
 import com.intellij.util.Processor
 import com.solanteq.solar.plugin.util.serviceSolarName
 
-class ServiceNameQueryExecutor : QueryExecutorBase<JsonStringLiteral, SearchParameters>(true) {
+class CallableServiceQueryExecutor : QueryExecutorBase<JsonStringLiteral, SearchParameters>(true) {
 
     override fun processQuery(queryParameters: SearchParameters, consumer: Processor<in JsonStringLiteral>) {
         val elementToSearch = queryParameters.elementToSearch as? PsiClass ?: return
