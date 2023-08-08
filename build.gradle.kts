@@ -1,7 +1,7 @@
 plugins {
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "1.7.22"
-    id("org.jetbrains.intellij") version "1.11.0"
+    id("org.jetbrains.kotlin.jvm") version "1.9.0"
+    id("org.jetbrains.intellij") version "1.15.0"
 }
 
 group = "com.solanteq.solar.plugin"
@@ -13,20 +13,22 @@ repositories {
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.2")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.2")
+    testImplementation("org.junit.platform:junit-platform-launcher:1.10.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.10.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.0")
 }
 
 // Configure Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
 intellij {
-    version.set("2022.3.1")
+    version.set("2023.2")
     type.set("IC") // Target IDE Platform
 
     plugins.set(listOf(
         "com.intellij.java",
         "org.jetbrains.kotlin",
-        "com.google.ide-perf:1.3.0",
-        "com.jetbrains.hackathon.indices.viewer:1.23"
+//        "com.google.ide-perf:1.3.0",
+//        "com.jetbrains.hackathon.indices.viewer:1.23"
     ))
 }
 
@@ -46,7 +48,7 @@ tasks {
     }
 
     patchPluginXml {
-        sinceBuild.set("223")
+        sinceBuild.set("232") //2023.2.*
     }
 
     signPlugin {

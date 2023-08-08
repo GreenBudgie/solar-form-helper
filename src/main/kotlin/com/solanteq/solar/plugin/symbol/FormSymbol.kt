@@ -5,10 +5,14 @@ import com.intellij.find.usages.api.UsageHandler
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.model.Pointer
-import com.intellij.navigation.*
+import com.intellij.navigation.NavigatableSymbol
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.platform.backend.navigation.NavigationRequest
+import com.intellij.platform.backend.navigation.NavigationRequest.Companion.sourceNavigationRequest
+import com.intellij.platform.backend.navigation.NavigationTarget
+import com.intellij.platform.backend.presentation.TargetPresentation
 import com.intellij.psi.SmartPointerManager
 import com.intellij.psi.SmartPsiElementPointer
 import com.intellij.refactoring.rename.api.RenameTarget
@@ -48,6 +52,8 @@ class FormSymbol private constructor(
     override val targetName = elementTextRange.substring(element.text)
 
     override val usageHandler = UsageHandler.createEmptyUsageHandler(targetName)
+
+
 
     override fun getNavigationTargets(project: Project): List<NavigationTarget> {
         return FormSymbolNavigationTarget().asList()
@@ -93,13 +99,14 @@ class FormSymbol private constructor(
 
         override fun createPointer() = Pointer.hardPointer(this)
 
-        override fun presentation(): TargetPresentation {
+        override fun computePresentation(): TargetPresentation {
             return this@FormSymbol.presentation()
         }
 
         override fun navigationRequest(): NavigationRequest? {
             virtualFile ?: return null
-            return NavigationService.instance().sourceNavigationRequest(
+            return sourceNavigationRequest(
+                project,
                 virtualFile,
                 offset
             )

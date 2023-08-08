@@ -125,10 +125,22 @@ class RequestTest : JavaPluginTestBase() {
     }
 
     @Test
-    fun `test unresolved service name inspection`() {
-        fixture.createFormAndConfigure("testForm", "abc", """
+    fun `test unresolved service name inspection - in project`() {
+        fixture.createFormAndConfigure("testForm", "test", """
                 {
                   "source": "<error>test.unresolved</error>.boilerplateMethod"
+                }
+            """.trimIndent())
+
+        fixture.enableInspections(UnresolvedRequestReferenceInspection::class.java)
+        fixture.checkHighlighting()
+    }
+
+    @Test
+    fun `test unresolved service name inspection - in library`() {
+        fixture.createFormAndConfigure("testForm", "library", """
+                {
+                  "source": "<warning>test.unresolved</warning>.boilerplateMethod"
                 }
             """.trimIndent())
 
@@ -250,6 +262,54 @@ class RequestTest : JavaPluginTestBase() {
             "test.dropdownKotlin.findAll",
             "test.dropdownJava.findAll"
         )
+    }
+
+    @Test
+    fun `test unresolved dropdown - in project`() {
+        fixture.configureByFiles("DropdownJava.java", "DropdownKotlin.kt")
+        fixture.createFormAndConfigure("testForm", "test", """
+                {
+                  "source": {
+                    "name": "test.<error>unresolvedDropdown</error>.findAll",
+                    "group": "${'$'}dropdown"
+                  }
+                }
+            """.trimIndent())
+
+        fixture.enableInspections(UnresolvedRequestReferenceInspection::class.java)
+        fixture.checkHighlighting()
+    }
+
+    @Test
+    fun `test unresolved dropdown - in library`() {
+        fixture.configureByFiles("DropdownJava.java", "DropdownKotlin.kt")
+        fixture.createFormAndConfigure("testForm", "library", """
+                {
+                  "source": {
+                    "name": "test.<warning>unresolvedDropdown</warning>.findAll",
+                    "group": "${'$'}dropdown"
+                  }
+                }
+            """.trimIndent())
+
+        fixture.enableInspections(UnresolvedRequestReferenceInspection::class.java)
+        fixture.checkHighlighting()
+    }
+
+    @Test
+    fun `test unresolved request inspection does not report resolved dropdown`() {
+        fixture.configureByFiles("DropdownJava.java", "DropdownKotlin.kt")
+        fixture.createFormAndConfigure("testForm", "test", """
+                {
+                  "source": {
+                    "name": "test.dropdownKotlin.findAll",
+                    "group": "${'$'}dropdown"
+                  },
+                }
+            """.trimIndent())
+
+        fixture.enableInspections(UnresolvedRequestReferenceInspection::class.java)
+        fixture.checkHighlighting()
     }
 
     private fun configureServicesForCompletion() {

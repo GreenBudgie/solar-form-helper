@@ -63,7 +63,7 @@ class CallableServiceReference(
         if(value.isBlank()) {
             "Callable service name is not provided"
         } else {
-            "Cannot resolve callable service implementation with name '$value'"
+            "Cannot find callable service implementation with name '$value' (ignore this warning if referenced service is in external library)"
         }
 
 }

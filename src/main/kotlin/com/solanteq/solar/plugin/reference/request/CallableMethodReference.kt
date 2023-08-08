@@ -67,7 +67,7 @@ class CallableMethodReference(
         if(value.isBlank()) {
             "Callable method name is not provided"
         } else {
-            "Cannot resolve callable method with name '$value'"
+            "Cannot find callable method with name '$value' in service"
         }
 
 }

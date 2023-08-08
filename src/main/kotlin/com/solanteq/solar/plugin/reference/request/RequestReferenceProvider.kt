@@ -20,29 +20,31 @@ object RequestReferenceProvider : PsiReferenceProvider() {
         val formRequest = getRequestElement(stringLiteral) ?: return emptyArray()
 
         return if(formRequest.isDropdownRequest) {
-            getDropdownReferences(stringLiteral, formRequest)
+            getDropdownReferences(stringLiteral, formRequest, true)
         } else if(formRequest.hasGroup) {
             getCallableServiceReferences(stringLiteral, formRequest)
         } else {
             arrayOf(
                 *getCallableServiceReferences(stringLiteral, formRequest),
-                *getDropdownReferences(stringLiteral, formRequest)
+                *getDropdownReferences(stringLiteral, formRequest, false)
             )
         }
     }
 
     private fun getDropdownReferences(element: JsonStringLiteral,
-                                      formRequest: FormRequest): Array<out PsiReference> {
+                                      formRequest: FormRequest,
+                                      isExplicit: Boolean): Array<out PsiReference> {
         val fullRangeEmptyReference = DropdownReference(
             element,
             element.textRangeWithoutQuotes,
-            null
+            null,
+            isExplicit
         ).asArray()
 
         val requestData = formRequest.requestData ?: return fullRangeEmptyReference
         val clazz = requestData.clazz ?: return fullRangeEmptyReference
 
-        return DropdownReference(element, clazz.range, formRequest).asArray()
+        return DropdownReference(element, clazz.range, formRequest, isExplicit).asArray()
     }
 
     private fun getCallableServiceReferences(element: JsonStringLiteral,

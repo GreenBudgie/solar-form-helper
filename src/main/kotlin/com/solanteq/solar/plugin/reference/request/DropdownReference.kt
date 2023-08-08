@@ -13,7 +13,8 @@ import com.solanteq.solar.plugin.search.DropdownSearch
 class DropdownReference(
     element: JsonStringLiteral,
     range: TextRange,
-    private val requestElement: FormRequest?
+    private val requestElement: FormRequest?,
+    val isExplicit: Boolean
 ) : PsiReferenceBase<JsonStringLiteral>(element, range, true), EmptyResolveMessageProvider {
 
     override fun handleElementRename(newElementName: String): PsiElement {
@@ -38,7 +39,7 @@ class DropdownReference(
         if(value.isBlank()) {
             "Dropdown name is not provided"
         } else {
-            "Cannot resolve dropdown with name '$value'"
+            "Cannot resolve dropdown with name '$value' (ignore this warning if referenced dropdown is in external library)"
         }
 
 }

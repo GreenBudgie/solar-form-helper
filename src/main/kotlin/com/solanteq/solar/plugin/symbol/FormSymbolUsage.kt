@@ -34,6 +34,8 @@ class FormSymbolUsage(
         false
     )
 
+    override val usageType = null
+
     override fun createPointer(): Pointer<FormSymbolUsage> {
         val pointer = SmartPointerManager
             .getInstance(file.project)
