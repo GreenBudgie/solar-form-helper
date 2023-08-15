@@ -1,8 +1,22 @@
 package com.solanteq.solar.plugin.util
 
+import com.intellij.json.psi.JsonNumberLiteral
 import com.intellij.json.psi.JsonProperty
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.util.TextRange
+
+/**
+ * If the value of json property is number literal, returns its double value, null otherwise
+ */
+fun JsonProperty?.valueAsDoubleOrNull(): Double? {
+    val numberLiteral = this?.value as? JsonNumberLiteral ?: return null
+    return numberLiteral.value
+}
+
+/**
+ * If the value of json property is number literal, returns its integer value (rounding down), null otherwise
+ */
+fun JsonProperty?.valueAsIntOrNull() = valueAsDoubleOrNull()?.toInt()
 
 /**
  * If the value of json property is string literal, returns its text, null otherwise

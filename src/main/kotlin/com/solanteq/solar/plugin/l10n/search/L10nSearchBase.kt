@@ -25,6 +25,8 @@ abstract class L10nSearchBase<T : L10n>(
      * or empty list if this key is not present in any file or invalid.
      *
      * If you only need l10n values consider using [findL10nValuesByKey]
+     *
+     * TODO make distinct indexes for EN and RU l10ns
      */
     fun findL10nsByKey(key: String, project: Project, scope: GlobalSearchScope = project.allScope()): List<T> {
         val containingFiles = FileBasedIndex.getInstance().getContainingFiles(
@@ -33,7 +35,8 @@ abstract class L10nSearchBase<T : L10n>(
         return runReadAction {
             val psiFiles = containingFiles.mapNotNull { it.toPsiFile(project) as? JsonFile }
             val properties = psiFiles.flatMap { findL10nPropertiesInFile(it) }
-            properties.mapNotNull { createL10n(it) }
+            val applicableProperties = properties.filter { it.name == key }
+            applicableProperties.mapNotNull { createL10n(it) }
         }
     }
 

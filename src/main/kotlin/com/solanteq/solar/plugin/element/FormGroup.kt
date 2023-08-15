@@ -3,6 +3,7 @@ package com.solanteq.solar.plugin.element
 import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonObject
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
+import com.solanteq.solar.plugin.util.valueAsIntOrNull
 
 /**
  * A single object inside `groups` array in form or [FormGroupRow] element.
@@ -44,6 +45,13 @@ class FormGroup(
      */
     val inline by lazy(LazyThreadSafetyMode.PUBLICATION) {
         sourceElement.findProperty("inline").toFormElement<FormInline>()
+    }
+
+    /**
+     * Value of "groupSize" property
+     */
+    val size by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        sourceElement.findProperty("groupSize").valueAsIntOrNull()
     }
 
     val contentType by lazy(LazyThreadSafetyMode.PUBLICATION) {

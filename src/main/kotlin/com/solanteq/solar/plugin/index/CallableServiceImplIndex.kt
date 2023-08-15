@@ -14,7 +14,7 @@ import org.jetbrains.uast.toUElementOfType
 
 /**
  * An index that stores java and kotlin source files that can be probably considered implementations of
- * callable services. This index does not guarantee that these classes really implement `@Callable` interface
+ * callable services. This index does not guarantee that these classes really implement `@CallableService` interface
  * because we cannot look into other files when building an index. So this index stores all files that
  * contain `@Service` annotation with value. This still allows to search for the specified service
  * significantly faster.
