@@ -17,6 +17,7 @@ import com.solanteq.solar.plugin.element.toFormElement
 import com.solanteq.solar.plugin.util.isForm
 import javax.swing.JPanel
 
+//TODO work in progress
 class L10nInlayProvider : InlayHintsProvider<NoSettings> {
 
     override val key = SettingsKey<NoSettings>("solar.l10n.inlayHint")
@@ -73,7 +74,7 @@ class L10nInlayProvider : InlayHintsProvider<NoSettings> {
                 return
             }
             //TODO add ru/en selection support
-            val localizationValue = formElement.l10nValues.firstOrNull() ?: return
+            val localizationValue = formElement.getL10nValues(L10nLocale.RU).firstOrNull() ?: return
             val valueElement = formElement.namePropertyValue ?: return
             val offset = valueElement.textRange.endOffset
 

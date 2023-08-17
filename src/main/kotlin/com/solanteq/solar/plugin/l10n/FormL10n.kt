@@ -216,17 +216,20 @@ class FormL10n private constructor(
          * Whether this property can be considered a form localization.
          * Note that the form may not be resolved, but it will still be considered a form l10n.
          */
-        fun isFormL10n(property: JsonProperty): Boolean {
-            val key = property.nameElement as? JsonStringLiteral ?: return false
-            return isFormL10n(key)
-        }
+        fun isFormL10n(property: JsonProperty) = isFormL10n(property.name)
 
         /**
          * Whether this key element can be considered a form localization.
          * Note that the form may not be resolved, but it will still be considered a form l10n.
          */
-        fun isFormL10n(keyElement: JsonStringLiteral): Boolean {
-            val textSplit = keyElement.value.split(".")
+        fun isFormL10n(keyElement: JsonStringLiteral) = isFormL10n(keyElement.value)
+
+        /**
+         * Whether this key element can be considered a form localization.
+         * Note that the form may not be resolved, but it will still be considered a form l10n.
+         */
+        fun isFormL10n(key: String): Boolean {
+            val textSplit = key.split('.')
             val l10nType = textSplit.getOrNull(1)
             return l10nType == "form"
         }

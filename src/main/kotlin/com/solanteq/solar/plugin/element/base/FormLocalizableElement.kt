@@ -4,8 +4,9 @@ import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonObject
 import com.solanteq.solar.plugin.element.FormGroup
 import com.solanteq.solar.plugin.l10n.FormL10n
+import com.solanteq.solar.plugin.l10n.L10nLocale
 import com.solanteq.solar.plugin.l10n.search.FormL10nSearch
-import org.jetbrains.kotlin.idea.base.util.allScope
+import com.solanteq.solar.plugin.l10n.search.L10nSearchBase
 
 /**
  * Represents a json element with `name` property that can be localized
@@ -26,24 +27,22 @@ abstract class FormLocalizableElement<T : JsonElement>(
      */
     abstract val l10nKeys: List<String>
 
-    /**
-     * All localization values that correspond to every key in [l10nKeys]
-     */
-    val l10nValues: List<String> by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        val project = project
-        l10nKeys.flatMap {
-            FormL10nSearch.findL10nValuesByKey(it, project.allScope())
-        }
+    fun getL10nValues(locale: L10nLocale? = null): List<String> {
+        l10nKeys.ifEmpty { return emptyList() }
+        return buildL10nSearcher(locale).findValues()
     }
 
-    /**
-     * All [FormL10n]s that correspond to every key in [l10nKeys]
-     */
-    val l10ns: List<FormL10n> by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        val project = project
-        l10nKeys.flatMap {
-            FormL10nSearch.findL10nsByKey(it, project)
+    fun getL10ns(locale: L10nLocale? = null): List<FormL10n> {
+        l10nKeys.ifEmpty { return emptyList() }
+        return buildL10nSearcher(locale).findObjects()
+    }
+
+    private fun buildL10nSearcher(locale: L10nLocale?): L10nSearchBase<FormL10n>.L10nSearchQuery {
+        val l10nSearcher = FormL10nSearch.search(project).byKeys(l10nKeys)
+        if(locale != null) {
+            l10nSearcher.withLocale(locale)
         }
+        return l10nSearcher
     }
 
 }

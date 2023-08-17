@@ -16,7 +16,7 @@ class GroupComponent(
     init {
         border = BorderFactory.createEmptyBorder(borderGap, borderGap, borderGap, borderGap)
         background = JBColor.GREEN
-        val ruL10nValues = group.l10ns.filter { it.locale == L10nLocale.RU_RU }.map { it.value }
+        val ruL10nValues = group.getL10nValues(L10nLocale.RU)
         //add(JBLabel(ruL10nValues.firstOrNull() ?: group.name ?: "Unnamed group"))
 
 //        val groupSize = if(isInGroupRow) {

@@ -106,10 +106,12 @@
 
         <codeInsight.inlayProvider implementationClass="com.solanteq.solar.plugin.l10n.L10nInlayProvider"
                                    language="JSON" />
-
-        <fileBasedIndex implementation="com.solanteq.solar.plugin.index.L10nIndex" />
-        <fileBasedIndex implementation="com.solanteq.solar.plugin.index.FormL10nIndex" />
-        <fileBasedIndex implementation="com.solanteq.solar.plugin.index.FormNameL10nShortIndex" />
+        <!--
+        For now, L10nIndex is disabled as it is unused
+        <fileBasedIndex implementation="com.solanteq.solar.plugin.index.l10n.L10nIndex" />
+        -->
+        <fileBasedIndex implementation="com.solanteq.solar.plugin.index.l10n.FormL10nIndex" />
+        <fileBasedIndex implementation="com.solanteq.solar.plugin.index.l10n.FormNameL10nShortIndex" />
 
         <!-- UI -->
         <fileEditorProvider implementation="com.solanteq.solar.plugin.ui.FormEditorProvider" />

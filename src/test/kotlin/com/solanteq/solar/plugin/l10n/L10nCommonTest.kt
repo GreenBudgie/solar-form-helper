@@ -112,7 +112,7 @@ class L10nCommonTest : LightPluginTestBase() {
 
         val rootFormElement = form.toFormElement<FormRootFile>()!!
 
-        Assertions.assertTrue(rootFormElement.l10nValues.isEmpty())
+        Assertions.assertTrue(rootFormElement.getL10nValues().isEmpty())
     }
 
 }
