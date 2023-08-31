@@ -7,7 +7,7 @@ import java.awt.GridLayout
 
 class GroupContainerComponent(
     private val groups: List<FormGroup>
-) : JBPanel<GroupContainerComponent>(), FormComponent {
+) : JBPanel<GroupContainerComponent>() {
 
     init {
         layout = GridLayout(groups.size, 1)

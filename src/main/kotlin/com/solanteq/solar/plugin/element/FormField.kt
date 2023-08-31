@@ -11,6 +11,7 @@ import com.solanteq.solar.plugin.symbol.FormSymbol
 import com.solanteq.solar.plugin.symbol.FormSymbolType
 import com.solanteq.solar.plugin.util.FormPsiUtils
 import com.solanteq.solar.plugin.util.RangeSplit
+import com.solanteq.solar.plugin.util.valueAsIntOrNull
 import com.solanteq.solar.plugin.util.valueAsStringOrNull
 
 /**
@@ -49,6 +50,16 @@ class FormField(
         containingGroups.flatMap {
             it.l10nKeys.map { key -> "$key.$name" }
         }
+    }
+
+    val fieldSize by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        val fieldSizeProperty = sourceElement.findProperty("fieldSize") ?: return@lazy null
+        fieldSizeProperty.valueAsIntOrNull()
+    }
+
+    val labelSize by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        val fieldSizeProperty = sourceElement.findProperty("labelSize") ?: return@lazy null
+        fieldSizeProperty.valueAsIntOrNull()
     }
 
     /**
@@ -207,6 +218,8 @@ class FormField(
     )
 
     companion object : FormElementCreator<FormField> {
+
+        const val DEFAULT_LABEL_SIZE = 2
 
         const val ARRAY_NAME = "fields"
 

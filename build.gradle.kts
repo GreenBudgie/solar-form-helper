@@ -27,9 +27,9 @@ intellij {
     plugins.set(listOf(
         "com.intellij.java",
         "org.jetbrains.kotlin",
-        "org.intellij.plugins.markdown"
-//        "com.google.ide-perf:1.3.0",
-//        "com.jetbrains.hackathon.indices.viewer:1.23"
+        "org.intellij.plugins.markdown",
+        "com.google.ide-perf:1.3.1",
+        "com.jetbrains.hackathon.indices.viewer:1.24"
     ))
 }
 

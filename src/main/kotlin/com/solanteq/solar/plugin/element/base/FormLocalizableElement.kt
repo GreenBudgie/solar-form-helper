@@ -32,6 +32,10 @@ abstract class FormLocalizableElement<T : JsonElement>(
         return buildL10nSearcher(locale).findValues()
     }
 
+    fun getL10nValue(locale: L10nLocale? = null): String? {
+        return getL10nValues(locale).firstOrNull()
+    }
+
     fun getL10ns(locale: L10nLocale? = null): List<FormL10n> {
         l10nKeys.ifEmpty { return emptyList() }
         return buildL10nSearcher(locale).findObjects()
