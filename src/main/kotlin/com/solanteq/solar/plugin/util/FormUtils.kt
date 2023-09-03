@@ -1,10 +1,12 @@
 package com.solanteq.solar.plugin.util
 
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiFile
 import com.solanteq.solar.plugin.file.IncludedFormFileType
 import com.solanteq.solar.plugin.file.RootFormFileType
+import org.jetbrains.kotlin.idea.base.util.projectScope
 
 /**
  * Checks whether this virtual file is root or included form by checking its file type
@@ -112,6 +114,17 @@ fun VirtualFile.isFormModuleOrDirectory() = isRootFormModule() || isIncludedForm
  */
 fun PsiDirectory.isFormModuleOrDirectory() = isRootFormModule() || isIncludedFormDirectory()
 
+/**
+ * Finds first file that is contained in the specified project
+ */
+fun Collection<VirtualFile>.firstWithProjectPrioritization(project: Project?): VirtualFile? {
+    ifEmpty { return null }
+    project ?: return firstOrNull()
+    if(size == 1) {
+        return first()
+    }
+    val projectScope = project.projectScope()
+    val onlyProjectForms = filter { it in projectScope }
+    return onlyProjectForms.firstOrNull() ?: first()
 
-
-
+}

@@ -194,7 +194,7 @@ class FormRootFile(
      * 3. List field in other forms
      */
     val allDataClassesFromRequests: List<PsiClass> by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        dataClassFromSourceRequest?.let { return@lazy listOf(it) }
+        dataClassFromSourceRequest?.let { return@lazy it.asList() }
 
         val inlineDataClasses = dataClassesFromInlineRequests
         if(inlineDataClasses.isNotEmpty()) {

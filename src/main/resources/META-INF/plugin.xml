@@ -61,6 +61,7 @@
         <fileBasedIndex implementation="com.solanteq.solar.plugin.index.JsonIncludeFileIndex" />
         <fileBasedIndex implementation="com.solanteq.solar.plugin.index.CallableServiceImplIndex" />
         <fileBasedIndex implementation="com.solanteq.solar.plugin.index.DropdownIndex" />
+        <fileBasedIndex implementation="com.solanteq.solar.plugin.index.RootFormIndex" />
 
         <!-- Localization -->
 

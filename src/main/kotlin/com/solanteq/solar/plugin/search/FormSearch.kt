@@ -3,12 +3,13 @@ package com.solanteq.solar.plugin.search
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.util.indexing.FileBasedIndex
 import com.solanteq.solar.plugin.file.IncludedFormFileType
 import com.solanteq.solar.plugin.file.RootFormFileType
+import com.solanteq.solar.plugin.index.ROOT_FORM_INDEX_NAME
+import com.solanteq.solar.plugin.util.firstWithProjectPrioritization
 import com.solanteq.solar.plugin.util.getFormModuleName
-import com.solanteq.solar.plugin.util.getFormSolarName
 import com.solanteq.solar.plugin.util.restrictedByFormFiles
-import org.jetbrains.kotlin.idea.base.util.projectScope
 
 object FormSearch {
 
@@ -38,9 +39,6 @@ object FormSearch {
         }
     }
 
-    fun findFormsInModule(scope: GlobalSearchScope, moduleName: String) =
-        findRootFormsInModule(scope, moduleName) + findIncludedFormsInModule(scope, moduleName)
-
     /**
      * Finds a root form by its full solar name, for example: `test.testForm`
      */
@@ -48,8 +46,8 @@ object FormSearch {
         fullName: String,
         scope: GlobalSearchScope
     ): VirtualFile? {
-        val (module, name) = getModuleAndNameByFormName(fullName) ?: return null
-        return findRootFormByModuleAndName(module, name, scope)
+        val applicableForms = FileBasedIndex.getInstance().getContainingFiles(ROOT_FORM_INDEX_NAME, fullName, scope)
+        return applicableForms.firstWithProjectPrioritization(scope.project)
     }
 
     /**
@@ -66,36 +64,6 @@ object FormSearch {
         module: String,
         name: String,
         scope: GlobalSearchScope
-    ): VirtualFile? {
-        val applicableForms = findRootForms(scope)
-            .filter { it.name == "$name.json" }
-            .filter { it.getFormSolarName() == "$module.$name" }
-        val firstApplicableForm = applicableForms.firstOrNull() ?: return null
-        val projectScope = scope.project?.projectScope() ?: return firstApplicableForm
-        val onlyProjectForms = applicableForms.filter { it in projectScope }
-        return if(onlyProjectForms.isEmpty()) {
-            firstApplicableForm
-        } else {
-            onlyProjectForms.first()
-        }
-    }
-
-    /**
-     * Gets module and name by form full name, or null if the specified name has invalid format.
-     *
-     * Example:
-     * ```
-     * val (module, name) = getModuleAndNameByFormName("test.form") ?: return null
-     * -> module = test
-     * -> name = form
-     * ```
-     */
-    private fun getModuleAndNameByFormName(fullName: String): Pair<String, String>? {
-        val splitName = fullName.split(".")
-        if(splitName.size != 2) {
-            return null
-        }
-        return splitName[0] to splitName[1]
-    }
+    ) = findRootFormBySolarName("$module.$name", scope)
 
 }
