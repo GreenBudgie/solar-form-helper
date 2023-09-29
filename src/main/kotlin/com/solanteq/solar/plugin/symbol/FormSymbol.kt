@@ -62,7 +62,7 @@ open class FormSymbol(
     override val maximalSearchScope = project.allScope()
 
     override fun equals(other: Any?): Boolean {
-        if(other !is FormSymbol) return false
+        if (other !is FormSymbol) return false
         return other.element == element
     }
 
