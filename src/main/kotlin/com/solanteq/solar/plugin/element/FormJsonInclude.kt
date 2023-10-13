@@ -1,11 +1,11 @@
 package com.solanteq.solar.plugin.element
 
-import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import com.solanteq.solar.plugin.element.base.FormElement
+import com.solanteq.solar.plugin.element.creator.FormElementCreator
 import com.solanteq.solar.plugin.search.FormSearch
 import com.solanteq.solar.plugin.util.RangeSplit
 import com.solanteq.solar.plugin.util.convert
@@ -95,7 +95,7 @@ class FormJsonInclude(
     }
 
     val referencedForm by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        referencedFormPsiFile.toFormElement<FormIncludedFile>()
+       FormIncludedFile.createFrom(referencedFormPsiFile)
     }
 
     /**
@@ -130,12 +130,11 @@ class FormJsonInclude(
 
     }
 
-    companion object : FormElementCreator<FormJsonInclude> {
+    companion object : FormElementCreator<FormJsonInclude, JsonStringLiteral>() {
 
-        override fun create(sourceElement: JsonElement): FormJsonInclude? {
-            val stringLiteral = sourceElement as? JsonStringLiteral ?: return null
-            val includeType = getJsonIncludeDeclarationType(stringLiteral) ?: return null
-            return FormJsonInclude(stringLiteral, includeType)
+        override fun doCreate(sourceElement: JsonStringLiteral): FormJsonInclude? {
+            val includeType = getJsonIncludeDeclarationType(sourceElement) ?: return null
+            return FormJsonInclude(sourceElement, includeType)
         }
 
         /**
@@ -147,7 +146,7 @@ class FormJsonInclude(
 
         private fun getJsonIncludeDeclarationType(element: JsonStringLiteral): JsonIncludeType? {
             val value = element.value
-            return JsonIncludeType.values().find {
+            return JsonIncludeType.entries.find {
                 value.startsWith(it.prefix)
             }
         }

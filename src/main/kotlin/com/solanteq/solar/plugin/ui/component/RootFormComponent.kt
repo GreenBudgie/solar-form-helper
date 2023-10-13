@@ -6,7 +6,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBScrollPane
 import com.solanteq.solar.plugin.element.FormRootFile
-import com.solanteq.solar.plugin.element.toFormElement
 import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 import java.awt.GridLayout
 
@@ -33,7 +32,7 @@ class RootFormComponent(
 
     private fun doUpdate() {
         removeAll()
-        val formRootFile = file.toFormElement<FormRootFile>() ?: return
+        val formRootFile = FormRootFile.createFrom(file) ?: return
         val groupRows = formRootFile.groupRows
         if(groupRows != null) {
             add(JBScrollPane(GroupRowContainerComponent(groupRows)))

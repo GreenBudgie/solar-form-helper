@@ -1,5 +1,6 @@
 package com.solanteq.solar.plugin.l10n
 
+import com.github.weisj.jsvg.T
 import com.intellij.codeInsight.hints.*
 import com.intellij.codeInsight.hints.presentation.PresentationFactory
 import com.intellij.json.psi.JsonElement
@@ -13,7 +14,7 @@ import com.solanteq.solar.plugin.element.FormField
 import com.solanteq.solar.plugin.element.FormGroup
 import com.solanteq.solar.plugin.element.FormRootFile
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
-import com.solanteq.solar.plugin.element.toFormElement
+import com.solanteq.solar.plugin.element.creator.FormElementCreator
 import com.solanteq.solar.plugin.util.isForm
 import javax.swing.JPanel
 
@@ -34,7 +35,7 @@ class L10nInlayProvider : InlayHintsProvider<NoSettings> {
         settings: NoSettings,
         sink: InlayHintsSink
     ) : InlayHintsCollector? {
-        if(file.isForm()) return Collector()
+        if(file.isForm()) return Collector
         return null
     }
 
@@ -44,23 +45,29 @@ class L10nInlayProvider : InlayHintsProvider<NoSettings> {
 
     }
 
-    private class Collector : InlayHintsCollector {
+    private object Collector : InlayHintsCollector {
 
         override fun collect(element: PsiElement, editor: Editor, sink: InlayHintsSink): Boolean {
             if(element !is JsonElement) return true
-            if(element !is JsonFile && element !is JsonObject) return true
-            if(tryAddHint<FormField>(element, editor, sink)) return true
-            if(tryAddHint<FormGroup>(element, editor, sink)) return true
-            if(tryAddHint<FormRootFile>(element, editor, sink)) return true
+            when(element) {
+                is JsonObject -> {
+                    if(tryAddHint(element, editor, sink, FormField)) return true
+                    if(tryAddHint(element, editor, sink, FormGroup)) return true
+                }
+                is JsonFile -> {
+                    if(tryAddHint(element, editor, sink, FormRootFile)) return true
+                }
+            }
             return true
         }
 
-        private inline fun <reified T : FormLocalizableElement<*>> tryAddHint(
-            element: JsonElement,
+        private fun <T : JsonElement> tryAddHint(
+            element: T,
             editor: Editor,
-            sink: InlayHintsSink
+            sink: InlayHintsSink,
+            elementCreator: FormElementCreator<FormLocalizableElement<T>, T>
         ): Boolean {
-            element.toFormElement<T>()?.let {
+            elementCreator.createFrom(element)?.let {
                 addHint(it, editor, sink)
                 return true
             }

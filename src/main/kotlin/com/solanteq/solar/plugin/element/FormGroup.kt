@@ -1,8 +1,8 @@
 package com.solanteq.solar.plugin.element
 
-import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonObject
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
+import com.solanteq.solar.plugin.element.creator.FormArrayElementCreator
 import com.solanteq.solar.plugin.util.valueAsIntOrNull
 
 /**
@@ -35,7 +35,8 @@ class FormGroup(
      * Not null when type is [GroupContentType.ROWS].
      */
     val rows by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        sourceElement.findProperty(FormRow.ARRAY_NAME).toFormArrayElement<FormRow>()
+        val rowsProperty = sourceElement.findProperty(FormRow.getArrayName())
+        FormRow.createElementListFrom(rowsProperty)
     }
 
     /**
@@ -44,7 +45,7 @@ class FormGroup(
      * Not null when type is [GroupContentType.INLINE].
      */
     val inline by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        sourceElement.findProperty("inline").toFormElement<FormInline>()
+       FormInline.createFrom(sourceElement.findProperty("inline"))
     }
 
     /**
@@ -72,16 +73,11 @@ class FormGroup(
 
     }
 
-    companion object : FormElementCreator<FormGroup> {
+    companion object : FormArrayElementCreator<FormGroup>() {
 
-        const val ARRAY_NAME = "groups"
+        override fun getArrayName() = "groups"
 
-        override fun create(sourceElement: JsonElement): FormGroup? {
-            if(canBeCreatedAsArrayElement(sourceElement, ARRAY_NAME)) {
-                return FormGroup(sourceElement as JsonObject)
-            }
-            return null
-        }
+        override fun createUnsafeFrom(sourceElement: JsonObject) = FormGroup(sourceElement)
 
     }
 

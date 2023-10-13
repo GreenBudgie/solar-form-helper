@@ -7,7 +7,6 @@ import com.intellij.psi.util.parentOfType
 import com.intellij.psi.util.parentOfTypes
 import com.solanteq.solar.plugin.element.FormIncludedFile
 import com.solanteq.solar.plugin.element.FormJsonInclude
-import com.solanteq.solar.plugin.element.toFormElement
 import com.solanteq.solar.plugin.file.IncludedFormFileType
 import com.solanteq.solar.plugin.file.RootFormFileType
 import kotlin.reflect.KClass
@@ -308,13 +307,13 @@ object FormPsiUtils {
         if(value !is JsonStringLiteral) {
             return value
         }
-        val jsonIncludeDeclaration = value.toFormElement<FormJsonInclude>() ?: return value
+        val jsonIncludeDeclaration = FormJsonInclude.createFrom(value) ?: return value
         val referencedForm = jsonIncludeDeclaration.referencedFormPsiFile ?: return value
         return referencedForm.topLevelValue
     }
 
     private fun jsonIncludeDeclarations(jsonFile: JsonFile): List<FormJsonInclude> {
-        val includedForm = jsonFile.toFormElement<FormIncludedFile>() ?: return emptyList()
+        val includedForm = FormIncludedFile.createFrom(jsonFile) ?: return emptyList()
         return includedForm.findDeclarations()
     }
 

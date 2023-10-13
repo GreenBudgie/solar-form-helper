@@ -4,7 +4,6 @@ import com.solanteq.solar.plugin.base.LightPluginTestBase
 import com.solanteq.solar.plugin.base.createForm
 import com.solanteq.solar.plugin.base.createFormAndConfigure
 import com.solanteq.solar.plugin.element.FormRootFile
-import com.solanteq.solar.plugin.element.toFormElement
 import com.solanteq.solar.plugin.l10n.field.L10nFieldDeclarationProvider
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -110,7 +109,7 @@ class L10nCommonTest : LightPluginTestBase() {
             "test.form.testForm.group" to "Group l10n"
         )
 
-        val rootFormElement = form.toFormElement<FormRootFile>()!!
+        val rootFormElement = FormRootFile.createFromOrThrow(form)
 
         Assertions.assertTrue(rootFormElement.getL10nValues().isEmpty())
     }

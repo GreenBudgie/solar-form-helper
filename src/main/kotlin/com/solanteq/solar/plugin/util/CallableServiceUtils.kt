@@ -28,10 +28,7 @@ val UClass.callableMethods: List<PsiMethod>
     get() = javaPsi.callableMethods
 
 val PsiClass.callableMethods: List<PsiMethod>
-    get() = if(isCallableServiceClassImpl())
-        this.allMethods.filter { it.isCallableMethod() }
-    else
-        listOf()
+    get() = allMethods.filter { it.isCallableMethod() }
 
 val UClass.serviceSolarName: String?
     get() {

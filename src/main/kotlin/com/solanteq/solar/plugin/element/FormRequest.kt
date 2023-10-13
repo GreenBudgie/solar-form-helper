@@ -1,12 +1,12 @@
 package com.solanteq.solar.plugin.element
 
-import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiMethod
 import com.solanteq.solar.plugin.element.base.FormElement
+import com.solanteq.solar.plugin.element.creator.FormElementCreator
 import com.solanteq.solar.plugin.index.CallableServiceImplIndex
 import com.solanteq.solar.plugin.index.DropdownIndex
 import com.solanteq.solar.plugin.util.*
@@ -171,19 +171,18 @@ class FormRequest(
 
         companion object {
 
-            val requestLiterals = values().map { it.requestLiteral }.toTypedArray()
-            val formRequests = values().filter { it.isFormRequest }.toTypedArray()
+            val requestLiterals = entries.map { it.requestLiteral }.toTypedArray()
+            val formRequests = entries.filter { it.isFormRequest }.toTypedArray()
 
         }
 
     }
 
-    companion object : FormElementCreator<FormRequest> {
+    companion object : FormElementCreator<FormRequest, JsonProperty>() {
 
-        override fun create(sourceElement: JsonElement): FormRequest? {
-            val jsonProperty = sourceElement as? JsonProperty ?: return null
-            if(jsonProperty.name in RequestType.requestLiterals) {
-                return FormRequest(jsonProperty)
+        override fun doCreate(sourceElement: JsonProperty): FormRequest? {
+            if(sourceElement.name in RequestType.requestLiterals) {
+                return FormRequest(sourceElement)
             }
             return null
         }

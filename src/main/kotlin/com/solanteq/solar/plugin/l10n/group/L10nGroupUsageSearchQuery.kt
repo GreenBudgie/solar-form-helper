@@ -6,7 +6,6 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.SearchScope
 import com.intellij.util.Processor
 import com.solanteq.solar.plugin.element.FormGroup
-import com.solanteq.solar.plugin.element.toFormElement
 import com.solanteq.solar.plugin.l10n.L10nSearchQueryUtil
 import com.solanteq.solar.plugin.symbol.FormSymbol
 import com.solanteq.solar.plugin.symbol.FormSymbolUsage
@@ -27,7 +26,7 @@ class L10nGroupUsageSearchQuery(
                                    consumer: Processor<in FormSymbolUsage>): Boolean {
         val project = resolveTarget.project
         val fieldObject = resolveTarget.element.parent?.parent as? JsonObject ?: return true
-        val groupElement = fieldObject.toFormElement<FormGroup>() ?: return true
+        val groupElement = FormGroup.createFrom(fieldObject) ?: return true
         val groupL10nKeys = groupElement.l10nKeys
         val formL10nKeys = groupElement.containingRootForms.flatMap { it.l10nKeys }
         val propertyKeys = L10nSearchQueryUtil.getPropertyKeysForL10nKeys(

@@ -12,7 +12,6 @@ import com.intellij.refactoring.move.moveFilesOrDirectories.MoveFileHandler
 import com.intellij.refactoring.util.MoveRenameUsageInfo
 import com.intellij.usageView.UsageInfo
 import com.solanteq.solar.plugin.element.FormRootFile
-import com.solanteq.solar.plugin.element.toFormElement
 import com.solanteq.solar.plugin.file.IncludedFormFileType
 import com.solanteq.solar.plugin.file.L10nFileType
 import com.solanteq.solar.plugin.file.RootFormFileType
@@ -71,7 +70,7 @@ class RootFormMoveHandler : MoveFileHandler() {
         val directory = file.parent ?: return
         if(!directory.isRootFormModule()) return
         val newModuleName = directory.name
-        val formRootElement = jsonFile.toFormElement<FormRootFile>() ?: return
+        val formRootElement = FormRootFile.createFrom(jsonFile) ?: return
         val moduleProperty = formRootElement.moduleProperty ?: return
         val modulePropertyValue = moduleProperty.value as? JsonStringLiteral ?: return
         ElementManipulators.handleContentChange(modulePropertyValue, newModuleName)

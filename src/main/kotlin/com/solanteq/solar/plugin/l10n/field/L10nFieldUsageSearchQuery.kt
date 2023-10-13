@@ -9,7 +9,6 @@ import com.intellij.util.Processor
 import com.solanteq.solar.plugin.element.FormField
 import com.solanteq.solar.plugin.element.FormIncludedFile
 import com.solanteq.solar.plugin.element.FormRootFile
-import com.solanteq.solar.plugin.element.toFormElement
 import com.solanteq.solar.plugin.file.RootFormFileType
 import com.solanteq.solar.plugin.l10n.L10nSearchQueryUtil
 import com.solanteq.solar.plugin.symbol.FormSymbol
@@ -35,9 +34,9 @@ class L10nFieldUsageSearchQuery(
         val chainIndex = fieldChain.getEntryAtOffset(offsetInElement)?.index ?: return true
 
         val allRootForms = if(file.fileType == RootFormFileType) {
-            file.toFormElement<FormRootFile>().asListOrEmpty()
+           FormRootFile.createFrom(file).asListOrEmpty()
         } else {
-            val includedForm = file.toFormElement<FormIncludedFile>()
+            val includedForm = FormIncludedFile.createFrom(file)
             includedForm?.allRootForms ?: emptyList()
         }
 
@@ -57,7 +56,7 @@ class L10nFieldUsageSearchQuery(
                                    consumer: Processor<in FormSymbolUsage>): Boolean {
         val project = resolveTarget.project
         val fieldObject = resolveTarget.element.parent?.parent as? JsonObject ?: return true
-        val fieldElement = fieldObject.toFormElement<FormField>() ?: return true
+        val fieldElement = FormField.createFrom(fieldObject) ?: return true
         val formL10nKeys = fieldElement.containingRootForms.flatMap { it.l10nKeys }
         val propertyKeys = L10nSearchQueryUtil.getPropertyKeysForL10nKeys(
             formL10nKeys, formL10nKeys, globalSearchScope, project

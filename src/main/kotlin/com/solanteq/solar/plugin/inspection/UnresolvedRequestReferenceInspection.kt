@@ -7,7 +7,6 @@ import com.intellij.json.psi.JsonProperty
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.psi.PsiReference
 import com.solanteq.solar.plugin.element.FormRequest
-import com.solanteq.solar.plugin.element.toFormElement
 import com.solanteq.solar.plugin.reference.request.CallableMethodReference
 import com.solanteq.solar.plugin.reference.request.CallableServiceReference
 import com.solanteq.solar.plugin.reference.request.DropdownReference
@@ -20,7 +19,7 @@ class UnresolvedRequestReferenceInspection : FormInspection() {
     class Visitor(private val holder: ProblemsHolder) : JsonElementVisitor() {
 
         override fun visitProperty(property: JsonProperty) {
-            val requestElement = property.toFormElement<FormRequest>() ?: return
+            val requestElement = FormRequest.createFrom(property) ?: return
             val requestString = requestElement.requestStringElement ?: return
             val problemHighlightType = if(isInProject(requestString))
                 ProblemHighlightType.LIKE_UNKNOWN_SYMBOL

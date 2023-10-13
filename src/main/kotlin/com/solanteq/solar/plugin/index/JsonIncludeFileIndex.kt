@@ -8,7 +8,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.indexing.*
 import com.intellij.util.io.EnumeratorStringDescriptor
 import com.solanteq.solar.plugin.element.FormJsonInclude
-import com.solanteq.solar.plugin.element.toFormElement
 import com.solanteq.solar.plugin.util.isForm
 
 /**
@@ -24,7 +23,7 @@ class JsonIncludeFileIndex : ScalarIndexExtension<String>() {
         val file = fileContent.psiFile as? JsonFile ?: return@DataIndexer emptyMap()
         val jsonIncludesMap = mutableMapOf<String, Void?>()
         PsiTreeUtil.processElements(file, JsonStringLiteral::class.java) {
-            val jsonInclude = it.toFormElement<FormJsonInclude>() ?: return@processElements true
+            val jsonInclude = FormJsonInclude.createFrom(it) ?: return@processElements true
             val formName = jsonInclude.formName ?: return@processElements true
             jsonIncludesMap[formName] = null
             true

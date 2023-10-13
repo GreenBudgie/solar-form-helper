@@ -9,7 +9,6 @@ import com.intellij.psi.PsiReference
 import com.intellij.psi.PsiReferenceProvider
 import com.intellij.util.ProcessingContext
 import com.solanteq.solar.plugin.element.FormField
-import com.solanteq.solar.plugin.element.toFormElement
 
 object FieldReferenceProvider : PsiReferenceProvider() {
 
@@ -20,7 +19,7 @@ object FieldReferenceProvider : PsiReferenceProvider() {
             return emptyArray()
         }
         val parentObject = parentObjectNode.psi as JsonObject
-        val formField = parentObject.toFormElement<FormField>() ?: return emptyArray()
+        val formField = FormField.createFrom(parentObject) ?: return emptyArray()
 
         val propertyChain = formField.propertyChain
 

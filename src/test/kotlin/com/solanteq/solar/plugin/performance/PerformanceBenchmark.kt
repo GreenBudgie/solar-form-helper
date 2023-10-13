@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test
  * Performance benchmark isn't meant to be a test. This is just a playground with execution time,
  * and it should always be @[Disabled] in the final build.
  */
+@Disabled
 class PerformanceBenchmark : JavaPluginTestBase()  {
 
     override fun getTestDataSuffix() = "l10n/realFields"

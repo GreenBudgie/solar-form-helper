@@ -16,7 +16,7 @@ class FormEditor(
     private val virtualFile: VirtualFile
 ) : FileEditor {
 
-    private val file = virtualFile.toPsiFile(project) as? JsonFile ?: error("No PSI JsonFile is backing the virtual file")
+    private val file = virtualFile.toPsiFile(project) as? JsonFile ?: error("No JsonFile is backing the virtual file")
     private val rootFormComponent = RootFormComponent(project, file)
 
     override fun getFile() = virtualFile

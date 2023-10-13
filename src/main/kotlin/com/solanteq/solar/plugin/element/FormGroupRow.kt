@@ -1,8 +1,8 @@
 package com.solanteq.solar.plugin.element
 
-import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonObject
 import com.solanteq.solar.plugin.element.base.FormElement
+import com.solanteq.solar.plugin.element.creator.FormArrayElementCreator
 
 /**
  * A single object inside `groupRows` array in form
@@ -12,19 +12,15 @@ class FormGroupRow(
 ) : FormElement<JsonObject>(sourceElement) {
 
     val groups by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        sourceElement.findProperty(FormGroup.ARRAY_NAME).toFormArrayElement<FormGroup>()
+        val groupsProperty = sourceElement.findProperty(FormGroup.getArrayName())
+        FormGroup.createElementListFrom(groupsProperty)
     }
 
-    companion object : FormElementCreator<FormGroupRow> {
+    companion object : FormArrayElementCreator<FormGroupRow>() {
 
-        const val ARRAY_NAME = "groupRows"
+        override fun getArrayName() = "groupRows"
 
-        override fun create(sourceElement: JsonElement): FormGroupRow? {
-            if(canBeCreatedAsArrayElement(sourceElement, ARRAY_NAME)) {
-                return FormGroupRow(sourceElement as JsonObject)
-            }
-            return null
-        }
+        override fun createUnsafeFrom(sourceElement: JsonObject) = FormGroupRow(sourceElement)
 
     }
 

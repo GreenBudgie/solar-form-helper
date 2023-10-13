@@ -1,12 +1,12 @@
 package com.solanteq.solar.plugin.element
 
-import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonObject
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiField
 import com.intellij.psi.PsiType
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
+import com.solanteq.solar.plugin.element.creator.FormArrayElementCreator
 import com.solanteq.solar.plugin.symbol.FormSymbol
 import com.solanteq.solar.plugin.symbol.FormSymbolType
 import com.solanteq.solar.plugin.util.FormPsiUtils
@@ -41,7 +41,7 @@ import com.solanteq.solar.plugin.util.valueAsStringOrNull
  * ]
  * ```
  */
-class FormField(
+class FormField private constructor(
     sourceElement: JsonObject
 ) : FormLocalizableElement<JsonObject>(sourceElement, sourceElement) {
 
@@ -77,10 +77,8 @@ class FormField(
      *
      * Multiple containing rows can exist if this field is in included form
      */
-    val containingRows: List<FormRow> by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        FormPsiUtils.firstParentsOfType(sourceElement, JsonObject::class).mapNotNull {
-            it.toFormElement()
-        }
+    val containingRows by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        FormPsiUtils.firstParentsOfType(sourceElement, JsonObject::class).mapNotNull { FormRow.createFrom(it) }
     }
 
     /**
@@ -175,12 +173,12 @@ class FormField(
     }
 
     private fun findAllDataClassesFromRequests(): List<PsiClass> {
-        val containingRootForm = containingFile.toFormElement<FormRootFile>()
+        val containingRootForm = FormRootFile.createFrom(containingFile)
         if(containingRootForm != null) {
             return containingRootForm.allDataClassesFromRequests
         }
 
-        val containingIncludedForm = containingFile.toFormElement<FormIncludedFile>() ?: return emptyList()
+        val containingIncludedForm = FormIncludedFile.createFrom(containingFile) ?: return emptyList()
         return containingIncludedForm.allRootForms.flatMap {
             it.allDataClassesFromRequests
         }
@@ -217,18 +215,13 @@ class FormField(
         val symbol: FormSymbol?
     )
 
-    companion object : FormElementCreator<FormField> {
+    companion object : FormArrayElementCreator<FormField>() {
 
         const val DEFAULT_LABEL_SIZE = 2
 
-        const val ARRAY_NAME = "fields"
+        override fun getArrayName() = "fields"
 
-        override fun create(sourceElement: JsonElement): FormField? {
-            if(canBeCreatedAsArrayElement(sourceElement, ARRAY_NAME)) {
-                return FormField(sourceElement as JsonObject)
-            }
-            return null
-        }
+        override fun createUnsafeFrom(sourceElement: JsonObject) = FormField(sourceElement)
 
     }
 

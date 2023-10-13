@@ -4,7 +4,6 @@ import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonProperty
 import com.intellij.json.psi.JsonStringLiteral
 import com.solanteq.solar.plugin.element.FormRootFile
-import com.solanteq.solar.plugin.element.toFormElement
 import com.solanteq.solar.plugin.search.FormSearch
 import com.solanteq.solar.plugin.util.RangeSplit
 import com.solanteq.solar.plugin.util.convert
@@ -121,7 +120,7 @@ class FormL10n private constructor(
      * Should not be null if [referencedFormPsiFile] is not null.
      */
     val referencedFormFileElement by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        referencedFormPsiFile.toFormElement<FormRootFile>()
+        FormRootFile.createFrom(referencedFormPsiFile)
     }
 
     /**

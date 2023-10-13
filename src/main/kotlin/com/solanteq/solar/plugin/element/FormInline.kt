@@ -1,10 +1,10 @@
 package com.solanteq.solar.plugin.element
 
-import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
 import com.solanteq.solar.plugin.element.base.FormNamedElement
+import com.solanteq.solar.plugin.element.creator.FormElementCreator
 import com.solanteq.solar.plugin.search.FormSearch
 import com.solanteq.solar.plugin.util.valueAsStringOrNull
 import org.jetbrains.kotlin.idea.base.util.allScope
@@ -19,7 +19,7 @@ class FormInline(
 ) : FormNamedElement<JsonProperty>(sourceElement, valueObject) {
 
     val request by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        valueObject.findProperty("request").toFormElement<FormRequest>()
+       FormRequest.createFrom(valueObject.findProperty("request"))
     }
 
     val formFile by lazy(LazyThreadSafetyMode.PUBLICATION) {
@@ -29,16 +29,15 @@ class FormInline(
     }
 
     val formElement by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        formFile.toFormElement<FormRootFile>()
+       FormRootFile.createFrom(formFile)
     }
 
-    companion object : FormElementCreator<FormInline> {
+    companion object : FormElementCreator<FormInline, JsonProperty>() {
 
-        override fun create(sourceElement: JsonElement): FormInline? {
-            val jsonProperty = sourceElement as? JsonProperty ?: return null
-            if(jsonProperty.name == "inline") {
-                val valueObject = jsonProperty.value as? JsonObject ?: return null
-                return FormInline(jsonProperty, valueObject)
+        override fun doCreate(sourceElement: JsonProperty): FormInline? {
+            if(sourceElement.name == "inline") {
+                val valueObject = sourceElement.value as? JsonObject ?: return null
+                return FormInline(sourceElement, valueObject)
             }
             return null
         }

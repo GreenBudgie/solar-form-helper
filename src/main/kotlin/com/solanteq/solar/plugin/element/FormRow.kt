@@ -1,8 +1,8 @@
 package com.solanteq.solar.plugin.element
 
-import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonObject
 import com.solanteq.solar.plugin.element.base.FormElement
+import com.solanteq.solar.plugin.element.creator.FormArrayElementCreator
 import com.solanteq.solar.plugin.util.FormPsiUtils
 
 /**
@@ -19,24 +19,20 @@ class FormRow(
      */
     val containingGroups: List<FormGroup> by lazy(LazyThreadSafetyMode.PUBLICATION) {
         FormPsiUtils.firstParentsOfType(sourceElement, JsonObject::class).mapNotNull {
-            it.toFormElement()
+            FormGroup.createFrom(it)
         }
     }
 
     val fields by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        sourceElement.findProperty(FormField.ARRAY_NAME).toFormArrayElement<FormField>()
+        val fieldsProperty = sourceElement.findProperty(FormField.getArrayName())
+        FormField.createElementListFrom(fieldsProperty)
     }
 
-    companion object : FormElementCreator<FormRow> {
+    companion object : FormArrayElementCreator<FormRow>() {
 
-        const val ARRAY_NAME = "rows"
+        override fun getArrayName() = "rows"
 
-        override fun create(sourceElement: JsonElement): FormRow? {
-            if(canBeCreatedAsArrayElement(sourceElement, ARRAY_NAME)) {
-                return FormRow(sourceElement as JsonObject)
-            }
-            return null
-        }
+        override fun createUnsafeFrom(sourceElement: JsonObject) = FormRow(sourceElement)
 
     }
 

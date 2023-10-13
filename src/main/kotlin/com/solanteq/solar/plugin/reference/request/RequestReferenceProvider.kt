@@ -8,7 +8,6 @@ import com.intellij.psi.PsiReference
 import com.intellij.psi.PsiReferenceProvider
 import com.intellij.util.ProcessingContext
 import com.solanteq.solar.plugin.element.FormRequest
-import com.solanteq.solar.plugin.element.toFormElement
 import com.solanteq.solar.plugin.util.asArray
 import com.solanteq.solar.plugin.util.textRangeWithoutQuotes
 
@@ -82,7 +81,7 @@ object RequestReferenceProvider : PsiReferenceProvider() {
             parentProperty.parent?.parent as? JsonProperty ?: return null
         } else parentProperty
 
-        return requestProperty.toFormElement()
+        return FormRequest.createFrom(requestProperty)
     }
 
 }

@@ -16,7 +16,7 @@ class L10nGroupDeclarationProvider : PsiSymbolDeclarationProvider {
         inForm<JsonStringLiteral>()
             .notJsonIncludeDeclaration()
             .isPropertyValueWithKey("name")
-            .isInArrayWithKey(FormGroup.ARRAY_NAME)
+            .isInArrayWithKey(FormGroup.getArrayName())
 
     override fun getDeclarations(
         element: PsiElement,

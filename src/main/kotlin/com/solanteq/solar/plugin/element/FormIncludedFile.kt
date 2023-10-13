@@ -1,6 +1,5 @@
 package com.solanteq.solar.plugin.element
 
-import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.progress.EmptyProgressIndicator
@@ -9,6 +8,7 @@ import com.intellij.psi.PsiReference
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.solanteq.solar.plugin.element.base.FormElement
+import com.solanteq.solar.plugin.element.creator.FormElementCreator
 import com.solanteq.solar.plugin.file.IncludedFormFileType
 import com.solanteq.solar.plugin.index.JsonIncludeFileIndex
 import com.solanteq.solar.plugin.util.restrictedByFormFiles
@@ -57,7 +57,7 @@ class FormIncludedFile(
         val referencedJsonElements = references.mapNotNull {
             it.element as? JsonStringLiteral
         }
-        val result: List<FormJsonInclude> = referencedJsonElements.mapNotNull { it.toFormElement() }
+        val result = referencedJsonElements.mapNotNull { FormJsonInclude.createFrom(it) }
 
         concurrentProcessingFileSet.remove(containingFile)
         return result
@@ -74,10 +74,10 @@ class FormIncludedFile(
         }.distinct().filter { it != containingFile?.originalFile }
 
         val rootFormsOfDeclarations = containingFilesOfDeclarations.mapNotNull {
-            it.toFormElement<FormRootFile>()
+           FormRootFile.createFrom(it)
         }
         val includedFormsOfDeclarations = containingFilesOfDeclarations.mapNotNull {
-            it.toFormElement<FormIncludedFile>()
+           FormIncludedFile.createFrom(it)
         }
 
         val recursivelyCollectedRootForms = includedFormsOfDeclarations.flatMap {
@@ -87,15 +87,14 @@ class FormIncludedFile(
         return@lazy recursivelyCollectedRootForms + rootFormsOfDeclarations
     }
 
-    companion object : FormElementCreator<FormIncludedFile> {
+    companion object : FormElementCreator<FormIncludedFile, JsonFile>() {
 
         private val concurrentProcessingFileSet =
             Collections.newSetFromMap(ConcurrentHashMap<JsonFile, Boolean>())
 
-        override fun create(sourceElement: JsonElement): FormIncludedFile? {
-            val jsonFile = sourceElement as? JsonFile ?: return null
-            if(jsonFile.fileType == IncludedFormFileType) {
-                return FormIncludedFile(jsonFile)
+        override fun doCreate(sourceElement: JsonFile): FormIncludedFile? {
+            if(sourceElement.fileType == IncludedFormFileType) {
+                return FormIncludedFile(sourceElement)
             }
             return null
         }

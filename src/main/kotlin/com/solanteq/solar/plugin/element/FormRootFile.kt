@@ -1,6 +1,5 @@
 package com.solanteq.solar.plugin.element
 
-import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
@@ -10,6 +9,7 @@ import com.intellij.psi.*
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.TypeConversionUtil
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
+import com.solanteq.solar.plugin.element.creator.FormElementCreator
 import com.solanteq.solar.plugin.file.RootFormFileType
 import com.solanteq.solar.plugin.reference.form.FormNameReference
 import com.solanteq.solar.plugin.util.FormPsiUtils
@@ -87,7 +87,8 @@ class FormRootFile(
      * - `null` if `groupRows` property is not declared
      */
     val groupRows by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        topLevelObject.findProperty(FormGroupRow.ARRAY_NAME).toFormArrayElement<FormGroupRow>()
+        val groupRowsProperty = topLevelObject.findProperty(FormGroupRow.getArrayName())
+        FormGroupRow.createElementListFrom(groupRowsProperty)
     }
 
     /**
@@ -96,7 +97,8 @@ class FormRootFile(
      * - `null` if `groups` property is not declared
      */
     val groups by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        topLevelObject.findProperty(FormGroup.ARRAY_NAME).toFormArrayElement<FormGroup>()
+        val groupsProperty = topLevelObject.findProperty(FormGroup.getArrayName())
+        FormGroup.createElementListFrom(groupsProperty)
     }
 
     /**
@@ -171,7 +173,7 @@ class FormRootFile(
             val formProperty = it.parent as? JsonProperty ?: return@mapNotNull null
             val inlineValueObject = formProperty.parent as? JsonObject ?: return@mapNotNull null
             val inlineProperty = inlineValueObject.parent as? JsonProperty ?: return@mapNotNull null
-            return@mapNotNull inlineProperty.toFormElement<FormInline>()
+            return@mapNotNull FormInline.createFrom(inlineProperty)
         }
         return@lazy formInlineElements.mapNotNull { it.request }
     }
@@ -219,7 +221,7 @@ class FormRootFile(
             .flatMap {
                 FormPsiUtils.firstParentsOfType(it, JsonObject::class)
             }.mapNotNull {
-                it.toFormElement<FormField>()
+               FormField.createFrom(it)
             }
         val fieldListElements = fieldElements.filter {
             it.type == "LIST"
@@ -278,16 +280,17 @@ class FormRootFile(
     /**
      * Gets the request by its type, or null if such request isn't present
      */
-    private fun getRequestByType(type: FormRequest.RequestType): FormRequest? =
-        topLevelObject.findProperty(type.requestLiteral).toFormElement()
+    private fun getRequestByType(type: FormRequest.RequestType): FormRequest? {
+        val requestProperty = topLevelObject.findProperty(type.requestLiteral)
+        return FormRequest.createFrom(requestProperty)
+    }
 
-    companion object : FormElementCreator<FormRootFile> {
+    companion object : FormElementCreator<FormRootFile, JsonFile>() {
 
-        override fun create(sourceElement: JsonElement): FormRootFile? {
-            val jsonFile = sourceElement as? JsonFile ?: return null
-            val topLevelObject = jsonFile.topLevelValue as? JsonObject ?: return null
-            if(jsonFile.fileType == RootFormFileType) {
-                return FormRootFile(jsonFile, topLevelObject)
+        override fun doCreate(sourceElement: JsonFile): FormRootFile? {
+            val topLevelObject = sourceElement.topLevelValue as? JsonObject ?: return null
+            if(sourceElement.fileType == RootFormFileType) {
+                return FormRootFile(sourceElement, topLevelObject)
             }
             return null
         }
