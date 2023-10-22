@@ -17,12 +17,12 @@ abstract class FormLocalizableElement<T : JsonElement>(
 ) : FormNamedElement<T>(sourceElement, objectWithNameProperty) {
 
     /**
-     * A list of localization keys for this [FormElement].
+     * A list of localization keys for this [AbstractFormElement].
      *
      * For example, [FormGroup] in the root form can have the following localization key:
      * "test.form.testForm.details".
      *
-     * If [FormElement] is placed in included form, it can have multiple localization keys
+     * If [AbstractFormElement] is placed in included form, it can have multiple localization keys
      * based on root forms that contain this included form.
      */
     abstract val l10nKeys: List<String>

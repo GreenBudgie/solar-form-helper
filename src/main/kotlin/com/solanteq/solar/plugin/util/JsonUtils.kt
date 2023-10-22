@@ -43,3 +43,12 @@ val JsonStringLiteral.textRangeWithoutQuotes: TextRange
         if(value.isEmpty()) return TextRange(0, 0)
         return TextRange.from(1, value.length)
     }
+
+/**
+ * File text range of this string literal with trimmed quotes
+ */
+val JsonStringLiteral.absoluteTextRangeWithoutQuotes: TextRange
+    get() {
+        val relativeTextRange = textRangeWithoutQuotes
+        return relativeTextRange.shiftRight(textRange.startOffset)
+    }

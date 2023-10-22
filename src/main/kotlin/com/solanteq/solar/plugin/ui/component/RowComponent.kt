@@ -9,10 +9,6 @@ import net.miginfocom.layout.CC
 import net.miginfocom.layout.LC
 import net.miginfocom.swing.MigLayout
 
-/**
- * @author nbundin
- * @since %CURRENT_VERSION%
- */
 class RowComponent(
     private val row: FormRow
 ) : JBPanel<GroupRowComponent>() {

@@ -2,7 +2,7 @@ package com.solanteq.solar.plugin.performance
 
 import com.intellij.util.FileContentUtilCore
 import com.solanteq.solar.plugin.base.JavaPluginTestBase
-import com.solanteq.solar.plugin.base.configureByForms
+import com.solanteq.solar.plugin.base.configureByRootForms
 import com.solanteq.solar.plugin.base.createFormAndConfigure
 import com.solanteq.solar.plugin.l10n.L10nTestUtils
 import org.junit.jupiter.api.Disabled
@@ -64,7 +64,7 @@ class PerformanceBenchmark : JavaPluginTestBase()  {
             "NestedDataClass.kt",
         )
 
-        fixture.configureByForms("fieldsForm.json", module = "test")
+        fixture.configureByRootForms("test", "fieldsForm.json")
 
         L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
             "test.form.fieldsForm.group2.realFieldWithNested.<caret>realNestedField" to "Field Name!"

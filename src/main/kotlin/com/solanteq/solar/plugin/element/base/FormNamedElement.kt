@@ -24,13 +24,13 @@ import com.solanteq.solar.plugin.util.valueAsStringOrNull
 abstract class FormNamedElement<T : JsonElement>(
     sourceElement: T,
     private val objectWithNameProperty: JsonObject
-) : FormElement<T>(sourceElement) {
+) : AbstractFormElement<T>(sourceElement) {
 
     /**
      * An actual json property element that represents name of this form
      */
     val nameProperty by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        objectWithNameProperty.findProperty("name")
+        objectWithNameProperty.findProperty(NAME_PROPERTY)
     }
 
     /**
@@ -48,6 +48,12 @@ abstract class FormNamedElement<T : JsonElement>(
      */
     open val name by lazy(LazyThreadSafetyMode.PUBLICATION) {
         nameProperty.valueAsStringOrNull()
+    }
+
+    companion object {
+
+        const val NAME_PROPERTY = "name"
+
     }
 
 }

@@ -1,6 +1,7 @@
 package com.solanteq.solar.plugin.base
 
 import com.intellij.json.psi.JsonFile
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiDirectory
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import com.solanteq.solar.plugin.file.RootFormFileType
@@ -100,14 +101,35 @@ fun CodeInsightTestFixture.createFormAndConfigure(
 }
 
 /**
- * Copies forms from testData directory to the correct directory and opens the first form in editor
+ * Copies root forms from testData directory to the correct [module] directory and opens the first form in editor
  */
-fun CodeInsightTestFixture.configureByForms(vararg formPaths: String, module: String): JsonFile? {
+fun CodeInsightTestFixture.configureByRootForms(module: String, vararg formPaths: String): JsonFile {
+    if (formPaths.isEmpty()) throw IllegalArgumentException("formPaths should not be empty")
     val virtualFiles = formPaths.map {
         copyFileToProject(it, "main/resources/config/forms/$module/$it")
     }
-    virtualFiles.firstOrNull()?.let { configureFromExistingVirtualFile(it) }
-    return file as? JsonFile
+    configureFromExistingVirtualFile(virtualFiles.first())
+    return file as JsonFile
+}
+
+/**
+ * Copies included forms from testData directory to the correct directory using provided [relativePath]
+ */
+fun CodeInsightTestFixture.setUpIncludedForms(relativePath: String, vararg formPaths: String): List<VirtualFile> {
+    if (formPaths.isEmpty()) throw IllegalArgumentException("formPaths should not be empty")
+    return formPaths.map {
+        copyFileToProject(it, "main/resources/config/includes/forms/$relativePath/$it")
+    }
+}
+
+/**
+ * Copies included forms from testData directory to the correct directory using provided [relativePath]
+ * and opens the first form in editor
+ */
+fun CodeInsightTestFixture.configureByIncludedForms(relativePath: String, vararg formPaths: String): JsonFile {
+    val includedForm = setUpIncludedForms(relativePath, *formPaths).first()
+    configureFromExistingVirtualFile(includedForm)
+    return file as JsonFile
 }
 
 /**

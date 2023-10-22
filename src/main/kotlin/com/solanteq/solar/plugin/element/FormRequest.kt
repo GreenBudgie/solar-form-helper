@@ -5,7 +5,7 @@ import com.intellij.json.psi.JsonProperty
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiMethod
-import com.solanteq.solar.plugin.element.base.FormElement
+import com.solanteq.solar.plugin.element.base.AbstractFormElement
 import com.solanteq.solar.plugin.element.creator.FormElementCreator
 import com.solanteq.solar.plugin.index.CallableServiceImplIndex
 import com.solanteq.solar.plugin.index.DropdownIndex
@@ -41,7 +41,7 @@ import org.jetbrains.uast.toUElementOfType
  */
 class FormRequest(
     sourceElement: JsonProperty
-) : FormElement<JsonProperty>(sourceElement) {
+) : AbstractFormElement<JsonProperty>(sourceElement) {
 
     /**
      * Returns string literal element that represents the request string itself,

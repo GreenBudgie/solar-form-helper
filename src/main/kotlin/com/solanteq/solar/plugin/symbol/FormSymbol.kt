@@ -23,8 +23,7 @@ import org.jetbrains.kotlin.idea.base.util.allScope
 /**
  * Represents a symbol in a form.
  *
- * Symbols in forms can only be declared in [JsonStringLiteral] values of properties
- * and referenced from [JsonStringLiteral].
+ * Symbols in forms can only be declared in [JsonStringLiteral]s.
  */
 class FormSymbol private constructor(
     val element: JsonStringLiteral,
@@ -52,8 +51,6 @@ class FormSymbol private constructor(
     override val targetName = elementTextRange.substring(element.text)
 
     override val usageHandler = UsageHandler.createEmptyUsageHandler(targetName)
-
-
 
     override fun getNavigationTargets(project: Project): List<NavigationTarget> {
         return FormSymbolNavigationTarget().asList()

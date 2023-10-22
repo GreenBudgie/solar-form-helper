@@ -34,4 +34,5 @@ class L10nGroupSymbolReferenceProvider : PsiSymbolReferenceProvider {
         }
         return L10nGroupSymbolReference(l10nChain)
     }
+
 }

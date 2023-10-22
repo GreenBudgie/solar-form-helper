@@ -1,5 +1,6 @@
 package com.solanteq.solar.plugin.symbol
 
+import com.solanteq.solar.plugin.element.FormExpression
 import com.solanteq.solar.plugin.element.FormField
 import com.solanteq.solar.plugin.element.FormGroup
 
@@ -17,4 +18,8 @@ enum class FormSymbolType {
      * @see FormField
      */
     FIELD,
+    /**
+     * @see FormExpression
+     */
+    EXPRESSION,
 }

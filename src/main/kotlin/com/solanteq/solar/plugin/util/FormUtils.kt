@@ -9,6 +9,16 @@ import com.solanteq.solar.plugin.file.RootFormFileType
 import org.jetbrains.kotlin.idea.base.util.projectScope
 
 /**
+ * Checks whether this virtual file is an included form
+ */
+fun VirtualFile.isIncludedForm() = fileType == IncludedFormFileType
+
+/**
+ * Checks whether this virtual file is a root form
+ */
+fun VirtualFile.isRootForm() = fileType == RootFormFileType
+
+/**
  * Checks whether this virtual file is root or included form by checking its file type
  */
 fun VirtualFile.isForm() = fileType == RootFormFileType || fileType == IncludedFormFileType

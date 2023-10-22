@@ -5,7 +5,9 @@ import com.intellij.patterns.ElementPattern
 import com.intellij.patterns.StandardPatterns
 import com.intellij.psi.PsiReferenceContributor
 import com.intellij.psi.PsiReferenceRegistrar
+import com.solanteq.solar.plugin.element.FormField
 import com.solanteq.solar.plugin.element.FormRequest
+import com.solanteq.solar.plugin.element.base.FormNamedElement
 import com.solanteq.solar.plugin.reference.field.FieldReferenceProvider
 import com.solanteq.solar.plugin.reference.form.FormReferenceProvider
 import com.solanteq.solar.plugin.reference.include.JsonIncludeReferenceProvider
@@ -32,8 +34,8 @@ class FormReferenceContributor : PsiReferenceContributor() {
         registrar.registerReferenceProvider(
             inForm<JsonStringLiteral>()
                 .notJsonIncludeDeclaration()
-                .isPropertyValueWithKey("name")
-                .isInObjectInArrayWithKey("fields"),
+                .isPropertyValueWithKey(FormNamedElement.NAME_PROPERTY)
+                .isInArrayWithKey(FormField.getArrayName()),
             FieldReferenceProvider
         )
 
@@ -45,7 +47,7 @@ class FormReferenceContributor : PsiReferenceContributor() {
         registrar.registerReferenceProvider(
             inRootForm<JsonStringLiteral>()
                 .notJsonIncludeDeclaration()
-                .isPropertyValueWithKey("name")
+                .isPropertyValueWithKey(FormNamedElement.NAME_PROPERTY)
                 .isAtTopLevelObject(),
             FormTopLevelFileReferenceProvider
         )
@@ -81,7 +83,7 @@ class FormReferenceContributor : PsiReferenceContributor() {
                 .isPropertyValueWithKey(*FormRequest.RequestType.requestLiterals),
             baseInFormPattern
                 .notJsonIncludeDeclaration()
-                .isPropertyValueWithKey("name")
+                .isPropertyValueWithKey(FormNamedElement.NAME_PROPERTY)
                 .isInObjectWithKey(*FormRequest.RequestType.requestLiterals)
         )
     }

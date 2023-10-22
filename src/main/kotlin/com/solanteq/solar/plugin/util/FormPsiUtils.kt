@@ -23,9 +23,6 @@ import kotlin.reflect.KClass
  *
  * Note that methods in this util can return multiple parent psi elements because multiple
  * JSON includes can be declared to reference the same included form.
- *
- * **Most methods use project-scope or even all-scope references search,
- * so they are very performance impactful.**
  */
 object FormPsiUtils {
 
@@ -249,6 +246,8 @@ object FormPsiUtils {
      * In included form:
      * - Finds all json array parents in other forms by JSON include declarations
      * and checks whether one of them is a value of property with one of specified keys.
+     *
+     * TODO CAN_BE_OPTIMIZED if "processing" approach is used (like in FormGraphSearch)
      */
     fun isInObjectInArrayWithKey(element: JsonElement, vararg applicableKeys: String): Boolean {
         val firstObjectParents = firstParentsOfType(element, JsonObject::class)

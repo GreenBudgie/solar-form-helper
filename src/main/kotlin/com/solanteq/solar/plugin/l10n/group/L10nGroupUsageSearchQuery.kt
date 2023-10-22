@@ -15,7 +15,7 @@ import org.jetbrains.kotlin.psi.psiUtil.contains
 class L10nGroupUsageSearchQuery(
     resolveTarget: FormSymbol,
     searchScope: SearchScope
-) : FormSymbolUsageSearchQuery(resolveTarget, searchScope){
+) : FormSymbolUsageSearchQuery(resolveTarget, searchScope) {
 
     override fun processDeclarations(consumer: Processor<in FormSymbolUsage>): Boolean {
         if(resolveTarget.file !in searchScope) return true

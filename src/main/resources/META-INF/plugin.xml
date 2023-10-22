@@ -58,10 +58,22 @@
                          level="ERROR"
                          implementationClass="com.solanteq.solar.plugin.inspection.UnresolvedRequestReferenceInspection"/>
 
-        <fileBasedIndex implementation="com.solanteq.solar.plugin.index.JsonIncludeFileIndex" />
+        <fileBasedIndex implementation="com.solanteq.solar.plugin.index.JsonIncludeDeclarationIndex" />
+        <fileBasedIndex implementation="com.solanteq.solar.plugin.index.IncludedFormIndex" />
         <fileBasedIndex implementation="com.solanteq.solar.plugin.index.CallableServiceImplIndex" />
         <fileBasedIndex implementation="com.solanteq.solar.plugin.index.DropdownIndex" />
         <fileBasedIndex implementation="com.solanteq.solar.plugin.index.RootFormIndex" />
+
+        <psi.declarationProvider implementation="com.solanteq.solar.plugin.reference.expression.ExpressionDeclarationProvider" />
+        <psi.symbolReferenceProvider hostElementClass="com.intellij.json.psi.impl.JsonStringLiteralImpl"
+                                     hostLanguage="JSON"
+                                     implementationClass="com.solanteq.solar.plugin.reference.expression.ExpressionSymbolReferenceProvider"
+                                     targetClass="com.solanteq.solar.plugin.symbol.FormSymbol" />
+        <searcher forClass="com.intellij.find.usages.api.UsageSearchParameters"
+                  implementationClass="com.solanteq.solar.plugin.reference.expression.ExpressionUsageSearcher"/>
+
+        <searcher forClass="com.intellij.refactoring.rename.api.RenameUsageSearchParameters"
+                  implementationClass="com.solanteq.solar.plugin.reference.expression.ExpressionRenameUsageSearcher"/>
 
         <!-- Localization -->
 

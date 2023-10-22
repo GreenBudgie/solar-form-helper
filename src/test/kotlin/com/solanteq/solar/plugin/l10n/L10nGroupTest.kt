@@ -15,7 +15,7 @@ class L10nGroupTest : LightPluginTestBase() {
 
     @Test
     fun `test l10n reference to group`() {
-        fixture.configureByForms("testForm1.json", module = "test")
+        fixture.configureByRootForms("test", "testForm1.json")
 
         L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
             "test.form.testForm1.<caret>group1.randomText" to "Group Name!"
@@ -26,7 +26,7 @@ class L10nGroupTest : LightPluginTestBase() {
 
     @Test
     fun `test l10n group completion`() {
-        fixture.configureByForms("testForm1.json", module = "test")
+        fixture.configureByRootForms("test","testForm1.json")
 
         L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
             "test.form.testForm1.<caret>" to "Group Name!"
@@ -163,7 +163,7 @@ class L10nGroupTest : LightPluginTestBase() {
 
     @Test
     fun `test find usages in project scope`() {
-        fixture.configureByForms("testForm1.json", module = "test")
+        fixture.configureByRootForms("test", "testForm1.json")
 
         L10nTestUtils.createL10nFile(fixture, "l10n_2",
             "test.form.testForm1.group1" to "Group Name22!",
@@ -187,7 +187,7 @@ class L10nGroupTest : LightPluginTestBase() {
 
     @Test
     fun `test find usages in l10n file scope`() {
-        fixture.configureByForms("testForm1.json", module = "test")
+        fixture.configureByRootForms("test", "testForm1.json")
 
         L10nTestUtils.createL10nFile(fixture, "l10n_2",
             "test.form.testForm1.group" to "Group Name22!",

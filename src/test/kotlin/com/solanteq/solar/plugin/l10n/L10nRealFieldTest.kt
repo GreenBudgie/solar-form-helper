@@ -1,7 +1,7 @@
 package com.solanteq.solar.plugin.l10n
 
 import com.solanteq.solar.plugin.base.JavaPluginTestBase
-import com.solanteq.solar.plugin.base.configureByForms
+import com.solanteq.solar.plugin.base.configureByRootForms
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -18,7 +18,7 @@ class L10nRealFieldTest : JavaPluginTestBase() {
             "NestedDataClass.kt",
         )
 
-        fixture.configureByForms("fieldsForm.json", module = "test")
+        fixture.configureByRootForms( "test", "fieldsForm.json")
     }
 
     @Test

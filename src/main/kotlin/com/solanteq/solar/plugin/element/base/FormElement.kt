@@ -2,9 +2,8 @@ package com.solanteq.solar.plugin.element.base
 
 import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonFile
-import com.solanteq.solar.plugin.element.FormIncludedFile
-import com.solanteq.solar.plugin.element.FormRootFile
-import com.solanteq.solar.plugin.util.asList
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
 
 /**
  * Form element is a representation of a SOLAR form json element.
@@ -28,46 +27,31 @@ import com.solanteq.solar.plugin.util.asList
  * Every [FormElement] must have a private constructor and a companion object that inherits
  * [com.solanteq.solar.plugin.element.creator.FormElementCreator].
  */
-abstract class FormElement<T : JsonElement> protected constructor(
+interface FormElement<T : JsonElement> {
+
+    /**
+     * JSON source element that this form element has been created from
+     */
     val sourceElement: T
-) {
 
     /**
      * Project lazy value to only call it once for performance
      */
-    protected val project by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        sourceElement.project
-    }
+    val project: Project
 
     /**
      * Containing file (original) lazy value to only call it once for performance
      */
-    protected val containingFile by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        sourceElement.containingFile?.originalFile as? JsonFile
-    }
+    val containingFile: JsonFile?
 
     /**
-     * All root forms that contain this element.
-     * - If the element is in the root form, only one form will be returned.
-     * - If the element is in the included form, finds all root forms that contain this included form.
+     * Virtual file lazy value to only call it once for performance
      */
-    val containingRootForms by lazy(LazyThreadSafetyMode.PUBLICATION) {
-       FormRootFile.createFrom(containingFile)?.let {
-            return@lazy it.asList()
-        }
-       FormIncludedFile.createFrom(containingFile)?.let {
-            return@lazy it.allRootForms
-        }
-        return@lazy emptyList()
-    }
+    val virtualFile: VirtualFile?
 
-    override fun equals(other: Any?): Boolean {
-        if(other is FormElement<*>) {
-            return this === other || other.sourceElement == sourceElement
-        }
-        return false
-    }
-
-    override fun hashCode() = sourceElement.hashCode()
+    /**
+     * Form file that contains this element, or null if the file or element is invalid
+     */
+    val containingForm: FormFile?
 
 }

@@ -1,7 +1,7 @@
 package com.solanteq.solar.plugin.l10n
 
 import com.solanteq.solar.plugin.base.LightPluginTestBase
-import com.solanteq.solar.plugin.base.configureByForms
+import com.solanteq.solar.plugin.base.configureByRootForms
 import com.solanteq.solar.plugin.base.createForm
 import org.junit.jupiter.api.Test
 
@@ -11,7 +11,7 @@ class L10nFormTest : LightPluginTestBase() {
 
     @Test
     fun `test l10n reference to form`() {
-        fixture.configureByForms("testForm1.json", module = "test")
+        fixture.configureByRootForms("test", "testForm1.json")
 
         L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
             "test.form.<caret>testForm1.randomText" to "Form Name!"
@@ -22,10 +22,9 @@ class L10nFormTest : LightPluginTestBase() {
 
     @Test
     fun `test l10n form completion`() {
-        fixture.configureByForms(
+        fixture.configureByRootForms("test",
             "testForm1.json",
-            "testForm2.json",
-            module = "test"
+            "testForm2.json"
         )
 
         fixture.createForm("confusingForm", "notTest", "{}")
@@ -39,7 +38,7 @@ class L10nFormTest : LightPluginTestBase() {
 
     @Test
     fun `test l10n form rename`() {
-        fixture.configureByForms("testForm1.json", module = "test")
+        fixture.configureByRootForms("test", "testForm1.json")
 
         L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
             "test.form.<caret>testForm1" to "Form Name!"

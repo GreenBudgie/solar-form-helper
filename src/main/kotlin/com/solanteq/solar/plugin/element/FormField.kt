@@ -129,6 +129,8 @@ class FormField private constructor(
      * Example: consider we have a chain of five fields `field1`, `field2`...
      * If we make a typo at `field3`, then only `field1` and `field2` will be resolved.
      * Further fields will be considered "fake", and symbols will be used to describe them.
+     *
+     * TODO CAN_BE_OPTIMIZED it takes a huge amount of time to process but not all data is used afterwards
      */
     val propertyChain by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val stringPropertyChain = fieldNameChain

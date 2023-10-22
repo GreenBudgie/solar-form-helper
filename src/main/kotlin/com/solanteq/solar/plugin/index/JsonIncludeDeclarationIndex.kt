@@ -12,20 +12,21 @@ import com.solanteq.solar.plugin.util.isForm
 
 /**
  * An index that stores JSON files that contain specific json include declarations.
- * - Key: full name of included form file with extension, for example: `includedForm.json`
+ * - Key: full name and relative path of included form file with extension,
+ * for example: `crm/includedForm.json`
  * - Value: a list of files that contain one or more declarations of this form
  */
-class JsonIncludeFileIndex : ScalarIndexExtension<String>() {
+class JsonIncludeDeclarationIndex : ScalarIndexExtension<String>() {
 
-    override fun getName() = NAME
+    override fun getName() = JSON_INCLUDE_DECLARATION_INDEX_NAME
 
     override fun getIndexer() = DataIndexer<String, Void, FileContent> { fileContent ->
         val file = fileContent.psiFile as? JsonFile ?: return@DataIndexer emptyMap()
         val jsonIncludesMap = mutableMapOf<String, Void?>()
         PsiTreeUtil.processElements(file, JsonStringLiteral::class.java) {
             val jsonInclude = FormJsonInclude.createFrom(it) ?: return@processElements true
-            val formName = jsonInclude.formName ?: return@processElements true
-            jsonIncludesMap[formName] = null
+            if(jsonInclude.formName == null) return@processElements true
+            jsonIncludesMap[jsonInclude.path] = null
             true
         }
         jsonIncludesMap
@@ -40,22 +41,22 @@ class JsonIncludeFileIndex : ScalarIndexExtension<String>() {
 
     override fun dependsOnFileContent() = true
 
-    companion object {
+}
 
-        val NAME = ID.create<String, Void>("JsonIncludeFileIndex")
+val JSON_INCLUDE_DECLARATION_INDEX_NAME = ID.create<String, Void>("JsonIncludeDeclarationsIndex")
 
-        /**
-         * Returns the list of [VirtualFile]s that contain at least one json include declaration
-         * that leads to included form with [includedFormName].
-         */
-        fun getFilesContainingDeclaration(includedFormName: String,
-                                          scope: GlobalSearchScope): Collection<VirtualFile> =
-            FileBasedIndex.getInstance().getContainingFiles(
-                NAME,
-                includedFormName,
-                scope
-            )
+object JsonIncludeDeclarationSearch {
 
-    }
-
+    /**
+     * Returns the list of [VirtualFile]s that contain at least one json include declaration
+     * that leads to included form with [includedFormRelativePath].
+     */
+    fun getFilesContainingDeclaration(includedFormRelativePath: String,
+                                      scope: GlobalSearchScope
+    ): Collection<VirtualFile> =
+        FileBasedIndex.getInstance().getContainingFiles(
+            JSON_INCLUDE_DECLARATION_INDEX_NAME,
+            includedFormRelativePath,
+            scope
+        )
 }

@@ -4,11 +4,12 @@ import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
-import com.solanteq.solar.plugin.element.base.FormElement
+import com.solanteq.solar.plugin.element.base.AbstractFormElement
 import com.solanteq.solar.plugin.element.creator.FormElementCreator
 import com.solanteq.solar.plugin.search.FormSearch
 import com.solanteq.solar.plugin.util.RangeSplit
 import com.solanteq.solar.plugin.util.convert
+import com.solanteq.solar.plugin.util.firstWithProjectPrioritization
 import org.jetbrains.kotlin.idea.base.util.allScope
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 
@@ -21,7 +22,7 @@ import org.jetbrains.kotlin.idea.core.util.toPsiFile
 class FormJsonInclude(
     sourceElement: JsonStringLiteral,
     val type: JsonIncludeType
-) : FormElement<JsonStringLiteral>(sourceElement) {
+) : AbstractFormElement<JsonStringLiteral>(sourceElement) {
 
     /**
      * Path after "json://includes/forms/" ("json-flat://includes/forms/") prefix
@@ -72,22 +73,7 @@ class FormJsonInclude(
      * Can be null if this declaration is incomplete, invalid, or points to non-existent file.
      */
     val referencedFormVirtualFile by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        val formName = formName ?: return@lazy null
-        val includedForms = FormSearch.findIncludedForms(project.allScope())
-        val applicableFormsByName = includedForms.filter {
-            it.name == formName
-        }
-
-        return@lazy applicableFormsByName.find { file ->
-            var currentVirtualFile = file
-            reversedPathChain.forEach {
-                if(currentVirtualFile.name != it.text) {
-                    return@find false
-                }
-                currentVirtualFile = currentVirtualFile.parent
-            }
-            return@find true
-        }
+        FormSearch.findIncludedFormsByRelativePath(path, project.allScope()).firstWithProjectPrioritization(project)
     }
 
     val referencedFormPsiFile by lazy(LazyThreadSafetyMode.PUBLICATION) {

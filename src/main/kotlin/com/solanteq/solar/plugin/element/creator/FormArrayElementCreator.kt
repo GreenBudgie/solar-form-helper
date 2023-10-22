@@ -1,16 +1,17 @@
 package com.solanteq.solar.plugin.element.creator
 
 import com.intellij.json.psi.*
-import com.solanteq.solar.plugin.element.*
+import com.solanteq.solar.plugin.element.FormJsonInclude
+import com.solanteq.solar.plugin.element.base.AbstractFormElement
 import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.util.FormPsiUtils
 import com.solanteq.solar.plugin.util.asListOrEmpty
 
 /**
- * An interface that companion object of any [FormElement] that can be created as an
- * array entry for [com.solanteq.solar.plugin.element.FormPropertyArray] should implement.
+ * An interface that companion object of any [AbstractFormElement] that can be created as an
+ * array entry should implement.
  */
-abstract class FormArrayElementCreator<out ELEMENT : FormElement<JsonObject>> : FormElementCreator<ELEMENT, JsonObject>() {
+abstract class FormArrayElementCreator<out ELEMENT : AbstractFormElement<JsonObject>> : FormElementCreator<ELEMENT, JsonObject>() {
 
     /**
      * Returns the required name of the property for it to be considered an array of specified type.
@@ -19,7 +20,7 @@ abstract class FormArrayElementCreator<out ELEMENT : FormElement<JsonObject>> : 
     abstract fun getArrayName(): String
 
     /**
-     * Creates a new [FormElement] from the provided [sourceElement] if it's possible, or returns null.
+     * Creates a new [AbstractFormElement] from the provided [sourceElement] if it's possible, or returns null.
      * This method **does not** check whether the parent array element has an appropriate name, but all other
      * validations are still done.
      */
@@ -43,8 +44,8 @@ abstract class FormArrayElementCreator<out ELEMENT : FormElement<JsonObject>> : 
     }
 
     /**
-     * Creates a new [FormElement] from the provided [sourceElement] if it's possible, or returns null.
-     * Performs [sourceElement] validation before creation, checks if it is applicable to the underlying [FormElement].
+     * Creates a new [AbstractFormElement] from the provided [sourceElement] if it's possible, or returns null.
+     * Performs [sourceElement] validation before creation, checks if it is applicable to the underlying [AbstractFormElement].
      * In this case it checks whether the parent property name is equal to [getArrayName].
      */
     override fun doCreate(sourceElement: JsonObject): ELEMENT? {
@@ -71,7 +72,7 @@ abstract class FormArrayElementCreator<out ELEMENT : FormElement<JsonObject>> : 
     private fun canBeCreatedAsListEntryFrom(sourceElement: JsonObject): Boolean {
         val jsonObject = sourceElement as? JsonObject ?: return false
 
-        //TODO make processParents function for performance
+        //TODO CAN_BE_OPTIMIZED make processParents function for performance
         val parentArrays = FormPsiUtils.parents(jsonObject)
 
         val containsParentPropertyWithArrayName = parentArrays.any {

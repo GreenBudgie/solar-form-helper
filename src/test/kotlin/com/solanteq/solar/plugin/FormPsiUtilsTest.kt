@@ -606,4 +606,40 @@ class FormPsiUtilsTest : LightPluginTestBase() {
         assertTrue(value is JsonArray)
     }
 
+    @Test
+    fun `test find all parents if both json and json-flat declarations present`() {
+        fixture.createForm(
+            "rootForm1", "test", """
+                {
+                  "property1": "json://includes/forms/test/includedForm.json"
+                }
+            """.trimIndent()
+        )
+
+        fixture.createForm(
+            "rootForm2", "test", """
+                {
+                  "property2": [
+                    "json-flat://includes/forms/test/includedForm.json"
+                  ]
+                }
+            """.trimIndent()
+        )
+
+        fixture.createIncludedFormAndConfigure(
+            "includedForm", "test", """
+                [
+                  "<caret>abc"
+                ]
+            """.trimIndent()
+        )
+
+        val elementAtCaret = getJsonStringLiteralAtCaret()
+        val parents = FormPsiUtils.parents(elementAtCaret)
+
+        assertEquals(2, parents.size)
+        assertTrue(parents[0] is JsonArray)
+        assertTrue(parents[1] is JsonArray)
+    }
+
 }

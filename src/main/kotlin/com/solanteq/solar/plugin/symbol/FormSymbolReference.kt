@@ -8,8 +8,8 @@ import com.intellij.openapi.util.TextRange
  * Represents a reference to [FormSymbol] from [JsonStringLiteral].
  */
 abstract class FormSymbolReference(
-    private val sourceElement: JsonStringLiteral,
-    private val sourceElementTextRange: TextRange
+    protected val sourceElement: JsonStringLiteral,
+    protected val sourceElementTextRange: TextRange
 ) : PsiSymbolReference {
 
     abstract override fun resolveReference(): List<FormSymbol>

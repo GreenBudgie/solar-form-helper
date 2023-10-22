@@ -8,11 +8,12 @@ import com.solanteq.solar.plugin.symbol.FormSymbolSingleReference
 import com.solanteq.solar.plugin.symbol.FormSymbolType
 
 class L10nGroupSymbolReference(
-    val l10nChain: FormL10n
+    private val l10nChain: FormL10n
 ) : FormSymbolSingleReference(
     l10nChain.keyElement,
     l10nChain.groupTextRange!!,
     FormSymbolType.GROUP,
+    // TODO CAN_BE_OPTIMIZED seems like it degrades performance, it's better to move it to resolve method
     l10nChain.referencedGroup
 ), PsiCompletableReference {
 

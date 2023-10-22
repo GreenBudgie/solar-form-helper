@@ -15,7 +15,7 @@ class L10nFakeFieldTest : LightPluginTestBase() {
     
     @Test
     fun `test l10n reference to fake field`() {
-        fixture.configureByForms("testForm1.json", module = "test")
+        fixture.configureByRootForms("test", "testForm1.json")
 
         L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
             "test.form.testForm1.group1.<caret>field1" to "Field Name!"
@@ -26,7 +26,7 @@ class L10nFakeFieldTest : LightPluginTestBase() {
 
     @Test
     fun `test l10n reference to nested fake field`() {
-        fixture.configureByForms("testForm1.json", module = "test")
+        fixture.configureByRootForms("test", "testForm1.json")
 
         L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
             "test.form.testForm1.group2.field.<caret>nestedField.randomText" to "Field Name!"
@@ -37,7 +37,7 @@ class L10nFakeFieldTest : LightPluginTestBase() {
 
     @Test
     fun `test l10n fake field rename from reference`() {
-        fixture.configureByForms("testForm1.json", module = "test")
+        fixture.configureByRootForms("test", "testForm1.json")
 
         L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
             "test.form.testForm1.group1.<caret>field1" to "Field Name!"
@@ -117,7 +117,7 @@ class L10nFakeFieldTest : LightPluginTestBase() {
 
     @Test
     fun `test l10n fake field completion`() {
-        fixture.configureByForms("testForm1.json", module = "test")
+        fixture.configureByRootForms("test", "testForm1.json")
 
         L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
             "test.form.testForm1.group1.<caret>" to "Field Name!"
@@ -128,7 +128,7 @@ class L10nFakeFieldTest : LightPluginTestBase() {
 
     @Test
     fun `test l10n fake nested field first part completion`() {
-        fixture.configureByForms("testForm1.json", module = "test")
+        fixture.configureByRootForms("test", "testForm1.json")
 
         L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
             "test.form.testForm1.group2.<caret>" to "Field Name!"
@@ -139,7 +139,7 @@ class L10nFakeFieldTest : LightPluginTestBase() {
 
     @Test
     fun `test l10n fake nested field second part completion`() {
-        fixture.configureByForms("testForm1.json", module = "test")
+        fixture.configureByRootForms("test", "testForm1.json")
 
         L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
             "test.form.testForm1.group2.field.<caret>" to "Nested Field Name!"
@@ -244,7 +244,7 @@ class L10nFakeFieldTest : LightPluginTestBase() {
 
     @Test
     fun `test find usages in project scope`() {
-        fixture.configureByForms("testForm1.json", module = "test")
+        fixture.configureByRootForms("test", "testForm1.json")
 
         L10nTestUtils.createL10nFile(fixture, "l10n_2",
             "test.form.testForm1.group1.field1" to "Field Name!",
@@ -268,7 +268,7 @@ class L10nFakeFieldTest : LightPluginTestBase() {
 
     @Test
     fun `test find usages in file scope`() {
-        fixture.configureByForms("testForm1.json", module = "test")
+        fixture.configureByRootForms("test", "testForm1.json")
 
         L10nTestUtils.createL10nFile(fixture, "l10n_2",
             "test.form.testForm1.group1.field1" to "Field Name!"

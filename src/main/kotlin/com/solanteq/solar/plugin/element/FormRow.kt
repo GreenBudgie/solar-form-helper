@@ -1,7 +1,7 @@
 package com.solanteq.solar.plugin.element
 
 import com.intellij.json.psi.JsonObject
-import com.solanteq.solar.plugin.element.base.FormElement
+import com.solanteq.solar.plugin.element.base.AbstractFormElement
 import com.solanteq.solar.plugin.element.creator.FormArrayElementCreator
 import com.solanteq.solar.plugin.util.FormPsiUtils
 
@@ -10,10 +10,10 @@ import com.solanteq.solar.plugin.util.FormPsiUtils
  */
 class FormRow(
     sourceElement: JsonObject
-) : FormElement<JsonObject>(sourceElement) {
+) : AbstractFormElement<JsonObject>(sourceElement) {
 
     /**
-     * All group that contain this row.
+     * All groups that contain this row.
      *
      * Multiple containing groups can exist if this row is in included form
      */

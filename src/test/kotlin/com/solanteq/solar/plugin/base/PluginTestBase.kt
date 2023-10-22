@@ -77,9 +77,11 @@ abstract class PluginTestBase {
 
     protected fun renameFormSymbolReference(renameTo: String) {
         val reference = getFormSymbolReferenceAtCaret()
-        val referencedSymbol = reference.resolveReference().firstOrNull()
-        Assertions.assertNotNull(referencedSymbol)
-        fixture.renameTarget(referencedSymbol!!, renameTo)
+        val referencedSymbolDeclarations = reference.resolveReference()
+        Assertions.assertTrue(referencedSymbolDeclarations.isNotEmpty())
+        referencedSymbolDeclarations.forEach {
+            fixture.renameTarget(it, renameTo)
+        }
     }
 
     protected fun getJsonStringLiteralAtCaret(): JsonStringLiteral {

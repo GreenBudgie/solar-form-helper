@@ -6,6 +6,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.indexing.FileBasedIndex
 import com.solanteq.solar.plugin.file.IncludedFormFileType
 import com.solanteq.solar.plugin.file.RootFormFileType
+import com.solanteq.solar.plugin.index.INCLUDED_FORM_INDEX_NAME
 import com.solanteq.solar.plugin.index.ROOT_FORM_INDEX_NAME
 import com.solanteq.solar.plugin.util.firstWithProjectPrioritization
 import com.solanteq.solar.plugin.util.getFormModuleName
@@ -20,21 +21,22 @@ object FormSearch {
         FileTypeIndex.getFiles(IncludedFormFileType, scope.restrictedByFormFiles())
 
     /**
-     * Finds included and root forms
+     * Finds included form by its relative path.
+     * Usually, there should be exactly one included form for any relative path. But, in practice,
+     * we can have invalid configuration where two or more forms with the same path are present.
+     * It is better to use [firstWithProjectPrioritization] if you want to get exactly one form.
      */
-    fun findAllForms(scope: GlobalSearchScope) =
-        findRootForms(scope) + findIncludedForms(scope)
+    fun findIncludedFormsByRelativePath(relativePath: String, scope: GlobalSearchScope): Collection<VirtualFile> {
+        return FileBasedIndex.getInstance().getContainingFiles(
+            INCLUDED_FORM_INDEX_NAME,
+            relativePath,
+            scope
+        )
+    }
 
     fun findRootFormsInModule(scope: GlobalSearchScope, moduleName: String): Collection<VirtualFile> {
         if(moduleName.isBlank()) return emptySet()
         return findRootForms(scope).filter {
-            it.getFormModuleName() == moduleName
-        }
-    }
-
-    fun findIncludedFormsInModule(scope: GlobalSearchScope, moduleName: String): Collection<VirtualFile> {
-        if(moduleName.isBlank()) return emptySet()
-        return findIncludedForms(scope).filter {
             it.getFormModuleName() == moduleName
         }
     }

@@ -8,6 +8,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.*
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.TypeConversionUtil
+import com.solanteq.solar.plugin.element.base.FormFile
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.element.creator.FormElementCreator
 import com.solanteq.solar.plugin.file.RootFormFileType
@@ -37,7 +38,9 @@ import org.jetbrains.kotlin.idea.base.util.allScope
 class FormRootFile(
     sourceElement: JsonFile,
     private val topLevelObject: JsonObject
-) : FormLocalizableElement<JsonFile>(sourceElement, topLevelObject) {
+) : FormLocalizableElement<JsonFile>(sourceElement, topLevelObject), FormFile {
+
+    override val containingForm = this
 
     /**
      * The short name of this form.
@@ -47,7 +50,7 @@ class FormRootFile(
      */
     override val name by lazy(LazyThreadSafetyMode.PUBLICATION) {
         super.name?.let { return@lazy it }
-        containingFile?.virtualFile?.nameWithoutExtension
+        virtualFile?.nameWithoutExtension
     }
 
     /**
@@ -166,6 +169,8 @@ class FormRootFile(
 
     /**
      * All requests from inline elements that reference this form
+     *
+     * TODO CAN_BE_OPTIMIZED it uses all scope references search - use root form declaration index instead
      */
     val inlineRequests: List<FormRequest> by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val formPropertyValueElements = formReferences.filterIsInstance<FormNameReference>().map { it.element }
@@ -244,6 +249,14 @@ class FormRootFile(
                 rawInnerType
             )
         }
+    }
+
+    /**
+     * Returns all expressions declared in this form, or null if there is no `expressions` property
+     */
+    val expressions: List<FormExpression>? by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        val expressionsProperty = topLevelObject.findProperty(FormExpression.getArrayName()) ?: return@lazy null
+        return@lazy FormExpression.createElementListFrom(expressionsProperty)
     }
 
     private val formReferences by lazy(LazyThreadSafetyMode.PUBLICATION) {
