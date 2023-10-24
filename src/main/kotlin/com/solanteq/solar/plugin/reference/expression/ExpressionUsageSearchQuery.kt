@@ -23,6 +23,8 @@ class ExpressionUsageSearchQuery(
 ) : FormSymbolUsageSearchQuery(resolveTarget, searchScope){
 
     override fun processDeclarations(consumer: Processor<in FormSymbolUsage>): Boolean {
+        val searchScope = searchScope
+        val resolveTarget = resolveTarget
         if(resolveTarget.file !in searchScope) return true
         return consumer.process(FormSymbolUsage(resolveTarget, true))
     }
@@ -37,19 +39,27 @@ class ExpressionUsageSearchQuery(
             if (it !in globalSearchScope) return@processAllRelatedForms true
             val file = it.toPsiFile(project) as JsonFile
             PsiTreeUtil.processElements(file, JsonProperty::class.java) { property ->
-                if (property.name in FormExpression.expressionProperties) {
-                    val value = property.value as? JsonStringLiteral ?: return@processElements true
-                    if (value.value == expressionName) {
-                        val usage = FormSymbolUsage(file, value.absoluteTextRangeWithoutQuotes, false)
-                        if (!consumer.process(usage)) {
-                            return@processElements false
-                        }
-                    }
-                }
-                true
+                processProperty(file, expressionName, property, consumer)
             }
         }
         return result != null
+    }
+
+    private fun processProperty(
+        file: JsonFile,
+        expressionName: String,
+        property: JsonProperty,
+        consumer: Processor<in FormSymbolUsage>
+    ): Boolean {
+        if (property.name !in FormExpression.expressionProperties) {
+            return true
+        }
+        val value = property.value as? JsonStringLiteral ?: return true
+        if (value.value != expressionName) {
+            return true
+        }
+        val usage = FormSymbolUsage(file, value.absoluteTextRangeWithoutQuotes, false)
+        return consumer.process(usage)
     }
 
 }

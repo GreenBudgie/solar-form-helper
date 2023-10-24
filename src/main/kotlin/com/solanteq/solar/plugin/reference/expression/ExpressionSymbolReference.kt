@@ -26,12 +26,13 @@ class ExpressionSymbolReference(
         val expressionName = sourceElement.value
         val file = sourceElement.containingFile.originalFile as JsonFile
         if (file.fileType == RootFormFileType) {
-            return findDeclarations(expressionName, file)
+            return findDeclarations(expressionName, file, mutableSetOf())
         }
         val virtualFile = file.virtualFile ?: return emptyList()
         val project = file.project
+        val processedExpressions = mutableSetOf<FormExpression>()
         return FormGraphSearch.findTopmostRootForms(project, virtualFile).flatMap {
-            findDeclarations(expressionName, it.toPsiFile(project) as JsonFile)
+            findDeclarations(expressionName, it.toPsiFile(project) as JsonFile, processedExpressions)
         }
     }
 
@@ -60,11 +61,18 @@ class ExpressionSymbolReference(
         return FormRootFile.createFrom(file)?.expressions ?: emptyList()
     }
 
-    private fun findDeclarations(expressionName: String, file: JsonFile): List<FormSymbol> {
+    private fun findDeclarations(
+        expressionName: String,
+        file: JsonFile,
+        processedExpressions: MutableSet<FormExpression>
+    ): List<FormSymbol> {
         val expressions = findExpressions(file)
-        val applicableExpressions = expressions.filter { it.name == expressionName }
+        val applicableExpressions = expressions
+            .filter { it !in processedExpressions }
+            .filter { it.name == expressionName }
         return applicableExpressions.mapNotNull {
             val element = it.namePropertyValue ?: return@mapNotNull null
+            processedExpressions += it
             FormSymbol.withElementTextRange(element, element.textRangeWithoutQuotes, FormSymbolType.EXPRESSION)
         }
     }

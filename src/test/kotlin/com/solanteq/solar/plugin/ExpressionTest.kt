@@ -2,6 +2,7 @@ package com.solanteq.solar.plugin
 
 import com.solanteq.solar.plugin.base.*
 import com.solanteq.solar.plugin.reference.expression.ExpressionDeclarationProvider
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -411,6 +412,148 @@ class ExpressionTest : LightPluginTestBase() {
         fixture.checkResult(includedFormResult)
         fixture.openFileInEditor(rootForm.virtualFile)
         fixture.checkResult(rootFormResult)
+    }
+
+    @Test
+    fun `only one declaration found if expression is present in single included form but referenced from multiple root forms`() {
+        fixture.createForm("rootForm1", "abc", """
+            {
+              "groups": "json://includes/forms/abc/groups.json",
+              "expressions": "json://includes/forms/abc/expressions.json"
+            }
+        """.trimIndent())
+
+        fixture.createForm("rootForm2", "abc", """
+            {
+              "groups": "json://includes/forms/abc/groups.json",
+              "expressions": "json://includes/forms/abc/expressions.json"
+            }
+        """.trimIndent())
+
+        fixture.createIncludedForm("expressions", "abc", """
+            [
+              {
+                "name": "expr",
+                "value": "false"
+              }
+            ]
+        """.trimIndent())
+
+        fixture.createIncludedFormAndConfigure("groups", "abc", """
+            [
+              {
+                "visibleWhen": "expr<caret>"
+              }
+            ]
+        """.trimIndent())
+
+        val exprReference = getFormSymbolReferenceAtCaret()
+        val result = exprReference.resolveReference()
+
+        assertEquals(1, result.size)
+    }
+
+    @Test
+    fun `exactly 2 declarations found if expression with the same name is present in multiple forms`() {
+        fixture.createForm("rootForm1", "abc", """
+            {
+              "groups": "json://includes/forms/abc/groups.json",
+              "expressions": "json://includes/forms/abc/expressions1.json"
+            }
+        """.trimIndent())
+
+        fixture.createForm("rootForm2", "abc", """
+            {
+              "groups": "json://includes/forms/abc/groups.json",
+              "expressions": "json://includes/forms/abc/expressions2.json"
+            }
+        """.trimIndent())
+
+        fixture.createIncludedForm("expressions1", "abc", """
+            [
+              {
+                "name": "expr1",
+                "value": "false"
+              }
+            ]
+        """.trimIndent())
+
+        fixture.createIncludedForm("expressions2", "abc", """
+            [
+              {
+                "name": "expr1",
+                "value": "false"
+              }
+            ]
+        """.trimIndent())
+
+        fixture.createIncludedFormAndConfigure("groups", "abc", """
+            [
+              {
+                "visibleWhen": "expr1<caret>"
+              }
+            ]
+        """.trimIndent())
+
+        val exprReference = getFormSymbolReferenceAtCaret()
+        val result = exprReference.resolveReference()
+
+        assertEquals(2, result.size)
+    }
+
+    @Test
+    fun `exactly 2 declarations found - mixed scenario with 2 cases above`() {
+        fixture.createForm("rootForm1", "abc", """
+            {
+              "groups": "json://includes/forms/abc/groups.json",
+              "expressions": "json://includes/forms/abc/expressions1.json"
+            }
+        """.trimIndent())
+
+        fixture.createForm("rootForm2", "abc", """
+            {
+              "groups": "json://includes/forms/abc/groups.json",
+              "expressions": "json://includes/forms/abc/expressions2.json"
+            }
+        """.trimIndent())
+
+        fixture.createForm("rootForm3", "abc", """
+            {
+              "groups": "json://includes/forms/abc/groups.json",
+              "expressions": "json://includes/forms/abc/expressions2.json"
+            }
+        """.trimIndent())
+
+        fixture.createIncludedForm("expressions1", "abc", """
+            [
+              {
+                "name": "expr1",
+                "value": "false"
+              }
+            ]
+        """.trimIndent())
+
+        fixture.createIncludedForm("expressions2", "abc", """
+            [
+              {
+                "name": "expr1",
+                "value": "false"
+              }
+            ]
+        """.trimIndent())
+
+        fixture.createIncludedFormAndConfigure("groups", "abc", """
+            [
+              {
+                "visibleWhen": "expr1<caret>"
+              }
+            ]
+        """.trimIndent())
+
+        val exprReference = getFormSymbolReferenceAtCaret()
+        val result = exprReference.resolveReference()
+
+        assertEquals(2, result.size)
     }
 
 }
