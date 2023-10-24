@@ -21,7 +21,7 @@ dependencies {
 
 // Configure Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
 intellij {
-    version.set("2023.2")
+    version.set("2023.2.3")
     type.set("IC") // Target IDE Platform
 
     plugins.set(listOf(
