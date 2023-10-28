@@ -81,6 +81,8 @@
                   language="JSON"
                   implementationClass="com.solanteq.solar.plugin.file.L10nFileType"
                   fieldName="INSTANCE" />
+        
+        <fileIconPatcher implementation="com.solanteq.solar.plugin.l10n.L10nFileIconPatcher" />
 
         <psi.referenceContributor
                 language="JSON"
