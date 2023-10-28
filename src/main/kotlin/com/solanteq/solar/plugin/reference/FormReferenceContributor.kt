@@ -1,5 +1,6 @@
 package com.solanteq.solar.plugin.reference
 
+import com.intellij.json.psi.JsonProperty
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.patterns.ElementPattern
 import com.intellij.patterns.StandardPatterns
@@ -84,7 +85,14 @@ class FormReferenceContributor : PsiReferenceContributor() {
             baseInFormPattern
                 .notJsonIncludeDeclaration()
                 .isPropertyValueWithKey(FormNamedElement.NAME_PROPERTY)
-                .isInObjectWithKey(*FormRequest.RequestType.requestLiterals)
+                .withCondition {
+                    val requestProperty = it.node
+                        ?.treeParent // Property
+                        ?.treeParent // Object
+                        ?.treeParent // Property
+                        ?.psi as? JsonProperty ?: return@withCondition false
+                    return@withCondition FormRequest.canBeCreatedFrom(requestProperty)
+                }
         )
     }
 

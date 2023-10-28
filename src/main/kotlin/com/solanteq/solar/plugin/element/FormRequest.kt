@@ -193,22 +193,40 @@ class FormRequest(
         val service: RangeSplitEntry?
     )
 
+    /**
+     * Represents type of the request.
+     * [canBeInlineAction] means that this literal might represent an action for inline form, so the property with this
+     * name should not be considered as a request.
+     *
+     * For example, this "remove" is an inline action and not a request:
+     * ```
+     * "remove": {
+     *   "name": "editEntry",
+     *   "request": "..."
+     * }
+     * ```
+     * And this is a form `remove` request:
+     * ```
+     * "remove": {
+     *   "name": "test.service.remove"
+     * }
+     * ```
+     */
     enum class RequestType(
         val requestLiteral: String,
-        val isFormRequest: Boolean
+        val canBeInlineAction: Boolean
     ) {
 
-        SOURCE("source", true),
-        SAVE("save", true),
+        SOURCE("source", false),
+        SAVE("save", false),
         REMOVE("remove", true),
-        CREATE_SOURCE("createSource", true),
+        CREATE_SOURCE("createSource", false),
         INLINE_REQUEST("request", false),
         INLINE_COUNT_REQUEST("countRequest", false);
 
         companion object {
 
             val requestLiterals = entries.map { it.requestLiteral }.toTypedArray()
-            val formRequests = entries.filter { it.isFormRequest }.toTypedArray()
 
         }
 
@@ -217,8 +235,16 @@ class FormRequest(
     companion object : FormElementCreator<FormRequest, JsonProperty>() {
 
         override fun doCreate(sourceElement: JsonProperty): FormRequest? {
-            if(sourceElement.name in RequestType.requestLiterals) {
-                return FormRequest(sourceElement)
+            val name = sourceElement.name
+            val requestType = RequestType.entries.find { it.requestLiteral == name } ?: return null
+            val request = FormRequest(sourceElement)
+            if (!requestType.canBeInlineAction) {
+                return request
+            }
+            val value = sourceElement.value as? JsonObject ?: return request
+            // If this object contains "request" property, it should be considered an inline action
+            if (value.findProperty("request") == null) {
+                return request
             }
             return null
         }

@@ -1,9 +1,15 @@
 package com.solanteq.solar.plugin
 
+import com.intellij.json.psi.JsonProperty
 import com.solanteq.solar.plugin.base.JavaPluginTestBase
 import com.solanteq.solar.plugin.base.configureByFormText
 import com.solanteq.solar.plugin.base.createFormAndConfigure
+import com.solanteq.solar.plugin.element.FormRequest
 import com.solanteq.solar.plugin.inspection.InvalidRequestInspection
+import com.solanteq.solar.plugin.reference.request.CallableMethodReference
+import com.solanteq.solar.plugin.reference.request.CallableServiceReference
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -354,6 +360,46 @@ class RequestTest : JavaPluginTestBase() {
             "test.dropdownKotlin.findAll",
             "test.dropdownJava.findAll"
         )
+    }
+
+    @Test
+    fun `test do not create request element for 'remove' inline action`() {
+        fixture.createFormAndConfigure("testForm", "abc", """
+                {
+                  "remove": {
+                    "name": "test<caret>"
+                    "request": [
+                      "name": "test"
+                    ]
+                  }
+                }
+            """.trimIndent())
+
+        val stringLiteralAtCaret = getJsonStringLiteralAtCaret()
+        val requestProperty = stringLiteralAtCaret.parent.parent.parent as JsonProperty
+
+        assertTrue(stringLiteralAtCaret.references.none { it is CallableMethodReference })
+        assertTrue(stringLiteralAtCaret.references.none { it is CallableServiceReference })
+        assertFalse(FormRequest.canBeCreatedFrom(requestProperty))
+    }
+
+    @Test
+    fun `test create request element for 'remove' form request`() {
+        fixture.createFormAndConfigure("testForm", "abc", """
+                {
+                  "remove": {
+                    "name": "test<caret>"
+                  }
+                }
+            """.trimIndent())
+
+        val stringLiteralAtCaret = getJsonStringLiteralAtCaret()
+        val requestProperty = stringLiteralAtCaret.parent.parent.parent as JsonProperty
+
+        assertTrue(stringLiteralAtCaret.references.any {
+            it is CallableMethodReference || it is CallableServiceReference
+        })
+        assertTrue(FormRequest.canBeCreatedFrom(requestProperty))
     }
 
     private fun configureServicesForCompletion() {
