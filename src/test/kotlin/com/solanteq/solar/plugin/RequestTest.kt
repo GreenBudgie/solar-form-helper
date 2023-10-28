@@ -3,7 +3,7 @@ package com.solanteq.solar.plugin
 import com.solanteq.solar.plugin.base.JavaPluginTestBase
 import com.solanteq.solar.plugin.base.configureByFormText
 import com.solanteq.solar.plugin.base.createFormAndConfigure
-import com.solanteq.solar.plugin.inspection.UnresolvedRequestReferenceInspection
+import com.solanteq.solar.plugin.inspection.InvalidRequestInspection
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -125,31 +125,7 @@ class RequestTest : JavaPluginTestBase() {
     }
 
     @Test
-    fun `test unresolved service name inspection - in project`() {
-        fixture.createFormAndConfigure("testForm", "test", """
-                {
-                  "source": "<error>test.unresolved</error>.boilerplateMethod"
-                }
-            """.trimIndent())
-
-        fixture.enableInspections(UnresolvedRequestReferenceInspection::class.java)
-        fixture.checkHighlighting()
-    }
-
-    @Test
-    fun `test unresolved service name inspection - in library`() {
-        fixture.createFormAndConfigure("testForm", "library", """
-                {
-                  "source": "<warning>test.unresolved</warning>.boilerplateMethod"
-                }
-            """.trimIndent())
-
-        fixture.enableInspections(UnresolvedRequestReferenceInspection::class.java)
-        fixture.checkHighlighting()
-    }
-
-    @Test
-    fun `test unresolved method name inspection`() {
+    fun `test unresolved method inspection`() {
         fixture.configureByFiles("TestService.kt", "TestServiceImpl.kt")
         fixture.createFormAndConfigure("testForm", "abc", """
                 {
@@ -157,7 +133,7 @@ class RequestTest : JavaPluginTestBase() {
                 }
             """.trimIndent())
 
-        fixture.enableInspections(UnresolvedRequestReferenceInspection::class.java)
+        fixture.enableInspections(InvalidRequestInspection::class.java)
         fixture.checkHighlighting()
     }
 
@@ -170,7 +146,123 @@ class RequestTest : JavaPluginTestBase() {
                 }
             """.trimIndent())
 
-        fixture.enableInspections(UnresolvedRequestReferenceInspection::class.java)
+        fixture.enableInspections(InvalidRequestInspection::class.java)
+        fixture.checkHighlighting()
+    }
+
+    @Test
+    fun `test non callable method inspection`() {
+        fixture.configureByFiles("TestService.kt", "TestServiceImpl.kt")
+        fixture.createFormAndConfigure("testForm", "abc", """
+                {
+                  "source": "test.testService.<warning>nonCallableMethod</warning>"
+                }
+            """.trimIndent())
+
+        fixture.enableInspections(InvalidRequestInspection::class.java)
+        fixture.checkHighlighting()
+    }
+
+    @Test
+    fun `test non callable service inspection`() {
+        fixture.configureByFiles("TestServiceNonCallable.kt", "TestServiceNonCallableImpl.kt")
+        fixture.createFormAndConfigure("testForm", "abc", """
+                {
+                  "source": "<warning>test.testServiceNonCallable</warning>.callableMethod1"
+                }
+            """.trimIndent())
+
+        fixture.enableInspections(InvalidRequestInspection::class.java)
+        fixture.checkHighlighting()
+    }
+
+    @Test
+    fun `test non callable service and non callable method inspection`() {
+        fixture.configureByFiles("TestServiceNonCallable.kt", "TestServiceNonCallableImpl.kt")
+        fixture.createFormAndConfigure("testForm", "abc", """
+                {
+                  "source": "<warning>test.testServiceNonCallable</warning>.<warning>nonCallableMethod</warning>"
+                }
+            """.trimIndent())
+
+        fixture.enableInspections(InvalidRequestInspection::class.java)
+        fixture.checkHighlighting()
+    }
+
+    @Test
+    fun `test non callable service and unresolved method inspection`() {
+        fixture.configureByFiles("TestServiceNonCallable.kt", "TestServiceNonCallableImpl.kt")
+        fixture.createFormAndConfigure("testForm", "abc", """
+                {
+                  "source": "<warning>test.testServiceNonCallable</warning>.<error>nonExistentMethod</error>"
+                }
+            """.trimIndent())
+
+        fixture.enableInspections(InvalidRequestInspection::class.java)
+        fixture.checkHighlighting()
+    }
+
+    @Test
+    fun `test no warning if service is not found`() {
+        fixture.configureByFiles("TestService.kt", "TestServiceImpl.kt")
+        fixture.createFormAndConfigure("testForm", "abc", """
+                {
+                  "source": "test.testService2.method"
+                }
+            """.trimIndent())
+
+        fixture.enableInspections(InvalidRequestInspection::class.java)
+        fixture.checkHighlighting()
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = [
+            "",
+            "   ",
+            "test",
+            "test.testService",
+            "test.testService.",
+            "test.testService..",
+            "test.testService.nonCallableMethod.",
+            "test..nonCallableMethod",
+            "..nonCallableMethod",
+            "...",
+            "test.testService.   ",
+        ]
+    )
+    fun `test invalid request string error`(request: String) {
+        fixture.configureByFiles("TestService.kt", "TestServiceImpl.kt")
+        fixture.createFormAndConfigure(
+            "testForm", "abc", """
+                {
+                  "source": "<error>$request</error>"
+                }
+            """.trimIndent()
+        )
+
+        fixture.enableInspections(InvalidRequestInspection::class.java)
+        fixture.checkHighlighting()
+    }
+
+    @Test
+    fun `test no warning for callable method and service with multiple interfaces`() {
+        fixture.configureByFiles(
+            "multipleInterfaces/CallableInterface.kt",
+            "multipleInterfaces/NonCallableInterface.kt",
+            "multipleInterfaces/AbstractService.kt",
+            "multipleInterfaces/ServiceImpl.kt",
+        )
+
+        fixture.createFormAndConfigure(
+            "testForm", "abc", """
+                {
+                  "source": "test.service.find"
+                }
+            """.trimIndent()
+        )
+
+        fixture.enableInspections(InvalidRequestInspection::class.java)
         fixture.checkHighlighting()
     }
 
@@ -262,54 +354,6 @@ class RequestTest : JavaPluginTestBase() {
             "test.dropdownKotlin.findAll",
             "test.dropdownJava.findAll"
         )
-    }
-
-    @Test
-    fun `test unresolved dropdown - in project`() {
-        fixture.configureByFiles("DropdownJava.java", "DropdownKotlin.kt")
-        fixture.createFormAndConfigure("testForm", "test", """
-                {
-                  "source": {
-                    "name": "test.<error>unresolvedDropdown</error>.findAll",
-                    "group": "${'$'}dropdown"
-                  }
-                }
-            """.trimIndent())
-
-        fixture.enableInspections(UnresolvedRequestReferenceInspection::class.java)
-        fixture.checkHighlighting()
-    }
-
-    @Test
-    fun `test unresolved dropdown - in library`() {
-        fixture.configureByFiles("DropdownJava.java", "DropdownKotlin.kt")
-        fixture.createFormAndConfigure("testForm", "library", """
-                {
-                  "source": {
-                    "name": "test.<warning>unresolvedDropdown</warning>.findAll",
-                    "group": "${'$'}dropdown"
-                  }
-                }
-            """.trimIndent())
-
-        fixture.enableInspections(UnresolvedRequestReferenceInspection::class.java)
-        fixture.checkHighlighting()
-    }
-
-    @Test
-    fun `test unresolved request inspection does not report resolved dropdown`() {
-        fixture.configureByFiles("DropdownJava.java", "DropdownKotlin.kt")
-        fixture.createFormAndConfigure("testForm", "test", """
-                {
-                  "source": {
-                    "name": "test.dropdownKotlin.findAll",
-                    "group": "${'$'}dropdown"
-                  },
-                }
-            """.trimIndent())
-
-        fixture.enableInspections(UnresolvedRequestReferenceInspection::class.java)
-        fixture.checkHighlighting()
     }
 
     private fun configureServicesForCompletion() {

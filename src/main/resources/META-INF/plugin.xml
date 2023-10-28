@@ -52,11 +52,11 @@
                          implementationClass="com.solanteq.solar.plugin.inspection.InvalidFormNameDeclarationInspection"/>
 
         <localInspection language="JSON"
-                         displayName="Unresolved request reference"
+                         displayName="Invalid request"
                          groupName="SOLAR form"
                          enabledByDefault="true"
                          level="ERROR"
-                         implementationClass="com.solanteq.solar.plugin.inspection.UnresolvedRequestReferenceInspection"/>
+                         implementationClass="com.solanteq.solar.plugin.inspection.InvalidRequestInspection"/>
 
         <fileBasedIndex implementation="com.solanteq.solar.plugin.index.JsonIncludeDeclarationIndex" />
         <fileBasedIndex implementation="com.solanteq.solar.plugin.index.IncludedFormIndex" />

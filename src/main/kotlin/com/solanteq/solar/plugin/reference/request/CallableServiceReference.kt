@@ -1,6 +1,5 @@
 package com.solanteq.solar.plugin.reference.request
 
-import com.intellij.codeInsight.daemon.EmptyResolveMessageProvider
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.project.Project
@@ -19,7 +18,7 @@ class CallableServiceReference(
     element: JsonStringLiteral,
     range: TextRange,
     private val requestElement: FormRequest?
-) : PsiReferenceBase<JsonStringLiteral>(element, range, true), EmptyResolveMessageProvider {
+) : PsiReferenceBase<JsonStringLiteral>(element, range, true) {
 
     override fun handleElementRename(newElementName: String): PsiElement {
         //Preventing rename of service solar name
@@ -58,12 +57,5 @@ class CallableServiceReference(
             Key<CachedValue<List<LookupElementBuilder>>>("solar.callableServiceLookups")
 
     }
-
-    override fun getUnresolvedMessagePattern() =
-        if(value.isBlank()) {
-            "Callable service name is not provided"
-        } else {
-            "Cannot find callable service implementation with name '$value' (ignore this warning if referenced service is in external library)"
-        }
 
 }

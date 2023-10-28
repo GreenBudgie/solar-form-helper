@@ -40,7 +40,7 @@ fun JsonProperty?.valueAsStringOrEmpty(): String {
 val JsonStringLiteral.textRangeWithoutQuotes: TextRange
     get() {
         val value = value
-        if(value.isEmpty()) return TextRange(0, 0)
+        if(value.isEmpty()) return TextRange(1, 1)
         return TextRange.from(1, value.length)
     }
 

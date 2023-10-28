@@ -1,6 +1,5 @@
 package com.solanteq.solar.plugin.reference.request
 
-import com.intellij.codeInsight.daemon.EmptyResolveMessageProvider
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.project.Project
@@ -15,7 +14,7 @@ class DropdownReference(
     range: TextRange,
     private val requestElement: FormRequest?,
     val isExplicit: Boolean
-) : PsiReferenceBase<JsonStringLiteral>(element, range, true), EmptyResolveMessageProvider {
+) : PsiReferenceBase<JsonStringLiteral>(element, range, true) {
 
     override fun handleElementRename(newElementName: String): PsiElement {
         return super.handleElementRename(newElementName.replaceFirstChar { it.lowercaseChar() })
@@ -34,12 +33,5 @@ class DropdownReference(
         }
         return lookups
     }
-
-    override fun getUnresolvedMessagePattern() =
-        if(value.isBlank()) {
-            "Dropdown name is not provided"
-        } else {
-            "Cannot resolve dropdown with name '$value' (ignore this warning if referenced dropdown is in external library)"
-        }
 
 }

@@ -1,0 +1,5 @@
+interface NonCallableInterface {
+
+    fun find()
+
+}
