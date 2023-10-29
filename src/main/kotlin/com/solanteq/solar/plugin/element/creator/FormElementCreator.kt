@@ -3,6 +3,7 @@ package com.solanteq.solar.plugin.element.creator
 import com.intellij.json.psi.JsonElement
 import com.solanteq.solar.plugin.element.base.AbstractFormElement
 import com.solanteq.solar.plugin.element.base.FormElement
+import kotlinx.html.SOURCE
 
 /**
  * An interface that companion object of any [AbstractFormElement] should implement.

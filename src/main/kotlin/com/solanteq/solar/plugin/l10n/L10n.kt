@@ -7,6 +7,7 @@ import com.intellij.json.psi.JsonStringLiteral
  * Represents a plain l10n key-value pair in l10n file with locale
  */
 open class L10n(
+    val property: JsonProperty,
     val keyElement: JsonStringLiteral,
     val valueElement: JsonStringLiteral,
     val locale: L10nLocale
@@ -44,7 +45,7 @@ open class L10n(
             val valueElement = property.value as? JsonStringLiteral ?: return null
             val parentDirectory = property.containingFile?.parent ?: return null
             val locale = L10nLocale.getByDirectoryName(parentDirectory.name) ?: return null
-            return L10n(keyElement, valueElement, locale)
+            return L10n(property, keyElement, valueElement, locale)
         }
 
     }

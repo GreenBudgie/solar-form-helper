@@ -11,7 +11,7 @@ import com.solanteq.solar.plugin.util.asListOrEmpty
  * An interface that companion object of any [AbstractFormElement] that can be created as an
  * array entry should implement.
  */
-abstract class FormArrayElementCreator<out ELEMENT : AbstractFormElement<JsonObject>> : FormElementCreator<ELEMENT, JsonObject>() {
+abstract class FormArrayElementCreator<ELEMENT : AbstractFormElement<JsonObject>> : FormElementCreator<ELEMENT, JsonObject>() {
 
     /**
      * Returns the required name of the property for it to be considered an array of specified type.

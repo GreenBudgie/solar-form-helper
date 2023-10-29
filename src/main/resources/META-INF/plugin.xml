@@ -84,6 +84,10 @@
         
         <fileIconPatcher implementation="com.solanteq.solar.plugin.l10n.L10nFileIconPatcher" />
 
+        <codeInsight.lineMarkerProvider language="JSON"
+                                        implementationClass="com.solanteq.solar.plugin.l10n.L10nLineMarkerProvider" />
+        <gotoTargetPresentationProvider implementation="com.solanteq.solar.plugin.l10n.L10nTargetPresentationProvider" />
+
         <psi.referenceContributor
                 language="JSON"
                 implementation="com.solanteq.solar.plugin.l10n.L10nReferenceContributor" />

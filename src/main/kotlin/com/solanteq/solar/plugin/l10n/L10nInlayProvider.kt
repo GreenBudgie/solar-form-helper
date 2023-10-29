@@ -1,20 +1,14 @@
 package com.solanteq.solar.plugin.l10n
 
-import com.github.weisj.jsvg.T
 import com.intellij.codeInsight.hints.*
 import com.intellij.codeInsight.hints.presentation.PresentationFactory
 import com.intellij.json.psi.JsonElement
-import com.intellij.json.psi.JsonFile
-import com.intellij.json.psi.JsonObject
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
-import com.solanteq.solar.plugin.element.FormField
-import com.solanteq.solar.plugin.element.FormGroup
-import com.solanteq.solar.plugin.element.FormRootFile
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
-import com.solanteq.solar.plugin.element.creator.FormElementCreator
+import com.solanteq.solar.plugin.element.creator.FormElementFactory
 import com.solanteq.solar.plugin.util.isForm
 import javax.swing.JPanel
 
@@ -49,29 +43,9 @@ class L10nInlayProvider : InlayHintsProvider<NoSettings> {
 
         override fun collect(element: PsiElement, editor: Editor, sink: InlayHintsSink): Boolean {
             if(element !is JsonElement) return true
-            when(element) {
-                is JsonObject -> {
-                    if(tryAddHint(element, editor, sink, FormField)) return true
-                    if(tryAddHint(element, editor, sink, FormGroup)) return true
-                }
-                is JsonFile -> {
-                    if(tryAddHint(element, editor, sink, FormRootFile)) return true
-                }
-            }
+            val formElement = FormElementFactory.createLocalizableElement(element) ?: return true
+            addHint(formElement, editor, sink)
             return true
-        }
-
-        private fun <T : JsonElement> tryAddHint(
-            element: T,
-            editor: Editor,
-            sink: InlayHintsSink,
-            elementCreator: FormElementCreator<FormLocalizableElement<T>, T>
-        ): Boolean {
-            elementCreator.createFrom(element)?.let {
-                addHint(it, editor, sink)
-                return true
-            }
-            return false
         }
 
         private fun addHint(formElement: FormLocalizableElement<*>,
@@ -81,7 +55,7 @@ class L10nInlayProvider : InlayHintsProvider<NoSettings> {
                 return
             }
             //TODO add ru/en selection support
-            val localizationValue = formElement.getL10nValues(L10nLocale.RU).firstOrNull() ?: return
+            val localizationValue = formElement.getL10nValue(L10nLocale.RU) ?: return
             val valueElement = formElement.namePropertyValue ?: return
             val offset = valueElement.textRange.endOffset
 
