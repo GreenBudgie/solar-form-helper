@@ -1,6 +1,7 @@
 package com.solanteq.solar.plugin.index
 
 import com.intellij.ide.highlighter.JavaFileType
+import com.intellij.openapi.project.IndexNotReadyException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.GlobalSearchScope
@@ -29,11 +30,15 @@ class CallableServiceImplIndex : ScalarIndexExtension<String>() {
     override fun getIndexer() = DataIndexer<String, Void, FileContent> { fileContent ->
         val file = fileContent.psiFile.toUElementOfType<UFile>() ?: return@DataIndexer emptyMap()
 
-        file.classes
-            .flatMap { it.uAnnotations }
-            .filter { checkAnnotationName(it) }
-            .mapNotNull {getAnnotationValue(it) }
-            .associateWith { null }
+        return@DataIndexer try {
+            file.classes
+                .flatMap { it.uAnnotations }
+                .filter { checkAnnotationName(it) }
+                .mapNotNull { getAnnotationValue(it) }
+                .associateWith { null }
+        } catch (e: IndexNotReadyException) {
+            emptyMap()
+        }
     }
 
     override fun getKeyDescriptor(): EnumeratorStringDescriptor =

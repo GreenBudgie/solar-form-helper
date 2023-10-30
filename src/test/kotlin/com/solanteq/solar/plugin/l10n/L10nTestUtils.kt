@@ -24,21 +24,21 @@ object L10nTestUtils {
      *
      * @param fileName name of a file without `json` extension
      * @param l10ns Key and value of localization without quotes, e.g. ("test.form.group.field", "A field!")
-     * @param isRussian Whether to create this file in ru-RU directory
+     * @param locale Whether to create this file in ru-RU directory
      */
     fun createL10nFile(
         fixture: CodeInsightTestFixture,
         fileName: String,
         vararg l10ns: Pair<String, String>,
-        isRussian: Boolean = true
+        locale: L10nLocale = L10nLocale.RU
     ): PsiFile {
         if(l10ns.isEmpty()) error("You need to provide at least one l10n entry")
 
         val realFileName = "$fileName.json"
-        val languagePath = if(isRussian) "ru-RU" else "en-US"
+        val directory = locale.directoryName
 
         return fixture.addFileToProject(
-            "main/resources/config/l10n/$languagePath/$realFileName",
+            "main/resources/config/l10n/$directory/$realFileName",
             generateL10nFileText(*l10ns)
         )
     }
@@ -47,9 +47,9 @@ object L10nTestUtils {
         fixture: CodeInsightTestFixture,
         fileName: String,
         vararg l10ns: Pair<String, String>,
-        isRussian: Boolean = true
+        locale: L10nLocale = L10nLocale.RU
     ): PsiFile {
-        val psiL10nFile = createL10nFile(fixture, fileName, *l10ns, isRussian = isRussian)
+        val psiL10nFile = createL10nFile(fixture, fileName, *l10ns, locale = locale)
         fixture.configureFromExistingVirtualFile(psiL10nFile.virtualFile)
         return fixture.file
     }

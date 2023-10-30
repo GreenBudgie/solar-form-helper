@@ -487,4 +487,20 @@ class L10nFakeFieldTest : LightPluginTestBase() {
         )
     }
 
+    @Test
+    fun `test l10n line marker for groups`() {
+        fixture.configureByRootForms("test", "testForm1.json")
+        L10nTestUtils.createL10nFile(fixture, "l10n",
+            "test.form.testForm1.group1.field1" to "Field Name!",
+            locale = L10nLocale.RU
+        )
+        L10nTestUtils.createL10nFile(fixture, "l10n",
+            "test.form.testForm1.group1.field2" to "Field Name!",
+            "test.form.testForm1.group2.field.nestedField" to "Field Name!",
+            locale = L10nLocale.EN
+        )
+
+        assertContainsLineMarkersAtLinesAndNoMore(10, 13, 25)
+    }
+
 }

@@ -42,7 +42,6 @@ abstract class L10nSearchBase<T : L10n>(
         private val project: Project
     ) {
 
-        private var useFormNameShortIndex = false
         private var keys: List<String> = emptyList()
         private var scope: GlobalSearchScope = project.allScope()
         private var locale: L10nLocale? = null

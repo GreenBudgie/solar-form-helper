@@ -1,5 +1,6 @@
 package com.solanteq.solar.plugin.l10n
 
+import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonProperty
 import com.intellij.json.psi.JsonStringLiteral
 
@@ -7,6 +8,7 @@ import com.intellij.json.psi.JsonStringLiteral
  * Represents a plain l10n key-value pair in l10n file with locale
  */
 open class L10n(
+    val file: JsonFile,
     val property: JsonProperty,
     val keyElement: JsonStringLiteral,
     val valueElement: JsonStringLiteral,
@@ -43,9 +45,10 @@ open class L10n(
         fun fromElement(property: JsonProperty): L10n? {
             val keyElement = property.nameElement as? JsonStringLiteral ?: return null
             val valueElement = property.value as? JsonStringLiteral ?: return null
-            val parentDirectory = property.containingFile?.parent ?: return null
+            val file = property.containingFile?.originalFile as? JsonFile ?: return null
+            val parentDirectory = file.parent ?: return null
             val locale = L10nLocale.getByDirectoryName(parentDirectory.name) ?: return null
-            return L10n(property, keyElement, valueElement, locale)
+            return L10n(file, property, keyElement, valueElement, locale)
         }
 
     }

@@ -30,7 +30,7 @@ class L10nLineMarkerProvider : LineMarkerProvider {
             return null
         }
         val formElement = FormElementFactory.createLocalizableElement(element) ?: return null
-        if (formElement.getL10ns().isEmpty()) {
+        if (formElement.getL10nValues().isEmpty()) {
             return null
         }
         val registerForElement = formElement.namePropertyValue?.firstChild ?: return null

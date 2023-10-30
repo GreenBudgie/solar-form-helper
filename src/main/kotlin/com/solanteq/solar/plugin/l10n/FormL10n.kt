@@ -36,14 +36,17 @@ import org.jetbrains.kotlin.idea.core.util.toPsiFile
  * TODO for now, only supports form -> group -> field l10ns
  */
 class FormL10n private constructor(
+    file: JsonFile,
     property: JsonProperty,
     keyElement: JsonStringLiteral,
     valueElement: JsonStringLiteral,
     locale: L10nLocale,
     val chain: RangeSplit,
-) : L10n(property, keyElement, valueElement, locale) {
+) : L10n(file, property, keyElement, valueElement, locale) {
 
-    val project = keyElement.project
+    val project by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        keyElement.project
+    }
 
     /**
      * Module name in l10n chain. Provided as is. May be named as non-existing directory.
@@ -265,9 +268,10 @@ class FormL10n private constructor(
             if(rangeSplit.size < 3) return null
             val l10nType = rangeSplit[1].text
             if(l10nType != "form") return null
-            val parentDirectory = property.containingFile?.originalFile?.parent ?: return null
+            val file = property.containingFile?.originalFile as? JsonFile ?: return null
+            val parentDirectory = file.parent ?: return null
             val locale = L10nLocale.getByDirectoryName(parentDirectory.name) ?: return null
-            return FormL10n(property, keyElement, valueElement, locale, rangeSplit)
+            return FormL10n(file, property, keyElement, valueElement, locale, rangeSplit)
         }
 
     }
