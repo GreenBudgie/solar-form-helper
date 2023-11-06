@@ -1,6 +1,10 @@
 package com.solanteq.solar.plugin
 
+import com.intellij.json.psi.JsonObject
 import com.solanteq.solar.plugin.base.*
+import com.solanteq.solar.plugin.element.FormGroup
+import com.solanteq.solar.plugin.element.FormRootFile
+import com.solanteq.solar.plugin.element.expression.ExpressionType
 import com.solanteq.solar.plugin.reference.expression.ExpressionDeclarationProvider
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -416,36 +420,44 @@ class ExpressionTest : LightPluginTestBase() {
 
     @Test
     fun `only one declaration found if expression is present in single included form but referenced from multiple root forms`() {
-        fixture.createForm("rootForm1", "abc", """
+        fixture.createForm(
+            "rootForm1", "abc", """
             {
               "groups": "json://includes/forms/abc/groups.json",
               "expressions": "json://includes/forms/abc/expressions.json"
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
-        fixture.createForm("rootForm2", "abc", """
+        fixture.createForm(
+            "rootForm2", "abc", """
             {
               "groups": "json://includes/forms/abc/groups.json",
               "expressions": "json://includes/forms/abc/expressions.json"
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
-        fixture.createIncludedForm("expressions", "abc", """
+        fixture.createIncludedForm(
+            "expressions", "abc", """
             [
               {
                 "name": "expr",
                 "value": "false"
               }
             ]
-        """.trimIndent())
+        """.trimIndent()
+        )
 
-        fixture.createIncludedFormAndConfigure("groups", "abc", """
+        fixture.createIncludedFormAndConfigure(
+            "groups", "abc", """
             [
               {
                 "visibleWhen": "expr<caret>"
               }
             ]
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         val exprReference = getFormSymbolReferenceAtCaret()
         val result = exprReference.resolveReference()
@@ -455,45 +467,55 @@ class ExpressionTest : LightPluginTestBase() {
 
     @Test
     fun `exactly 2 declarations found if expression with the same name is present in multiple forms`() {
-        fixture.createForm("rootForm1", "abc", """
+        fixture.createForm(
+            "rootForm1", "abc", """
             {
               "groups": "json://includes/forms/abc/groups.json",
               "expressions": "json://includes/forms/abc/expressions1.json"
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
-        fixture.createForm("rootForm2", "abc", """
+        fixture.createForm(
+            "rootForm2", "abc", """
             {
               "groups": "json://includes/forms/abc/groups.json",
               "expressions": "json://includes/forms/abc/expressions2.json"
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
-        fixture.createIncludedForm("expressions1", "abc", """
+        fixture.createIncludedForm(
+            "expressions1", "abc", """
             [
               {
                 "name": "expr1",
                 "value": "false"
               }
             ]
-        """.trimIndent())
+        """.trimIndent()
+        )
 
-        fixture.createIncludedForm("expressions2", "abc", """
+        fixture.createIncludedForm(
+            "expressions2", "abc", """
             [
               {
                 "name": "expr1",
                 "value": "false"
               }
             ]
-        """.trimIndent())
+        """.trimIndent()
+        )
 
-        fixture.createIncludedFormAndConfigure("groups", "abc", """
+        fixture.createIncludedFormAndConfigure(
+            "groups", "abc", """
             [
               {
                 "visibleWhen": "expr1<caret>"
               }
             ]
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         val exprReference = getFormSymbolReferenceAtCaret()
         val result = exprReference.resolveReference()
@@ -503,57 +525,212 @@ class ExpressionTest : LightPluginTestBase() {
 
     @Test
     fun `exactly 2 declarations found - mixed scenario with 2 cases above`() {
-        fixture.createForm("rootForm1", "abc", """
+        fixture.createForm(
+            "rootForm1", "abc", """
             {
               "groups": "json://includes/forms/abc/groups.json",
               "expressions": "json://includes/forms/abc/expressions1.json"
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
-        fixture.createForm("rootForm2", "abc", """
+        fixture.createForm(
+            "rootForm2", "abc", """
             {
               "groups": "json://includes/forms/abc/groups.json",
               "expressions": "json://includes/forms/abc/expressions2.json"
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
-        fixture.createForm("rootForm3", "abc", """
+        fixture.createForm(
+            "rootForm3", "abc", """
             {
               "groups": "json://includes/forms/abc/groups.json",
               "expressions": "json://includes/forms/abc/expressions2.json"
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
-        fixture.createIncludedForm("expressions1", "abc", """
+        fixture.createIncludedForm(
+            "expressions1", "abc", """
             [
               {
                 "name": "expr1",
                 "value": "false"
               }
             ]
-        """.trimIndent())
+        """.trimIndent()
+        )
 
-        fixture.createIncludedForm("expressions2", "abc", """
+        fixture.createIncludedForm(
+            "expressions2", "abc", """
             [
               {
                 "name": "expr1",
                 "value": "false"
               }
             ]
-        """.trimIndent())
+        """.trimIndent()
+        )
 
-        fixture.createIncludedFormAndConfigure("groups", "abc", """
+        fixture.createIncludedFormAndConfigure(
+            "groups", "abc", """
             [
               {
                 "visibleWhen": "expr1<caret>"
               }
             ]
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         val exprReference = getFormSymbolReferenceAtCaret()
         val result = exprReference.resolveReference()
 
         assertEquals(2, result.size)
+    }
+
+    @Test
+    fun `ExpressionAware getExpressions - returns no expressions if expression is not present in object`() {
+        val formFile = fixture.createForm(
+            "form", "abc", """
+            {
+              "expressions": [
+                {
+                  "name": "expression",
+                  "value": "false"
+                }
+              ]
+            }
+        """.trimIndent()
+        )
+        val formElement = FormRootFile.createFrom(formFile)!!
+
+        val result = formElement.getExpressions(ExpressionType.EDITABLE_WHEN)
+
+        assertEquals(0, result.size)
+    }
+
+    @Test
+    fun `ExpressionAware getExpressions - 1 expression returned`() {
+        val formFile = fixture.createForm(
+            "form", "abc", """
+            {
+              "editableWhen": "expression"
+              "expressions": [
+                {
+                  "name": "expression",
+                  "value": "false"
+                }
+              ]
+            }
+        """.trimIndent()
+        )
+        val formElement = FormRootFile.createFrom(formFile)!!
+
+        val result = formElement.getExpressions(ExpressionType.EDITABLE_WHEN)
+
+        assertEquals(1, result.size)
+        assertEquals("expression", result[0].name)
+    }
+
+    @Test
+    fun `ExpressionAware getExpressions - multiple expressions returned`() {
+        fixture.createForm(
+            "rootForm1", "abc", """
+            {
+              "groups": "json://includes/forms/abc/groups.json",
+              "expressions": "json://includes/forms/abc/expressions1.json"
+            }
+        """.trimIndent()
+        )
+
+        fixture.createForm(
+            "rootForm2", "abc", """
+            {
+              "groups": "json://includes/forms/abc/groups.json",
+              "expressions": "json://includes/forms/abc/expressions2.json"
+            }
+        """.trimIndent()
+        )
+
+        fixture.createIncludedForm(
+            "expressions1", "abc", """
+            [
+              {
+                "name": "expr1",
+                "value": "false"
+              }
+            ]
+        """.trimIndent()
+        )
+
+        fixture.createIncludedForm(
+            "expressions2", "abc", """
+            [
+              {
+                "name": "expr1",
+                "value": "false"
+              }
+            ]
+        """.trimIndent()
+        )
+
+        fixture.createIncludedFormAndConfigure(
+            "groups", "abc", """
+            [
+              {<caret>
+                "visibleWhen": "expr1"
+              }
+            ]
+        """.trimIndent()
+        )
+
+        val objectAtCaret = fixture.file.findElementAt(fixture.caretOffset)!!.parent as JsonObject
+        val formElement = FormGroup.createFrom(objectAtCaret)!!
+
+        val result = formElement.getExpressions(ExpressionType.VISIBLE_WHEN)
+
+        assertEquals(2, result.size)
+        assertEquals("expr1", result[0].name)
+        assertEquals("expr1", result[1].name)
+    }
+
+    @Test
+    fun `ExpressionAware isNeverExpression - false if no expression`() {
+        val formFile = fixture.createForm(
+            "form", "abc", """
+            {
+              "expressions": [
+                {
+                  "name": "never",
+                  "value": "false"
+                }
+              ]
+            }
+        """.trimIndent()
+        )
+        val formElement = FormRootFile.createFrom(formFile)!!
+
+        val result = formElement.isNeverExpression(ExpressionType.EDITABLE_WHEN)
+
+        assertEquals(false, result)
+    }
+
+    @Test
+    fun `ExpressionAware isNeverExpression - true even if editableWhen exists but expression does not`() {
+        val formFile = fixture.createForm(
+            "form", "abc", """
+            {
+              "editableWhen": "never"
+            }
+        """.trimIndent()
+        )
+        val formElement = FormRootFile.createFrom(formFile)!!
+
+        val result = formElement.isNeverExpression(ExpressionType.EDITABLE_WHEN)
+
+        assertEquals(true, result)
     }
 
 }

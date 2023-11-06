@@ -3,6 +3,7 @@ package com.solanteq.solar.plugin.element
 import com.intellij.json.psi.JsonObject
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.element.creator.FormArrayElementCreator
+import com.solanteq.solar.plugin.element.expression.ExpressionAware
 import com.solanteq.solar.plugin.util.valueAsIntOrNull
 
 /**
@@ -13,7 +14,7 @@ import com.solanteq.solar.plugin.util.valueAsIntOrNull
  */
 class FormGroup(
     sourceElement: JsonObject
-) : FormLocalizableElement<JsonObject>(sourceElement, sourceElement) {
+) : FormLocalizableElement<JsonObject>(sourceElement, sourceElement), ExpressionAware {
 
     override val l10nKeys: List<String> by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val groupName = name ?: return@lazy emptyList()
@@ -60,6 +61,8 @@ class FormGroup(
         inline?.let { return@lazy GroupContentType.INLINE }
         return@lazy GroupContentType.INVALID
     }
+
+    override fun getObjectContainingExpressions() = sourceElement
 
     enum class GroupContentType {
 

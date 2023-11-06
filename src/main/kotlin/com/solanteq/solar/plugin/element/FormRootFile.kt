@@ -11,6 +11,8 @@ import com.intellij.psi.util.TypeConversionUtil
 import com.solanteq.solar.plugin.element.base.FormFile
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.element.creator.FormElementCreator
+import com.solanteq.solar.plugin.element.expression.ExpressionAware
+import com.solanteq.solar.plugin.element.expression.FormExpression
 import com.solanteq.solar.plugin.file.RootFormFileType
 import com.solanteq.solar.plugin.reference.form.FormNameReference
 import com.solanteq.solar.plugin.util.FormPsiUtils
@@ -38,7 +40,7 @@ import org.jetbrains.kotlin.idea.base.util.allScope
 class FormRootFile(
     sourceElement: JsonFile,
     private val topLevelObject: JsonObject
-) : FormLocalizableElement<JsonFile>(sourceElement, topLevelObject), FormFile {
+) : FormLocalizableElement<JsonFile>(sourceElement, topLevelObject), FormFile, ExpressionAware {
 
     override val containingForm = this
 
@@ -258,6 +260,8 @@ class FormRootFile(
         val expressionsProperty = topLevelObject.findProperty(FormExpression.getArrayName()) ?: return@lazy null
         return@lazy FormExpression.createElementListFrom(expressionsProperty)
     }
+
+    override fun getObjectContainingExpressions() = topLevelObject
 
     private val formReferences by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val containingFile = containingFile ?: return@lazy emptyList()

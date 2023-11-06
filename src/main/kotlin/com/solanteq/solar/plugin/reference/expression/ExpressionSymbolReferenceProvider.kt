@@ -7,7 +7,7 @@ import com.intellij.model.psi.PsiSymbolReferenceHints
 import com.intellij.model.psi.PsiSymbolReferenceProvider
 import com.intellij.model.search.SearchRequest
 import com.intellij.openapi.project.Project
-import com.solanteq.solar.plugin.element.FormExpression
+import com.solanteq.solar.plugin.element.expression.ExpressionType
 import com.solanteq.solar.plugin.symbol.FormSymbolReference
 import com.solanteq.solar.plugin.util.asList
 import com.solanteq.solar.plugin.util.inForm
@@ -18,7 +18,7 @@ class ExpressionSymbolReferenceProvider : PsiSymbolReferenceProvider {
 
     private val pattern = inForm<JsonStringLiteral>()
         .notJsonIncludeDeclaration()
-        .isPropertyValueWithKey(*FormExpression.expressionProperties)
+        .isPropertyValueWithKey(*ExpressionType.expressionProperties.toTypedArray())
 
     override fun getReferences(
         element: PsiExternalReferenceHost,

@@ -6,11 +6,11 @@ import com.intellij.openapi.fileEditor.FileEditorPolicy
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.solanteq.solar.plugin.file.RootFormFileType
+import com.solanteq.solar.plugin.util.isRootForm
 
 class FormEditorProvider : AsyncFileEditorProvider, DumbAware {
 
-    override fun accept(project: Project, file: VirtualFile) = file.fileType == RootFormFileType
+    override fun accept(project: Project, file: VirtualFile) = file.isRootForm()
 
     override fun createEditor(project: Project, file: VirtualFile) =
         createEditorAsync(project, file).build()

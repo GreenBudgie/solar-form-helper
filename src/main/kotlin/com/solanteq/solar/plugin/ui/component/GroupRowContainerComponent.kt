@@ -15,7 +15,8 @@ class GroupRowContainerComponent(
         border = BorderFactory.createEmptyBorder(24, 24, 24, 24)
         preferredSize = Dimension(FormUIConstants.MIN_VIEWPORT_WIDTH, 0)
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
-        groupRows.forEach {
+        val visibleGroupRows = groupRows.filterNot { it.isNeverVisible() }
+        visibleGroupRows.forEach {
             add(GroupRowComponent(it))
         }
     }

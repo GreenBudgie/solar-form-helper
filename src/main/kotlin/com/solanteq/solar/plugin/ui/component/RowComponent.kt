@@ -1,32 +1,63 @@
 package com.solanteq.solar.plugin.ui.component
 
-import com.intellij.ui.components.JBPanel
-import com.solanteq.solar.plugin.element.FormField
 import com.solanteq.solar.plugin.element.FormRow
-import com.solanteq.solar.plugin.ui.FormUIConstants
-import net.miginfocom.layout.AC
-import net.miginfocom.layout.CC
-import net.miginfocom.layout.LC
-import net.miginfocom.swing.MigLayout
+import java.awt.Dimension
+import java.awt.GridBagConstraints
+import java.awt.GridBagLayout
+import javax.swing.Box
+import javax.swing.JPanel
 
 class RowComponent(
     private val row: FormRow
-) : JBPanel<GroupRowComponent>() {
+) : JPanel() {
 
     init {
-        layout = MigLayout(
-            LC().fillX().insetsAll("0"),
-            AC().count(FormUIConstants.COLUMNS).gap("1").fill(),
-            AC().count(1)
-        )
-        row.fields?.forEach { field ->
+        layout = GridBagLayout()
+        var index = 0
+        var size = 0
+        val visibleFields = row.fields?.filterNot { it.isNeverVisible() } ?: emptyList()
+        visibleFields.forEach { field ->
             val fieldSize = field.fieldSize ?: 4
-            val labelSize = field.labelSize ?: FormField.DEFAULT_LABEL_SIZE
+            val labelSize = field.labelSize ?: 2
             if(labelSize > 0) {
-                add(FieldLabelComponent(field), CC().spanX(labelSize).alignX("right").alignY("center"))
+                val labelConstraint = GridBagConstraints().apply {
+                    weightx = labelSize / 24.0
+                    gridx = index
+                    gridy = 0
+                    fill = GridBagConstraints.HORIZONTAL
+                }
+                val labelComponent = FieldLabelComponent(field)
+                add(labelComponent, labelConstraint)
             }
-            add(FieldComponent(field), CC().spanX(fieldSize))
+            val fieldConstraint = GridBagConstraints().apply {
+                weightx = fieldSize / 24.0
+                gridx = index + 1
+                gridy = 0
+                fill = GridBagConstraints.HORIZONTAL
+            }
+            val fieldComponent = FieldComponent(field)
+            add(fieldComponent, fieldConstraint)
+            size += fieldSize + labelSize
+            index += 2
         }
+        if(size < 24) {
+            val strutConstraint = GridBagConstraints().apply {
+                weightx = (24 - size) / 24.0
+                gridx = index + 1
+                gridy = 0
+                fill = GridBagConstraints.HORIZONTAL
+            }
+            val strut = Box.createHorizontalStrut(0).apply {
+                preferredSize = Dimension(0, ROW_HEIGHT)
+            }
+            add(strut, strutConstraint)
+        }
+    }
+
+    companion object {
+
+        const val ROW_HEIGHT = 35
+
     }
 
 }

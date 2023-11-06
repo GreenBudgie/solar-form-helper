@@ -8,7 +8,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.SearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Processor
-import com.solanteq.solar.plugin.element.FormExpression
+import com.solanteq.solar.plugin.element.expression.ExpressionType
 import com.solanteq.solar.plugin.search.FormGraphSearch
 import com.solanteq.solar.plugin.symbol.FormSymbol
 import com.solanteq.solar.plugin.symbol.FormSymbolUsage
@@ -51,7 +51,7 @@ class ExpressionUsageSearchQuery(
         property: JsonProperty,
         consumer: Processor<in FormSymbolUsage>
     ): Boolean {
-        if (property.name !in FormExpression.expressionProperties) {
+        if (property.name !in ExpressionType.expressionProperties) {
             return true
         }
         val value = property.value as? JsonStringLiteral ?: return true

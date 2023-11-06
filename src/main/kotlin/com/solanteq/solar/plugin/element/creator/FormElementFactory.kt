@@ -4,6 +4,7 @@ import com.intellij.json.psi.*
 import com.solanteq.solar.plugin.element.*
 import com.solanteq.solar.plugin.element.base.AbstractFormElement
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
+import com.solanteq.solar.plugin.element.expression.FormExpression
 
 /**
  * If you don't know which [AbstractFormElement] can be created from [JsonElement], you can use this factory

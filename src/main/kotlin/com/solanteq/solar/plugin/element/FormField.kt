@@ -7,6 +7,7 @@ import com.intellij.psi.PsiField
 import com.intellij.psi.PsiType
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.element.creator.FormArrayElementCreator
+import com.solanteq.solar.plugin.element.expression.ExpressionAware
 import com.solanteq.solar.plugin.symbol.FormSymbol
 import com.solanteq.solar.plugin.symbol.FormSymbolType
 import com.solanteq.solar.plugin.util.FormPsiUtils
@@ -43,7 +44,7 @@ import com.solanteq.solar.plugin.util.valueAsStringOrNull
  */
 class FormField private constructor(
     sourceElement: JsonObject
-) : FormLocalizableElement<JsonObject>(sourceElement, sourceElement) {
+) : FormLocalizableElement<JsonObject>(sourceElement, sourceElement), ExpressionAware {
 
     override val l10nKeys: List<String> by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val containingGroups = containingGroups
@@ -174,6 +175,8 @@ class FormField private constructor(
         return@lazy propertyChain.toList()
     }
 
+    override fun getObjectContainingExpressions() = sourceElement
+
     private fun findAllDataClassesFromRequests(): List<PsiClass> {
         val containingRootForm = FormRootFile.createFrom(containingFile)
         if(containingRootForm != null) {
@@ -218,8 +221,6 @@ class FormField private constructor(
     )
 
     companion object : FormArrayElementCreator<FormField>() {
-
-        const val DEFAULT_LABEL_SIZE = 2
 
         override fun getArrayName() = "fields"
 

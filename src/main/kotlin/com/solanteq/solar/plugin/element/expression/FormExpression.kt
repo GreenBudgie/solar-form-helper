@@ -1,4 +1,4 @@
-package com.solanteq.solar.plugin.element
+package com.solanteq.solar.plugin.element.expression
 
 import com.intellij.json.psi.JsonObject
 import com.solanteq.solar.plugin.element.base.FormNamedElement
@@ -21,22 +21,6 @@ class FormExpression(
     }
 
     companion object : FormArrayElementCreator<FormExpression>() {
-
-        /**
-         * Names of properties that may contain an expression as its value
-         */
-        val expressionProperties = arrayOf(
-            "requiredWhen",
-            "visibleWhen",
-            "editableWhen",
-            "removableWhen",
-            "editModeWhen",
-            "success",
-            "warning",
-            "error",
-            "info",
-            "muted"
-        )
 
         override fun getArrayName() = "expressions"
 
