@@ -2,7 +2,7 @@ package com.solanteq.solar.plugin.ui.component
 
 import com.intellij.ui.util.preferredHeight
 import com.solanteq.solar.plugin.element.FormField
-import com.solanteq.solar.plugin.ui.FormUIConstants
+import com.solanteq.solar.plugin.ui.FormColorScheme
 import com.solanteq.solar.plugin.ui.custom.UniversalBorder
 import java.awt.Dimension
 import java.awt.GridBagConstraints
@@ -28,13 +28,14 @@ class FieldComponent(
         fieldComponent.preferredHeight = FIELD_HEIGHT
         fieldComponent.border = UniversalBorder.builder()
             .radius(4)
-            .color(FormUIConstants.BORDER_COLOR)
+            .color(FormColorScheme.BORDER_COLOR)
             .build()
         add(fieldComponent, fieldConstraints)
     }
 
     companion object {
 
+        const val DEFAULT_FIELD_SIZE = 4
         const val FIELD_HEIGHT = 25
 
     }

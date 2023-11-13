@@ -17,12 +17,12 @@ class RowComponent(
         var size = 0
         val visibleFields = row.fields?.filterNot { it.isNeverVisible() } ?: emptyList()
         visibleFields.forEach { field ->
-            val fieldSize = field.fieldSize ?: 4
-            val labelSize = field.labelSize ?: 2
+            val fieldSize = field.fieldSize ?: FieldComponent.DEFAULT_FIELD_SIZE
+            val labelSize = field.labelSize ?: FieldLabelComponent.DEFAULT_LABEL_SIZE
             if(labelSize > 0) {
                 val labelConstraint = GridBagConstraints().apply {
-                    weightx = labelSize / 24.0
-                    gridx = index
+                    weightx = labelSize / ROW_COLUMNS.toDouble()
+                    gridx = index++
                     gridy = 0
                     fill = GridBagConstraints.HORIZONTAL
                 }
@@ -30,20 +30,19 @@ class RowComponent(
                 add(labelComponent, labelConstraint)
             }
             val fieldConstraint = GridBagConstraints().apply {
-                weightx = fieldSize / 24.0
-                gridx = index + 1
+                weightx = fieldSize / ROW_COLUMNS.toDouble()
+                gridx = index++
                 gridy = 0
                 fill = GridBagConstraints.HORIZONTAL
             }
             val fieldComponent = FieldComponent(field)
             add(fieldComponent, fieldConstraint)
             size += fieldSize + labelSize
-            index += 2
         }
-        if(size < 24) {
+        if(size < ROW_COLUMNS) {
             val strutConstraint = GridBagConstraints().apply {
-                weightx = (24 - size) / 24.0
-                gridx = index + 1
+                weightx = (ROW_COLUMNS - size) / ROW_COLUMNS.toDouble()
+                gridx = index++
                 gridy = 0
                 fill = GridBagConstraints.HORIZONTAL
             }
@@ -57,6 +56,7 @@ class RowComponent(
     companion object {
 
         const val ROW_HEIGHT = 35
+        const val ROW_COLUMNS = 24
 
     }
 

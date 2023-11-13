@@ -25,7 +25,7 @@ class FieldLabelComponent(
 
         val labelConstraints = GridBagConstraints().apply {
             anchor = GridBagConstraints.LINE_END
-            insets = JBUI.insetsRight(RIGHT_lABEL_INSET)
+            insets = JBUI.insetsRight(RIGHT_LABEL_INSET)
             weightx = 1.0
         }
         add(labelComponent, labelConstraints)
@@ -33,7 +33,8 @@ class FieldLabelComponent(
 
     companion object {
 
-        const val RIGHT_lABEL_INSET = 10
+        const val RIGHT_LABEL_INSET = 10
+        const val DEFAULT_LABEL_SIZE = 2
 
     }
 
