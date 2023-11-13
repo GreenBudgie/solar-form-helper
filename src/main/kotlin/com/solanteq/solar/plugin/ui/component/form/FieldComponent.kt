@@ -1,9 +1,9 @@
-package com.solanteq.solar.plugin.ui.component
+package com.solanteq.solar.plugin.ui.component.form
 
 import com.intellij.ui.util.preferredHeight
 import com.solanteq.solar.plugin.element.FormField
 import com.solanteq.solar.plugin.ui.FormColorScheme
-import com.solanteq.solar.plugin.ui.custom.UniversalBorder
+import com.solanteq.solar.plugin.ui.component.util.UniversalBorder
 import java.awt.Dimension
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout

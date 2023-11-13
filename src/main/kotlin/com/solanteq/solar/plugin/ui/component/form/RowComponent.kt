@@ -1,4 +1,4 @@
-package com.solanteq.solar.plugin.ui.component
+package com.solanteq.solar.plugin.ui.component.form
 
 import com.solanteq.solar.plugin.element.FormRow
 import java.awt.Dimension

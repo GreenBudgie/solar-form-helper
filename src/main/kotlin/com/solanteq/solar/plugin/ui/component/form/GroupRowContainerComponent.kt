@@ -1,4 +1,4 @@
-package com.solanteq.solar.plugin.ui.component
+package com.solanteq.solar.plugin.ui.component.form
 
 import com.intellij.ui.components.JBPanel
 import com.intellij.util.ui.JBUI

@@ -1,4 +1,4 @@
-package com.solanteq.solar.plugin.ui.custom
+package com.solanteq.solar.plugin.ui.component.util
 
 import java.awt.Dimension
 import javax.swing.JPanel

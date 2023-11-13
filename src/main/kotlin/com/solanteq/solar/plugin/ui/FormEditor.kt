@@ -6,8 +6,7 @@ import com.intellij.openapi.fileEditor.FileEditorState
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.ui.components.JBScrollPane
-import com.solanteq.solar.plugin.ui.component.RootFormComponent
+import com.solanteq.solar.plugin.ui.component.FormEditorPanel
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 import java.beans.PropertyChangeListener
 import javax.swing.JComponent
@@ -18,8 +17,7 @@ class FormEditor(
 ) : FileEditor {
 
     private val file = virtualFile.toPsiFile(project) as? JsonFile ?: error("No JsonFile is backing the virtual file")
-    private val rootFormComponent = RootFormComponent(project, file)
-    private val mainScrollPane = JBScrollPane(rootFormComponent)
+    private val editorPanel = FormEditorPanel(project, file)
 
     override fun getFile() = virtualFile
 
@@ -36,7 +34,7 @@ class FormEditor(
     }
 
     override fun getComponent(): JComponent {
-        return mainScrollPane
+        return editorPanel
     }
 
     override fun getPreferredFocusedComponent(): JComponent? {
@@ -66,7 +64,7 @@ class FormEditor(
     }
 
     override fun selectNotify() {
-        rootFormComponent.update()
+        editorPanel.update()
     }
 
 }

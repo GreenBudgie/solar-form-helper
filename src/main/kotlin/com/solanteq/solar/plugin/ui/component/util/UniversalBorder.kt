@@ -1,7 +1,7 @@
-package com.solanteq.solar.plugin.ui.custom
+package com.solanteq.solar.plugin.ui.component.util
 
 import com.intellij.ui.JBColor
-import com.solanteq.solar.plugin.ui.custom.UniversalBorder.Companion.builder
+import com.solanteq.solar.plugin.ui.component.util.UniversalBorder.Companion.builder
 import java.awt.*
 import java.awt.geom.Path2D
 import java.awt.geom.Point2D
