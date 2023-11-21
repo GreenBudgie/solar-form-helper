@@ -1,5 +1,6 @@
 package com.solanteq.solar.plugin.util
 
+import com.intellij.json.JsonLanguage
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.project.Project
 import com.intellij.psi.JavaPsiFacade
@@ -21,3 +22,6 @@ fun Project.javaKotlinModificationTracker() =
     PsiModificationTracker.getInstance(this).forLanguages {
         it is KotlinLanguage || it is JavaLanguage
     }
+
+fun Project.jsonModificationTracker() =
+    PsiModificationTracker.getInstance(this).forLanguage(JsonLanguage.INSTANCE)

@@ -3,56 +3,85 @@ package com.solanteq.solar.plugin.ui.component
 import com.intellij.json.psi.JsonFile
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
-import com.intellij.ui.JBSplitter
+import com.intellij.ui.OnePixelSplitter
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBScrollPane
 import com.solanteq.solar.plugin.element.FormRootFile
 import com.solanteq.solar.plugin.ui.component.config.FormConfigurationComponent
 import com.solanteq.solar.plugin.ui.component.form.RootFormComponent
-import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
+import com.solanteq.solar.plugin.ui.editor.FormEditor
+import com.solanteq.solar.plugin.util.jsonModificationTracker
 import java.awt.BorderLayout
 
 class FormEditorPanel(
+    private val editor: FormEditor,
     private val project: Project,
     private val file: JsonFile
 ) : JBPanel<FormEditorPanel>() {
 
-    private var isUpdateQueued = false
+    private val modificationTracker = project.jsonModificationTracker()
+    private var prevModificationCount = INITIAL_MODIFICATION_TRACKER_VALUE
 
-    private val splitter = JBSplitter().apply {
+    private val splitter = OnePixelSplitter().apply {
         proportion = DEFAULT_SPLITTER_PROPORTION
         splitterProportionKey = SPLITTER_PROPORTION_KEY
     }
-    private val rootFormComponent = RootFormComponent()
-    private val configurationComponent = FormConfigurationComponent()
+    private var rootFormComponent: RootFormComponent? = null
+    private var configurationComponent: FormConfigurationComponent? = null
 
     init {
         layout = BorderLayout()
+
+        rebuildIfNeeded()
+    }
+
+    /**
+     * Refreshes the form UI without getting updates from the file
+     */
+    fun refresh() {
+        DumbService.getInstance(project).runWhenSmart {
+            doRefresh()
+        }
+    }
+
+    /**
+     * Fully updates form UI and configuration by constructing new [FormRootFile] if there were changes to PSI
+     */
+    fun rebuildIfNeeded() {
+        DumbService.getInstance(project).runWhenSmart {
+            if (!needToRebuild()) {
+                return@runWhenSmart
+            }
+            doRebuild()
+            prevModificationCount = modificationTracker.modificationCount
+        }
+    }
+
+    private fun needToRebuild(): Boolean {
+        return prevModificationCount == INITIAL_MODIFICATION_TRACKER_VALUE ||
+            prevModificationCount != modificationTracker.modificationCount
+    }
+
+    private fun doRebuild() {
+        val form = FormRootFile.createFrom(file) ?: return
+
+        rootFormComponent = RootFormComponent(editor, form)
+        configurationComponent = FormConfigurationComponent(editor, form)
+
         val rootFormScrollPane = JBScrollPane(rootFormComponent)
         val configurationScrollPane = JBScrollPane(configurationComponent)
         splitter.firstComponent = rootFormScrollPane
         splitter.secondComponent = configurationScrollPane
         add(splitter, BorderLayout.CENTER)
-
-        update()
     }
 
-    fun update() {
-        isUpdateQueued.ifTrue { return }
-        isUpdateQueued = true
-        DumbService.getInstance(project).runWhenSmart {
-            doUpdate()
-            isUpdateQueued = false
-        }
-    }
-
-    private fun doUpdate() {
-        val form = FormRootFile.createFrom(file) ?: return
-        rootFormComponent.update(form)
-        configurationComponent.update(form)
+    private fun doRefresh() {
+        rootFormComponent?.refresh()
     }
 
     companion object {
+
+        private const val INITIAL_MODIFICATION_TRACKER_VALUE = -1L
 
         private const val SPLITTER_PROPORTION_KEY = "formEditorSplitterProportion"
         private const val DEFAULT_SPLITTER_PROPORTION = 0.7f

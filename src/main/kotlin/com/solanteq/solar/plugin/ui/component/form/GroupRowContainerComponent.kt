@@ -1,21 +1,23 @@
 package com.solanteq.solar.plugin.ui.component.form
 
-import com.intellij.ui.components.JBPanel
 import com.intellij.util.ui.JBUI
 import com.solanteq.solar.plugin.element.FormGroupRow
+import com.solanteq.solar.plugin.ui.component.util.Refreshable
+import com.solanteq.solar.plugin.ui.editor.FormEditor
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
+import javax.swing.JPanel
 
 class GroupRowContainerComponent(
-    private val groupRows: List<FormGroupRow>
-) : JBPanel<GroupRowContainerComponent>() {
+    editor: FormEditor,
+    groupRows: List<FormGroupRow>
+) : JPanel(), Refreshable {
+
+    private val groupRowComponents: List<GroupRowComponent>
 
     init {
         layout = GridBagLayout()
-        val visibleGroupRows = groupRows
-            .filterNot { it.isNeverVisible() }
-            .filter { hasVisibleGroups(it) }
-        visibleGroupRows.forEachIndexed { index, groupRow ->
+        groupRowComponents = groupRows.mapIndexed { index, groupRow ->
             val groupRowConstrains = GridBagConstraints().apply {
                 gridx = 0
                 gridy = index
@@ -25,13 +27,18 @@ class GroupRowContainerComponent(
                 anchor = GridBagConstraints.FIRST_LINE_START
                 insets = if (index == 0) JBUI.emptyInsets() else JBUI.insetsTop(GroupContainerComponent.GROUP_INSET)
             }
-            add(GroupRowComponent(groupRow), groupRowConstrains)
+            val groupRowComponent = GroupRowComponent(editor, groupRow)
+            groupRowComponent.updateVisibility()
+            add(groupRowComponent, groupRowConstrains)
+            groupRowComponent
         }
     }
 
-    private fun hasVisibleGroups(groupRow: FormGroupRow): Boolean {
-        val groups = groupRow.groups ?: return false
-        return groups.any { !it.isNeverVisible() }
+    override fun refresh() {
+        groupRowComponents.forEach {
+            it.updateVisibility()
+            it.refresh()
+        }
     }
 
 }

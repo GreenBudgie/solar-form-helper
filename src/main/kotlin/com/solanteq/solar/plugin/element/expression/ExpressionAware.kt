@@ -7,7 +7,6 @@ import com.intellij.model.psi.PsiSymbolReferenceService
 import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.reference.expression.ExpressionSymbolReference
 import com.solanteq.solar.plugin.symbol.FormSymbol
-import com.solanteq.solar.plugin.util.valueAsStringOrNull
 
 /**
  * An interface for [FormElement]s that contain properties like `visibleWhen`
@@ -27,8 +26,15 @@ interface ExpressionAware {
      * Returns the expression property value by the given [type], or null if it is not present
      */
     fun getExpressionPropertyValue(type: ExpressionType): JsonStringLiteral? {
-        val visibleWhenProperty = getExpressionProperty(type) ?: return null
-        return visibleWhenProperty.value as? JsonStringLiteral
+        val expressionProperty = getExpressionProperty(type) ?: return null
+        return expressionProperty.value as? JsonStringLiteral
+    }
+
+    /**
+     * Returns the expression name by the given [type], or null if it is not present
+     */
+    fun getExpressionName(type: ExpressionType): String? {
+        return getExpressionPropertyValue(type)?.value
     }
 
     /**
@@ -63,7 +69,7 @@ interface ExpressionAware {
      * it has a different value (this should NEVER happen, but who knows...)
      */
     fun isNeverExpression(type: ExpressionType): Boolean {
-        return getExpressionProperty(type).valueAsStringOrNull() == NEVER_EXPRESSION
+        return getExpressionName(type) == NEVER_EXPRESSION
     }
 
     /**

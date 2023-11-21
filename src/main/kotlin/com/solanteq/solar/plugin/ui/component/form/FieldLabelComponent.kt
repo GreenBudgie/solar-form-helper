@@ -3,15 +3,18 @@ package com.solanteq.solar.plugin.ui.component.form
 import com.intellij.util.ui.JBUI
 import com.solanteq.solar.plugin.element.FormField
 import com.solanteq.solar.plugin.l10n.L10nLocale
+import com.solanteq.solar.plugin.ui.component.form.base.ExpressionAwareComponent
+import com.solanteq.solar.plugin.ui.component.util.Refreshable
+import com.solanteq.solar.plugin.ui.editor.FormEditor
 import java.awt.Dimension
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import javax.swing.JLabel
-import javax.swing.JPanel
 
 class FieldLabelComponent(
-    private val field: FormField
-) : JPanel() {
+    editor: FormEditor,
+    val field: FormField
+) : ExpressionAwareComponent<FormField>(editor, field), Refreshable {
 
     init {
         layout = GridBagLayout()
@@ -29,6 +32,10 @@ class FieldLabelComponent(
             weightx = 1.0
         }
         add(labelComponent, labelConstraints)
+    }
+
+    override fun refresh() {
+        //do nothing for now
     }
 
     companion object {

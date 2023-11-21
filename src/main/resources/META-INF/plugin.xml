@@ -133,6 +133,6 @@
         <fileBasedIndex implementation="com.solanteq.solar.plugin.index.l10n.FormNameL10nShortIndex" />
 
         <!-- UI -->
-        <fileEditorProvider implementation="com.solanteq.solar.plugin.ui.FormEditorProvider" />
+        <fileEditorProvider implementation="com.solanteq.solar.plugin.ui.editor.FormEditorProvider" />
     </extensions>
 </idea-plugin>

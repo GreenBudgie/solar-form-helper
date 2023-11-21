@@ -1,4 +1,4 @@
-package com.solanteq.solar.plugin.ui
+package com.solanteq.solar.plugin.ui.editor
 
 import com.intellij.openapi.fileEditor.AsyncFileEditorProvider
 import com.intellij.openapi.fileEditor.FileEditor

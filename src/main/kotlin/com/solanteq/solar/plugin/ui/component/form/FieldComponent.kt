@@ -3,18 +3,21 @@ package com.solanteq.solar.plugin.ui.component.form
 import com.intellij.ui.util.preferredHeight
 import com.solanteq.solar.plugin.element.FormField
 import com.solanteq.solar.plugin.ui.FormColorScheme
+import com.solanteq.solar.plugin.ui.component.form.base.ExpressionAwareComponent
+import com.solanteq.solar.plugin.ui.component.util.Refreshable
 import com.solanteq.solar.plugin.ui.component.util.UniversalBorder
+import com.solanteq.solar.plugin.ui.editor.FormEditor
 import java.awt.Dimension
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
-import javax.swing.JPanel
 import javax.swing.JTextField
 
 class FieldComponent(
-    private val field: FormField
-) : JPanel() {
+    editor: FormEditor,
+    val field: FormField
+) : ExpressionAwareComponent<FormField>(editor, field), Refreshable {
 
-    private val fieldComponent = JTextField()
+    private val testField = JTextField()
 
     init {
         layout = GridBagLayout()
@@ -25,12 +28,16 @@ class FieldComponent(
             weightx = 1.0
             weighty = 1.0
         }
-        fieldComponent.preferredHeight = FIELD_HEIGHT
-        fieldComponent.border = UniversalBorder.builder()
+        testField.preferredHeight = FIELD_HEIGHT
+        testField.border = UniversalBorder.builder()
             .radius(4)
             .color(FormColorScheme.BORDER_COLOR)
             .build()
-        add(fieldComponent, fieldConstraints)
+        add(testField, fieldConstraints)
+    }
+
+    override fun refresh() {
+        //do nothing for now
     }
 
     companion object {

@@ -1,10 +1,12 @@
-package com.solanteq.solar.plugin.ui
+package com.solanteq.solar.plugin.ui.editor
 
 import com.intellij.json.psi.JsonFile
 import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.fileEditor.FileEditorState
+import com.intellij.openapi.fileEditor.FileEditorStateLevel
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
+import com.intellij.openapi.util.UserDataHolderBase
 import com.intellij.openapi.vfs.VirtualFile
 import com.solanteq.solar.plugin.ui.component.FormEditorPanel
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
@@ -16,17 +18,20 @@ class FormEditor(
     private val virtualFile: VirtualFile
 ) : FileEditor {
 
+    private val userDataHolder = UserDataHolderBase()
+    private var state = FormEditorState()
+
     private val file = virtualFile.toPsiFile(project) as? JsonFile ?: error("No JsonFile is backing the virtual file")
-    private val editorPanel = FormEditorPanel(project, file)
+    private val editorPanel = FormEditorPanel(this, project, file)
 
     override fun getFile() = virtualFile
 
     override fun <T : Any?> getUserData(key: Key<T>): T? {
-        return null
+        return userDataHolder.getUserData(key)
     }
 
     override fun <T : Any?> putUserData(key: Key<T>, value: T?) {
-
+        userDataHolder.putUserData(key, value)
     }
 
     override fun dispose() {
@@ -44,7 +49,12 @@ class FormEditor(
     override fun getName() = "Form Preview"
 
     override fun setState(state: FileEditorState) {
+        val newState = state as? FormEditorState ?: FormEditorState()
+        this.state = newState
+    }
 
+    override fun getState(level: FileEditorStateLevel): FormEditorState {
+        return state
     }
 
     override fun isModified(): Boolean {
@@ -64,7 +74,15 @@ class FormEditor(
     }
 
     override fun selectNotify() {
-        editorPanel.update()
+        editorPanel.rebuildIfNeeded()
+    }
+
+    fun getState(): FormEditorState {
+        return state
+    }
+
+    fun applyState() {
+        editorPanel.refresh()
     }
 
 }

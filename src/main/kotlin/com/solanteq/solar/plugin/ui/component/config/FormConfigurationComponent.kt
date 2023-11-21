@@ -3,20 +3,33 @@ package com.solanteq.solar.plugin.ui.component.config
 import com.intellij.ui.components.JBPanel
 import com.solanteq.solar.plugin.element.FormRootFile
 import com.solanteq.solar.plugin.ui.component.config.expression.ExpressionConfigurationComponent
-import java.awt.BorderLayout
+import com.solanteq.solar.plugin.ui.editor.FormEditor
+import java.awt.GridBagConstraints
+import java.awt.GridBagLayout
 import javax.swing.BorderFactory
 
-class FormConfigurationComponent : JBPanel<FormConfigurationComponent>() {
+class FormConfigurationComponent(
+    private val editor: FormEditor,
+    private val form: FormRootFile
+) : JBPanel<FormConfigurationComponent>() {
 
     init {
-        layout = BorderLayout()
-        border = BorderFactory.createEmptyBorder(16, 16, 16, 16)
+        layout = GridBagLayout()
+        border = BorderFactory.createEmptyBorder(BORDER_SIZE, BORDER_SIZE, BORDER_SIZE, BORDER_SIZE)
+
+        val constrains = GridBagConstraints().apply {
+            weightx = 1.0
+            weighty = 1.0
+            anchor = GridBagConstraints.FIRST_LINE_START
+            fill = GridBagConstraints.HORIZONTAL
+        }
+        add(ExpressionConfigurationComponent(editor, form), constrains)
     }
 
-    fun update(form: FormRootFile) {
-        removeAll()
+    companion object {
 
-        add(ExpressionConfigurationComponent(form), BorderLayout.CENTER)
+        const val BORDER_SIZE = 16
+
     }
 
 }

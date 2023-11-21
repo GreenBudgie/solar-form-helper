@@ -1,21 +1,34 @@
 package com.solanteq.solar.plugin.ui.component.form
 
-import com.intellij.ui.components.JBPanel
 import com.intellij.util.ui.JBUI
 import com.solanteq.solar.plugin.element.FormRootFile
+import com.solanteq.solar.plugin.ui.component.form.base.FormComponent
+import com.solanteq.solar.plugin.ui.component.util.Refreshable
+import com.solanteq.solar.plugin.ui.editor.FormEditor
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import javax.swing.Box
 
-class RootFormComponent : JBPanel<RootFormComponent>() {
+class RootFormComponent(
+    editor: FormEditor,
+    form: FormRootFile
+) : FormComponent<FormRootFile>(editor, form), Refreshable {
+
+    private val container: Refreshable?
 
     init {
         layout = GridBagLayout()
+
+        container = buildUI(form)
     }
 
-    fun update(form: FormRootFile) {
-        removeAll()
+    override fun refresh() {
+        container?.refresh()
+        validate()
+        repaint()
+    }
 
+    private fun buildUI(form: FormRootFile): Refreshable? {
         val strutConstraints = GridBagConstraints().apply {
             gridx = 0
             gridy = 0
@@ -38,11 +51,14 @@ class RootFormComponent : JBPanel<RootFormComponent>() {
             fill = GridBagConstraints.HORIZONTAL
         }
         if(groupRows != null) {
-            add(GroupRowContainerComponent(groupRows), constraints)
-            return
+            val container = GroupRowContainerComponent(editor, groupRows)
+            add(container, constraints)
+            return container
         }
-        val groups = form.groups ?: return
-        add(GroupContainerComponent(groups), constraints)
+        val groups = form.groups ?: return null
+        val container = GroupContainerComponent(editor, groups)
+        add(container, constraints)
+        return container
     }
 
     companion object {
