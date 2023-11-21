@@ -36,7 +36,8 @@ class FormEditorPanel(
     }
 
     /**
-     * Refreshes the form UI without getting updates from the file
+     * Refreshes the form UI without getting updates from the file.
+     * @see com.solanteq.solar.plugin.ui.component.util.Refreshable.refresh
      */
     fun refresh() {
         DumbService.getInstance(project).runWhenSmart {
@@ -45,7 +46,7 @@ class FormEditorPanel(
     }
 
     /**
-     * Fully updates form UI and configuration by constructing new [FormRootFile] if there were changes to PSI
+     * Fully updates form UI and configuration by constructing new [FormRootFile] if there were PSI changes
      */
     fun rebuildIfNeeded() {
         DumbService.getInstance(project).runWhenSmart {

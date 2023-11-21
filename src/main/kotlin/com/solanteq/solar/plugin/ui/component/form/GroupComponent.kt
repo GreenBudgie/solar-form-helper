@@ -9,6 +9,7 @@ import com.solanteq.solar.plugin.ui.component.form.base.ExpressionAwareComponent
 import com.solanteq.solar.plugin.ui.component.util.Refreshable
 import com.solanteq.solar.plugin.ui.component.util.UniversalBorder
 import com.solanteq.solar.plugin.ui.component.util.ZeroWidthPanel
+import com.solanteq.solar.plugin.ui.component.util.refreshAll
 import com.solanteq.solar.plugin.ui.editor.FormEditor
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
@@ -28,13 +29,12 @@ class GroupComponent(
 
         addHeader()
         addBody()
+        updateVisibility()
     }
 
     override fun refresh() {
-        rowComponents?.forEach {
-            it.updateVisibility()
-            it.refresh()
-        }
+        updateVisibility()
+        rowComponents.refreshAll()
     }
 
     private fun addHeader() {
@@ -102,7 +102,6 @@ class GroupComponent(
                 gridy = index
             }
             val rowComponent = RowComponent(editor, row)
-            rowComponent.updateVisibility()
             body.add(rowComponent, rowConstraints)
             rowComponent
         }

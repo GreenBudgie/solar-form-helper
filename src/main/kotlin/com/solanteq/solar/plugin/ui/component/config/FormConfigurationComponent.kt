@@ -9,8 +9,8 @@ import java.awt.GridBagLayout
 import javax.swing.BorderFactory
 
 class FormConfigurationComponent(
-    private val editor: FormEditor,
-    private val form: FormRootFile
+    editor: FormEditor,
+    form: FormRootFile
 ) : JBPanel<FormConfigurationComponent>() {
 
     init {

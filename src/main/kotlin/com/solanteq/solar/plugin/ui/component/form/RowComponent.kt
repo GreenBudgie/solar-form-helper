@@ -10,49 +10,51 @@ import javax.swing.Box
 
 class RowComponent(
     editor: FormEditor,
-    private val row: FormRow
+    row: FormRow
 ) : ExpressionAwareComponent<FormRow>(editor, row) {
 
-    private val fieldPairs: List<Pair<FieldLabelComponent?, FieldComponent>>
-    private var visibleFieldPairs: List<Pair<FieldLabelComponent?, FieldComponent>>? = null
+    private val labeledFields: List<LabeledField>
+    private var visibleLabeledFields: List<LabeledField>? = null
 
     init {
         layout = GridBagLayout()
 
-        fieldPairs = row.fields?.map {
+        labeledFields = row.fields?.map {
             val labelSize = it.labelSize ?: FieldLabelComponent.DEFAULT_LABEL_SIZE
             val labelComponent = if (labelSize > 0) {
                 FieldLabelComponent(editor, it)
             } else {
                 null
             }
-            labelComponent to FieldComponent(editor, it)
+            val fieldComponent = FieldComponent(editor, it)
+            LabeledField(labelComponent, fieldComponent)
         } ?: emptyList()
-
         rebuildIfNeeded()
+        updateVisibility()
     }
 
     override fun refresh() {
         rebuildIfNeeded()
-        visibleFieldPairs?.forEach {
-            it.first?.refresh()
-            it.second.refresh()
+        visibleLabeledFields?.forEach {
+            it.label?.refresh()
+            it.field.refresh()
         }
+        updateVisibility()
     }
 
     private fun rebuildIfNeeded() {
-        val visibleFieldPairs = fieldPairs.filter { it.second.shouldBeVisible() }
-        if (visibleFieldPairs == this.visibleFieldPairs) {
+        val visibleLabeledFields = labeledFields.filter { it.field.shouldBeVisible() }
+        if (visibleLabeledFields == this.visibleLabeledFields) {
             return
         }
-        this.visibleFieldPairs = visibleFieldPairs
+        this.visibleLabeledFields = visibleLabeledFields
         removeAll()
 
         var index = 0
         var size = 0
-        visibleFieldPairs.forEach { fieldPair ->
-            val labelComponent = fieldPair.first
-            val fieldComponent = fieldPair.second
+        visibleLabeledFields.forEach { labeledField ->
+            val labelComponent = labeledField.label
+            val fieldComponent = labeledField.field
             val fieldElement = fieldComponent.field
             val fieldSize = fieldElement.fieldSize ?: FieldComponent.DEFAULT_FIELD_SIZE
             val labelSize = fieldElement.labelSize ?: FieldLabelComponent.DEFAULT_LABEL_SIZE
@@ -87,6 +89,8 @@ class RowComponent(
             add(strut, strutConstraint)
         }
     }
+
+    data class LabeledField(val label: FieldLabelComponent?, val field: FieldComponent)
 
     companion object {
 

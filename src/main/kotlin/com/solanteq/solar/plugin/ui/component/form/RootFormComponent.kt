@@ -3,6 +3,9 @@ package com.solanteq.solar.plugin.ui.component.form
 import com.intellij.util.ui.JBUI
 import com.solanteq.solar.plugin.element.FormRootFile
 import com.solanteq.solar.plugin.ui.component.form.base.FormComponent
+import com.solanteq.solar.plugin.ui.component.form.container.GroupContainerComponent
+import com.solanteq.solar.plugin.ui.component.form.container.GroupRowContainerComponent
+import com.solanteq.solar.plugin.ui.component.form.container.VerticalGridContainerComponent
 import com.solanteq.solar.plugin.ui.component.util.Refreshable
 import com.solanteq.solar.plugin.ui.editor.FormEditor
 import java.awt.GridBagConstraints
@@ -14,21 +17,21 @@ class RootFormComponent(
     form: FormRootFile
 ) : FormComponent<FormRootFile>(editor, form), Refreshable {
 
-    private val container: Refreshable?
+    private val containerComponent: VerticalGridContainerComponent<*>?
 
     init {
         layout = GridBagLayout()
 
-        container = buildUI(form)
+        containerComponent = buildUI(form)
     }
 
     override fun refresh() {
-        container?.refresh()
+        containerComponent?.refresh()
         validate()
         repaint()
     }
 
-    private fun buildUI(form: FormRootFile): Refreshable? {
+    private fun buildUI(form: FormRootFile): VerticalGridContainerComponent<*>? {
         val strutConstraints = GridBagConstraints().apply {
             gridx = 0
             gridy = 0

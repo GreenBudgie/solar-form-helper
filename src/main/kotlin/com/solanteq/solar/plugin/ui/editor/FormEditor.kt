@@ -14,7 +14,7 @@ import java.beans.PropertyChangeListener
 import javax.swing.JComponent
 
 class FormEditor(
-    private val project: Project,
+    project: Project,
     private val virtualFile: VirtualFile
 ) : FileEditor {
 

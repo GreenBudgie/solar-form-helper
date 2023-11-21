@@ -7,7 +7,7 @@ import com.solanteq.solar.plugin.ui.component.util.Refreshable
 import com.solanteq.solar.plugin.ui.editor.FormEditor
 
 /**
- * Base class for all UI elements for form display
+ * Base class for form component that can be altered by an expression
  */
 abstract class ExpressionAwareComponent<T>(
     editor: FormEditor,
