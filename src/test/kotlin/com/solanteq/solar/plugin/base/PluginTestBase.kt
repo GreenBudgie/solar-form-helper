@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Assertions.*
 /**
  * A base class for all form-based test containing many useful methods and assertions within
  */
-@RunInEdt
+@RunInEdt(writeIntent = true)
 abstract class PluginTestBase {
 
     abstract val fixture: CodeInsightTestFixture
