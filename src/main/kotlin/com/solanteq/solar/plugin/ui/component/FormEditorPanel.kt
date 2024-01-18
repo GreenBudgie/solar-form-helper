@@ -1,6 +1,8 @@
 package com.solanteq.solar.plugin.ui.component
 
 import com.intellij.json.psi.JsonFile
+import com.intellij.openapi.application.invokeLater
+import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
 import com.intellij.ui.OnePixelSplitter
@@ -11,6 +13,7 @@ import com.solanteq.solar.plugin.ui.component.config.FormConfigurationComponent
 import com.solanteq.solar.plugin.ui.component.form.RootFormComponent
 import com.solanteq.solar.plugin.ui.editor.FormEditor
 import com.solanteq.solar.plugin.util.jsonModificationTracker
+import org.jetbrains.kotlin.idea.util.application.executeOnPooledThread
 import java.awt.BorderLayout
 
 class FormEditorPanel(
@@ -41,7 +44,11 @@ class FormEditorPanel(
      */
     fun refresh() {
         DumbService.getInstance(project).runWhenSmart {
-            doRefresh()
+            executeOnPooledThread {
+                runReadAction {
+                    doRefresh()
+                }
+            }
         }
     }
 
@@ -53,7 +60,11 @@ class FormEditorPanel(
             if (!needToRebuild()) {
                 return@runWhenSmart
             }
-            doRebuild()
+            executeOnPooledThread {
+                runReadAction {
+                    doRebuild()
+                }
+            }
             prevModificationCount = modificationTracker.modificationCount
         }
     }

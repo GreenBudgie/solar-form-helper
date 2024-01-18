@@ -4,6 +4,7 @@ import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.runBackgroundableTask
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiReference
 import com.intellij.psi.search.GlobalSearchScope
@@ -18,6 +19,8 @@ import com.solanteq.solar.plugin.util.restrictedByFormFiles
 import org.jetbrains.kotlin.idea.base.util.allScope
 import org.jetbrains.kotlin.idea.base.util.minus
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
+import org.jetbrains.kotlin.idea.util.application.executeInBackgroundWithProgress
+import org.jetbrains.kotlin.idea.util.application.executeOnPooledThread
 
 /**
  * Represents an included form file.
@@ -54,7 +57,7 @@ class FormIncludedFile(
         val relativePath = relativePath ?: return emptyList()
         val baseSearchScope = project.allScope()
             .restrictedByFormFiles()
-            .minus(GlobalSearchScope.fileScope(containingFile)) as GlobalSearchScope
+            .minus(GlobalSearchScope.fileScope(containingFile))
 
         val filesToSearch = JsonIncludeDeclarationSearch.getFilesContainingDeclaration(
             relativePath, baseSearchScope
