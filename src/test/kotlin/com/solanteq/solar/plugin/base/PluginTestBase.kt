@@ -36,7 +36,7 @@ abstract class PluginTestBase {
 
     protected inline fun <reified T : PsiReference> assertNoReferenceAtCaret() {
         val reference = fixture.file.findReferenceAt(fixture.caretOffset)
-        Assertions.assertTrue(reference == null || !T::class.isInstance(reference))
+        assertTrue(reference == null || !T::class.isInstance(reference))
     }
 
     protected fun assertReferencedElementNameEquals(expectedName: String) {
@@ -81,7 +81,7 @@ abstract class PluginTestBase {
     protected fun renameFormSymbolReference(renameTo: String) {
         val reference = getFormSymbolReferenceAtCaret()
         val referencedSymbolDeclarations = reference.resolveReference()
-        Assertions.assertTrue(referencedSymbolDeclarations.isNotEmpty())
+        assertTrue(referencedSymbolDeclarations.isNotEmpty())
         referencedSymbolDeclarations.forEach {
             fixture.renameTarget(it, renameTo)
         }
