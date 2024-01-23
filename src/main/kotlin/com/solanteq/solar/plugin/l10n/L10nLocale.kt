@@ -26,5 +26,5 @@ enum class L10nLocale(
 }
 
 private fun layeredIcon(icon: Icon): Icon {
-    return IconManager.getInstance().createLayered(LayeredIcon(Icons.L10N_FILE_ICON, icon))
+    return IconManager.getInstance().createLayered(LayeredIcon.create(Icons.L10N_FILE_ICON, icon))
 }

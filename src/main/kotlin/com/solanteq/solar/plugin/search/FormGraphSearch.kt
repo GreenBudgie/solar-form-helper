@@ -40,7 +40,7 @@ object FormGraphSearch {
         val relativePath = FormIncludedFile.getRelativePathByIncludedFormVirtualFile(formFile) ?: return emptySet()
         val scope = project
             .allScope()
-            .minus(GlobalSearchScope.filesScope(project, skipFiles)) as GlobalSearchScope
+            .minus(GlobalSearchScope.filesScope(project, skipFiles))
         val parentForms = JsonIncludeDeclarationSearch.getFilesContainingDeclaration(relativePath, scope)
         return parentForms.toSet()
     }
@@ -110,7 +110,7 @@ object FormGraphSearch {
         val scope = project
             .allScope()
             .restrictedByFileTypes(IncludedFormFileType)
-            .minus(GlobalSearchScope.filesScope(project, skipFiles)) as GlobalSearchScope
+            .minus(GlobalSearchScope.filesScope(project, skipFiles))
         val childIncludedForms = jsonIncludeDeclarationsInFile.flatMap {
             FormSearch.findIncludedFormsByRelativePath(it, scope)
         }.toSet()
