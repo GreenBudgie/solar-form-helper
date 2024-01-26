@@ -54,7 +54,7 @@ allprojects {
         }
 
         patchPluginXml {
-            sinceBuild.set("233") //2023.2.*
+            sinceBuild.set("233") //2023.3.*
         }
 
         signPlugin {
