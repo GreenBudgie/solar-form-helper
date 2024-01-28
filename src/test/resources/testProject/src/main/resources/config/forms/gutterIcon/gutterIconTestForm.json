@@ -1,0 +1,30 @@
+{
+  "module": "gutterIcon",
+  "name": "gutterIconTestForm",
+  "groups": [
+    {
+      "name": "groupWithBothLocalizations",
+      "rows": [
+        {
+          "fields": [
+            {
+              "name": "fieldWithRuLocalization"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "groupWithoutGutterIcon",
+      "rows": [
+        {
+          "fields": [
+            {
+              "name": "fieldWithoutGutterIcon"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

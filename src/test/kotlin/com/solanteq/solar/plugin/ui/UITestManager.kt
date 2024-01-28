@@ -2,6 +2,7 @@ package com.solanteq.solar.plugin.ui
 
 import com.google.gson.JsonParser
 import com.intellij.openapi.diagnostic.logger
+import com.intellij.remoterobot.fixtures.ContainerFixture
 import com.intellij.remoterobot.launcher.Ide
 import com.intellij.remoterobot.launcher.IdeDownloader
 import com.intellij.remoterobot.launcher.IdeLauncher.launchIde
@@ -22,6 +23,7 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.Duration.ofMinutes
+import java.time.Duration.ofSeconds
 
 
 object UITestManager {
@@ -34,6 +36,7 @@ object UITestManager {
     private val httpClient = OkHttpClient()
 
     private var uiTestsStarted = false
+    private var isIdeLaunchedFromGradleTask = false
 
     private val pluginJarPath = Paths.get(System.getProperty("test.plugin.path"))
     private val ideaAppPath = Paths.get(System.getProperty("test.idea.path"))
@@ -53,16 +56,51 @@ object UITestManager {
             return
         }
         uiTestsStarted = true
-        launchIntellij()
-        createTestProject()
-        openTestProject()
+        LOG.info("Initializing UI tests")
+        if (!isIntellijRunning()) {
+            launchIntellij()
+        } else {
+            isIdeLaunchedFromGradleTask = true
+        }
+        if (!isTestProjectCreated()) {
+            createTestProject()
+        }
+        if (!isTestProjectOpened()) {
+            openTestProject()
+        }
         Runtime.getRuntime().addShutdownHook(
             Thread { tearDown() }
         )
     }
 
+    private fun isIntellijRunning(): Boolean {
+        try {
+            remoteRobot.runJs("true")
+            return true
+        } catch (e: Exception){
+            return false
+        }
+    }
+
+    private fun isTestProjectCreated(): Boolean {
+        return tempProject.exists()
+    }
+
+    private fun isTestProjectOpened(): Boolean {
+        try {
+            remoteRobot.find<ContainerFixture>(byXpath("//div[@class='ProjectViewTree']"))
+            return true
+        } catch (e: Exception) {
+            return false
+        }
+    }
+
+    private fun isIdeaInstalled(): Boolean {
+        return ideaAppFile.exists()
+    }
+
     private fun launchIntellij() {
-        if (!ideaAppFile.exists()) {
+        if (!isIdeaInstalled()) {
             downloadIntellij()
         }
         removeIdeaSandbox()
@@ -138,8 +176,11 @@ object UITestManager {
     }
 
     private fun tearDown() {
+        if (isIdeLaunchedFromGradleTask) {
+            return
+        }
         stopIntellijProcess()
-        removeTestProject()
+        removeTempProject()
     }
 
     private fun removeIdeaSandbox() {
@@ -147,9 +188,6 @@ object UITestManager {
     }
 
     private fun createTestProject() {
-        // Remove the test project if it hasn't been removed on shutdown for some reason
-        removeTestProject()
-
         val successful = testProjectDirectory.copyRecursively(tempProject)
         if (!successful) {
             throw RuntimeException("Temp project cannot be created")
@@ -159,27 +197,33 @@ object UITestManager {
     private fun openTestProject() {
         remoteRobot.welcomeFrame {
             openProjectLink.click()
+            // It lags before inserting the text for some reason, need to wait
+            Thread.sleep(1000)
             val projectDirectoryInput = textField(byXpath("//div[@class='BorderlessTextField']"))
             projectDirectoryInput.text = tempProject.absolutePath
-            keyboard {
-                enter()
-                Thread.sleep(500)
-                enter()
-            }
+            button("OK").click()
         }
         remoteRobot.idea {
-            waitFor(ofMinutes(1)) {
-                !isDumbMode()
-            }
+            waitForSmartMode()
+        }
+        // Delay to allow idea to start indexing
+        Thread.sleep(7000)
+        remoteRobot.idea {
+            waitForSmartMode()
         }
     }
 
     private fun stopIntellijProcess() {
-        ideaProcess?.destroy()
+        // If it returns, it means that intellij was launched using gradle task
+        ideaProcess?.destroy() ?: return
+        waitFor(ofSeconds(20)) {
+            !isIntellijRunning()
+        }
+        Thread.sleep(500)
         removeIdeaSandbox()
     }
 
-    private fun removeTestProject() {
+    private fun removeTempProject() {
         tempProject.deleteRecursively()
     }
 

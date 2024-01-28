@@ -29,6 +29,14 @@ class IdeaFrame(remoteRobot: RemoteRobot, remoteComponent: RemoteComponent) :
             return@step remoteRobot.find(JMenuBarFixture::class.java, JMenuBarFixture.byType())
         }
 
+    fun waitForSmartMode(timeout: Duration = Duration.ofMinutes(1)) {
+        step("Waiting for smart mode...") {
+            waitFor(duration = timeout, interval = Duration.ofSeconds(5)) {
+                runCatching { !isDumbMode() }.getOrDefault(false)
+            }
+        }
+    }
+
     @JvmOverloads
     fun dumbAware(timeout: Duration = Duration.ofMinutes(5), function: () -> Unit) {
         step("Wait for smart mode") {

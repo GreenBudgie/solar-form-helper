@@ -8,7 +8,7 @@ open class UITestBase {
 
         @JvmStatic
         @BeforeAll
-        fun attachUITestManager() {
+        fun initializeUITestManager() {
             UITestManager.initializeIfNeeded()
         }
 
