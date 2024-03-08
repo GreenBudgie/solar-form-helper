@@ -4,6 +4,7 @@ import com.intellij.json.psi.JsonObject
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.element.creator.FormArrayElementCreator
 import com.solanteq.solar.plugin.element.expression.ExpressionAware
+import com.solanteq.solar.plugin.element.expression.ExpressionAwareImpl
 import com.solanteq.solar.plugin.util.valueAsIntOrNull
 
 /**
@@ -13,8 +14,9 @@ import com.solanteq.solar.plugin.util.valueAsIntOrNull
  * Actually, it can also be "detailed", but it's too rare to implement *right now*.
  */
 class FormGroup(
-    sourceElement: JsonObject
-) : FormLocalizableElement<JsonObject>(sourceElement, sourceElement), ExpressionAware {
+    sourceElement: JsonObject,
+) : FormLocalizableElement<JsonObject>(sourceElement, sourceElement),
+    ExpressionAware by ExpressionAwareImpl(sourceElement) {
 
     override val l10nKeys: List<String> by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val groupName = name ?: return@lazy emptyList()
@@ -46,7 +48,7 @@ class FormGroup(
      * Not null when type is [GroupContentType.INLINE].
      */
     val inline by lazy(LazyThreadSafetyMode.PUBLICATION) {
-       FormInline.createFrom(sourceElement.findProperty("inline"))
+        FormInline.createFrom(sourceElement.findProperty("inline"))
     }
 
     /**
@@ -61,8 +63,6 @@ class FormGroup(
         inline?.let { return@lazy GroupContentType.INLINE }
         return@lazy GroupContentType.INVALID
     }
-
-    override fun getObjectContainingExpressions() = sourceElement
 
     enum class GroupContentType {
 

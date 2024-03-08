@@ -12,6 +12,7 @@ import com.solanteq.solar.plugin.element.base.FormFile
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.element.creator.FormElementCreator
 import com.solanteq.solar.plugin.element.expression.ExpressionAware
+import com.solanteq.solar.plugin.element.expression.ExpressionAwareImpl
 import com.solanteq.solar.plugin.element.expression.FormExpression
 import com.solanteq.solar.plugin.file.RootFormFileType
 import com.solanteq.solar.plugin.reference.form.FormNameReference
@@ -39,8 +40,9 @@ import org.jetbrains.kotlin.idea.base.util.allScope
  */
 class FormRootFile(
     sourceElement: JsonFile,
-    private val topLevelObject: JsonObject
-) : FormLocalizableElement<JsonFile>(sourceElement, topLevelObject), FormFile, ExpressionAware {
+    private val topLevelObject: JsonObject,
+) : FormLocalizableElement<JsonFile>(sourceElement, topLevelObject), FormFile,
+    ExpressionAware by ExpressionAwareImpl(topLevelObject) {
 
     override val containingForm = this
 
@@ -115,11 +117,11 @@ class FormRootFile(
      */
     val allGroups by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val groupRows = groupRows
-        if(groupRows != null) {
+        if (groupRows != null) {
             return@lazy groupRows.flatMap { it.groups ?: emptyList() }
         }
         val groups = groups
-        if(groups != null) {
+        if (groups != null) {
             return@lazy groups
         }
         return@lazy emptyList()
@@ -206,12 +208,12 @@ class FormRootFile(
         dataClassFromSourceRequest?.let { return@lazy it.asList() }
 
         val inlineDataClasses = dataClassesFromInlineRequests
-        if(inlineDataClasses.isNotEmpty()) {
+        if (inlineDataClasses.isNotEmpty()) {
             return@lazy inlineDataClasses
         }
 
         val dataClassesFromListFields = dataClassesFromListFields
-        if(dataClassesFromListFields.isNotEmpty()) {
+        if (dataClassesFromListFields.isNotEmpty()) {
             return@lazy dataClassesFromListFields
         }
 
@@ -228,7 +230,7 @@ class FormRootFile(
             .flatMap {
                 FormPsiUtils.firstParentsOfType(it, JsonObject::class)
             }.mapNotNull {
-               FormField.createFrom(it)
+                FormField.createFrom(it)
             }
         val fieldListElements = fieldElements.filter {
             it.type == "LIST"
@@ -260,8 +262,6 @@ class FormRootFile(
         val expressionsProperty = topLevelObject.findProperty(FormExpression.getArrayName()) ?: return@lazy null
         return@lazy FormExpression.createElementListFrom(expressionsProperty)
     }
-
-    override fun getObjectContainingExpressions() = topLevelObject
 
     private val formReferences by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val containingFile = containingFile ?: return@lazy emptyList()
@@ -306,7 +306,7 @@ class FormRootFile(
 
         override fun doCreate(sourceElement: JsonFile): FormRootFile? {
             val topLevelObject = sourceElement.topLevelValue as? JsonObject ?: return null
-            if(sourceElement.fileType == RootFormFileType) {
+            if (sourceElement.fileType == RootFormFileType) {
                 return FormRootFile(sourceElement, topLevelObject)
             }
             return null

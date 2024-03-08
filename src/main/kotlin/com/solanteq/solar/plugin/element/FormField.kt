@@ -8,6 +8,7 @@ import com.intellij.psi.PsiType
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.element.creator.FormArrayElementCreator
 import com.solanteq.solar.plugin.element.expression.ExpressionAware
+import com.solanteq.solar.plugin.element.expression.ExpressionAwareImpl
 import com.solanteq.solar.plugin.symbol.FormSymbol
 import com.solanteq.solar.plugin.symbol.FormSymbolType
 import com.solanteq.solar.plugin.util.FormPsiUtils
@@ -43,8 +44,9 @@ import com.solanteq.solar.plugin.util.valueAsStringOrNull
  * ```
  */
 class FormField private constructor(
-    sourceElement: JsonObject
-) : FormLocalizableElement<JsonObject>(sourceElement, sourceElement), ExpressionAware {
+    sourceElement: JsonObject,
+) : FormLocalizableElement<JsonObject>(sourceElement, sourceElement),
+    ExpressionAware by ExpressionAwareImpl(sourceElement) {
 
     override val l10nKeys: List<String> by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val containingGroups = containingGroups
@@ -135,7 +137,7 @@ class FormField private constructor(
      */
     val propertyChain by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val stringPropertyChain = fieldNameChain
-        if(stringPropertyChain.isEmpty()) {
+        if (stringPropertyChain.isEmpty()) {
             return@lazy emptyList()
         }
 
@@ -143,7 +145,7 @@ class FormField private constructor(
         var dataClasses: List<PsiClass> = findAllDataClassesFromRequests()
 
         stringPropertyChain.forEach { (textRange, fieldName) ->
-            if(dataClasses.isEmpty()) {
+            if (dataClasses.isEmpty()) {
                 propertyChain += FieldProperty(
                     fieldName,
                     emptyList(),
@@ -155,7 +157,7 @@ class FormField private constructor(
             }
 
             val (containingClass, field) = findClassAndFieldByNameInClasses(dataClasses, fieldName)
-            if(field == null) {
+            if (field == null) {
                 propertyChain += FieldProperty(
                     fieldName,
                     dataClasses,
@@ -169,17 +171,15 @@ class FormField private constructor(
             propertyChain += FieldProperty(fieldName, dataClasses, containingClass, field, null)
 
             val nextDataClass = psiTypeAsPsiClassOrNull(field.type)
-            dataClasses = if(nextDataClass != null) listOf(nextDataClass) else emptyList()
+            dataClasses = if (nextDataClass != null) listOf(nextDataClass) else emptyList()
         }
 
         return@lazy propertyChain.toList()
     }
 
-    override fun getObjectContainingExpressions() = sourceElement
-
     private fun findAllDataClassesFromRequests(): List<PsiClass> {
         val containingRootForm = FormRootFile.createFrom(containingFile)
-        if(containingRootForm != null) {
+        if (containingRootForm != null) {
             return containingRootForm.allDataClassesFromRequests
         }
 
@@ -189,7 +189,10 @@ class FormField private constructor(
         }
     }
 
-    private fun findClassAndFieldByNameInClasses(psiClasses: List<PsiClass>, fieldName: String): Pair<PsiClass?, PsiField?> {
+    private fun findClassAndFieldByNameInClasses(
+        psiClasses: List<PsiClass>,
+        fieldName: String,
+    ): Pair<PsiClass?, PsiField?> {
         psiClasses.forEach { psiClass ->
             psiClass.allFields
                 .find { it.name == fieldName }
@@ -217,7 +220,7 @@ class FormField private constructor(
         val applicableClasses: List<PsiClass>,
         val containingClass: PsiClass?,
         val referencedField: PsiField?,
-        val symbol: FormSymbol?
+        val symbol: FormSymbol?,
     )
 
     companion object : FormArrayElementCreator<FormField>() {

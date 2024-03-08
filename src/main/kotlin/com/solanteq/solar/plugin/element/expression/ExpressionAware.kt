@@ -13,52 +13,31 @@ import com.solanteq.solar.plugin.symbol.FormSymbol
  */
 interface ExpressionAware {
 
-    fun getObjectContainingExpressions(): JsonObject
-
     /**
      * Returns the expression property by the given [type], or null if it is not present.
      */
-    fun getExpressionProperty(type: ExpressionType): JsonProperty? {
-        return getObjectContainingExpressions().findProperty(type.key)
-    }
+    fun getExpressionProperty(type: ExpressionType): JsonProperty?
 
     /**
      * Returns the expression property value by the given [type], or null if it is not present
      */
-    fun getExpressionPropertyValue(type: ExpressionType): JsonStringLiteral? {
-        val expressionProperty = getExpressionProperty(type) ?: return null
-        return expressionProperty.value as? JsonStringLiteral
-    }
+    fun getExpressionPropertyValue(type: ExpressionType): JsonStringLiteral?
 
     /**
      * Returns the expression name by the given [type], or null if it is not present
      */
-    fun getExpressionName(type: ExpressionType): String? {
-        return getExpressionPropertyValue(type)?.value
-    }
-
+    fun getExpressionName(type: ExpressionType): String?
     /**
      * Returns all expressions that were found by the given [type], or an empty list if the declaration
      * of this expression does not exist or no expressions are found
      */
-    fun getExpressions(type: ExpressionType): List<FormExpression> {
-        val expressionSymbols = getExpressionSymbols(type)
-        val expressionDeclarations = expressionSymbols.map { it.element }
-        val expressionObjects = expressionDeclarations.mapNotNull {
-            it.parent?.parent as? JsonObject
-        }
-        return expressionObjects.mapNotNull { FormExpression.createFrom(it) }
-    }
+    fun getExpressions(type: ExpressionType): List<FormExpression>
 
     /**
      * Returns a single expression (the first one if multiple found) that is found by the given [type],
      * or null if the declaration of this expression does not exist or expression is not found
      */
-    fun getExpression(type: ExpressionType): FormExpression? {
-        val expressionSymbol = getExpressionSymbols(type).firstOrNull() ?: return null
-        val expressionObject = expressionSymbol.element.parent?.parent as? JsonObject ?: return null
-        return FormExpression.createFrom(expressionObject)
-    }
+    fun getExpression(type: ExpressionType): FormExpression?
 
     /**
      * `never` is a standard expressions that always has the value `false`. This method does not
@@ -68,23 +47,12 @@ interface ExpressionAware {
      * Use with care: it will return `true` even if there is no `never` expression is set on the form or
      * it has a different value (this should NEVER happen, but who knows...)
      */
-    fun isNeverExpression(type: ExpressionType): Boolean {
-        return getExpressionName(type) == NEVER_EXPRESSION
-    }
+    fun isNeverExpression(type: ExpressionType): Boolean
 
     /**
      * Whether `visibleWhen` expression has `never` value
      */
-    fun isNeverVisible() = isNeverExpression(ExpressionType.VISIBLE_WHEN)
-
-    private fun getExpressionSymbols(type: ExpressionType): List<FormSymbol> {
-        val value = getExpressionPropertyValue(type) ?: return emptyList()
-        val expressionReference = PsiSymbolReferenceService
-            .getService()
-            .getReferences(value)
-            .firstOrNull() as? ExpressionSymbolReference ?: return emptyList()
-        return expressionReference.resolveReference()
-    }
+    fun isNeverVisible(): Boolean
 
     companion object {
 

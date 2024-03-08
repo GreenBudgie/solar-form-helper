@@ -4,14 +4,15 @@ import com.intellij.json.psi.JsonObject
 import com.solanteq.solar.plugin.element.base.AbstractFormElement
 import com.solanteq.solar.plugin.element.creator.FormArrayElementCreator
 import com.solanteq.solar.plugin.element.expression.ExpressionAware
+import com.solanteq.solar.plugin.element.expression.ExpressionAwareImpl
 import com.solanteq.solar.plugin.util.FormPsiUtils
 
 /**
  * A single object inside `rows` array in [FormGroup] element
  */
 class FormRow(
-    sourceElement: JsonObject
-) : AbstractFormElement<JsonObject>(sourceElement), ExpressionAware {
+    sourceElement: JsonObject,
+) : AbstractFormElement<JsonObject>(sourceElement), ExpressionAware by ExpressionAwareImpl(sourceElement) {
 
     /**
      * All groups that contain this row.
@@ -28,8 +29,6 @@ class FormRow(
         val fieldsProperty = sourceElement.findProperty(FormField.getArrayName())
         FormField.createElementListFrom(fieldsProperty)
     }
-
-    override fun getObjectContainingExpressions() = sourceElement
 
     companion object : FormArrayElementCreator<FormRow>() {
 

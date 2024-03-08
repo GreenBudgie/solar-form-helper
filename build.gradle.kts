@@ -77,6 +77,9 @@ tasks {
     }
 
     test {
+        if (System.getProperty("test.ui.exclude") == "true") {
+            exclude("**/ui/**")
+        }
         systemProperty("idea.home.path", "/Users/nbundin/Projects/intellij")
         systemProperty("test.plugin.path", buildDir.resolve("libs/$pluginFileName").absolutePath)
         systemProperty("test.idea.path", buildDir.resolve("ui-test/idea"))
