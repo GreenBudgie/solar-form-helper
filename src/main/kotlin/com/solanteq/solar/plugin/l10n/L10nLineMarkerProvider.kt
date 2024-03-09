@@ -17,6 +17,7 @@ import com.solanteq.solar.plugin.asset.Icons
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.element.creator.FormElementFactory
 import com.solanteq.solar.plugin.util.isForm
+import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.kotlin.idea.codeinsight.utils.findExistingEditor
 import java.awt.event.MouseEvent
 
@@ -70,7 +71,7 @@ class L10nLineMarkerProvider : LineMarkerProvider {
 
         override fun getSourceAndTargetElements(editor: Editor, file: PsiFile): GotoData? {
             val source = formElement.namePropertyValue ?: return null
-            val l10ns = formElement.getL10ns()
+            val l10ns = getDistinctL10ns(formElement.getL10ns())
             val targets = l10ns.map { it.property }
             return GotoData(source, targets.toTypedArray(), emptyList())
         }
@@ -82,6 +83,18 @@ class L10nLineMarkerProvider : LineMarkerProvider {
         override fun getChooserTitle(sourceElement: PsiElement, name: String?, length: Int, finished: Boolean): String {
             sourceElement as JsonStringLiteral
             return "Localizations for ${sourceElement.value} ($length found)"
+        }
+
+        /**
+         * Sometimes there are multiple identical l10ns in libraries (if multiple versions of the same
+         * artifact are present in project). This method will hide these l10ns from libraries, so only
+         * project l10ns remain.
+         */
+        private fun getDistinctL10ns(l10ns: List<L10n>): List<L10n> {
+            val projectScope = formElement.project.projectScope()
+            val (l10nsInProject, l10nsInLibraries) = l10ns.partition { it.file.virtualFile in projectScope }
+            val distinctL10nsInLibraries = l10nsInLibraries.filter { it !in l10nsInProject }
+            return l10nsInProject + distinctL10nsInLibraries
         }
 
     }
