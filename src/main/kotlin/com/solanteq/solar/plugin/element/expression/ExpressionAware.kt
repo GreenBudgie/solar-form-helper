@@ -1,12 +1,8 @@
 package com.solanteq.solar.plugin.element.expression
 
-import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
 import com.intellij.json.psi.JsonStringLiteral
-import com.intellij.model.psi.PsiSymbolReferenceService
 import com.solanteq.solar.plugin.element.base.FormElement
-import com.solanteq.solar.plugin.reference.expression.ExpressionSymbolReference
-import com.solanteq.solar.plugin.symbol.FormSymbol
 
 /**
  * An interface for [FormElement]s that contain properties like `visibleWhen`

@@ -8,12 +8,11 @@ import javax.swing.Icon
 enum class L10nLocale(
     val displayName: String,
     val directoryName: String,
-    val icon: Icon
+    val icon: Icon,
 ) {
 
-    EN("English", "en-US", layeredIcon(Icons.L10N_EN_US)),
-    RU("Русский", "ru-RU", layeredIcon(Icons.L10N_RU_RU));
-
+    EN("EN", "en-US", layeredIcon(Icons.L10N_EN_US)),
+    RU("RU", "ru-RU", layeredIcon(Icons.L10N_RU_RU));
 
     companion object {
 
