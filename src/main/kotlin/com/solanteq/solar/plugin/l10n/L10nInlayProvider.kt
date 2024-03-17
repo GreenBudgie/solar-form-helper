@@ -3,12 +3,14 @@ package com.solanteq.solar.plugin.l10n
 import com.intellij.codeInsight.hints.*
 import com.intellij.codeInsight.hints.presentation.PresentationFactory
 import com.intellij.json.psi.JsonElement
+import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.element.creator.FormElementFactory
+import com.solanteq.solar.plugin.settings.SolarProjectConfiguration
 import com.solanteq.solar.plugin.util.isForm
 import javax.swing.JPanel
 
@@ -54,8 +56,8 @@ class L10nInlayProvider : InlayHintsProvider<NoSettings> {
             if(editor !is EditorImpl) {
                 return
             }
-            //TODO add ru/en selection support
-            val localizationValue = formElement.getL10nValue(L10nLocale.RU) ?: return
+            val locale = service<SolarProjectConfiguration>().state.locale
+            val localizationValue = formElement.getL10nValue(locale) ?: return
             val valueElement = formElement.namePropertyValue ?: return
             val offset = valueElement.textRange.endOffset
 

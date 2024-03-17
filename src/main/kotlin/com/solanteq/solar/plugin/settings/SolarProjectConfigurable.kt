@@ -1,5 +1,7 @@
 package com.solanteq.solar.plugin.settings
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
+import com.intellij.codeInsight.hints.InlayHintsFactory
 import com.intellij.openapi.components.service
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
@@ -15,7 +17,7 @@ class SolarProjectConfigurable(private val project: Project) : Configurable {
     override fun createComponent(): JComponent {
         val configuration = service<SolarProjectConfiguration>()
         return panel {
-            row("Locale:") {
+            row("Form locale:") {
                 localeComponent = comboBox(L10nLocale.entries.map { it.name }).component.apply {
                     selectedItem = configuration.state.locale.name
                 }
@@ -36,6 +38,9 @@ class SolarProjectConfigurable(private val project: Project) : Configurable {
 
         val configuration = service<SolarProjectConfiguration>()
         configuration.state.locale = L10nLocale.valueOf(localeComponent.selectedItem as String)
+
+        InlayHintsFactory.forceHintsUpdateOnNextPass()
+        DaemonCodeAnalyzer.getInstance(project).restart()
     }
 
     override fun getDisplayName() = "Solar Project Settings"

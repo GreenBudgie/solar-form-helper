@@ -133,10 +133,12 @@
                 id="com.solanteq.solar.plugin.settings.SolarProjectConfigurable"
                 displayName="Solar Project Settings"
                 nonDefaultProject="true"/>
+        
+        <iw.actionProvider implementation="com.solanteq.solar.plugin.settings.LocaleActionProvider"/>
 
         <!--
         For now, L10nIndex is disabled as it is unused
-        <fileBasedIndex implementation="com.solanteq.solar.plugin.index.l10n.L10nIndex" />
+        <fileBasedIndex implementation="com.solanteq.solar.plugin.settings.LocaleActionProvider.solanteq.solar.plugin.index.l10n.L10nIndex" />
         -->
         <fileBasedIndex implementation="com.solanteq.solar.plugin.index.l10n.FormL10nIndex"/>
         <fileBasedIndex implementation="com.solanteq.solar.plugin.index.l10n.FormNameL10nShortIndex"/>
