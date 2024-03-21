@@ -1,0 +1,31 @@
+{
+  "module": "test",
+  "name": "testForm",
+  "type": "DATA",
+  "groups": [
+    {
+      "name": "details",
+      "rows": [
+        {
+          "fields": [
+            {
+              "name": "field",
+              "fieldSize": 4,
+              "type": "STRING"
+            },
+            {
+              "name": "field.nested",
+              "fieldSize": 4,
+              "type": "STRING"
+            },
+            {
+              "name": "multipleL10ns",
+              "fieldSize": 4,
+              "type": "STRING"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

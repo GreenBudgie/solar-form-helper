@@ -1,5 +1,7 @@
 package com.solanteq.solar.plugin.l10n
 
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture
+import com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl
 import com.solanteq.solar.plugin.base.LightPluginTestBase
 import com.solanteq.solar.plugin.base.createForm
 import com.solanteq.solar.plugin.base.createFormAndConfigure

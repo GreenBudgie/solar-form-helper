@@ -18,7 +18,7 @@ class L10nRealFieldTest : JavaPluginTestBase() {
             "NestedDataClass.kt",
         )
 
-        fixture.configureByRootForms( "test", "fieldsForm.json")
+        fixture.configureByRootForms("test", "fieldsForm.json")
     }
 
     @Test

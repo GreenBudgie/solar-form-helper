@@ -14,14 +14,16 @@ import com.solanteq.solar.plugin.settings.SolarProjectConfiguration
 import com.solanteq.solar.plugin.util.isForm
 import javax.swing.JPanel
 
-//TODO work in progress
+/**
+ * Provides hits for l10n values at the end of the line for localizable form elements
+ */
 class L10nInlayProvider : InlayHintsProvider<NoSettings> {
 
     override val key = SettingsKey<NoSettings>("solar.l10n.inlayHint")
 
-    override val name = "Localization string"
+    override val name = "Form element localization"
 
-    override val previewText = "TODO"
+    override val previewText = null
 
     override fun createSettings() = NoSettings()
 
@@ -31,7 +33,9 @@ class L10nInlayProvider : InlayHintsProvider<NoSettings> {
         settings: NoSettings,
         sink: InlayHintsSink
     ) : InlayHintsCollector? {
-        if(file.isForm()) return Collector
+        if(file.isForm()) {
+            return Collector
+        }
         return null
     }
 
@@ -57,12 +61,23 @@ class L10nInlayProvider : InlayHintsProvider<NoSettings> {
                 return
             }
             val locale = service<SolarProjectConfiguration>().state.locale
-            val localizationValue = formElement.getL10nValue(locale) ?: return
+            val allL10nValues = formElement.getL10nValues(locale)
+            if (allL10nValues.isEmpty()) {
+                return
+            }
+            val l10nNumber = allL10nValues.size
+            val l10nNumberInfo = if (l10nNumber == 1) {
+                ""
+            } else {
+                " +${l10nNumber - 1}"
+            }
+            val l10nValue = allL10nValues.first()
+            val l10nInfo = l10nValue + l10nNumberInfo
             val valueElement = formElement.namePropertyValue ?: return
             val offset = valueElement.textRange.endOffset
 
             val factory = PresentationFactory(editor)
-            val presentation = factory.smallText(localizationValue)
+            val presentation = factory.roundWithBackground(factory.smallText(l10nInfo))
             sink.addInlineElement(offset, false, presentation, true)
         }
 

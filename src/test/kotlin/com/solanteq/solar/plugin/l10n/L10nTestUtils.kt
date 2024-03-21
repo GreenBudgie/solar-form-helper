@@ -5,6 +5,8 @@ import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 
 object L10nTestUtils {
 
+    private const val L10N_DIRECTORY = "main/resources/config/l10n/"
+
     fun generateL10nFileText(vararg l10ns: Pair<String, String>): String {
         if(l10ns.isEmpty()) error("You need to provide at least one l10n entry")
 
@@ -38,7 +40,7 @@ object L10nTestUtils {
         val directory = locale.directoryName
 
         return fixture.addFileToProject(
-            "main/resources/config/l10n/$directory/$realFileName",
+            "$L10N_DIRECTORY$directory/$realFileName",
             generateL10nFileText(*l10ns)
         )
     }
@@ -52,6 +54,11 @@ object L10nTestUtils {
         val psiL10nFile = createL10nFile(fixture, fileName, *l10ns, locale = locale)
         fixture.configureFromExistingVirtualFile(psiL10nFile.virtualFile)
         return fixture.file
+    }
+
+    fun addL10nFile(fixture: CodeInsightTestFixture, l10nFilePath: String, locale: L10nLocale) {
+        val directory = locale.directoryName
+        fixture.copyFileToProject(l10nFilePath, "$L10N_DIRECTORY$directory/$l10nFilePath")
     }
 
 }
