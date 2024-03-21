@@ -1,0 +1,7 @@
+{
+  "test.form.testForm": "form",
+  "test.form.testForm.details": "group",
+  "test.form.testForm.details.field": "field",
+  "test.form.testForm.details.field.nested": "nested field",
+  "test.form.testForm.details.multipleL10ns": "multiple l10ns"
+}

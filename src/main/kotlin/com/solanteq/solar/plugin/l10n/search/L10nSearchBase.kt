@@ -95,7 +95,7 @@ abstract class L10nSearchBase<T : L10n>(
         }
 
         fun findValues(): List<String> {
-            return mapIndexKeys { FileBasedIndex.getInstance().getValues(indexName, it, scope) }.distinct()
+            return mapIndexKeys { FileBasedIndex.getInstance().getValues(indexName, it, scope) }
         }
 
         fun findFirstValue(): String? {
@@ -138,7 +138,7 @@ abstract class L10nSearchBase<T : L10n>(
                     L10nIndexKey(key, locale)
                 }
             }
-            return indexKeys.flatMap { mapper(it) }.distinct()
+            return indexKeys.flatMap { mapper(it) }
         }
 
         private fun validateHasKey() {
