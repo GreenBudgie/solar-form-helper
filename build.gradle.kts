@@ -1,49 +1,76 @@
+import org.gradle.kotlin.dsl.support.kotlinCompilerOptions
+import org.jetbrains.intellij.platform.gradle.TestFrameworkType
+
 plugins {
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "1.9.0"
-    id("org.jetbrains.intellij") version "1.17.0"
+    kotlin("jvm") version "1.9.25"
+    id("org.jetbrains.intellij.platform") version "2.1.0"
 }
 
 val jUnitVersion = "1.10.0"
-val jupiterVersion = "5.10.0"
+val jupiterVersion = "5.11.0"
 
-val remoteRobotVersion = "0.11.21"
+val remoteRobotVersion = "0.11.23"
 val loggingInterceptorVersion = "4.12.0"
 val mockkVersion = "1.13.9"
 
 group = "com.solanteq.solar.plugin"
 version = "1.0.0-SNAPSHOT"
 
-intellij {
-    version.set("2023.3.2")
-    type.set("IC")
-
-    plugins.set(
-        listOf(
-            "com.intellij.java",
-            "org.jetbrains.kotlin",
-            "org.intellij.plugins.markdown",
-            "com.google.ide-perf:1.3.1"
-        )
-    )
+kotlin {
+    jvmToolchain(17)
 }
 
 repositories {
     mavenCentral()
     maven("https://packages.jetbrains.team/maven/p/ij/intellij-dependencies")
+
+    intellijPlatform {
+        defaultRepositories()
+    }
 }
 
 dependencies {
+    intellijPlatform {
+        intellijIdeaCommunity("2024.2.2")
+        testFramework(TestFrameworkType.Plugin.Java)
+        testFramework(TestFrameworkType.Platform)
+        testFramework(TestFrameworkType.JUnit5)
+
+        plugins(
+            listOf(
+                "com.google.ide-perf:1.3.1"
+            )
+        )
+
+        bundledPlugins(
+            listOf(
+                "com.intellij.java",
+                "org.jetbrains.kotlin",
+                "org.intellij.plugins.markdown"
+            )
+        )
+
+        instrumentationTools()
+        zipSigner()
+    }
+    testImplementation("junit:junit:4.13.2")
+
     testImplementation("org.junit.platform:junit-platform-launcher:$jUnitVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$jupiterVersion")
+    testImplementation("org.junit.vintage:junit-vintage-engine:$jupiterVersion")
 
     testImplementation("com.intellij.remoterobot:remote-robot:$remoteRobotVersion")
     testImplementation("com.intellij.remoterobot:remote-fixtures:$remoteRobotVersion")
     testImplementation("com.intellij.remoterobot:ide-launcher:$remoteRobotVersion")
     testImplementation("com.squareup.okhttp3:logging-interceptor:$loggingInterceptorVersion")
-    testImplementation("io.mockk:mockk:$mockkVersion")
+    testImplementation("io.mockk:mockk:$mockkVersion") {
+        exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core")
+        exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core-jvm")
+        exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-bom")
+    }
 }
 
 tasks.register("cleanAndRunIdeForUiTests") {
@@ -55,25 +82,26 @@ tasks.register("cleanAndRunIdeForUiTests") {
 val pluginFileName = "${rootProject.name}-$version.jar"
 
 tasks {
-    withType<JavaCompile> {
-        sourceCompatibility = "17"
-        targetCompatibility = "17"
-    }
-    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions.jvmTarget = "17"
-    }
+    val runIdeForUiTests by intellijPlatformTesting.runIde.registering {
+        task {
+            jvmArgumentProviders += CommandLineArgumentProvider {
+                listOf(
+                    "-Drobot-server.port=8082",
+                    "-Dide.mac.file.chooser.native=false",
+                    "-Didea.trust.all.projects=true",
+                    "-Dide.mac.message.dialogs.as.sheets=false",
+                    "-Djb.privacy.policy.text=<!--999.999-->",
+                    "-Djb.consents.confirmation.enabled=false",
+                    "-Dide.show.tips.on.startup.default.value=false",
+                    "-DjbScreenMenuBar.enabled=false",
+                    "-Dapple.laf.useScreenMenuBar=false"
+                )
+            }
+        }
 
-    downloadRobotServerPlugin {
-        version.set(remoteRobotVersion)
-    }
-
-    runIdeForUiTests {
-        systemProperty("robot-server.port", "8082")
-        systemProperty("ide.mac.file.chooser.native", false)
-        systemProperty("idea.trust.all.projects", true)
-        systemProperty("ide.show.tips.on.startup.default.value", false)
-        systemProperty("jbScreenMenuBar.enabled", false)
-        systemProperty("apple.laf.useScreenMenuBar", false)
+        plugins {
+            robotServerPlugin()
+        }
     }
 
     test {
@@ -90,7 +118,7 @@ tasks {
     }
 
     patchPluginXml {
-        sinceBuild.set("233") //2023.3.*
+        sinceBuild.set("242")
     }
 
     signPlugin {

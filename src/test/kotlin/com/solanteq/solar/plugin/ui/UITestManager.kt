@@ -148,30 +148,13 @@ object UITestManager {
 
         LOG.info("Downloading IDE")
         Files.createDirectories(ideaAppPath)
-        val pathToIde = ideDownloaderSpy.downloadAndExtract(
+
+        ideDownloaderSpy.downloadAndExtract(
             Ide.IDEA_COMMUNITY,
             ideaAppPath,
             Ide.BuildType.RELEASE,
-            version = "2023.3.2"
+            version = "2024.2.2" //TODO set from system property
         )
-
-        LOG.info("Fixing vmoptions files")
-        val ideBinDir = pathToIde.resolve(
-            when (Os.hostOS()) {
-                Os.MAC -> "Contents/bin"
-                else -> "bin"
-            }
-        )
-        Files
-            .list(ideBinDir)
-            .filter {
-                val fileName = it.fileName.toString()
-                fileName.endsWith(".vmoptions") && fileName != "idea.vmoptions"
-            }
-            .forEach {
-                LOG.info("Deleting problematic file $it")
-                Files.delete(it)
-            }
         ideDownloaderSpy.downloadRobotPlugin(ideaAppPath, remoteRobotVersion)
     }
 
