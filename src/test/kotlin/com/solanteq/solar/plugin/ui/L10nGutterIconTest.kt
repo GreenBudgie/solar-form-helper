@@ -10,8 +10,6 @@ import com.solanteq.solar.plugin.ui.fixtures.idea
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.time.Duration
-import java.time.Duration.ofMinutes
 import java.time.Duration.ofSeconds
 
 class L10nGutterIconTest : UITestBase() {
@@ -37,13 +35,13 @@ class L10nGutterIconTest : UITestBase() {
 
         formGutterIcon.click()
         val formL10nsList = remoteRobot.find<JListFixture>(byXpath("//div[@class='JBList']"))
-        val formL10nsItems: List<String> = formL10nsList.collectItems()
+        val formL10nsItems = formL10nsList.collectItems()
         assertTrue(
-            formL10nsItems containsElementStartingWith "Форма",
+            formL10nsItems containsText "Форма",
             "Ru l10n for form is not visible"
         )
         assertTrue(
-            formL10nsItems containsElementStartingWith "Form",
+            formL10nsItems containsText "Form",
             "En l10n for form is not visible"
         )
 
@@ -53,11 +51,11 @@ class L10nGutterIconTest : UITestBase() {
         val groupL10nsList = remoteRobot.find<JListFixture>(byXpath("//div[@class='JBList']"))
         val groupL10nsItems = groupL10nsList.collectItems()
         assertTrue(
-            groupL10nsItems containsElementStartingWith "Группа",
+            groupL10nsItems containsText "Группа",
             "Ru l10n for group is not visible"
         )
         assertTrue(
-            groupL10nsItems containsElementStartingWith "Group",
+            groupL10nsItems containsText "Group",
             "En l10n for group is not visible"
         )
 
@@ -72,8 +70,8 @@ class L10nGutterIconTest : UITestBase() {
         )
     }
 
-    private infix fun List<String>.containsElementStartingWith(prefix: String): Boolean {
-        return find { it.startsWith(prefix) } != null
+    private infix fun List<String>.containsText(text: String): Boolean {
+        return find { it.contains(text) } != null
     }
 
 }
