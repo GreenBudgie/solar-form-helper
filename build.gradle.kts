@@ -73,6 +73,21 @@ dependencies {
     }
 }
 
+intellijPlatform {
+    pluginConfiguration {
+        ideaVersion {
+            sinceBuild = "242"
+            untilBuild = "242.*"
+        }
+    }
+
+    pluginVerification {
+        ides {
+            recommended()
+        }
+    }
+}
+
 tasks.register("cleanAndRunIdeForUiTests") {
     finalizedBy("runIdeForUiTests")
     delete(layout.buildDirectory.dir("idea-sandbox/config-uiTest"))
@@ -120,10 +135,6 @@ tasks {
 
         systemProperty("remote.robot.version", remoteRobotVersion)
         useJUnitPlatform()
-    }
-
-    patchPluginXml {
-        sinceBuild.set("242")
     }
 
     signPlugin {
