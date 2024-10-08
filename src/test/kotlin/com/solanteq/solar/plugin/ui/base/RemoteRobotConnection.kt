@@ -1,4 +1,4 @@
-package com.solanteq.solar.plugin.ui
+package com.solanteq.solar.plugin.ui.base
 
 import com.intellij.remoterobot.RemoteRobot
 

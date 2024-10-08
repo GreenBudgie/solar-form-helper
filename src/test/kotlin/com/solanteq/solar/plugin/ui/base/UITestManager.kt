@@ -1,4 +1,4 @@
-package com.solanteq.solar.plugin.ui
+package com.solanteq.solar.plugin.ui.base
 
 import com.google.gson.JsonParser
 import com.intellij.openapi.diagnostic.logger
@@ -8,7 +8,6 @@ import com.intellij.remoterobot.launcher.IdeDownloader
 import com.intellij.remoterobot.launcher.IdeLauncher.launchIde
 import com.intellij.remoterobot.launcher.Os
 import com.intellij.remoterobot.search.locators.byXpath
-import com.intellij.remoterobot.utils.keyboard
 import com.intellij.remoterobot.utils.waitFor
 import com.intellij.remoterobot.utils.waitForIgnoringError
 import com.intellij.util.io.createDirectories
