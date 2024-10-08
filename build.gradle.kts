@@ -1,4 +1,3 @@
-import org.gradle.kotlin.dsl.support.kotlinCompilerOptions
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 plugins {
@@ -108,11 +107,16 @@ tasks {
         if (System.getProperty("test.ui.exclude") == "true") {
             exclude("**/ui/**")
         }
+
+        fun buildDirPath(relativePath: String) = layout.buildDirectory.dir(relativePath).get().asFile.absolutePath
+
         systemProperty("idea.home.path", "/Users/nbundin/Projects/intellij")
-        systemProperty("test.plugin.path", buildDir.resolve("libs/$pluginFileName").absolutePath)
-        systemProperty("test.idea.path", buildDir.resolve("ui-test/idea"))
-        systemProperty("test.idea.sandbox.path", buildDir.resolve("ui-test/idea-sandbox"))
-        systemProperty("test.project.path", buildDir.resolve("ui-test/project"))
+
+        systemProperty("test.plugin.path", buildDirPath("libs/$pluginFileName"))
+        systemProperty("test.idea.path", buildDirPath("ui-test/idea"))
+        systemProperty("test.idea.sandbox.path", buildDirPath("ui-test/idea-sandbox"))
+        systemProperty("test.project.path", buildDirPath("ui-test/project"))
+
         systemProperty("remote.robot.version", remoteRobotVersion)
         useJUnitPlatform()
     }

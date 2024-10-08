@@ -6,6 +6,8 @@ import com.intellij.remoterobot.fixtures.TextEditorFixture
 import com.intellij.remoterobot.search.locators.byXpath
 import com.intellij.remoterobot.utils.keyboard
 import com.intellij.remoterobot.utils.repeatInTime
+import com.solanteq.solar.plugin.ui.base.UITestBase
+import com.solanteq.solar.plugin.ui.base.remoteRobot
 import com.solanteq.solar.plugin.ui.fixtures.idea
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -20,13 +22,14 @@ class L10nGutterIconTest : UITestBase() {
             openFile("src/main/resources/config/forms/gutterIcon/gutterIconTestForm.json")
         }
         val textEditor = remoteRobot.find<TextEditorFixture>(TextEditorFixture.locator, ofSeconds(10))
+        val expectedNumberOfGutterIcons = 3
         var gutterIcons: List<GutterIcon> = emptyList()
         repeatInTime(ofSeconds(30)) {
             gutterIcons = textEditor.gutter.getIcons()
-            gutterIcons.isNotEmpty()
+            gutterIcons.size == expectedNumberOfGutterIcons
         }
 
-        assertEquals(3, gutterIcons.size, "Incorrect number of gutter icons is visible")
+        assertEquals(expectedNumberOfGutterIcons, gutterIcons.size, "Incorrect number of gutter icons is visible")
 
         gutterIcons = gutterIcons.sortedBy { it.lineNumber }
         val formGutterIcon = gutterIcons[0]
