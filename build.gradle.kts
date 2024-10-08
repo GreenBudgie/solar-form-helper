@@ -126,7 +126,7 @@ tasks {
 
         fun buildDirPath(relativePath: String) = layout.buildDirectory.dir(relativePath).get().asFile.absolutePath
 
-        systemProperty("idea.home.path", "/Users/nbundin/Projects/intellij")
+//      TODO do not forget to remove: systemProperty("idea.home.path", "/Users/nbundin/Projects/intellij")
 
         systemProperty("test.plugin.path", buildDirPath("libs/$pluginFileName"))
         systemProperty("test.idea.path", buildDirPath("ui-test/idea"))
