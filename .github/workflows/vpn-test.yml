@@ -5,6 +5,7 @@ on: workflow_dispatch
 jobs:
   connect-open-vpn:
     runs-on: ubuntu-latest
+    environment: Test
     steps:
       - uses: actions/checkout@v2
       - name: Install Open VPN
