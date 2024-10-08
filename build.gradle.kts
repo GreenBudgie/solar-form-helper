@@ -17,7 +17,7 @@ group = "com.solanteq.solar.plugin"
 version = "1.0.0-SNAPSHOT"
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
 
 repositories {
@@ -51,6 +51,7 @@ dependencies {
         )
 
         instrumentationTools()
+        pluginVerifier()
         zipSigner()
     }
     testImplementation("junit:junit:4.13.2")
