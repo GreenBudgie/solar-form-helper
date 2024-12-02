@@ -1,5 +1,6 @@
 package com.solanteq.solar.plugin.l10n
 
+import com.intellij.json.psi.JsonFile
 import com.intellij.psi.PsiFile
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 
@@ -8,7 +9,9 @@ object L10nTestUtils {
     private const val L10N_DIRECTORY = "main/resources/config/l10n/"
 
     fun generateL10nFileText(vararg l10ns: Pair<String, String>): String {
-        if(l10ns.isEmpty()) error("You need to provide at least one l10n entry")
+        if(l10ns.isEmpty()) {
+            return "{\n}"
+        }
 
         val l10nJsonEntries = l10ns.joinToString() { (l10nKey, l10nValue) ->
             "\"$l10nKey\": \"$l10nValue\",\n"
@@ -33,16 +36,14 @@ object L10nTestUtils {
         fileName: String,
         vararg l10ns: Pair<String, String>,
         locale: L10nLocale = L10nLocale.RU
-    ): PsiFile {
-        if(l10ns.isEmpty()) error("You need to provide at least one l10n entry")
-
+    ): JsonFile {
         val realFileName = "$fileName.json"
         val directory = locale.directoryName
 
         return fixture.addFileToProject(
             "$L10N_DIRECTORY$directory/$realFileName",
             generateL10nFileText(*l10ns)
-        )
+        ) as JsonFile
     }
 
     fun createL10nFileAndConfigure(
@@ -50,10 +51,10 @@ object L10nTestUtils {
         fileName: String,
         vararg l10ns: Pair<String, String>,
         locale: L10nLocale = L10nLocale.RU
-    ): PsiFile {
+    ): JsonFile {
         val psiL10nFile = createL10nFile(fixture, fileName, *l10ns, locale = locale)
         fixture.configureFromExistingVirtualFile(psiL10nFile.virtualFile)
-        return fixture.file
+        return fixture.file as JsonFile
     }
 
     fun addL10nFile(fixture: CodeInsightTestFixture, l10nFilePath: String, locale: L10nLocale) {

@@ -11,8 +11,8 @@ enum class L10nLocale(
     val icon: Icon,
 ) {
 
-    EN("EN", "en-US", layeredIcon(Icons.L10N_EN_US)),
-    RU("RU", "ru-RU", layeredIcon(Icons.L10N_RU_RU));
+    EN("en-US", "en-US", layeredIcon(Icons.L10N_EN_US)),
+    RU("ru-RU", "ru-RU", layeredIcon(Icons.L10N_RU_RU));
 
     companion object {
 

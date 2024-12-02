@@ -12,10 +12,6 @@ import com.intellij.psi.PsiDocumentManager
 import com.solanteq.solar.plugin.l10n.L10nLocale
 import com.solanteq.solar.plugin.util.isForm
 
-/**
- * @author nbundin
- * @since %CURRENT_VERSION%
- */
 class LocaleToggleAction : DumbAwareToggleAction() {
 
     override fun getActionUpdateThread() = ActionUpdateThread.BGT
