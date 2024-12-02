@@ -143,6 +143,11 @@
         <fileBasedIndex implementation="com.solanteq.solar.plugin.index.l10n.FormL10nIndex"/>
         <fileBasedIndex implementation="com.solanteq.solar.plugin.index.l10n.FormNameL10nShortIndex"/>
 
+        <intentionAction>
+            <language>JSON</language>
+            <className>com.solanteq.solar.plugin.l10n.action.CreateFormL10nAction</className>
+        </intentionAction>
+
         <!-- UI -->
         <fileEditorProvider implementation="com.solanteq.solar.plugin.ui.editor.FormEditorProvider"/>
     </extensions>

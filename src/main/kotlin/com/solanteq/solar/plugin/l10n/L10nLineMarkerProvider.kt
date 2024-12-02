@@ -4,6 +4,7 @@ import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.daemon.LineMarkerInfo
 import com.intellij.codeInsight.daemon.LineMarkerProvider
 import com.intellij.codeInsight.navigation.GotoTargetHandler
+import com.intellij.codeInsight.navigation.GotoTargetHandler.AdditionalAction
 import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.editor.Editor
@@ -16,10 +17,13 @@ import com.intellij.ui.awt.RelativePoint
 import com.solanteq.solar.plugin.asset.Icons
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.element.creator.FormElementFactory
+import com.solanteq.solar.plugin.l10n.action.CreateFormL10nAction
+import com.solanteq.solar.plugin.util.asList
 import com.solanteq.solar.plugin.util.isForm
 import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.kotlin.idea.codeinsight.utils.findExistingEditor
 import java.awt.event.MouseEvent
+import javax.swing.Icon
 
 class L10nLineMarkerProvider : LineMarkerProvider {
 
@@ -73,7 +77,12 @@ class L10nLineMarkerProvider : LineMarkerProvider {
             val source = formElement.namePropertyValue ?: return null
             val l10ns = getDistinctL10ns(formElement.getL10ns())
             val targets = l10ns.map { it.property }
-            return GotoData(source, targets.toTypedArray(), emptyList())
+            val createL10nAdditionalAction = AddL10nAdditionalAction(
+                formElement.project,
+                editor,
+                formElement.sourceElement
+            )
+            return GotoData(source, targets.toTypedArray(), createL10nAdditionalAction.asList())
         }
 
         override fun getNotFoundMessage(project: Project, editor: Editor, file: PsiFile): String {
@@ -95,6 +104,25 @@ class L10nLineMarkerProvider : LineMarkerProvider {
             val (l10nsInProject, l10nsInLibraries) = l10ns.partition { it.file.virtualFile in projectScope }
             val distinctL10nsInLibraries = l10nsInLibraries.filter { it !in l10nsInProject }
             return l10nsInProject + distinctL10nsInLibraries
+        }
+
+    }
+
+    private class AddL10nAdditionalAction(
+        private val project: Project,
+        private val editor: Editor,
+        private val element: JsonElement,
+    ) : AdditionalAction {
+
+        override fun getText() = "Add Localization"
+
+        override fun getIcon() = Icons.NEW_L10N_ACTION
+
+        override fun execute() {
+            val action = CreateFormL10nAction()
+            if (action.isAvailable(project, editor, element)) {
+                action.invoke(project, editor, element)
+            }
         }
 
     }
