@@ -2,7 +2,8 @@ package com.solanteq.solar.plugin.move
 
 import com.solanteq.solar.plugin.base.LightPluginTestBase
 import com.solanteq.solar.plugin.base.createForm
-import com.solanteq.solar.plugin.l10n.L10nTestUtils
+import com.solanteq.solar.plugin.l10n.createL10nFile
+import com.solanteq.solar.plugin.l10n.generateL10nFileText
 import org.jetbrains.kotlin.idea.core.util.toPsiDirectory
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -43,11 +44,11 @@ class RootFormMoveTest : LightPluginTestBase() {
 
     @Test
     fun `test update references to module from l10n files on root form move`() = with(fixture) {
-        val textAfter = L10nTestUtils.generateL10nFileText(
+        val textAfter = generateL10nFileText(
             "test2.form.testForm.randomText" to "Test l10n"
         )
 
-        val l10nFile = L10nTestUtils.createL10nFile(fixture, "l10n",
+        val l10nFile = createL10nFile("l10n",
             "test.form.testForm.randomText" to "Test l10n"
         )
         val formToMove = createForm("testForm", "test", "{}")

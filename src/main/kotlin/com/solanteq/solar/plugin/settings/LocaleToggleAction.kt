@@ -1,6 +1,5 @@
 package com.solanteq.solar.plugin.settings
 
-import com.intellij.codeInsight.actions.ReaderModeSettings
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.codeInsight.hints.InlayHintsFactory
 import com.intellij.openapi.actionSystem.ActionUpdateThread

@@ -30,8 +30,8 @@ fun generateL10nFileText(vararg l10ns: Pair<String, String>): String {
  */
 fun CodeInsightTestFixture.createL10nFile(
     fileName: String,
-    locale: L10nLocale = L10nLocale.RU,
     text: String,
+    locale: L10nLocale = L10nLocale.RU,
 ): JsonFile {
     return addL10nFileToProject(
         fileName,
@@ -39,6 +39,17 @@ fun CodeInsightTestFixture.createL10nFile(
         text
     )
 }
+
+fun CodeInsightTestFixture.createL10nFileAndConfigure(
+    fileName: String,
+    text: String,
+    locale: L10nLocale = L10nLocale.RU,
+): JsonFile {
+    val psiL10nFile = createL10nFile(fileName, text, locale)
+    configureFromExistingVirtualFile(psiL10nFile.virtualFile)
+    return file as JsonFile
+}
+
 
 /**
  * Creates a new localization file with specified l10n entries and places it into a proper directory
