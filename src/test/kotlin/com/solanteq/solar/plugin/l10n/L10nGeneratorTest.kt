@@ -7,12 +7,12 @@ import org.junit.jupiter.api.Test
 class L10nGeneratorTest : LightPluginTestBase() {
 
     @Test
-    fun `basic test`() = with(fixture) {
-        val file = L10nTestUtils.createL10nFileAndConfigure(this, "l10n", "test1" to "test1")
+    fun `generate l10n - empty file`() = with(fixture) {
+        val file = createL10nFileAndConfigure("l10n", "test1" to "test1")
 
         L10nGenerator.generateL10n(
-            "test_key",
-            "\"test value\"",
+            key = "test_key",
+            value = "\"test value\"",
             file
         )
     }

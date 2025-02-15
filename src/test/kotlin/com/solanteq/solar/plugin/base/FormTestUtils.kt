@@ -149,18 +149,11 @@ fun CodeInsightTestFixture.configureByIncludedForms(relativePath: String, vararg
 }
 
 /**
- * Creates a new form file and opens it in the editor with the specified text.
- *
- * Caution: this method only imitates form file behavior,
- * but actually it is stored in aaa.json file in root directory.
- * For example, references to this form will not work.
- * For many purposes it is better to use [createFormAndConfigure] because it
- * will be placed into correct directory.
+ * Creates a new form file with name "testForm", places it into "testModule" module and configures it.
  */
 fun CodeInsightTestFixture.configureByFormText(text: String): JsonFile {
     return createFormAndConfigure("testForm", "testModule", text)
 }
-
 
 fun CodeInsightTestFixture.renameFormSymbolDeclaration(
     declarationProvider: PsiSymbolDeclarationProvider,
@@ -169,7 +162,6 @@ fun CodeInsightTestFixture.renameFormSymbolDeclaration(
     val symbol = getFormSymbolAtCaret(declarationProvider)
     renameTarget(symbol, renameTo)
 }
-
 
 fun CodeInsightTestFixture.getFormSymbolAtCaret(
     declarationProvider: PsiSymbolDeclarationProvider

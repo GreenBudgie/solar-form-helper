@@ -4,7 +4,7 @@ import com.intellij.codeInsight.hints.InlineInlayRenderer
 import com.intellij.openapi.editor.Inlay
 import com.solanteq.solar.plugin.base.LightPluginTestBase
 import com.solanteq.solar.plugin.base.configureByRootForms
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class L10nInlayProviderTest : LightPluginTestBase() {
@@ -13,8 +13,8 @@ class L10nInlayProviderTest : LightPluginTestBase() {
 
     @Test
     fun `test l10n inlay hints`() = with(fixture) {
-        L10nTestUtils.addL10nFile(this, "l10n.json", L10nLocale.EN)
-        L10nTestUtils.addL10nFile(this, "l10n2.json", L10nLocale.EN)
+        addL10nFile("l10n.json", L10nLocale.EN)
+        addL10nFile("l10n2.json", L10nLocale.EN)
         val formFile = configureByRootForms("test", "form.json")
 
         doHighlighting()

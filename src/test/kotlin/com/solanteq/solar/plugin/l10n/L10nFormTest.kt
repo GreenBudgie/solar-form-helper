@@ -12,7 +12,8 @@ class L10nFormTest : LightPluginTestBase() {
     fun `test l10n reference to form`() = with(fixture) {
         configureByRootForms("test", "testForm1.json")
 
-        L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
+        createL10nFileAndConfigure(
+            "l10n",
             "test.form.<caret>testForm1.randomText" to "Form Name!"
         )
 
@@ -21,14 +22,16 @@ class L10nFormTest : LightPluginTestBase() {
 
     @Test
     fun `test l10n form completion`() = with(fixture) {
-        configureByRootForms("test",
+        configureByRootForms(
+            "test",
             "testForm1.json",
             "testForm2.json"
         )
 
         createForm("confusingForm", "notTest", "{}")
 
-        L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
+        createL10nFileAndConfigure(
+            "l10n",
             "test.form.<caret>" to "Form Name!"
         )
 
@@ -39,7 +42,8 @@ class L10nFormTest : LightPluginTestBase() {
     fun `test l10n form rename`() = with(fixture) {
         configureByRootForms("test", "testForm1.json")
 
-        L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
+        createL10nFileAndConfigure(
+            "l10n",
             "test.form.<caret>testForm1" to "Form Name!"
         )
 
@@ -50,11 +54,13 @@ class L10nFormTest : LightPluginTestBase() {
     @Test
     fun `test l10n line marker for form`() = with(fixture) {
         configureByRootForms("test", "testForm1.json")
-        L10nTestUtils.createL10nFile(fixture, "l10n",
+        createL10nFile(
+            "l10n",
             "test.form.testForm1" to "Form Name!",
             locale = L10nLocale.RU
         )
-        L10nTestUtils.createL10nFile(fixture, "l10n",
+        createL10nFile(
+            "l10n",
             "test.form.testForm1" to "Form Name!",
             locale = L10nLocale.EN
         )

@@ -17,7 +17,7 @@ class L10nGroupTest : LightPluginTestBase() {
     fun `test l10n reference to group`() = with(fixture) {
         configureByRootForms("test", "testForm1.json")
 
-        L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
+        createL10nFileAndConfigure("l10n",
             "test.form.testForm1.<caret>group1.randomText" to "Group Name!"
         )
 
@@ -28,7 +28,7 @@ class L10nGroupTest : LightPluginTestBase() {
     fun `test l10n group completion`() = with(fixture) {
         configureByRootForms("test","testForm1.json")
 
-        L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
+        createL10nFileAndConfigure("l10n",
             "test.form.testForm1.<caret>" to "Group Name!"
         )
 
@@ -49,7 +49,7 @@ class L10nGroupTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
+        createL10nFileAndConfigure("l10n",
             "test.form.testForm.<caret>group1" to "Group Name!"
         )
 
@@ -83,11 +83,11 @@ class L10nGroupTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        val l10nFile = L10nTestUtils.createL10nFile(fixture, "l10n",
+        val l10nFile = createL10nFile("l10n",
             "test.form.testForm.group1" to "Group Name!"
         )
 
-        val expectedL10nText = L10nTestUtils.generateL10nFileText(
+        val expectedL10nText = generateL10nFileText(
             "test.form.testForm.renamed" to "Group Name!"
         )
 
@@ -116,7 +116,7 @@ class L10nGroupTest : LightPluginTestBase() {
             ]
         """.trimIndent())
 
-        L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
+        createL10nFileAndConfigure("l10n",
             "test.form.rootForm.<caret>groupName" to "Group name"
         )
 
@@ -148,11 +148,11 @@ class L10nGroupTest : LightPluginTestBase() {
 
         val form = createIncludedForm("includedForm", "test", formTextBefore)
 
-        val l10nTextAfter = L10nTestUtils.generateL10nFileText(
+        val l10nTextAfter = generateL10nFileText(
             "test.form.rootForm.renamed" to "Group name"
         )
 
-        val l10n = L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
+        val l10n = createL10nFileAndConfigure("l10n",
             "test.form.rootForm.<caret>groupName" to "Group name"
         )
 
@@ -165,12 +165,12 @@ class L10nGroupTest : LightPluginTestBase() {
     fun `test find usages in project scope`() = with(fixture) {
         configureByRootForms("test", "testForm1.json")
 
-        L10nTestUtils.createL10nFile(fixture, "l10n_2",
+        createL10nFile("l10n_2",
             "test.form.testForm1.group1" to "Group Name22!",
             "test.form.testForm1.group1.randomText3" to "Group Name!",
         )
 
-        L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
+        createL10nFileAndConfigure("l10n",
             "test.form.testForm1.<caret>group1.randomText" to "Group Name!",
         )
 
@@ -189,12 +189,12 @@ class L10nGroupTest : LightPluginTestBase() {
     fun `test find usages in l10n file scope`() = with(fixture) {
         configureByRootForms("test", "testForm1.json")
 
-        L10nTestUtils.createL10nFile(fixture, "l10n_2",
+        createL10nFile("l10n_2",
             "test.form.testForm1.group" to "Group Name22!",
             "test.form.testForm1.group.text" to "Group Name22!",
         )
 
-        val file = L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
+        val file = createL10nFileAndConfigure("l10n",
             "test.form.testForm1.<caret>group1.randomText" to "Group Name!",
             "test.form.testForm1.group1.randomText2" to "Group Name!",
         )
@@ -212,11 +212,11 @@ class L10nGroupTest : LightPluginTestBase() {
     @Test
     fun `test l10n line marker for groups`() = with(fixture) {
         configureByRootForms("test", "testForm1.json")
-        L10nTestUtils.createL10nFile(fixture, "l10n",
+        createL10nFile("l10n",
             "test.form.testForm1.group2" to "Group Name!",
             locale = L10nLocale.RU
         )
-        L10nTestUtils.createL10nFile(fixture, "l10n",
+        createL10nFile("l10n",
             "test.form.testForm1.group1" to "Group Name!",
             locale = L10nLocale.EN
         )
