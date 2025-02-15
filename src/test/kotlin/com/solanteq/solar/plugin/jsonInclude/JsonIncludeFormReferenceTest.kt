@@ -1,6 +1,7 @@
 package com.solanteq.solar.plugin.jsonInclude
 
 import com.solanteq.solar.plugin.base.LightPluginTestBase
+import com.solanteq.solar.plugin.base.assertReferencedElementNameEquals
 import com.solanteq.solar.plugin.base.createFormAndConfigure
 import com.solanteq.solar.plugin.base.createIncludedForm
 import org.junit.jupiter.api.Test
@@ -16,9 +17,9 @@ class JsonIncludeFormReferenceTest : LightPluginTestBase() {
         "json-flat",
         "json-flat?",
     ])
-    fun `test reference to included form`(prefix: String) {
-        fixture.createIncludedForm("includedForm", "test", "{}")
-        fixture.createFormAndConfigure("form", "module", """
+    fun `test reference to included form`(prefix: String) = with(fixture) {
+        createIncludedForm("includedForm", "test", "{}")
+        createFormAndConfigure("form", "module", """
             {
                 "$prefix://includes/forms/test/<caret>includedForm.json"
             }
@@ -29,9 +30,9 @@ class JsonIncludeFormReferenceTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test reference to included form with non convenient path`() {
-        fixture.createIncludedForm("includedForm", "dir1/dir2", "{}")
-        fixture.createFormAndConfigure("form", "module", """
+    fun `test reference to included form with non convenient path`() = with(fixture) {
+        createIncludedForm("includedForm", "dir1/dir2", "{}")
+        createFormAndConfigure("form", "module", """
             {
                 "json://includes/forms/dir1/dir2/<caret>includedForm.json"
             }
@@ -42,9 +43,9 @@ class JsonIncludeFormReferenceTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test reference to included form with empty path`() {
-        fixture.createIncludedForm("includedForm", "", "{}")
-        fixture.createFormAndConfigure("form", "module", """
+    fun `test reference to included form with empty path`() = with(fixture) {
+        createIncludedForm("includedForm", "", "{}")
+        createFormAndConfigure("form", "module", """
             {
                 "json://includes/forms/<caret>includedForm.json"
             }

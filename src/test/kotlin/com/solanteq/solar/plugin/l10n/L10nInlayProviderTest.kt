@@ -12,14 +12,14 @@ class L10nInlayProviderTest : LightPluginTestBase() {
     override fun getTestDataSuffix() = "l10n/inlay"
 
     @Test
-    fun testL10nInlayHints() {
-        L10nTestUtils.addL10nFile(fixture, "l10n.json", L10nLocale.EN)
-        L10nTestUtils.addL10nFile(fixture, "l10n2.json", L10nLocale.EN)
-        val formFile = fixture.configureByRootForms("test", "form.json")
+    fun `test l10n inlay hints`() = with(fixture) {
+        L10nTestUtils.addL10nFile(this, "l10n.json", L10nLocale.EN)
+        L10nTestUtils.addL10nFile(this, "l10n2.json", L10nLocale.EN)
+        val formFile = configureByRootForms("test", "form.json")
 
-        fixture.doHighlighting()
+        doHighlighting()
 
-        val inlays = fixture.editor.inlayModel.getAfterLineEndElementsInRange(0, formFile.textLength)
+        val inlays = editor.inlayModel.getAfterLineEndElementsInRange(0, formFile.textLength)
         assertEquals(5, inlays.size)
         assertInlayTextEquals(inlays[0], "form")
         assertInlayTextEquals(inlays[1], "group")

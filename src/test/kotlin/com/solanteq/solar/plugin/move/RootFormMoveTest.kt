@@ -11,7 +11,7 @@ import org.junit.jupiter.api.assertDoesNotThrow
 class RootFormMoveTest : LightPluginTestBase() {
 
     @Test
-    fun `test rename top level module property on move`() {
+    fun `test rename top level module property on move`() = with(fixture) {
         val textBefore = """
             {"module": "test"}
         """.trimIndent()
@@ -19,14 +19,14 @@ class RootFormMoveTest : LightPluginTestBase() {
             {"module": "test2"}
         """.trimIndent()
 
-        val form = fixture.createForm("test", "test", textBefore)
+        val form = createForm("test", "test", textBefore)
         MoveTestUtils.moveRootForm(fixture, form, "test2")
 
         Assertions.assertEquals(textAfter, form.text)
     }
 
     @Test
-    fun `test update references to module from other forms on root form move`() {
+    fun `test update references to module from other forms on root form move`() = with(fixture) {
         val textBefore = """
             {"form": "test.testForm"}
         """.trimIndent()
@@ -34,15 +34,15 @@ class RootFormMoveTest : LightPluginTestBase() {
             {"form": "test2.testForm"}
         """.trimIndent()
 
-        val form = fixture.createForm("references", "test", textBefore)
-        val formToMove = fixture.createForm("testForm", "test", "{}")
+        val form = createForm("references", "test", textBefore)
+        val formToMove = createForm("testForm", "test", "{}")
         MoveTestUtils.moveRootForm(fixture, formToMove, "test2")
 
         Assertions.assertEquals(textAfter, form.text)
     }
 
     @Test
-    fun `test update references to module from l10n files on root form move`() {
+    fun `test update references to module from l10n files on root form move`() = with(fixture) {
         val textAfter = L10nTestUtils.generateL10nFileText(
             "test2.form.testForm.randomText" to "Test l10n"
         )
@@ -50,14 +50,14 @@ class RootFormMoveTest : LightPluginTestBase() {
         val l10nFile = L10nTestUtils.createL10nFile(fixture, "l10n",
             "test.form.testForm.randomText" to "Test l10n"
         )
-        val formToMove = fixture.createForm("testForm", "test", "{}")
+        val formToMove = createForm("testForm", "test", "{}")
         MoveTestUtils.moveRootForm(fixture, formToMove, "test2")
 
         Assertions.assertEquals(textAfter, l10nFile.text)
     }
 
     @Test
-    fun `test move module to incorrect location does not throw and no changes are made`() {
+    fun `test move module to incorrect location does not throw and no changes are made`() = with(fixture) {
         val text = """
             {
               "form": "test.form1",
@@ -66,13 +66,13 @@ class RootFormMoveTest : LightPluginTestBase() {
             }
         """.trimIndent()
 
-        val form = fixture.createForm("testForm", "test3", text)
-        fixture.createForm("form1", "test", "{}")
-        fixture.createForm("form2", "test", "{}")
-        fixture.createForm("form3", "test", "{}")
+        val form = createForm("testForm", "test3", text)
+        createForm("form1", "test", "{}")
+        createForm("form2", "test", "{}")
+        createForm("form3", "test", "{}")
 
-        val directory = fixture.findFileInTempDir("main/resources/config/forms/test")
-            .toPsiDirectory(fixture.project)!!
+        val directory = findFileInTempDir("main/resources/config/forms/test")
+            .toPsiDirectory(project)!!
 
         assertDoesNotThrow {
             MoveTestUtils.moveDirectory(fixture, directory, "main/resources/config/forms/test2")

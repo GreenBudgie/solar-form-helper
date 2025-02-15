@@ -2,8 +2,8 @@ import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 plugins {
     id("java")
-    kotlin("jvm") version "1.9.25"
-    id("org.jetbrains.intellij.platform") version "2.1.0"
+    kotlin("jvm") version "2.1.0"
+    id("org.jetbrains.intellij.platform") version "2.2.1"
 }
 
 val jUnitVersion = "1.10.0"
@@ -31,7 +31,7 @@ repositories {
 
 dependencies {
     intellijPlatform {
-        intellijIdeaCommunity("2024.2.2")
+        intellijIdeaCommunity("2024.3.3")
         testFramework(TestFrameworkType.Plugin.Java)
         testFramework(TestFrameworkType.Platform)
         testFramework(TestFrameworkType.JUnit5)
@@ -77,7 +77,7 @@ intellijPlatform {
     pluginConfiguration {
         ideaVersion {
             sinceBuild = "242"
-            untilBuild = "242.*"
+            untilBuild = "243.*"
         }
     }
 
@@ -124,9 +124,15 @@ tasks {
             exclude("**/ui/**")
         }
 
+        jvmArgumentProviders += CommandLineArgumentProvider {
+            listOf("-Didea.kotlin.plugin.use.k2=true")
+        }
+
         fun buildDirPath(relativePath: String) = layout.buildDirectory.dir(relativePath).get().asFile.absolutePath
 
-//      TODO do not forget to remove: systemProperty("idea.home.path", "/Users/nbundin/Projects/intellij")
+        // Download Intellij CE sources from GitHub and change the path to their location
+        // Later this property will be removed directly from test task
+        systemProperty("idea.home.path", "/Users/nbundin/Projects/intellij")
 
         systemProperty("test.plugin.path", buildDirPath("libs/$pluginFileName"))
         systemProperty("test.idea.path", buildDirPath("ui-test/idea"))
