@@ -14,7 +14,8 @@ class L10nCommonTest : LightPluginTestBase() {
     fun `test l10n module reference`() = with(fixture) {
         createForm("testForm", "test", "{}")
 
-        L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
+        createL10nFileAndConfigure(
+            "l10n",
             "<caret>test.form.testForm.randomGroup" to "Group Name!"
         )
 
@@ -22,18 +23,21 @@ class L10nCommonTest : LightPluginTestBase() {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = [
-        "<caret>",
-        "<caret>.",
-        "<caret>.form.testForm"
-    ])
+    @ValueSource(
+        strings = [
+            "<caret>",
+            "<caret>.",
+            "<caret>.form.testForm"
+        ]
+    )
     fun `test l10n module completion`(l10nKey: String) = with(fixture) {
         createForm("testForm", "test", "{}")
         createForm("testForm2", "test", "{}")
         createForm("testForm", "test2", "{}")
         createForm("testForm", "test3", "{}")
 
-        L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
+        createL10nFileAndConfigure(
+            "l10n",
             l10nKey to "some l10n"
         )
 
@@ -43,15 +47,18 @@ class L10nCommonTest : LightPluginTestBase() {
     // Type
 
     @ParameterizedTest
-    @ValueSource(strings = [
-        ".<caret>",
-        ".<caret>.",
-        "test.<caret>.form.testForm"
-    ])
+    @ValueSource(
+        strings = [
+            ".<caret>",
+            ".<caret>.",
+            "test.<caret>.form.testForm"
+        ]
+    )
     fun `test l10n type completion`(l10nKey: String) = with(fixture) {
         createForm("testForm", "test", "{}")
 
-        L10nTestUtils.createL10nFileAndConfigure(this, "l10n",
+        createL10nFileAndConfigure(
+            "l10n",
             l10nKey to "some l10n"
         )
 
@@ -103,7 +110,8 @@ class L10nCommonTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        L10nTestUtils.createL10nFile(this, "l10n",
+        createL10nFile(
+            "l10n",
             "test.form.testForm.group" to "Group l10n"
         )
 
