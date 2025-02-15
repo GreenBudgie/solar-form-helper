@@ -20,17 +20,17 @@ class FormGraphSearchTest : LightPluginTestBase() {
     fun tearDown() = context.clear()
 
     @Test
-    fun `findParentForms - no parents are found for root form`() {
+    fun `findParentForms - no parents are found for root form`() = with(fixture) {
         graph()
             .rootForm(1)
             .includedForm(2).parents(1)
             .build()
 
-        FormGraphSearch.findParentForms(fixture.project, form(1)).checkEmpty()
+        FormGraphSearch.findParentForms(project, form(1)).checkEmpty()
     }
 
     @Test
-    fun `findParentForms - only direct parents are found`() {
+    fun `findParentForms - only direct parents are found`() = with(fixture) {
         graph()
             .rootForm(1)
             .includedForm(2).parents(1)
@@ -39,22 +39,22 @@ class FormGraphSearchTest : LightPluginTestBase() {
             .includedForm(5).parents(2, 4)
             .build()
 
-        FormGraphSearch.findParentForms(fixture.project, form(5)).checkIndices(2, 4)
+        FormGraphSearch.findParentForms(project, form(5)).checkIndices(2, 4)
     }
 
     @Test
-    fun `findParentForms - no parents are found for form with cycle`() {
+    fun `findParentForms - no parents are found for form with cycle`() = with(fixture) {
         graph()
             .rootForm(1)
             // An infinite cycle formed, but should be ok even with incorrect configuration like this
             .includedForm(2).parents(2)
             .build()
 
-        FormGraphSearch.findParentForms(fixture.project, form(2)).checkEmpty()
+        FormGraphSearch.findParentForms(project, form(2)).checkEmpty()
     }
 
     @Test
-    fun `findParentForms - only one parent found for form with cycle`() {
+    fun `findParentForms - only one parent found for form with cycle`() = with(fixture) {
         graph()
             .rootForm(1)
             // An infinite cycle formed, but should be ok even with incorrect configuration like this
@@ -62,21 +62,21 @@ class FormGraphSearchTest : LightPluginTestBase() {
             .includedForm(3).parents(2)
             .build()
 
-        FormGraphSearch.findParentForms(fixture.project, form(3)).checkIndices(2)
+        FormGraphSearch.findParentForms(project, form(3)).checkIndices(2)
     }
 
     @Test
-    fun `findParentFormsRecursively - no parents are found for root form`() {
+    fun `findParentFormsRecursively - no parents are found for root form`() = with(fixture) {
         graph()
             .rootForm(1)
             .includedForm(2).parents(1)
             .build()
 
-        FormGraphSearch.findParentFormsRecursively(fixture.project, form(1)).checkEmpty()
+        FormGraphSearch.findParentFormsRecursively(project, form(1)).checkEmpty()
     }
 
     @Test
-    fun `findParentFormsRecursively - all parents are found`() {
+    fun `findParentFormsRecursively - all parents are found`() = with(fixture) {
         graph()
             .rootForm(1)
             .includedForm(2).parents(1)
@@ -87,12 +87,12 @@ class FormGraphSearchTest : LightPluginTestBase() {
             .includedForm(7).parents(1, 6)
             .build()
 
-        FormGraphSearch.findParentFormsRecursively(fixture.project, form(5))
+        FormGraphSearch.findParentFormsRecursively(project, form(5))
             .checkIndices(1, 2, 3, 4)
     }
 
     @Test
-    fun `findParentFormsRecursively - all parents are found with infinite loops`() {
+    fun `findParentFormsRecursively - all parents are found with infinite loops`() = with(fixture) {
         graph()
             .rootForm(1)
             .rootForm(8)
@@ -104,23 +104,23 @@ class FormGraphSearchTest : LightPluginTestBase() {
             .includedForm(7).parents(1, 6)
             .build()
 
-        FormGraphSearch.findParentFormsRecursively(fixture.project, form(5))
+        FormGraphSearch.findParentFormsRecursively(project, form(5))
             .checkIndices(1, 2, 3, 4, 8)
     }
 
     @Test
-    fun `findChildForms - no children are found`() {
+    fun `findChildForms - no children are found`() = with(fixture) {
         graph()
             .rootForm(1)
             .includedForm(2).parents(1)
             .includedForm(3).parents(1, 2)
             .build()
 
-        FormGraphSearch.findChildForms(fixture.project, form(3)).checkEmpty()
+        FormGraphSearch.findChildForms(project, form(3)).checkEmpty()
     }
 
     @Test
-    fun `findChildForms - only direct children are found`() {
+    fun `findChildForms - only direct children are found`() = with(fixture) {
         graph()
             .rootForm(1)
             .includedForm(2).parents(1)
@@ -129,11 +129,11 @@ class FormGraphSearchTest : LightPluginTestBase() {
             .includedForm(5).parents(2, 4)
             .build()
 
-        FormGraphSearch.findChildForms(fixture.project, form(2)).checkIndices(3, 5)
+        FormGraphSearch.findChildForms(project, form(2)).checkIndices(3, 5)
     }
 
     @Test
-    fun `findChildForms - only direct children are found with infinite loops`() {
+    fun `findChildForms - only direct children are found with infinite loops`() = with(fixture) {
         graph()
             .rootForm(1)
             .includedForm(2).parents(1, 2)
@@ -142,22 +142,22 @@ class FormGraphSearchTest : LightPluginTestBase() {
             .includedForm(5).parents(2, 4)
             .build()
 
-        FormGraphSearch.findChildForms(fixture.project, form(2)).checkIndices(3, 5)
+        FormGraphSearch.findChildForms(project, form(2)).checkIndices(3, 5)
     }
 
     @Test
-    fun `findChildFormsRecursively - no forms are found`() {
+    fun `findChildFormsRecursively - no forms are found`() = with(fixture) {
         graph()
             .rootForm(1)
             .includedForm(2).parents(1)
             .includedForm(3).parents(2, 1)
             .build()
 
-        FormGraphSearch.findChildFormsRecursively(fixture.project, form(3)).checkEmpty()
+        FormGraphSearch.findChildFormsRecursively(project, form(3)).checkEmpty()
     }
 
     @Test
-    fun `findChildFormsRecursively - all forms are found`() {
+    fun `findChildFormsRecursively - all forms are found`() = with(fixture) {
         graph()
             .rootForm(1)
             .rootForm(7)
@@ -168,23 +168,23 @@ class FormGraphSearchTest : LightPluginTestBase() {
             .includedForm(6).parents(7)
             .build()
 
-        FormGraphSearch.findChildFormsRecursively(fixture.project, form(1))
+        FormGraphSearch.findChildFormsRecursively(project, form(1))
             .checkIndices(2, 3, 4, 5)
     }
 
     @Test
-    fun `findTopmostRootForms - no forms are found for root form`() {
+    fun `findTopmostRootForms - no forms are found for root form`() = with(fixture) {
         graph()
             .rootForm(1)
             .rootForm(2)
             .includedForm(3).parents(1, 2)
             .build()
 
-        FormGraphSearch.findTopmostRootForms(fixture.project, form(1)).checkEmpty()
+        FormGraphSearch.findTopmostRootForms(project, form(1)).checkEmpty()
     }
 
     @Test
-    fun `findTopmostRootForms - all forms are found`() {
+    fun `findTopmostRootForms - all forms are found`() = with(fixture) {
         graph()
             .rootForm(1)
             .rootForm(2)
@@ -197,11 +197,11 @@ class FormGraphSearchTest : LightPluginTestBase() {
             .includedForm(9).parents(7, 8)
             .build()
 
-        FormGraphSearch.findTopmostRootForms(fixture.project, form(9)).checkIndices(1, 2)
+        FormGraphSearch.findTopmostRootForms(project, form(9)).checkIndices(1, 2)
     }
 
     @Test
-    fun `findAllRelatedForms - all forms are found`() {
+    fun `findAllRelatedForms - all forms are found`() = with(fixture) {
         graph()
             .rootForm(1)
             .includedForm(2).parents(1, 8)
@@ -217,12 +217,12 @@ class FormGraphSearchTest : LightPluginTestBase() {
             .includedForm(12).parents(11, 4)
             .build()
 
-        FormGraphSearch.findAllRelatedForms(fixture.project, form(5))
+        FormGraphSearch.findAllRelatedForms(project, form(5))
             .checkIndices(1, 2, 3, 4, 6, 7, 10, 12)
     }
 
     @Test
-    fun `processAllRelatedForms - all forms are processed including self`() {
+    fun `processAllRelatedForms - all forms are processed including self`() = with(fixture) {
         graph()
             .rootForm(1)
             .includedForm(2).parents(1, 8)
@@ -239,7 +239,7 @@ class FormGraphSearchTest : LightPluginTestBase() {
             .build()
 
         val processedIndices = mutableListOf<Int>()
-        FormGraphSearch.processAllRelatedForms(fixture.project, form(5), true) {
+        FormGraphSearch.processAllRelatedForms(project, form(5), true) {
             processedIndices += index(it)
             true
         }
@@ -248,7 +248,7 @@ class FormGraphSearchTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `processAllRelatedForms - all forms are processed excluding self`() {
+    fun `processAllRelatedForms - all forms are processed excluding self`() = with(fixture) {
         graph()
             .rootForm(1)
             .includedForm(2).parents(1, 8)
@@ -265,7 +265,7 @@ class FormGraphSearchTest : LightPluginTestBase() {
             .build()
 
         val processedIndices = mutableListOf<Int>()
-        FormGraphSearch.processAllRelatedForms(fixture.project, form(5), false) {
+        FormGraphSearch.processAllRelatedForms(project, form(5), false) {
             processedIndices += index(it)
             true
         }
@@ -274,7 +274,7 @@ class FormGraphSearchTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `findAllRelatedForms - start from parent, all included forms are found including self`() {
+    fun `findAllRelatedForms - start from parent, all included forms are found including self`() = with(fixture) {
         graph()
             .rootForm(1)
             .includedForm(2).parents(1)
@@ -282,12 +282,12 @@ class FormGraphSearchTest : LightPluginTestBase() {
             .includedForm(4).parents(3)
             .build()
 
-        FormGraphSearch.findAllRelatedForms(fixture.project, form(1), true)
+        FormGraphSearch.findAllRelatedForms(project, form(1), true)
             .checkIndices(1, 2, 3, 4)
     }
 
     @Test
-    fun `findAllRelatedForms - start from parent, all included forms are found excluding self`() {
+    fun `findAllRelatedForms - start from parent, all included forms are found excluding self`() = with(fixture) {
         graph()
             .rootForm(1)
             .includedForm(2).parents(1)
@@ -295,12 +295,12 @@ class FormGraphSearchTest : LightPluginTestBase() {
             .includedForm(4).parents(3)
             .build()
 
-        FormGraphSearch.findAllRelatedForms(fixture.project, form(1), false)
+        FormGraphSearch.findAllRelatedForms(project, form(1), false)
             .checkIndices(2, 3, 4)
     }
 
     @Test
-    fun `processAllRelatedForms - start from parent, all included forms are found including self`() {
+    fun `processAllRelatedForms - start from parent, all included forms are found including self`() = with(fixture) {
         graph()
             .rootForm(1)
             .includedForm(2).parents(1)
@@ -309,7 +309,7 @@ class FormGraphSearchTest : LightPluginTestBase() {
             .build()
 
         val processedIndices = mutableListOf<Int>()
-        FormGraphSearch.processAllRelatedForms(fixture.project, form(1), true) {
+        FormGraphSearch.processAllRelatedForms(project, form(1), true) {
             processedIndices += index(it)
             true
         }
@@ -318,7 +318,7 @@ class FormGraphSearchTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `processAllRelatedForms - start from parent, all included forms are found excluding self`() {
+    fun `processAllRelatedForms - start from parent, all included forms are found excluding self`() = with(fixture) {
         graph()
             .rootForm(1)
             .includedForm(2).parents(1)
@@ -327,7 +327,7 @@ class FormGraphSearchTest : LightPluginTestBase() {
             .build()
 
         val processedIndices = mutableListOf<Int>()
-        FormGraphSearch.processAllRelatedForms(fixture.project, form(1), false) {
+        FormGraphSearch.processAllRelatedForms(project, form(1), false) {
             processedIndices += index(it)
             true
         }

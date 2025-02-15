@@ -6,14 +6,14 @@ import org.junit.jupiter.api.Test
 class FormPropertyModuleTest : LightPluginTestBase() {
 
     @Test
-    fun `test form module reference`() {
-        fixture.createForm(
+    fun `test form module reference`() = with(fixture) {
+        createForm(
             "testForm",
             "test",
             "{}"
         )
 
-        fixture.configureByFormText("""
+        configureByFormText("""
             {
               "form": "<caret>test.testForm"
             }
@@ -24,30 +24,30 @@ class FormPropertyModuleTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test form module completion`() {
-        fixture.createForm(
+    fun `test form module completion`() = with(fixture) {
+        createForm(
             "testForm1",
             "test",
             "{}"
         )
-        fixture.createForm(
+        createForm(
             "testForm2",
             "test",
             "{}"
         )
-        fixture.createForm(
+        createForm(
             "testForm3",
             "test2",
             "{}"
         )
 
-        fixture.createIncludedForm(
+        createIncludedForm(
             "includedForm",
             "test3",
             "{}"
         )
 
-        fixture.createFormAndConfigure(
+        createFormAndConfigure(
             "testForm", "test", """
                 {
                   "form": "<caret>"
@@ -62,14 +62,14 @@ class FormPropertyModuleTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test form module completion when form name is already filled in`() {
-        fixture.createForm(
+    fun `test form module completion when form name is already filled in`() = with(fixture) {
+        createForm(
             "testForm1",
             "test",
             "{}"
         )
 
-        fixture.createFormAndConfigure(
+        createFormAndConfigure(
             "testForm", "test", """
                 {
                   "form": "<caret>.testForm"
@@ -81,20 +81,20 @@ class FormPropertyModuleTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test form module rename`() {
-        fixture.createForm(
+    fun `test form module rename`() = with(fixture) {
+        createForm(
             "testForm",
             "test",
             "{}"
         )
 
-        fixture.configureByFormText("""
+        configureByFormText("""
             {
               "form": "<caret>test.testForm"
             }
         """.trimIndent())
 
-        fixture.renameElementAtCaret("test2")
+        renameElementAtCaret("test2")
         assertJsonStringLiteralValueEquals("test2.testForm")
     }
 

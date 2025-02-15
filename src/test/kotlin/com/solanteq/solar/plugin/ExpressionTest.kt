@@ -28,8 +28,8 @@ class ExpressionTest : LightPluginTestBase() {
             "muted"
         ]
     )
-    fun `test expression name reference - basic case for all possible literals`(propertyName: String) {
-        fixture.createFormAndConfigure(
+    fun `test expression name reference - basic case for all possible literals`(propertyName: String) = with(fixture) {
+        createFormAndConfigure(
             "form", "abc", """
             {
               "$propertyName": "never<caret>"
@@ -47,8 +47,8 @@ class ExpressionTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test expression name reference - expression in included form`() {
-        fixture.createIncludedForm(
+    fun `test expression name reference - expression in included form`() = with(fixture) {
+        createIncludedForm(
             "includedForm", "abc", """
             [
               {
@@ -59,7 +59,7 @@ class ExpressionTest : LightPluginTestBase() {
         """.trimIndent()
         )
 
-        fixture.createFormAndConfigure(
+        createFormAndConfigure(
             "form", "abc", """
             {
               "requiredWhen": "never<caret>"
@@ -72,8 +72,8 @@ class ExpressionTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test expression name reference - expression in root form, but referenced from included form`() {
-        fixture.createIncludedFormAndConfigure(
+    fun `test expression name reference - expression in root form, but referenced from included form`() = with(fixture) {
+        createIncludedFormAndConfigure(
             "includedForm", "abc", """
             [
               {
@@ -83,7 +83,7 @@ class ExpressionTest : LightPluginTestBase() {
         """.trimIndent()
         )
 
-        fixture.createForm(
+        createForm(
             "form", "abc", """
             {
               "groups": "json://includes/forms/abc/includedForm.json"
@@ -101,8 +101,8 @@ class ExpressionTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test expression name completion`() {
-        fixture.createFormAndConfigure(
+    fun `test expression name completion`() = with(fixture) {
+        createFormAndConfigure(
             "form", "abc", """
             {
               "visibleWhen": "<caret>"
@@ -124,8 +124,8 @@ class ExpressionTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test expression name rename from reference - in the same root form`() {
-        fixture.createFormAndConfigure(
+    fun `test expression name rename from reference - in the same root form`() = with(fixture) {
+        createFormAndConfigure(
             "form", "abc", """
             {
               "visibleWhen": "expr1<caret>",
@@ -161,12 +161,12 @@ class ExpressionTest : LightPluginTestBase() {
             }
         """.trimIndent()
 
-        fixture.checkResult(expectedRenameResult)
+        checkResult(expectedRenameResult)
     }
 
     @Test
-    fun `test expression name rename from declaration - in the same root form`() {
-        fixture.createFormAndConfigure(
+    fun `test expression name rename from declaration - in the same root form`() = with(fixture) {
+        createFormAndConfigure(
             "form", "abc", """
             {
               "visibleWhen": "expr1",
@@ -202,12 +202,12 @@ class ExpressionTest : LightPluginTestBase() {
             }
         """.trimIndent()
 
-        fixture.checkResult(expectedRenameResult)
+        checkResult(expectedRenameResult)
     }
 
     @Test
-    fun `test expression name rename from reference - in different included forms`() {
-        val formWithReference = fixture.createIncludedFormAndConfigure(
+    fun `test expression name rename from reference - in different included forms`() = with(fixture) {
+        val formWithReference = createIncludedFormAndConfigure(
             "formWithReference", "abc", """
             [
               {
@@ -217,7 +217,7 @@ class ExpressionTest : LightPluginTestBase() {
         """.trimIndent()
         )
 
-        val formWithDeclaration = fixture.createIncludedForm(
+        val formWithDeclaration = createIncludedForm(
             "formWithDeclaration", "abc", """
             [
               {
@@ -232,7 +232,7 @@ class ExpressionTest : LightPluginTestBase() {
         """.trimIndent()
         )
 
-        val rootForm = fixture.createForm(
+        val rootForm = createForm(
             "form", "abc", """
             {
               "editableWhen": "expr1",
@@ -271,17 +271,17 @@ class ExpressionTest : LightPluginTestBase() {
             }
         """.trimIndent()
 
-        fixture.openFileInEditor(formWithReference.virtualFile)
-        fixture.checkResult(formWithReferenceResult)
-        fixture.openFileInEditor(formWithDeclaration.virtualFile)
-        fixture.checkResult(formWithDeclarationResult)
-        fixture.openFileInEditor(rootForm.virtualFile)
-        fixture.checkResult(rootFormResult)
+        openFileInEditor(formWithReference.virtualFile)
+        checkResult(formWithReferenceResult)
+        openFileInEditor(formWithDeclaration.virtualFile)
+        checkResult(formWithDeclarationResult)
+        openFileInEditor(rootForm.virtualFile)
+        checkResult(rootFormResult)
     }
 
     @Test
-    fun `test expression name rename from reference - multiple declarations`() {
-        val rootForm1 = fixture.createForm(
+    fun `test expression name rename from reference - multiple declarations`() = with(fixture) {
+        val rootForm1 = createForm(
             "form1", "abc", """
             {
               "visibleWhen": "never"
@@ -296,7 +296,7 @@ class ExpressionTest : LightPluginTestBase() {
         """.trimIndent()
         )
 
-        val rootForm2 = fixture.createForm(
+        val rootForm2 = createForm(
             "form2", "abc", """
             {
               "groups": "json://includes/forms/abc/includedForm.json",
@@ -310,7 +310,7 @@ class ExpressionTest : LightPluginTestBase() {
         """.trimIndent()
         )
 
-        val includedForm = fixture.createIncludedFormAndConfigure(
+        val includedForm = createIncludedFormAndConfigure(
             "includedForm", "abc", """
             [
               {
@@ -355,17 +355,17 @@ class ExpressionTest : LightPluginTestBase() {
             ]
         """.trimIndent()
 
-        fixture.openFileInEditor(rootForm1.virtualFile)
-        fixture.checkResult(rootForm1Result)
-        fixture.openFileInEditor(rootForm2.virtualFile)
-        fixture.checkResult(rootForm2Result)
-        fixture.openFileInEditor(includedForm.virtualFile)
-        fixture.checkResult(includedFormResult)
+        openFileInEditor(rootForm1.virtualFile)
+        checkResult(rootForm1Result)
+        openFileInEditor(rootForm2.virtualFile)
+        checkResult(rootForm2Result)
+        openFileInEditor(includedForm.virtualFile)
+        checkResult(includedFormResult)
     }
 
     @Test
-    fun `test expression name rename from declaration - declaration in root form, reference in included`() {
-        val includedForm = fixture.createIncludedForm(
+    fun `test expression name rename from declaration - declaration in root form, reference in included`() = with(fixture) {
+        val includedForm = createIncludedForm(
             "includedForm", "abc", """
             [
               {
@@ -375,7 +375,7 @@ class ExpressionTest : LightPluginTestBase() {
         """.trimIndent()
         )
 
-        val rootForm = fixture.createFormAndConfigure(
+        val rootForm = createFormAndConfigure(
             "form", "abc", """
             {
               "editableWhen": "expr",
@@ -412,15 +412,15 @@ class ExpressionTest : LightPluginTestBase() {
             }
         """.trimIndent()
 
-        fixture.openFileInEditor(includedForm.virtualFile)
-        fixture.checkResult(includedFormResult)
-        fixture.openFileInEditor(rootForm.virtualFile)
-        fixture.checkResult(rootFormResult)
+        openFileInEditor(includedForm.virtualFile)
+        checkResult(includedFormResult)
+        openFileInEditor(rootForm.virtualFile)
+        checkResult(rootFormResult)
     }
 
     @Test
-    fun `only one declaration found if expression is present in single included form but referenced from multiple root forms`() {
-        fixture.createForm(
+    fun `only one declaration found if expression is present in single included form but referenced from multiple root forms`() = with(fixture) {
+        createForm(
             "rootForm1", "abc", """
             {
               "groups": "json://includes/forms/abc/groups.json",
@@ -429,7 +429,7 @@ class ExpressionTest : LightPluginTestBase() {
         """.trimIndent()
         )
 
-        fixture.createForm(
+        createForm(
             "rootForm2", "abc", """
             {
               "groups": "json://includes/forms/abc/groups.json",
@@ -438,7 +438,7 @@ class ExpressionTest : LightPluginTestBase() {
         """.trimIndent()
         )
 
-        fixture.createIncludedForm(
+        createIncludedForm(
             "expressions", "abc", """
             [
               {
@@ -449,7 +449,7 @@ class ExpressionTest : LightPluginTestBase() {
         """.trimIndent()
         )
 
-        fixture.createIncludedFormAndConfigure(
+        createIncludedFormAndConfigure(
             "groups", "abc", """
             [
               {
@@ -466,8 +466,8 @@ class ExpressionTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `exactly 2 declarations found if expression with the same name is present in multiple forms`() {
-        fixture.createForm(
+    fun `exactly 2 declarations found if expression with the same name is present in multiple forms`() = with(fixture) {
+        createForm(
             "rootForm1", "abc", """
             {
               "groups": "json://includes/forms/abc/groups.json",
@@ -476,7 +476,7 @@ class ExpressionTest : LightPluginTestBase() {
         """.trimIndent()
         )
 
-        fixture.createForm(
+        createForm(
             "rootForm2", "abc", """
             {
               "groups": "json://includes/forms/abc/groups.json",
@@ -485,7 +485,7 @@ class ExpressionTest : LightPluginTestBase() {
         """.trimIndent()
         )
 
-        fixture.createIncludedForm(
+        createIncludedForm(
             "expressions1", "abc", """
             [
               {
@@ -496,7 +496,7 @@ class ExpressionTest : LightPluginTestBase() {
         """.trimIndent()
         )
 
-        fixture.createIncludedForm(
+        createIncludedForm(
             "expressions2", "abc", """
             [
               {
@@ -507,7 +507,7 @@ class ExpressionTest : LightPluginTestBase() {
         """.trimIndent()
         )
 
-        fixture.createIncludedFormAndConfigure(
+        createIncludedFormAndConfigure(
             "groups", "abc", """
             [
               {
@@ -524,8 +524,8 @@ class ExpressionTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `exactly 2 declarations found - mixed scenario with 2 cases above`() {
-        fixture.createForm(
+    fun `exactly 2 declarations found - mixed scenario with 2 cases above`() = with(fixture) {
+        createForm(
             "rootForm1", "abc", """
             {
               "groups": "json://includes/forms/abc/groups.json",
@@ -534,7 +534,7 @@ class ExpressionTest : LightPluginTestBase() {
         """.trimIndent()
         )
 
-        fixture.createForm(
+        createForm(
             "rootForm2", "abc", """
             {
               "groups": "json://includes/forms/abc/groups.json",
@@ -543,7 +543,7 @@ class ExpressionTest : LightPluginTestBase() {
         """.trimIndent()
         )
 
-        fixture.createForm(
+        createForm(
             "rootForm3", "abc", """
             {
               "groups": "json://includes/forms/abc/groups.json",
@@ -552,7 +552,7 @@ class ExpressionTest : LightPluginTestBase() {
         """.trimIndent()
         )
 
-        fixture.createIncludedForm(
+        createIncludedForm(
             "expressions1", "abc", """
             [
               {
@@ -563,7 +563,7 @@ class ExpressionTest : LightPluginTestBase() {
         """.trimIndent()
         )
 
-        fixture.createIncludedForm(
+        createIncludedForm(
             "expressions2", "abc", """
             [
               {
@@ -574,7 +574,7 @@ class ExpressionTest : LightPluginTestBase() {
         """.trimIndent()
         )
 
-        fixture.createIncludedFormAndConfigure(
+        createIncludedFormAndConfigure(
             "groups", "abc", """
             [
               {
@@ -591,8 +591,8 @@ class ExpressionTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `ExpressionAware getExpressions - returns no expressions if expression is not present in object`() {
-        val formFile = fixture.createForm(
+    fun `ExpressionAware getExpressions - returns no expressions if expression is not present in object`() = with(fixture) {
+        val formFile = createForm(
             "form", "abc", """
             {
               "expressions": [
@@ -612,8 +612,8 @@ class ExpressionTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `ExpressionAware getExpressions - 1 expression returned`() {
-        val formFile = fixture.createForm(
+    fun `ExpressionAware getExpressions - 1 expression returned`() = with(fixture) {
+        val formFile = createForm(
             "form", "abc", """
             {
               "editableWhen": "expression"
@@ -635,8 +635,8 @@ class ExpressionTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `ExpressionAware getExpressions - multiple expressions returned`() {
-        fixture.createForm(
+    fun `ExpressionAware getExpressions - multiple expressions returned`() = with(fixture) {
+        createForm(
             "rootForm1", "abc", """
             {
               "groups": "json://includes/forms/abc/groups.json",
@@ -645,7 +645,7 @@ class ExpressionTest : LightPluginTestBase() {
         """.trimIndent()
         )
 
-        fixture.createForm(
+        createForm(
             "rootForm2", "abc", """
             {
               "groups": "json://includes/forms/abc/groups.json",
@@ -654,7 +654,7 @@ class ExpressionTest : LightPluginTestBase() {
         """.trimIndent()
         )
 
-        fixture.createIncludedForm(
+        createIncludedForm(
             "expressions1", "abc", """
             [
               {
@@ -665,7 +665,7 @@ class ExpressionTest : LightPluginTestBase() {
         """.trimIndent()
         )
 
-        fixture.createIncludedForm(
+        createIncludedForm(
             "expressions2", "abc", """
             [
               {
@@ -676,7 +676,7 @@ class ExpressionTest : LightPluginTestBase() {
         """.trimIndent()
         )
 
-        fixture.createIncludedFormAndConfigure(
+        createIncludedFormAndConfigure(
             "groups", "abc", """
             [
               {<caret>
@@ -686,7 +686,7 @@ class ExpressionTest : LightPluginTestBase() {
         """.trimIndent()
         )
 
-        val objectAtCaret = fixture.file.findElementAt(fixture.caretOffset)!!.parent as JsonObject
+        val objectAtCaret = file.findElementAt(caretOffset)!!.parent as JsonObject
         val formElement = FormGroup.createFrom(objectAtCaret)!!
 
         val result = formElement.getExpressions(ExpressionType.VISIBLE_WHEN)
@@ -697,8 +697,8 @@ class ExpressionTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `ExpressionAware isNeverExpression - false if no expression`() {
-        val formFile = fixture.createForm(
+    fun `ExpressionAware isNeverExpression - false if no expression`() = with(fixture) {
+        val formFile = createForm(
             "form", "abc", """
             {
               "expressions": [
@@ -718,8 +718,8 @@ class ExpressionTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `ExpressionAware isNeverExpression - true even if editableWhen exists but expression does not`() {
-        val formFile = fixture.createForm(
+    fun `ExpressionAware isNeverExpression - true even if editableWhen exists but expression does not`() = with(fixture) {
+        val formFile = createForm(
             "form", "abc", """
             {
               "editableWhen": "never"

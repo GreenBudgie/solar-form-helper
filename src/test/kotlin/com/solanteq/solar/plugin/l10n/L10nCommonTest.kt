@@ -1,10 +1,6 @@
 package com.solanteq.solar.plugin.l10n
 
-import com.intellij.testFramework.fixtures.CodeInsightTestFixture
-import com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl
-import com.solanteq.solar.plugin.base.LightPluginTestBase
-import com.solanteq.solar.plugin.base.createForm
-import com.solanteq.solar.plugin.base.createFormAndConfigure
+import com.solanteq.solar.plugin.base.*
 import com.solanteq.solar.plugin.element.FormRootFile
 import com.solanteq.solar.plugin.l10n.field.L10nFieldDeclarationProvider
 import org.junit.jupiter.api.Assertions
@@ -15,8 +11,8 @@ import org.junit.jupiter.params.provider.ValueSource
 class L10nCommonTest : LightPluginTestBase() {
 
     @Test
-    fun `test l10n module reference`() {
-        fixture.createForm("testForm", "test", "{}")
+    fun `test l10n module reference`() = with(fixture) {
+        createForm("testForm", "test", "{}")
 
         L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
             "<caret>test.form.testForm.randomGroup" to "Group Name!"
@@ -31,11 +27,11 @@ class L10nCommonTest : LightPluginTestBase() {
         "<caret>.",
         "<caret>.form.testForm"
     ])
-    fun `test l10n module completion`(l10nKey: String) {
-        fixture.createForm("testForm", "test", "{}")
-        fixture.createForm("testForm2", "test", "{}")
-        fixture.createForm("testForm", "test2", "{}")
-        fixture.createForm("testForm", "test3", "{}")
+    fun `test l10n module completion`(l10nKey: String) = with(fixture) {
+        createForm("testForm", "test", "{}")
+        createForm("testForm2", "test", "{}")
+        createForm("testForm", "test2", "{}")
+        createForm("testForm", "test3", "{}")
 
         L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
             l10nKey to "some l10n"
@@ -52,10 +48,10 @@ class L10nCommonTest : LightPluginTestBase() {
         ".<caret>.",
         "test.<caret>.form.testForm"
     ])
-    fun `test l10n type completion`(l10nKey: String) {
-        fixture.createForm("testForm", "test", "{}")
+    fun `test l10n type completion`(l10nKey: String) = with(fixture) {
+        createForm("testForm", "test", "{}")
 
-        L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
+        L10nTestUtils.createL10nFileAndConfigure(this, "l10n",
             l10nKey to "some l10n"
         )
 
@@ -63,8 +59,8 @@ class L10nCommonTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test field declaration does not exist in request name inside field`() {
-        fixture.createFormAndConfigure(
+    fun `test field declaration does not exist in request name inside field`() = with(fixture) {
+        createFormAndConfigure(
             "testForm", "test", """
                 {
                   "groups": [
@@ -92,8 +88,8 @@ class L10nCommonTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test no extra l10n`() {
-        val form = fixture.createFormAndConfigure(
+    fun `test no extra l10n`() = with(fixture) {
+        val form = createFormAndConfigure(
             "testForm", "test", """
                 {
                   "name": "testForm",
@@ -107,7 +103,7 @@ class L10nCommonTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        L10nTestUtils.createL10nFile(fixture, "l10n",
+        L10nTestUtils.createL10nFile(this, "l10n",
             "test.form.testForm.group" to "Group l10n"
         )
 

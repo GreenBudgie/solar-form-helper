@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test
 class FormPsiUtilsTest : LightPluginTestBase() {
 
     @Test
-    fun `test first parents of type on root form`() {
-        fixture.createFormAndConfigure(
+    fun `test first parents of type on root form`() = with(fixture) {
+        createFormAndConfigure(
             "rootForm", "test", """
                 {
                   "objectProperty": {
@@ -22,7 +22,7 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
+        val element = file.findElementAt(caretOffset)?.parent as JsonElement
 
         val firstParent = FormPsiUtils.firstParentsOfType(element, JsonObject::class).firstOrNull()
 
@@ -35,8 +35,8 @@ class FormPsiUtilsTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test first parents of type in included form to root form`() {
-        fixture.createForm(
+    fun `test first parents of type in included form to root form`() = with(fixture) {
+        createForm(
             "rootForm", "test", """
                 {
                   "objectProperty": {
@@ -46,13 +46,13 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createIncludedFormAndConfigure("includedForm", "test", """
+        createIncludedFormAndConfigure("includedForm", "test", """
             [
               "anotherArray": "json://includes/forms/test/includedForm2.json"
             ]
         """.trimIndent())
 
-        fixture.createIncludedFormAndConfigure("includedForm2", "test", """
+        createIncludedFormAndConfigure("includedForm2", "test", """
             [
               "anotherArray2": [
                 "<caret>"
@@ -60,7 +60,7 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             ]
         """.trimIndent())
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
+        val element = file.findElementAt(caretOffset)?.parent as JsonElement
 
         val firstParent = FormPsiUtils.firstParentsOfType(element, JsonObject::class).firstOrNull()
 
@@ -73,8 +73,8 @@ class FormPsiUtilsTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test find multiple first parents`() {
-        fixture.createForm(
+    fun `test find multiple first parents`() = with(fixture) {
+        createForm(
             "rootForm", "test", """
                 {
                   "objectProperty": {
@@ -84,7 +84,7 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createForm(
+        createForm(
             "rootForm2", "test", """
                 {
                   "objectProperty2": {
@@ -94,13 +94,13 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createIncludedFormAndConfigure("includedForm", "test", """
+        createIncludedFormAndConfigure("includedForm", "test", """
             [
               "anotherArray": "<caret>"
             ]
         """.trimIndent())
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
+        val element = file.findElementAt(caretOffset)?.parent as JsonElement
 
         val parents = FormPsiUtils.firstParentsOfType(element, JsonObject::class)
         assertEquals(2, parents.size)
@@ -113,8 +113,8 @@ class FormPsiUtilsTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test multiple parents`() {
-        fixture.createForm(
+    fun `test multiple parents`() = with(fixture) {
+        createForm(
             "rootForm", "test", """
                 {
                   "objectProperty": "json://includes/forms/test/includedForm.json"
@@ -122,7 +122,7 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createForm(
+        createForm(
             "rootForm2", "test", """
                 {
                   "objectProperty2": "json://includes/forms/test/includedForm.json"
@@ -130,13 +130,13 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createIncludedFormAndConfigure("includedForm", "test", """
+        createIncludedFormAndConfigure("includedForm", "test", """
             <caret>{
               "key": "value"
             }
         """.trimIndent())
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
+        val element = file.findElementAt(caretOffset)?.parent as JsonElement
 
         val parents = FormPsiUtils.parents(element)
         assertEquals(2, parents.size)
@@ -149,8 +149,8 @@ class FormPsiUtilsTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test isPropertyValueWithKey for included form`() {
-        fixture.createForm(
+    fun `test isPropertyValueWithKey for included form`() = with(fixture) {
+        createForm(
             "rootForm", "test", """
                 {
                   "objectProperty": "json://includes/forms/test/includedForm.json"
@@ -158,7 +158,7 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createForm(
+        createForm(
             "rootForm2", "test", """
                 {
                   "arrayProperty": [
@@ -168,20 +168,20 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createIncludedFormAndConfigure("includedForm", "test", """
+        createIncludedFormAndConfigure("includedForm", "test", """
             <caret>{
               "key": "value"
             }
         """.trimIndent())
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
+        val element = file.findElementAt(caretOffset)?.parent as JsonElement
 
         assertTrue(FormPsiUtils.isPropertyValueWithKey(element, "objectProperty"))
     }
 
     @Test
-    fun `test isInObjectWithKey for included form`() {
-        fixture.createForm(
+    fun `test isInObjectWithKey for included form`() = with(fixture) {
+        createForm(
             "rootForm", "test", """
                 {
                   "objectProperty": {
@@ -191,20 +191,20 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createIncludedFormAndConfigure("includedForm", "test", """
+        createIncludedFormAndConfigure("includedForm", "test", """
             [
               "key": "<caret>"
             ]
         """.trimIndent())
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
+        val element = file.findElementAt(caretOffset)?.parent as JsonElement
 
         assertTrue(FormPsiUtils.isInObjectWithKey(element, "objectProperty"))
     }
 
     @Test
-    fun `test isInObjectWithKey for included form as direct object value`() {
-        fixture.createForm(
+    fun `test isInObjectWithKey for included form as direct object value`() = with(fixture) {
+        createForm(
             "rootForm", "test", """
                 {
                   "objectProperty": "json://includes/forms/test/includedForm.json"
@@ -212,20 +212,20 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createIncludedFormAndConfigure("includedForm", "test", """
+        createIncludedFormAndConfigure("includedForm", "test", """
             {
               "key": "<caret>"
             }
         """.trimIndent())
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
+        val element = file.findElementAt(caretOffset)?.parent as JsonElement
 
         assertTrue(FormPsiUtils.isInObjectWithKey(element, "objectProperty"))
     }
 
     @Test
-    fun `test isInArrayWithKey for included form`() {
-        fixture.createForm(
+    fun `test isInArrayWithKey for included form`() = with(fixture) {
+        createForm(
             "rootForm", "test", """
                 {
                   "arrayProperty": [
@@ -235,20 +235,20 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createIncludedFormAndConfigure("includedForm", "test", """
+        createIncludedFormAndConfigure("includedForm", "test", """
             {
               "key": "<caret>"
             }
         """.trimIndent())
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
+        val element = file.findElementAt(caretOffset)?.parent as JsonElement
 
         assertTrue(FormPsiUtils.isInArrayWithKey(element, "arrayProperty"))
     }
 
     @Test
-    fun `test isInArrayWithKey for included form as direct array value`() {
-        fixture.createForm(
+    fun `test isInArrayWithKey for included form as direct array value`() = with(fixture) {
+        createForm(
             "rootForm", "test", """
                 {
                   "arrayProperty": "json://includes/forms/test/includedForm.json"
@@ -256,7 +256,7 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createIncludedFormAndConfigure("includedForm", "test", """
+        createIncludedFormAndConfigure("includedForm", "test", """
             [
               {
                 "key": "<caret>"
@@ -264,14 +264,14 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             ]
         """.trimIndent())
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
+        val element = file.findElementAt(caretOffset)?.parent as JsonElement
 
         assertTrue(FormPsiUtils.isInArrayWithKey(element, "arrayProperty"))
     }
 
     @Test
-    fun `test isInArrayWithKey for included form with json-flat declaration`() {
-        fixture.createForm(
+    fun `test isInArrayWithKey for included form with json-flat declaration`() = with(fixture) {
+        createForm(
             "rootForm", "test", """
                 {
                   "arrayProperty": [
@@ -281,7 +281,7 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createIncludedFormAndConfigure("includedForm", "test", """
+        createIncludedFormAndConfigure("includedForm", "test", """
             [
               {
                 "key": "<caret>"
@@ -289,14 +289,14 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             ]
         """.trimIndent())
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
+        val element = file.findElementAt(caretOffset)?.parent as JsonElement
 
         assertTrue(FormPsiUtils.isInArrayWithKey(element, "arrayProperty"))
     }
 
     @Test
-    fun `test isInArrayWithKey for included form with json-flat declaration 2x deep`() {
-        fixture.createForm(
+    fun `test isInArrayWithKey for included form with json-flat declaration 2x deep`() = with(fixture) {
+        createForm(
             "rootForm", "test", """
                 {
                   "arrayProperty": [
@@ -306,13 +306,13 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createIncludedFormAndConfigure("includedForm1", "test", """
+        createIncludedFormAndConfigure("includedForm1", "test", """
             [
               "json-flat://includes/forms/test/includedForm2.json"
             ]
         """.trimIndent())
 
-        fixture.createIncludedFormAndConfigure("includedForm2", "test", """
+        createIncludedFormAndConfigure("includedForm2", "test", """
             [
               {
                 "key": "<caret>"
@@ -320,14 +320,14 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             ]
         """.trimIndent())
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
+        val element = file.findElementAt(caretOffset)?.parent as JsonElement
 
         assertTrue(FormPsiUtils.isInArrayWithKey(element, "arrayProperty"))
     }
 
     @Test
-    fun `test isInObjectInArrayWithKey for root form positive scenario property`() {
-        fixture.configureByFormText("""
+    fun `test isInObjectInArrayWithKey for root form positive scenario property`() = with(fixture) {
+        configureByFormText("""
             {
               "fields": [
                 {
@@ -343,8 +343,8 @@ class FormPsiUtilsTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test isInObjectInArrayWithKey for included form positive scenario property`() {
-        fixture.createForm(
+    fun `test isInObjectInArrayWithKey for included form positive scenario property`() = with(fixture) {
+        createForm(
             "rootForm", "test", """
                 {
                   "fields": "json://includes/forms/test/includedForm.json"
@@ -352,7 +352,7 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createIncludedFormAndConfigure("includedForm", "test", """
+        createIncludedFormAndConfigure("includedForm", "test", """
             [
               {
                 "property": "value<caret>"
@@ -366,8 +366,8 @@ class FormPsiUtilsTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test isInObjectInArrayWithKey for flat included form positive scenario property`() {
-        fixture.createForm(
+    fun `test isInObjectInArrayWithKey for flat included form positive scenario property`() = with(fixture) {
+        createForm(
             "rootForm", "test", """
                 {
                   "fields": [
@@ -377,7 +377,7 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createIncludedFormAndConfigure("includedForm", "test", """
+        createIncludedFormAndConfigure("includedForm", "test", """
             [
               {
                 "property": "value<caret>"
@@ -391,8 +391,8 @@ class FormPsiUtilsTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test isInObjectInArrayWithKey for root form negative scenario no object in array`() {
-        fixture.configureByFormText("""
+    fun `test isInObjectInArrayWithKey for root form negative scenario no object in array`() = with(fixture) {
+        configureByFormText("""
             {
               "fields": [
                 "someString<caret>"
@@ -406,8 +406,8 @@ class FormPsiUtilsTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test isInObjectInArrayWithKey for root form negative scenario inner object property`() {
-        fixture.configureByFormText("""
+    fun `test isInObjectInArrayWithKey for root form negative scenario inner object property`() = with(fixture) {
+        configureByFormText("""
             {
               "fields": [
                 {
@@ -426,8 +426,8 @@ class FormPsiUtilsTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test isInObjectInArrayWithKey for included form negative scenario inner object property`() {
-        fixture.createForm(
+    fun `test isInObjectInArrayWithKey for included form negative scenario inner object property`() = with(fixture) {
+        createForm(
             "rootForm", "test", """
                 {
                   "fields": [
@@ -437,7 +437,7 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createIncludedFormAndConfigure("includedForm", "test", """
+        createIncludedFormAndConfigure("includedForm", "test", """
             {
               "property": "value",
               "innerObject": {
@@ -452,8 +452,8 @@ class FormPsiUtilsTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test different first parents for flat and non-flat json include declarations`() {
-        fixture.createForm(
+    fun `test different first parents for flat and non-flat json include declarations`() = with(fixture) {
+        createForm(
             "rootForm1", "test", """
                 {
                   "arrayProperty": [
@@ -463,7 +463,7 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createForm(
+        createForm(
             "rootForm2", "test", """
                 {
                   "arrayProperty": "json://includes/forms/test/includedForm.json"
@@ -471,7 +471,7 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createIncludedFormAndConfigure("includedForm", "test", """
+        createIncludedFormAndConfigure("includedForm", "test", """
             [
               {
                 "key": "<caret>"
@@ -479,7 +479,7 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             ]
         """.trimIndent())
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
+        val element = file.findElementAt(caretOffset)?.parent as JsonElement
         val firstParents = FormPsiUtils.firstParentsOfType(element, JsonArray::class)
         val arrayInIncludedFormParent = firstParents.filter {
             it.containingFile.name == "includedForm.json"
@@ -494,8 +494,8 @@ class FormPsiUtilsTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test different parents for flat and non-flat json include declarations`() {
-        fixture.createForm(
+    fun `test different parents for flat and non-flat json include declarations`() = with(fixture) {
+        createForm(
             "rootForm1", "test", """
                 {
                   "arrayProperty": [
@@ -505,7 +505,7 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createForm(
+        createForm(
             "rootForm2", "test", """
                 {
                   "arrayProperty": "json://includes/forms/test/includedForm.json"
@@ -513,13 +513,13 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createIncludedFormAndConfigure("includedForm", "test", """
+        createIncludedFormAndConfigure("includedForm", "test", """
             [
               "<caret>"
             ]
         """.trimIndent())
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
+        val element = file.findElementAt(caretOffset)?.parent as JsonElement
         val firstParents = FormPsiUtils.parents(element)
         val arrayInIncludedFormParent = firstParents.filter {
             it.containingFile.name == "includedForm.json"
@@ -535,8 +535,8 @@ class FormPsiUtilsTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test different parents for flat and non-flat json include declarations 2x deep`() {
-        fixture.createForm(
+    fun `test different parents for flat and non-flat json include declarations 2x deep`() = with(fixture) {
+        createForm(
             "rootForm1", "test", """
                 {
                   "arrayProperty": [
@@ -546,7 +546,7 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createForm(
+        createForm(
             "rootForm2", "test", """
                 {
                   "arrayProperty": "json://includes/forms/test/includedForm1.json"
@@ -554,19 +554,19 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createIncludedFormAndConfigure("includedForm1", "test", """
+        createIncludedFormAndConfigure("includedForm1", "test", """
             [
               "json-flat://includes/forms/test/includedForm2.json"
             ]
         """.trimIndent())
 
-        fixture.createIncludedFormAndConfigure("includedForm2", "test", """
+        createIncludedFormAndConfigure("includedForm2", "test", """
             [
               "<caret>"
             ]
         """.trimIndent())
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonElement
+        val element = file.findElementAt(caretOffset)?.parent as JsonElement
         val firstParents = FormPsiUtils.parents(element)
         val arrayInIncludedFormParent = firstParents.filter {
             it.containingFile.name == "includedForm1.json"
@@ -582,8 +582,8 @@ class FormPsiUtilsTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test get property value as json include declaration`() {
-        fixture.createFormAndConfigure(
+    fun `test get property value as json include declaration`() = with(fixture) {
+        createFormAndConfigure(
             "rootForm", "test", """
                 {
                   "<caret>property": "json://includes/forms/test/includedForm.json"
@@ -591,13 +591,13 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createIncludedForm("includedForm", "test", """
+        createIncludedForm("includedForm", "test", """
             [
               "element"
             ]
         """.trimIndent())
 
-        val element = fixture.file.findElementAt(fixture.caretOffset)?.parent as JsonStringLiteral
+        val element = file.findElementAt(caretOffset)?.parent as JsonStringLiteral
         val property = element.parent as JsonProperty
 
         val value = FormPsiUtils.getPropertyValue(property)
@@ -607,8 +607,8 @@ class FormPsiUtilsTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test find all parents if both json and json-flat declarations present`() {
-        fixture.createForm(
+    fun `test find all parents if both json and json-flat declarations present`() = with(fixture) {
+        createForm(
             "rootForm1", "test", """
                 {
                   "property1": "json://includes/forms/test/includedForm.json"
@@ -616,7 +616,7 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createForm(
+        createForm(
             "rootForm2", "test", """
                 {
                   "property2": [
@@ -626,7 +626,7 @@ class FormPsiUtilsTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createIncludedFormAndConfigure(
+        createIncludedFormAndConfigure(
             "includedForm", "test", """
                 [
                   "<caret>abc"

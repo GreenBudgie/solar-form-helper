@@ -14,8 +14,8 @@ class L10nGroupTest : LightPluginTestBase() {
     override fun getTestDataSuffix() = "l10n"
 
     @Test
-    fun `test l10n reference to group`() {
-        fixture.configureByRootForms("test", "testForm1.json")
+    fun `test l10n reference to group`() = with(fixture) {
+        configureByRootForms("test", "testForm1.json")
 
         L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
             "test.form.testForm1.<caret>group1.randomText" to "Group Name!"
@@ -25,8 +25,8 @@ class L10nGroupTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test l10n group completion`() {
-        fixture.configureByRootForms("test","testForm1.json")
+    fun `test l10n group completion`() = with(fixture) {
+        configureByRootForms("test","testForm1.json")
 
         L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
             "test.form.testForm1.<caret>" to "Group Name!"
@@ -36,8 +36,8 @@ class L10nGroupTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test l10n group reference rename`() {
-        val formFile = fixture.createForm(
+    fun `test l10n group reference rename`() = with(fixture) {
+        val formFile = createForm(
             "testForm", "test", """
                 {
                   "groups": [
@@ -65,13 +65,13 @@ class L10nGroupTest : LightPluginTestBase() {
 
         renameFormSymbolReference("renamed")
         assertJsonStringLiteralValueEquals("test.form.testForm.renamed")
-        fixture.openFileInEditor(formFile.virtualFile)
-        fixture.checkResult(expectedFormText)
+        openFileInEditor(formFile.virtualFile)
+        checkResult(expectedFormText)
     }
 
     @Test
-    fun `test l10n group declaration rename`() {
-        fixture.createFormAndConfigure(
+    fun `test l10n group declaration rename`() = with(fixture) {
+        createFormAndConfigure(
             "testForm", "test", """
                 {
                   "groups": [
@@ -94,13 +94,13 @@ class L10nGroupTest : LightPluginTestBase() {
         renameFormSymbolDeclaration(L10nGroupDeclarationProvider(), "renamed")
         assertJsonStringLiteralValueEquals("renamed")
 
-        fixture.openFileInEditor(l10nFile.virtualFile)
-        fixture.checkResult(expectedL10nText)
+        openFileInEditor(l10nFile.virtualFile)
+        checkResult(expectedL10nText)
     }
 
     @Test
-    fun `test l10n reference to group in included form`() {
-        fixture.createForm(
+    fun `test l10n reference to group in included form`() = with(fixture) {
+        createForm(
             "rootForm", "test", """
                 {
                   "groups": "json://includes/forms/test/includedForm.json"
@@ -108,7 +108,7 @@ class L10nGroupTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createIncludedForm("includedForm", "test", """
+        createIncludedForm("includedForm", "test", """
             [
               {
                 "name": "groupName"
@@ -124,7 +124,7 @@ class L10nGroupTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test l10n group rename in included form`() {
+    fun `test l10n group rename in included form`() = with(fixture) {
         val formTextBefore = """
             {
               "name": "groupName"
@@ -136,7 +136,7 @@ class L10nGroupTest : LightPluginTestBase() {
             }
         """.trimIndent()
 
-        fixture.createForm(
+        createForm(
             "rootForm", "test", """
                 {
                   "groups": [
@@ -146,7 +146,7 @@ class L10nGroupTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        val form = fixture.createIncludedForm("includedForm", "test", formTextBefore)
+        val form = createIncludedForm("includedForm", "test", formTextBefore)
 
         val l10nTextAfter = L10nTestUtils.generateL10nFileText(
             "test.form.rootForm.renamed" to "Group name"
@@ -162,8 +162,8 @@ class L10nGroupTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test find usages in project scope`() {
-        fixture.configureByRootForms("test", "testForm1.json")
+    fun `test find usages in project scope`() = with(fixture) {
+        configureByRootForms("test", "testForm1.json")
 
         L10nTestUtils.createL10nFile(fixture, "l10n_2",
             "test.form.testForm1.group1" to "Group Name22!",
@@ -180,14 +180,14 @@ class L10nGroupTest : LightPluginTestBase() {
             symbol,
             L10nGroupUsageSearcher(),
             L10nGroupRenameUsageSearcher(),
-            fixture.project.projectScope(),
+            project.projectScope(),
             expectedSize = 4
         )
     }
 
     @Test
-    fun `test find usages in l10n file scope`() {
-        fixture.configureByRootForms("test", "testForm1.json")
+    fun `test find usages in l10n file scope`() = with(fixture) {
+        configureByRootForms("test", "testForm1.json")
 
         L10nTestUtils.createL10nFile(fixture, "l10n_2",
             "test.form.testForm1.group" to "Group Name22!",
@@ -210,8 +210,8 @@ class L10nGroupTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test l10n line marker for groups`() {
-        fixture.configureByRootForms("test", "testForm1.json")
+    fun `test l10n line marker for groups`() = with(fixture) {
+        configureByRootForms("test", "testForm1.json")
         L10nTestUtils.createL10nFile(fixture, "l10n",
             "test.form.testForm1.group2" to "Group Name!",
             locale = L10nLocale.RU

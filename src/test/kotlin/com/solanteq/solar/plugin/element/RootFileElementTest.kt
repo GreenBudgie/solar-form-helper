@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test
 class RootFileElementTest : LightPluginTestBase() {
 
     @Test
-    fun `test find all groups with groups declaration (no json includes)`() {
-        val formFile = fixture.createForm("rootForm", "test", """
+    fun `test find all groups with groups declaration (no json includes)`() = with(fixture) {
+        val formFile = createForm("rootForm", "test", """
             {
               "groups": [
                 {
@@ -32,8 +32,8 @@ class RootFileElementTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test find all groups with groups declaration (with json includes)`() {
-        val formFile = fixture.createForm("rootForm", "test", """
+    fun `test find all groups with groups declaration (with json includes)`() = with(fixture) {
+        val formFile = createForm("rootForm", "test", """
             {
               "groups": [
                 {
@@ -46,13 +46,13 @@ class RootFileElementTest : LightPluginTestBase() {
         """.trimIndent())
         val form = FormRootFile.createFromOrThrow(formFile)
 
-        fixture.createIncludedForm("group", "test", """
+        createIncludedForm("group", "test", """
             {
               "name": "group2"
             }
         """.trimIndent())
 
-        fixture.createIncludedForm("flatGroups", "test", """
+        createIncludedForm("flatGroups", "test", """
             [
               {
                 "name": "group3",
@@ -62,7 +62,7 @@ class RootFileElementTest : LightPluginTestBase() {
             ]
         """.trimIndent())
 
-        fixture.createIncludedForm("group5", "test5", """
+        createIncludedForm("group5", "test5", """
             [
               {
                 "name": "group4"
@@ -77,8 +77,8 @@ class RootFileElementTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test find all groups with groupRows declaration (no json includes)`() {
-        val formFile = fixture.createForm("rootForm", "test", """
+    fun `test find all groups with groupRows declaration (no json includes)`() = with(fixture) {
+        val formFile = createForm("rootForm", "test", """
             {
               "groupRows": [
                 {
@@ -110,8 +110,8 @@ class RootFileElementTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test find all groups with groupRows declaration (with json includes)`() {
-        val formFile = fixture.createForm("rootForm", "test", """
+    fun `test find all groups with groupRows declaration (with json includes)`() = with(fixture) {
+        val formFile = createForm("rootForm", "test", """
             {
               "groupRows": [
                 {
@@ -128,13 +128,13 @@ class RootFileElementTest : LightPluginTestBase() {
         """.trimIndent())
         val form = FormRootFile.createFromOrThrow(formFile)
 
-        fixture.createIncludedForm("group2", "test2", """
+        createIncludedForm("group2", "test2", """
             {
               "name": "group2"
             }
         """.trimIndent())
 
-        fixture.createIncludedForm("groups", "test3", """
+        createIncludedForm("groups", "test3", """
             [
               {
                 "groups": [
@@ -152,7 +152,7 @@ class RootFileElementTest : LightPluginTestBase() {
             ]
         """.trimIndent())
 
-        fixture.createIncludedForm("group5", "test5", """
+        createIncludedForm("group5", "test5", """
             [
               {
                 "name": "group5"
@@ -167,8 +167,8 @@ class RootFileElementTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test find all fields (no json includes)`() {
-        val formFile = fixture.createForm("rootForm", "test", """
+    fun `test find all fields (no json includes)`() = with(fixture) {
+        val formFile = createForm("rootForm", "test", """
             {
               "groups": [
                 {
@@ -227,8 +227,8 @@ class RootFileElementTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test find all fields (with json includes)`() {
-        val formFile = fixture.createForm("rootForm", "test", """
+    fun `test find all fields (with json includes)`() = with(fixture) {
+        val formFile = createForm("rootForm", "test", """
             {
               "groups": [
                 {
@@ -254,7 +254,7 @@ class RootFileElementTest : LightPluginTestBase() {
         """.trimIndent())
         val form = FormRootFile.createFromOrThrow(formFile)
 
-        fixture.createIncludedForm("fields", "test", """
+        createIncludedForm("fields", "test", """
             [
               {
                 "name": "field2"
@@ -265,7 +265,7 @@ class RootFileElementTest : LightPluginTestBase() {
             ]
         """.trimIndent())
 
-        fixture.createIncludedForm("row", "test", """
+        createIncludedForm("row", "test", """
             {
               "fields": [
                 {
@@ -275,7 +275,7 @@ class RootFileElementTest : LightPluginTestBase() {
             }
         """.trimIndent())
 
-        fixture.createIncludedForm("rows", "test", """
+        createIncludedForm("rows", "test", """
             [
               {
                 "fields": [
@@ -292,7 +292,7 @@ class RootFileElementTest : LightPluginTestBase() {
             ]
         """.trimIndent())
 
-        fixture.createIncludedForm("flatGroups", "test", """
+        createIncludedForm("flatGroups", "test", """
             [
               {
                 "rows": [
@@ -316,7 +316,7 @@ class RootFileElementTest : LightPluginTestBase() {
             ]
         """.trimIndent())
 
-        fixture.createIncludedForm("commonGroup", "test", """
+        createIncludedForm("commonGroup", "test", """
             {
               "rows": [
                 {
@@ -331,7 +331,7 @@ class RootFileElementTest : LightPluginTestBase() {
             }
         """.trimIndent())
 
-        fixture.createIncludedForm("commonField", "test", """
+        createIncludedForm("commonField", "test", """
             {
               "name": "commonField"
             }

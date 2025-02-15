@@ -14,8 +14,8 @@ class L10nFakeFieldTest : LightPluginTestBase() {
     override fun getTestDataSuffix() = "l10n"
     
     @Test
-    fun `test l10n reference to fake field`() {
-        fixture.configureByRootForms("test", "testForm1.json")
+    fun `test l10n reference to fake field`() = with(fixture) {
+        configureByRootForms("test", "testForm1.json")
 
         L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
             "test.form.testForm1.group1.<caret>field1" to "Field Name!"
@@ -25,8 +25,8 @@ class L10nFakeFieldTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test l10n reference to nested fake field`() {
-        fixture.configureByRootForms("test", "testForm1.json")
+    fun `test l10n reference to nested fake field`() = with(fixture) {
+        configureByRootForms("test", "testForm1.json")
 
         L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
             "test.form.testForm1.group2.field.<caret>nestedField.randomText" to "Field Name!"
@@ -36,8 +36,8 @@ class L10nFakeFieldTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test l10n fake field rename from reference`() {
-        fixture.configureByRootForms("test", "testForm1.json")
+    fun `test l10n fake field rename from reference`() = with(fixture) {
+        configureByRootForms("test", "testForm1.json")
 
         L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
             "test.form.testForm1.group1.<caret>field1" to "Field Name!"
@@ -46,18 +46,18 @@ class L10nFakeFieldTest : LightPluginTestBase() {
         val reference = getFormSymbolReferenceAtCaret()
         val referencedSymbol = reference.resolveReference().firstOrNull()
         Assertions.assertNotNull(referencedSymbol)
-        fixture.renameTarget(referencedSymbol!!, "renamed")
+        renameTarget(referencedSymbol!!, "renamed")
         assertJsonStringLiteralValueEquals("test.form.testForm1.group1.renamed")
     }
 
     @Test
-    fun `test l10n fake field rename from declaration`() {
+    fun `test l10n fake field rename from declaration`() = with(fixture) {
         val l10nFile = L10nTestUtils.createL10nFile(fixture, "l10n",
             "test.form.form.group.fakeField.field1" to "field1",
             "test.form.form.group.fakeField.field2" to "field2",
         )
 
-        fixture.createFormAndConfigure(
+        createFormAndConfigure(
             "form", "test", """
                 {
                   "groups": [
@@ -109,15 +109,15 @@ class L10nFakeFieldTest : LightPluginTestBase() {
         )
 
         renameFormSymbolDeclaration(L10nFieldDeclarationProvider(), "renamed")
-        fixture.checkResult(expectedFormText)
+        checkResult(expectedFormText)
 
-        fixture.openFileInEditor(l10nFile.virtualFile)
-        fixture.checkResult(expectedL10nText)
+        openFileInEditor(l10nFile.virtualFile)
+        checkResult(expectedL10nText)
     }
 
     @Test
-    fun `test l10n fake field completion`() {
-        fixture.configureByRootForms("test", "testForm1.json")
+    fun `test l10n fake field completion`() = with(fixture) {
+        configureByRootForms("test", "testForm1.json")
 
         L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
             "test.form.testForm1.group1.<caret>" to "Field Name!"
@@ -127,8 +127,8 @@ class L10nFakeFieldTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test l10n fake nested field first part completion`() {
-        fixture.configureByRootForms("test", "testForm1.json")
+    fun `test l10n fake nested field first part completion`() = with(fixture) {
+        configureByRootForms("test", "testForm1.json")
 
         L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
             "test.form.testForm1.group2.<caret>" to "Field Name!"
@@ -138,8 +138,8 @@ class L10nFakeFieldTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test l10n fake nested field second part completion`() {
-        fixture.configureByRootForms("test", "testForm1.json")
+    fun `test l10n fake nested field second part completion`() = with(fixture) {
+        configureByRootForms("test", "testForm1.json")
 
         L10nTestUtils.createL10nFileAndConfigure(fixture, "l10n",
             "test.form.testForm1.group2.field.<caret>" to "Nested Field Name!"
@@ -149,8 +149,8 @@ class L10nFakeFieldTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test l10n reference to fake field in included form`() {
-        fixture.createForm(
+    fun `test l10n reference to fake field in included form`() = with(fixture) {
+        createForm(
             "rootForm", "test", """
                 {
                   "groups": "json://includes/forms/test/includedFormGroups.json"
@@ -158,7 +158,7 @@ class L10nFakeFieldTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createIncludedForm("includedFormGroups", "test", """
+        createIncludedForm("includedFormGroups", "test", """
             [
               {
                 "name": "groupName"
@@ -171,7 +171,7 @@ class L10nFakeFieldTest : LightPluginTestBase() {
             ]
         """.trimIndent())
 
-        fixture.createIncludedForm("includedFormFields", "test", """
+        createIncludedForm("includedFormFields", "test", """
             [
               {
                 "name": "fieldName"
@@ -187,7 +187,7 @@ class L10nFakeFieldTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test l10n fake field rename in included form`() {
+    fun `test l10n fake field rename in included form`() = with(fixture) {
         val formTextBefore = """
             {
               "name": "groupName"
@@ -217,7 +217,7 @@ class L10nFakeFieldTest : LightPluginTestBase() {
             }
         """.trimIndent()
 
-        fixture.createForm(
+        createForm(
             "rootForm", "test", """
                 {
                   "groups": [
@@ -227,7 +227,7 @@ class L10nFakeFieldTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        val form = fixture.createIncludedForm("includedForm", "test", formTextBefore)
+        val form = createIncludedForm("includedForm", "test", formTextBefore)
 
         val l10nTextAfter = L10nTestUtils.generateL10nFileText(
             "test.form.rootForm.groupName.renamed" to "Field name"
@@ -243,8 +243,8 @@ class L10nFakeFieldTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test find usages in project scope`() {
-        fixture.configureByRootForms("test", "testForm1.json")
+    fun `test find usages in project scope`() = with(fixture) {
+        configureByRootForms("test", "testForm1.json")
 
         L10nTestUtils.createL10nFile(fixture, "l10n_2",
             "test.form.testForm1.group1.field1" to "Field Name!",
@@ -261,14 +261,14 @@ class L10nFakeFieldTest : LightPluginTestBase() {
             symbol,
             L10nFieldUsageSearcher(),
             L10nFieldRenameUsageSearcher(),
-            fixture.project.projectScope(),
+            project.projectScope(),
             expectedSize = 4
         )
     }
 
     @Test
-    fun `test find usages in file scope`() {
-        fixture.configureByRootForms("test", "testForm1.json")
+    fun `test find usages in file scope`() = with(fixture) {
+        configureByRootForms("test", "testForm1.json")
 
         L10nTestUtils.createL10nFile(fixture, "l10n_2",
             "test.form.testForm1.group1.field1" to "Field Name!"
@@ -291,8 +291,8 @@ class L10nFakeFieldTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test find usages in project scope for the same field in different included forms`() {
-        fixture.createForm(
+    fun `test find usages in project scope for the same field in different included forms`() = with(fixture) {
+        createForm(
             "rootForm", "test", """
                 {
                   "groups": [
@@ -316,13 +316,13 @@ class L10nFakeFieldTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createIncludedForm("field", "test", """
+        createIncludedForm("field", "test", """
             {
               "name": "field1.field2.field3"
             }
         """.trimIndent())
 
-        fixture.createIncludedForm("row", "test", """
+        createIncludedForm("row", "test", """
             {
               "fields": [
                 {
@@ -332,7 +332,7 @@ class L10nFakeFieldTest : LightPluginTestBase() {
             }
         """.trimIndent())
 
-        fixture.createIncludedForm("group", "test2", """
+        createIncludedForm("group", "test2", """
             {
               "name": "group2",
               "rows": [
@@ -362,14 +362,14 @@ class L10nFakeFieldTest : LightPluginTestBase() {
             symbol,
             L10nFieldUsageSearcher(),
             L10nFieldRenameUsageSearcher(),
-            fixture.project.projectScope(),
+            project.projectScope(),
             expectedSize = 6
         )
     }
 
     @Test
-    fun `test all declarations are found for fake field at the same nesting level`() {
-        fixture.createFormAndConfigure("rootForm", "test", """
+    fun `test all declarations are found for fake field at the same nesting level`() = with(fixture) {
+        createFormAndConfigure("rootForm", "test", """
             {
               "groups": [
                 {
@@ -409,14 +409,14 @@ class L10nFakeFieldTest : LightPluginTestBase() {
             symbol,
             L10nFieldUsageSearcher(),
             L10nFieldRenameUsageSearcher(),
-            fixture.project.projectScope(),
+            project.projectScope(),
             expectedSize = 3
         )
     }
 
     @Test
-    fun `test no extra declarations are found for fake field at the same nesting level`() {
-        fixture.createFormAndConfigure("rootForm", "test", """
+    fun `test no extra declarations are found for fake field at the same nesting level`()= with(fixture) {
+        createFormAndConfigure("rootForm", "test", """
             {
               "groups": [
                 {
@@ -444,14 +444,14 @@ class L10nFakeFieldTest : LightPluginTestBase() {
             symbol,
             L10nFieldUsageSearcher(),
             L10nFieldRenameUsageSearcher(),
-            fixture.project.projectScope(),
+            project.projectScope(),
             expectedSize = 1
         )
     }
 
     @Test
-    fun `test no extra declarations are found for fake field at different nesting levels`() {
-        fixture.createFormAndConfigure("rootForm", "test", """
+    fun `test no extra declarations are found for fake field at different nesting levels`() = with(fixture) {
+        createFormAndConfigure("rootForm", "test", """
             {
               "groups": [
                 {
@@ -482,14 +482,14 @@ class L10nFakeFieldTest : LightPluginTestBase() {
             symbol,
             L10nFieldUsageSearcher(),
             L10nFieldRenameUsageSearcher(),
-            fixture.project.projectScope(),
+            project.projectScope(),
             expectedSize = 1
         )
     }
 
     @Test
-    fun `test l10n line marker for groups`() {
-        fixture.configureByRootForms("test", "testForm1.json")
+    fun `test l10n line marker for groups`() = with(fixture) {
+        configureByRootForms("test", "testForm1.json")
         L10nTestUtils.createL10nFile(fixture, "l10n",
             "test.form.testForm1.group1.field1" to "Field Name!",
             locale = L10nLocale.RU

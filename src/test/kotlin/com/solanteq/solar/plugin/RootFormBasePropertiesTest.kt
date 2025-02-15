@@ -1,7 +1,6 @@
 package com.solanteq.solar.plugin
 
-import com.solanteq.solar.plugin.base.LightPluginTestBase
-import com.solanteq.solar.plugin.base.createFormAndConfigure
+import com.solanteq.solar.plugin.base.*
 import com.solanteq.solar.plugin.inspection.InvalidFormModuleDeclarationInspection
 import com.solanteq.solar.plugin.inspection.InvalidFormNameDeclarationInspection
 import org.junit.jupiter.api.Test
@@ -9,8 +8,8 @@ import org.junit.jupiter.api.Test
 class RootFormBasePropertiesTest : LightPluginTestBase() {
 
     @Test
-    fun `test form name reference`() {
-        fixture.createFormAndConfigure(
+    fun `test form name reference`() = with(fixture) {
+        createFormAndConfigure(
             "testForm", "abc", """
                 {
                   "name": "<caret>testForm"
@@ -22,8 +21,8 @@ class RootFormBasePropertiesTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test form module reference`() {
-        fixture.createFormAndConfigure(
+    fun `test form module reference`() = with(fixture) {
+        createFormAndConfigure(
             "testForm", "abc", """
                 {
                   "module": "<caret>abc"
@@ -35,8 +34,8 @@ class RootFormBasePropertiesTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test form name rename`() {
-        fixture.createFormAndConfigure(
+    fun `test form name rename`() = with(fixture) {
+        createFormAndConfigure(
             "testForm", "abc", """
                 {
                   "name": "<caret>testForm"
@@ -44,13 +43,13 @@ class RootFormBasePropertiesTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.renameElementAtCaretUsingHandler("newName.json")
+        renameElementAtCaretUsingHandler("newName.json")
         assertJsonStringLiteralValueEquals("newName")
     }
 
     @Test
-    fun `test form name completion`() {
-        fixture.createFormAndConfigure(
+    fun `test form name completion`() = with(fixture) {
+        createFormAndConfigure(
             "testForm", "abc", """
                 {
                   "name": "<caret>"
@@ -62,8 +61,8 @@ class RootFormBasePropertiesTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test form module completion`() {
-        fixture.createFormAndConfigure(
+    fun `test form module completion`() = with(fixture) {
+        createFormAndConfigure(
             "testForm", "abc", """
                 {
                   "module": "<caret>"
@@ -75,8 +74,8 @@ class RootFormBasePropertiesTest : LightPluginTestBase() {
     }
 
     @Test
-    fun `test invalid form module declaration inspection`() {
-        fixture.createFormAndConfigure(
+    fun `test invalid form module declaration inspection`(): Unit = with(fixture) {
+        createFormAndConfigure(
             "testForm", "abc", """
                 {
                   "module": "<error>abcd</error>"
@@ -84,13 +83,13 @@ class RootFormBasePropertiesTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.enableInspections(InvalidFormModuleDeclarationInspection::class.java)
-        fixture.checkHighlighting()
+        enableInspections(InvalidFormModuleDeclarationInspection::class.java)
+        checkHighlighting()
     }
 
     @Test
-    fun `test invalid form name declaration inspection`() {
-        fixture.createFormAndConfigure(
+    fun `test invalid form name declaration inspection`(): Unit = with(fixture) {
+        createFormAndConfigure(
             "testForm", "abc", """
                 {
                   "name": "<error>invalidFormName</error>"
@@ -98,8 +97,8 @@ class RootFormBasePropertiesTest : LightPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.enableInspections(InvalidFormNameDeclarationInspection::class.java)
-        fixture.checkHighlighting()
+        enableInspections(InvalidFormNameDeclarationInspection::class.java)
+        checkHighlighting()
     }
 
 }

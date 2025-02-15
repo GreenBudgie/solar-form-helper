@@ -1,9 +1,7 @@
 package com.solanteq.solar.plugin
 
 import com.intellij.json.psi.JsonProperty
-import com.solanteq.solar.plugin.base.JavaPluginTestBase
-import com.solanteq.solar.plugin.base.configureByFormText
-import com.solanteq.solar.plugin.base.createFormAndConfigure
+import com.solanteq.solar.plugin.base.*
 import com.solanteq.solar.plugin.element.FormRequest
 import com.solanteq.solar.plugin.inspection.InvalidRequestInspection
 import com.solanteq.solar.plugin.reference.request.CallableMethodReference
@@ -19,7 +17,7 @@ class RequestTest : JavaPluginTestBase() {
     override fun getTestDataSuffix() = "request"
 
     @Test
-    fun `test valid reference right after request literal with java service`() {
+    fun `test valid reference right after request literal with java service`() = with(fixture) {
         doTestMethodReference("ServiceImpl.java",
             """
             {
@@ -29,7 +27,7 @@ class RequestTest : JavaPluginTestBase() {
     }
 
     @Test
-    fun `test valid reference inside request object after name literal with kotlin service`() {
+    fun `test valid reference inside request object after name literal with kotlin service`() = with(fixture) {
         doTestMethodReference("ServiceImpl.kt",
             """
             {
@@ -45,8 +43,8 @@ class RequestTest : JavaPluginTestBase() {
         "TestService",
         "NonConventionalServiceName"
     ])
-    fun `test service name reference with different namings`(serviceName: String) {
-        fixture.configureByText("TestService.kt", """
+    fun `test service name reference with different namings`(serviceName: String) = with(fixture) {
+        configureByText("TestService.kt", """
             import com.solanteq.solar.commons.annotations.CallableService
 
             @CallableService
@@ -58,7 +56,7 @@ class RequestTest : JavaPluginTestBase() {
             }
         """.trimIndent())
 
-        fixture.configureByText("TestServiceImpl.kt", """
+        configureByText("TestServiceImpl.kt", """
             import org.springframework.stereotype.Service
 
             @Service("test.testService")
@@ -71,7 +69,7 @@ class RequestTest : JavaPluginTestBase() {
             }
         """.trimIndent())
 
-        fixture.configureByFormText(
+        configureByFormText(
             """
             {
               "request": "<caret>test.testService.findData"
@@ -82,9 +80,9 @@ class RequestTest : JavaPluginTestBase() {
     }
 
     @Test
-    fun `test reference to super method`() {
-        fixture.configureByFiles("ServiceImpl.kt", "SuperServiceImpl.kt")
-        fixture.configureByFormText("""
+    fun `test reference to super method`() = with(fixture) {
+        configureByFiles("ServiceImpl.kt", "SuperServiceImpl.kt")
+        configureByFormText("""
             {
               "request": "test.service.<caret>superMethod"
             }
@@ -94,10 +92,10 @@ class RequestTest : JavaPluginTestBase() {
     }
 
     @Test
-    fun `test service method completion`() {
+    fun `test service method completion`() = with(fixture) {
         configureServicesForCompletion()
 
-        fixture.configureByFormText("""
+        configureByFormText("""
             {
               "request": "test.testService.<caret>"
             }
@@ -115,10 +113,10 @@ class RequestTest : JavaPluginTestBase() {
         "test.<caret>.",
         "test.<caret>.callableMethod1"
     ])
-    fun `test service name completion`(request: String) {
+    fun `test service name completion`(request: String) = with(fixture) {
         configureServicesForCompletion()
 
-        fixture.configureByFormText("""
+        configureByFormText("""
             {
               "request": "$request"
             }
@@ -131,94 +129,94 @@ class RequestTest : JavaPluginTestBase() {
     }
 
     @Test
-    fun `test unresolved method inspection`() {
-        fixture.configureByFiles("TestService.kt", "TestServiceImpl.kt")
-        fixture.createFormAndConfigure("testForm", "abc", """
+    fun `test unresolved method inspection`(): Unit = with(fixture) {
+        configureByFiles("TestService.kt", "TestServiceImpl.kt")
+        createFormAndConfigure("testForm", "abc", """
                 {
                   "source": "test.testService.<error>nonExistentMethod</error>"
                 }
             """.trimIndent())
 
-        fixture.enableInspections(InvalidRequestInspection::class.java)
-        fixture.checkHighlighting()
+        enableInspections(InvalidRequestInspection::class.java)
+        checkHighlighting()
     }
 
     @Test
-    fun `test unresolved request inspection does not report resolved methods`() {
-        fixture.configureByFiles("TestService.kt", "TestServiceImpl.kt")
-        fixture.createFormAndConfigure("testForm", "abc", """
+    fun `test unresolved request inspection does not report resolved methods`(): Unit = with(fixture) {
+        configureByFiles("TestService.kt", "TestServiceImpl.kt")
+        createFormAndConfigure("testForm", "abc", """
                 {
                   "source": "test.testService.callableMethod1"
                 }
             """.trimIndent())
 
-        fixture.enableInspections(InvalidRequestInspection::class.java)
-        fixture.checkHighlighting()
+        enableInspections(InvalidRequestInspection::class.java)
+        checkHighlighting()
     }
 
     @Test
-    fun `test non callable method inspection`() {
-        fixture.configureByFiles("TestService.kt", "TestServiceImpl.kt")
-        fixture.createFormAndConfigure("testForm", "abc", """
+    fun `test non callable method inspection`(): Unit = with(fixture) {
+        configureByFiles("TestService.kt", "TestServiceImpl.kt")
+        createFormAndConfigure("testForm", "abc", """
                 {
                   "source": "test.testService.<warning>nonCallableMethod</warning>"
                 }
             """.trimIndent())
 
-        fixture.enableInspections(InvalidRequestInspection::class.java)
-        fixture.checkHighlighting()
+        enableInspections(InvalidRequestInspection::class.java)
+        checkHighlighting()
     }
 
     @Test
-    fun `test non callable service inspection`() {
-        fixture.configureByFiles("TestServiceNonCallable.kt", "TestServiceNonCallableImpl.kt")
-        fixture.createFormAndConfigure("testForm", "abc", """
+    fun `test non callable service inspection`(): Unit = with(fixture) {
+        configureByFiles("TestServiceNonCallable.kt", "TestServiceNonCallableImpl.kt")
+        createFormAndConfigure("testForm", "abc", """
                 {
                   "source": "<warning>test.testServiceNonCallable</warning>.callableMethod1"
                 }
             """.trimIndent())
 
-        fixture.enableInspections(InvalidRequestInspection::class.java)
-        fixture.checkHighlighting()
+        enableInspections(InvalidRequestInspection::class.java)
+        checkHighlighting()
     }
 
     @Test
-    fun `test non callable service and non callable method inspection`() {
-        fixture.configureByFiles("TestServiceNonCallable.kt", "TestServiceNonCallableImpl.kt")
-        fixture.createFormAndConfigure("testForm", "abc", """
+    fun `test non callable service and non callable method inspection`(): Unit = with(fixture) {
+        configureByFiles("TestServiceNonCallable.kt", "TestServiceNonCallableImpl.kt")
+        createFormAndConfigure("testForm", "abc", """
                 {
                   "source": "<warning>test.testServiceNonCallable</warning>.<warning>nonCallableMethod</warning>"
                 }
             """.trimIndent())
 
-        fixture.enableInspections(InvalidRequestInspection::class.java)
-        fixture.checkHighlighting()
+        enableInspections(InvalidRequestInspection::class.java)
+        checkHighlighting()
     }
 
     @Test
-    fun `test non callable service and unresolved method inspection`() {
-        fixture.configureByFiles("TestServiceNonCallable.kt", "TestServiceNonCallableImpl.kt")
-        fixture.createFormAndConfigure("testForm", "abc", """
+    fun `test non callable service and unresolved method inspection`(): Unit = with(fixture) {
+        configureByFiles("TestServiceNonCallable.kt", "TestServiceNonCallableImpl.kt")
+        createFormAndConfigure("testForm", "abc", """
                 {
                   "source": "<warning>test.testServiceNonCallable</warning>.<error>nonExistentMethod</error>"
                 }
             """.trimIndent())
 
-        fixture.enableInspections(InvalidRequestInspection::class.java)
-        fixture.checkHighlighting()
+        enableInspections(InvalidRequestInspection::class.java)
+        checkHighlighting()
     }
 
     @Test
-    fun `test no warning if service is not found`() {
-        fixture.configureByFiles("TestService.kt", "TestServiceImpl.kt")
-        fixture.createFormAndConfigure("testForm", "abc", """
+    fun `test no warning if service is not found`(): Unit = with(fixture) {
+        configureByFiles("TestService.kt", "TestServiceImpl.kt")
+        createFormAndConfigure("testForm", "abc", """
                 {
                   "source": "test.testService2.method"
                 }
             """.trimIndent())
 
-        fixture.enableInspections(InvalidRequestInspection::class.java)
-        fixture.checkHighlighting()
+        enableInspections(InvalidRequestInspection::class.java)
+        checkHighlighting()
     }
 
     @ParameterizedTest
@@ -237,9 +235,9 @@ class RequestTest : JavaPluginTestBase() {
             "test.testService.   ",
         ]
     )
-    fun `test invalid request string error`(request: String) {
-        fixture.configureByFiles("TestService.kt", "TestServiceImpl.kt")
-        fixture.createFormAndConfigure(
+    fun `test invalid request string error`(request: String) = with(fixture) {
+        configureByFiles("TestService.kt", "TestServiceImpl.kt")
+        createFormAndConfigure(
             "testForm", "abc", """
                 {
                   "source": "<error>$request</error>"
@@ -247,20 +245,20 @@ class RequestTest : JavaPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.enableInspections(InvalidRequestInspection::class.java)
-        fixture.checkHighlighting()
+        enableInspections(InvalidRequestInspection::class.java)
+        checkHighlighting()
     }
 
     @Test
-    fun `test no warning for callable method and service with multiple interfaces`() {
-        fixture.configureByFiles(
+    fun `test no warning for callable method and service with multiple interfaces`(): Unit = with(fixture) {
+        configureByFiles(
             "multipleInterfaces/CallableInterface.kt",
             "multipleInterfaces/NonCallableInterface.kt",
             "multipleInterfaces/AbstractService.kt",
             "multipleInterfaces/ServiceImpl.kt",
         )
 
-        fixture.createFormAndConfigure(
+        createFormAndConfigure(
             "testForm", "abc", """
                 {
                   "source": "test.service.find"
@@ -268,14 +266,14 @@ class RequestTest : JavaPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.enableInspections(InvalidRequestInspection::class.java)
-        fixture.checkHighlighting()
+        enableInspections(InvalidRequestInspection::class.java)
+        checkHighlighting()
     }
 
     @Test
-    fun `test java enum dropdown reference`() {
-        fixture.configureByFiles("DropdownJava.java")
-        fixture.createFormAndConfigure("testForm", "abc", """
+    fun `test java enum dropdown reference`() = with(fixture) {
+        configureByFiles("DropdownJava.java")
+        createFormAndConfigure("testForm", "abc", """
                 {
                   "source": {
                     "name": "test.<caret>dropdownJava.findAll",
@@ -288,9 +286,9 @@ class RequestTest : JavaPluginTestBase() {
     }
 
     @Test
-    fun `test kotlin enum dropdown reference`() {
-        fixture.configureByFiles("DropdownKotlin.kt")
-        fixture.createFormAndConfigure("testForm", "abc", """
+    fun `test kotlin enum dropdown reference`() = with(fixture) {
+        configureByFiles("DropdownKotlin.kt")
+        createFormAndConfigure("testForm", "abc", """
                 {
                   "source": {
                     "name": "test.<caret>dropdownKotlin.findAll",
@@ -309,10 +307,10 @@ class RequestTest : JavaPluginTestBase() {
         "test.<caret>.",
         "test.<caret>.findAll"
     ])
-    fun `test only enum dropdown completion`(request: String) {
+    fun `test only enum dropdown completion`(request: String) = with(fixture) {
         configureServicesForCompletion()
-        fixture.configureByFiles("DropdownKotlin.kt", "DropdownJava.java")
-        fixture.createFormAndConfigure("testForm", "abc", """
+        configureByFiles("DropdownKotlin.kt", "DropdownJava.java")
+        createFormAndConfigure("testForm", "abc", """
                 {
                   "source": {
                     "name": "$request",
@@ -326,10 +324,10 @@ class RequestTest : JavaPluginTestBase() {
 
     //Do not add dropdown completions if $dropdown is not specified
     @Test
-    fun `test no enum dropdown completion`() {
+    fun `test no enum dropdown completion`() = with(fixture) {
         configureServicesForCompletion()
-        fixture.configureByFiles("DropdownKotlin.kt", "DropdownJava.java")
-        fixture.createFormAndConfigure("testForm", "abc", """
+        configureByFiles("DropdownKotlin.kt", "DropdownJava.java")
+        createFormAndConfigure("testForm", "abc", """
                 {
                   "source": {
                     "name": "<caret>",
@@ -343,10 +341,10 @@ class RequestTest : JavaPluginTestBase() {
 
     //Add both dropdowns and services to completions if no group is specified
     @Test
-    fun `test both service and enum dropdown completion`() {
+    fun `test both service and enum dropdown completion`() = with(fixture) {
         configureServicesForCompletion()
-        fixture.configureByFiles("DropdownKotlin.kt", "DropdownJava.java")
-        fixture.createFormAndConfigure("testForm", "abc", """
+        configureByFiles("DropdownKotlin.kt", "DropdownJava.java")
+        createFormAndConfigure("testForm", "abc", """
                 {
                   "source": {
                     "name": "<caret>"
@@ -363,8 +361,8 @@ class RequestTest : JavaPluginTestBase() {
     }
 
     @Test
-    fun `test do not create request element for 'remove' inline action`() {
-        fixture.createFormAndConfigure("testForm", "abc", """
+    fun `test do not create request element for 'remove' inline action`() = with(fixture) {
+        createFormAndConfigure("testForm", "abc", """
                 {
                   "remove": {
                     "name": "test<caret>"
@@ -384,8 +382,8 @@ class RequestTest : JavaPluginTestBase() {
     }
 
     @Test
-    fun `test create request element for 'remove' form request`() {
-        fixture.createFormAndConfigure("testForm", "abc", """
+    fun `test create request element for 'remove' form request`() = with(fixture) {
+        createFormAndConfigure("testForm", "abc", """
                 {
                   "remove": {
                     "name": "test<caret>"
@@ -417,7 +415,7 @@ class RequestTest : JavaPluginTestBase() {
         fixture.configureByFile(serviceClassPath)
         fixture.configureByFormText(formText)
 
-        assertReferencedElementNameEquals("findData")
+        fixture.assertReferencedElementNameEquals("findData")
     }
 
 }

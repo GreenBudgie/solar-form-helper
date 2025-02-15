@@ -8,14 +8,14 @@ class FieldTest : JavaPluginTestBase() {
     override fun getTestDataSuffix() = "field"
 
     @Test
-    fun `test field name reference from source request`() {
-        fixture.configureByFiles(
+    fun `test field name reference from source request`() = with(fixture) {
+        configureByFiles(
             "DataClass.kt",
             "TestService.kt",
             "TestServiceImpl.kt",
         )
 
-        fixture.configureByFormText("""
+        configureByFormText("""
             {
               "source": "test.testService.findData",
               "groups": [
@@ -38,14 +38,14 @@ class FieldTest : JavaPluginTestBase() {
     }
 
     @Test
-    fun `test field name completion from source request`() {
-        fixture.configureByFiles(
+    fun `test field name completion from source request`() = with(fixture) {
+        configureByFiles(
             "DataClass.kt",
             "TestService.kt",
             "TestServiceImpl.kt",
         )
 
-        fixture.configureByFormText("""
+        configureByFormText("""
             {
               "source": "test.testService.findData",
               "groupRows": [
@@ -76,14 +76,14 @@ class FieldTest : JavaPluginTestBase() {
     }
 
     @Test
-    fun `test field name reference from source request to nested property`() {
-        fixture.configureByFiles(
+    fun `test field name reference from source request to nested property`() = with(fixture) {
+        configureByFiles(
             "DataClassWithNestedProperty.kt",
             "TestService.kt",
             "TestServiceImpl.kt",
         )
 
-        fixture.configureByFormText("""
+        configureByFormText("""
             {
               "source": "test.testService.findDataWithNestedProperty",
               "groups": [
@@ -106,15 +106,15 @@ class FieldTest : JavaPluginTestBase() {
     }
 
     @Test
-    fun `test field name reference from source request to nested property field`() {
-        fixture.configureByFiles(
+    fun `test field name reference from source request to nested property field`() = with(fixture) {
+        configureByFiles(
             "DataClass.kt",
             "DataClassWithNestedProperty.kt",
             "TestService.kt",
             "TestServiceImpl.kt",
         )
 
-        fixture.configureByFormText("""
+        configureByFormText("""
             {
               "source": "test.testService.findDataWithNestedProperty",
               "groups": [
@@ -137,15 +137,15 @@ class FieldTest : JavaPluginTestBase() {
     }
 
     @Test
-    fun `test field name completion from source request with nested property`() {
-        fixture.configureByFiles(
+    fun `test field name completion from source request with nested property`() = with(fixture) {
+        configureByFiles(
             "DataClass.kt",
             "DataClassWithNestedProperty.kt",
             "TestService.kt",
             "TestServiceImpl.kt",
         )
 
-        fixture.configureByFormText("""
+        configureByFormText("""
             {
               "source": "test.testService.findData",
               "groups": [
@@ -172,15 +172,15 @@ class FieldTest : JavaPluginTestBase() {
     }
 
     @Test
-    fun `test field name reference from source request to superclass`() {
-        fixture.configureByFiles(
+    fun `test field name reference from source request to superclass`() = with(fixture) {
+        configureByFiles(
             "Cls.kt",
             "SuperCls.java",
             "TestService.kt",
             "TestServiceImpl.kt",
         )
 
-        fixture.configureByFormText("""
+        configureByFormText("""
             {
               "source": "test.testService.findDataClassWithSuperClass",
               "groups": [
@@ -203,8 +203,8 @@ class FieldTest : JavaPluginTestBase() {
     }
 
     @Test
-    fun `test field name reference from source request with generic return type`() {
-        fixture.configureByFiles(
+    fun `test field name reference from source request with generic return type`() = with(fixture) {
+        configureByFiles(
             "CustomService.kt",
             "CustomServiceImpl.kt",
             "GenericService.kt",
@@ -212,7 +212,7 @@ class FieldTest : JavaPluginTestBase() {
             "DataClass.kt"
         )
 
-        fixture.configureByFormText("""
+        configureByFormText("""
             {
               "source": "test.customService.findById",
               "groups": [
@@ -235,8 +235,8 @@ class FieldTest : JavaPluginTestBase() {
     }
 
     @Test
-    fun `test field completion from multiple inline configurations`() {
-        fixture.configureByFiles(
+    fun `test field completion from multiple inline configurations`() = with(fixture) {
+        configureByFiles(
             "Cls.kt",
             "SuperCls.java",
             "DataClass.kt",
@@ -244,7 +244,7 @@ class FieldTest : JavaPluginTestBase() {
             "TestServiceImpl.kt"
         )
 
-        fixture.createForm(
+        createForm(
             "dataClass", "abc1", """
                 {
                   "groups": [
@@ -261,7 +261,7 @@ class FieldTest : JavaPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createForm(
+        createForm(
             "cls", "abc2", """
                 {
                   "groups": [
@@ -276,7 +276,7 @@ class FieldTest : JavaPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createFormAndConfigure(
+        createFormAndConfigure(
             "testForm", "test", """
                 {
                   "groups": [
@@ -306,8 +306,8 @@ class FieldTest : JavaPluginTestBase() {
     }
 
     @Test
-    fun `test field completion from generified list`() {
-        fixture.configureByFiles(
+    fun `test field completion from generified list`() = with(fixture) {
+        configureByFiles(
             "CustomService.kt",
             "CustomServiceImpl.kt",
             "GenericService.kt",
@@ -315,7 +315,7 @@ class FieldTest : JavaPluginTestBase() {
             "DataClass.kt"
         )
 
-        fixture.createForm(
+        createForm(
             "dataClass", "abc", """
                 {
                   "groups": [
@@ -330,7 +330,7 @@ class FieldTest : JavaPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createFormAndConfigure(
+        createFormAndConfigure(
             "testForm", "test", """
                 {
                   "groups": [
@@ -358,8 +358,8 @@ class FieldTest : JavaPluginTestBase() {
     }
 
     @Test
-    fun `test field reference from generified list`() {
-        fixture.configureByFiles(
+    fun `test field reference from generified list`() = with(fixture) {
+        configureByFiles(
             "CustomService.kt",
             "CustomServiceImpl.kt",
             "GenericService.kt",
@@ -367,7 +367,7 @@ class FieldTest : JavaPluginTestBase() {
             "DataClass.kt"
         )
 
-        fixture.createForm(
+        createForm(
             "dataClass", "abc", """
                 {
                   "groups": [
@@ -382,7 +382,7 @@ class FieldTest : JavaPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createFormAndConfigure(
+        createFormAndConfigure(
             "testForm", "test", """
                 {
                   "groups": [
@@ -406,14 +406,14 @@ class FieldTest : JavaPluginTestBase() {
     }
 
     @Test
-    fun `test field reference from inline configuration`() {
-        fixture.configureByFiles(
+    fun `test field reference from inline configuration`() = with(fixture) {
+        configureByFiles(
             "DataClass.kt",
             "TestService.kt",
             "TestServiceImpl.kt"
         )
 
-        fixture.createForm(
+        createForm(
             "dataClass", "abc", """
                 {
                   "groups": [
@@ -430,7 +430,7 @@ class FieldTest : JavaPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createFormAndConfigure(
+        createFormAndConfigure(
             "testForm", "test", """
                 {
                   "groups": [
@@ -454,14 +454,14 @@ class FieldTest : JavaPluginTestBase() {
     }
 
     @Test
-    fun `test field name reference in included form`() {
-        fixture.configureByFiles(
+    fun `test field name reference in included form`() = with(fixture) {
+        configureByFiles(
             "DataClass.kt",
             "TestService.kt",
             "TestServiceImpl.kt",
         )
 
-        fixture.createForm(
+        createForm(
             "rootForm", "test", """
                 {
                   "source": "test.testService.findData",
@@ -478,7 +478,7 @@ class FieldTest : JavaPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createIncludedFormAndConfigure("includedForm", "test2", """
+        createIncludedFormAndConfigure("includedForm", "test2", """
             [
               {
                 "name": "<caret>stringField"
@@ -490,8 +490,8 @@ class FieldTest : JavaPluginTestBase() {
     }
 
     @Test
-    fun `test field name completion in included form for multiple declarations`() {
-        fixture.configureByFiles(
+    fun `test field name completion in included form for multiple declarations`() = with(fixture) {
+        configureByFiles(
             "DataClass.kt",
             "TestService.kt",
             "TestServiceImpl.kt",
@@ -499,7 +499,7 @@ class FieldTest : JavaPluginTestBase() {
             "SuperCls.java"
         )
 
-        fixture.createForm(
+        createForm(
             "dataClassForm", "test", """
                 {
                   "source": "test.testService.findData",
@@ -516,7 +516,7 @@ class FieldTest : JavaPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createForm(
+        createForm(
             "clsForm", "test", """
                 {
                   "source": "test.testService.findDataClassWithSuperClass",
@@ -533,7 +533,7 @@ class FieldTest : JavaPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createIncludedFormAndConfigure("includedForm", "test2", """
+        createIncludedFormAndConfigure("includedForm", "test2", """
             [
               {
                 "name": "<caret>"
@@ -551,14 +551,14 @@ class FieldTest : JavaPluginTestBase() {
     }
 
     @Test
-    fun `test field name reference in included form with json-flat declaration`() {
-        fixture.configureByFiles(
+    fun `test field name reference in included form with json-flat declaration`() = with(fixture) {
+        configureByFiles(
             "DataClass.kt",
             "TestService.kt",
             "TestServiceImpl.kt",
         )
 
-        fixture.createForm(
+        createForm(
             "rootForm", "test", """
                 {
                   "source": "test.testService.findData",
@@ -577,7 +577,7 @@ class FieldTest : JavaPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createIncludedFormAndConfigure("includedForm", "test2", """
+        createIncludedFormAndConfigure("includedForm", "test2", """
             [
               {
                 "name": "<caret>stringField"
@@ -589,14 +589,14 @@ class FieldTest : JavaPluginTestBase() {
     }
 
     @Test
-    fun `test field name completion in included form with json-flat declaration`() {
-        fixture.configureByFiles(
+    fun `test field name completion in included form with json-flat declaration`() = with(fixture) {
+        configureByFiles(
             "DataClass.kt",
             "TestService.kt",
             "TestServiceImpl.kt",
         )
 
-        fixture.createForm(
+        createForm(
             "rootForm", "test", """
                 {
                   "source": "test.testService.findData",
@@ -615,7 +615,7 @@ class FieldTest : JavaPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createIncludedFormAndConfigure("includedForm", "test2", """
+        createIncludedFormAndConfigure("includedForm", "test2", """
             [
               {
                 "name": "<caret>"
@@ -631,15 +631,15 @@ class FieldTest : JavaPluginTestBase() {
     }
 
     @Test
-    fun `test reference from form with related list field`() {
-        fixture.configureByFiles(
+    fun `test reference from form with related list field`() = with(fixture) {
+        configureByFiles(
             "DataClass.kt",
             "DataClassWithList.kt",
             "TestService.kt",
             "TestServiceImpl.kt",
         )
 
-        fixture.createForm(
+        createForm(
             "formWithListField", "test", """
                 {
                   "source": "test.testService.findDataWithList",
@@ -662,7 +662,7 @@ class FieldTest : JavaPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createFormAndConfigure(
+        createFormAndConfigure(
             "listForm", "test", """
                 {
                   "groups": [
@@ -686,15 +686,15 @@ class FieldTest : JavaPluginTestBase() {
     }
 
     @Test
-    fun `test completion from form with related list field`() {
-        fixture.configureByFiles(
+    fun `test completion from form with related list field`() = with(fixture) {
+        configureByFiles(
             "DataClass.kt",
             "DataClassWithList.kt",
             "TestService.kt",
             "TestServiceImpl.kt",
         )
 
-        fixture.createForm(
+        createForm(
             "formWithListField", "test", """
                 {
                   "source": "test.testService.findDataWithList",
@@ -717,7 +717,7 @@ class FieldTest : JavaPluginTestBase() {
             """.trimIndent()
         )
 
-        fixture.createFormAndConfigure(
+        createFormAndConfigure(
             "listForm", "test", """
                 {
                   "groups": [

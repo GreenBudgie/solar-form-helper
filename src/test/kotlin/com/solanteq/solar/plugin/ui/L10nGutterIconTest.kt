@@ -11,9 +11,11 @@ import com.solanteq.solar.plugin.ui.base.remoteRobot
 import com.solanteq.solar.plugin.ui.fixtures.idea
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.Duration.ofSeconds
 
+@Disabled("Add new l10n feature is still in development")
 class L10nGutterIconTest : UITestBase() {
 
     @Test

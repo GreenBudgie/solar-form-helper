@@ -1,6 +1,7 @@
 package com.solanteq.solar.plugin.move
 
 import com.intellij.json.psi.JsonFile
+import com.intellij.platform.ide.progress.ModalTaskOwner.project
 import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiElement
 import com.intellij.refactoring.move.moveFilesOrDirectories.MoveFilesOrDirectoriesProcessor
