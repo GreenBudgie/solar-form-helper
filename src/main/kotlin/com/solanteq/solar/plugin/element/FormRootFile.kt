@@ -305,8 +305,8 @@ class FormRootFile(
     companion object : FormElementCreator<FormRootFile, JsonFile>() {
 
         override fun doCreate(sourceElement: JsonFile): FormRootFile? {
-            val topLevelObject = sourceElement.topLevelValue as? JsonObject ?: return null
             if (sourceElement.fileType == RootFormFileType) {
+                val topLevelObject = sourceElement.topLevelValue as? JsonObject ?: return null
                 return FormRootFile(sourceElement, topLevelObject)
             }
             return null

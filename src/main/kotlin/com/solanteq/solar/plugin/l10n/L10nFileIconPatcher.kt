@@ -9,12 +9,7 @@ import javax.swing.Icon
 class L10nFileIconPatcher : FileIconPatcher {
 
     override fun patchIcon(baseIcon: Icon, file: VirtualFile, flags: Int, project: Project?): Icon {
-        if (file.fileType != L10nFileType) {
-            return baseIcon
-        }
-        val l10nFileDirectory = file.parent ?: return baseIcon
-        val locale = L10nLocale.getByDirectoryName(l10nFileDirectory.name) ?: return baseIcon
-        return locale.icon
+        return L10nLocale.getByFile(file)?.icon ?: baseIcon
     }
 
 }

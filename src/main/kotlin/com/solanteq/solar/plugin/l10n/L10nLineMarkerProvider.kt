@@ -17,13 +17,12 @@ import com.intellij.ui.awt.RelativePoint
 import com.solanteq.solar.plugin.asset.Icons
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.element.creator.FormElementFactory
-import com.solanteq.solar.plugin.l10n.action.CreateFormL10nAction
+import com.solanteq.solar.plugin.l10n.action.EditFormL10nAction
 import com.solanteq.solar.plugin.util.asList
 import com.solanteq.solar.plugin.util.isForm
 import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.kotlin.idea.codeinsight.utils.findExistingEditor
 import java.awt.event.MouseEvent
-import javax.swing.Icon
 
 class L10nLineMarkerProvider : LineMarkerProvider {
 
@@ -119,7 +118,7 @@ class L10nLineMarkerProvider : LineMarkerProvider {
         override fun getIcon() = Icons.NEW_L10N_ACTION
 
         override fun execute() {
-            val action = CreateFormL10nAction()
+            val action = EditFormL10nAction()
             if (action.isAvailable(project, editor, element)) {
                 action.invoke(project, editor, element)
             }

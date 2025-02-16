@@ -70,7 +70,7 @@ abstract class FormArrayElementCreator<ELEMENT : AbstractFormElement<JsonObject>
     }
 
     private fun canBeCreatedAsListEntryFrom(sourceElement: JsonObject): Boolean {
-        val jsonObject = sourceElement as? JsonObject ?: return false
+        val jsonObject = sourceElement
 
         //TODO CAN_BE_OPTIMIZED make processParents function for performance
         val parentArrays = FormPsiUtils.parents(jsonObject)

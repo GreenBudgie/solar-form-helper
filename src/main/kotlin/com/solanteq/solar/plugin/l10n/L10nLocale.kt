@@ -1,8 +1,12 @@
 package com.solanteq.solar.plugin.l10n
 
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.PsiFile
 import com.intellij.ui.IconManager
 import com.intellij.ui.LayeredIcon
+import com.intellij.ui.LayeredIcon.Companion.layeredIcon
 import com.solanteq.solar.plugin.asset.Icons
+import com.solanteq.solar.plugin.file.L10nFileType
 import javax.swing.Icon
 
 enum class L10nLocale(
@@ -18,6 +22,22 @@ enum class L10nLocale(
 
         fun getByDirectoryName(directoryName: String) = entries.find {
             it.directoryName == directoryName
+        }
+
+        fun getByFile(file: PsiFile): L10nLocale? {
+            if (file.fileType != L10nFileType) {
+                return null
+            }
+            val l10nFileDirectory = file.parent ?: return null
+            return getByDirectoryName(l10nFileDirectory.name)
+        }
+
+        fun getByFile(file: VirtualFile): L10nLocale? {
+            if (file.fileType != L10nFileType) {
+                return null
+            }
+            val l10nFileDirectory = file.parent ?: return null
+            return getByDirectoryName(l10nFileDirectory.name)
         }
 
     }
