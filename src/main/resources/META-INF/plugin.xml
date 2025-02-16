@@ -149,18 +149,10 @@
 
         <intentionAction>
             <language>JSON</language>
-            <className>com.solanteq.solar.plugin.l10n.action.CreateFormL10nAction</className>
+            <className>com.solanteq.solar.plugin.l10n.action.EditFormL10nAction</className>
         </intentionAction>
 
         <!-- UI -->
         <fileEditorProvider implementation="com.solanteq.solar.plugin.ui.editor.FormEditorProvider"/>
     </extensions>
-
-    <actions>
-        <action id="com.solanteq.solar.plugin.TestAction" class="com.solanteq.solar.plugin.TestAction"
-                text="Test Action" description="Test action description">
-            <add-to-group group-id="ToolsMenu" anchor="last"/>
-        </action>
-    </actions>
-
 </idea-plugin>

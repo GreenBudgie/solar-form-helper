@@ -10,7 +10,6 @@ import com.intellij.openapi.editor.markup.InspectionWidgetActionProvider
 class LocaleActionProvider : InspectionWidgetActionProvider {
 
     override fun createAction(editor: Editor): AnAction? {
-        val project = editor.project ?: return null
         return object : DefaultActionGroup(LocaleToggleAction(), Separator.create()) {
 
             override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.BGT
