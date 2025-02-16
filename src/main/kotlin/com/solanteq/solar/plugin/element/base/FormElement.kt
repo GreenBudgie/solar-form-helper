@@ -4,6 +4,8 @@ import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonFile
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import kotlin.reflect.KClass
+import kotlin.reflect.full.isSubclassOf
 
 /**
  * Form element is a representation of a SOLAR form json element.
@@ -50,8 +52,29 @@ interface FormElement<T : JsonElement> {
     val virtualFile: VirtualFile?
 
     /**
-     * Form file that contains this element, or null if the file or element is invalid
+     * Form file (root or included) that contains this element, or null if the file or element is invalid
      */
     val containingForm: FormFile?
 
+    /**
+     * Direct parents of this [FormElement].
+     * Every element can have multiple parents since it can be inside an included form.
+     *
+     * Might be very slow.
+     *
+     * **Important**:
+     *
+     * Keep in mind that elements might not know about some of their parents in some contexts. For example,
+     * requests can be at the top-level of a root form, but also they can be inside inline configurations
+     * and many other places. Look at concrete implementations of this method before relying on it to determine
+     * whether the parent you are looking for is even supported.
+     */
+    val parents: List<FormElement<*>>
+
+    /**
+     * Direct children of this [FormElement].
+     *
+     * Might be very slow.
+     */
+    val children: List<FormElement<*>>
 }

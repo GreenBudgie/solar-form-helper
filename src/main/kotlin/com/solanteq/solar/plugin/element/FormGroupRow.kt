@@ -13,6 +13,14 @@ class FormGroupRow(
     sourceElement: JsonObject
 ) : AbstractFormElement<JsonObject>(sourceElement), ExpressionAware by ExpressionAwareImpl(sourceElement) {
 
+    override val parents by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        containingRootForms
+    }
+
+    override val children by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        groups ?: emptyList()
+    }
+
     val groups by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val groupsProperty = sourceElement.findProperty(FormGroup.getArrayName())
         FormGroup.createElementListFrom(groupsProperty)

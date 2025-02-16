@@ -1,28 +1,21 @@
 package com.solanteq.solar.plugin.l10n.action
 
-import com.intellij.ide.util.TreeFileChooser
 import com.intellij.ide.util.TreeFileChooserFactory
-import com.intellij.lang.properties.PropertiesImplUtil
-import com.intellij.lang.properties.psi.PropertiesFile
-import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
+import com.intellij.json.psi.JsonFile
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.LocalFileSystem
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiFile
-import com.intellij.psi.PsiManager
 import com.intellij.ui.GuiUtils
 import com.intellij.ui.TextFieldWithHistory
+import com.intellij.ui.components.fields.ExpandableTextField
 import com.intellij.ui.dsl.builder.COLUMNS_LARGE
 import com.intellij.ui.dsl.builder.columns
 import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.util.minimumHeight
-import com.intellij.ui.util.minimumWidth
-import com.intellij.ui.util.preferredWidth
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.file.L10nFileType
+import com.solanteq.solar.plugin.l10n.L10nKey
 import com.solanteq.solar.plugin.l10n.L10nLocale
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 import java.awt.Component
@@ -30,14 +23,13 @@ import java.awt.Dimension
 import javax.swing.DefaultListCellRenderer
 import javax.swing.JComponent
 import javax.swing.JList
-import javax.swing.ListCellRenderer
 
 class EditFormL10nDialog(
     private val project: Project,
     private val element: FormLocalizableElement<*>,
 ) : DialogWrapper(project) {
 
-    private val fileChooserFields = mutableMapOf<L10nKey, TextFieldWithHistory>()
+    private val l10nData = mutableMapOf<L10nKey, L10nData>()
 
     init {
         title = "Edit Localization"
@@ -66,7 +58,7 @@ class EditFormL10nDialog(
                                     value: Any?,
                                     index: Int,
                                     isSelected: Boolean,
-                                    cellHasFocus: Boolean
+                                    cellHasFocus: Boolean,
                                 ): Component? {
                                     super.getListCellRendererComponent(
                                         list,
@@ -76,7 +68,7 @@ class EditFormL10nDialog(
                                         cellHasFocus
                                     )
 
-                                    val file = getFile(key)?.toPsiFile(project)
+                                    val file = getFile(fileChooserField)
                                     if (file == null) {
                                         text = "No file selected"
                                         return this
@@ -89,18 +81,17 @@ class EditFormL10nDialog(
                                 }
 
                             }
-                            fileChooserFields += key to fileChooserField
 
                             val fileBrowser = GuiUtils.constructFieldWithBrowseButton(fileChooserField) {
                                 val fileChooser = TreeFileChooserFactory.getInstance(project).createFileChooser(
                                     "Choose Localization File",
-                                    getFile(key)?.toPsiFile(project),
+                                    getFile(fileChooserField),
                                     L10nFileType
                                 ) { file -> L10nLocale.getByFile(file) == locale }
                                 fileChooser.showDialog()
                                 val selectedFile = fileChooser.selectedFile
                                 if (selectedFile != null) {
-                                    val fileChooserField = fileChooserFields.getValue(key)
+                                    val fileChooserField = fileChooserField
                                     val selectedPath = FileUtil.toSystemDependentName(selectedFile.virtualFile.path)
                                     fileChooserField.text = selectedPath
                                     fileChooserField.selectedItem = selectedPath
@@ -112,8 +103,14 @@ class EditFormL10nDialog(
                             cell(fileBrowser)
                                 .widthGroup("fileBrowser")
 
-                            expandableTextField({ mutableListOf(it) })
+                            val valueField = expandableTextField({ mutableListOf(it) })
                                 .columns(COLUMNS_LARGE * 2)
+                                .component
+
+                            l10nData += key to L10nData(
+                                fileChooserField,
+                                valueField
+                            )
                         }
                     }
                 }
@@ -121,19 +118,14 @@ class EditFormL10nDialog(
         }
     }
 
-    private fun getFile(key: L10nKey): VirtualFile? {
-        val path = getFilePath(key) ?: return null
-        return LocalFileSystem.getInstance().findFileByPath(path)
+    private fun getFile(fileChooserField: TextFieldWithHistory): JsonFile? {
+        val path = fileChooserField.selectedItem as String? ?: return null
+        return LocalFileSystem.getInstance().findFileByPath(path)?.toPsiFile(project) as? JsonFile
     }
 
-    private fun getFilePath(key: L10nKey): String? {
-        val fileChooserField = fileChooserFields.getValue(key)
-        return fileChooserField.selectedItem as String?
-    }
-
-    private data class L10nKey(
-        val key: String,
-        val locale: L10nLocale,
+    private data class L10nData(
+        var fileChooserField: TextFieldWithHistory,
+        var valueField: ExpandableTextField,
     )
 
 }

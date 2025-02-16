@@ -1,13 +1,17 @@
 package com.solanteq.solar.plugin.element
 
+import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonObject
 import com.intellij.json.psi.JsonProperty
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiMethod
+import com.intellij.psi.util.findParentOfType
 import com.solanteq.solar.plugin.element.base.AbstractFormElement
+import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.element.creator.FormElementCreator
+import com.solanteq.solar.plugin.file.IncludedFormFileType
 import com.solanteq.solar.plugin.index.CallableServiceImplIndex
 import com.solanteq.solar.plugin.index.DropdownIndex
 import com.solanteq.solar.plugin.util.*
@@ -41,8 +45,28 @@ import org.jetbrains.uast.toUElementOfType
  * ```
  */
 class FormRequest(
-    sourceElement: JsonProperty
+    sourceElement: JsonProperty,
 ) : AbstractFormElement<JsonProperty>(sourceElement) {
+
+    override val parents by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        directRootForm.asListOrEmpty()
+    }
+
+    override val children: List<FormElement<*>> = emptyList()
+
+    /**
+     * Direct root form that contain this request (like `source` request).
+     * Returns null if this request is not in the top-level object of a root form.
+     */
+    val directRootForm by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        val topLevelObject = sourceElement.findParentOfType<JsonObject>() ?: return@lazy null
+        val jsonFile = topLevelObject.containingFile as? JsonFile ?: return@lazy null
+        if (jsonFile.fileType == IncludedFormFileType || jsonFile.topLevelValue !== topLevelObject) {
+            return@lazy null
+        }
+
+        return@lazy FormRootFile.createFrom(jsonFile)
+    }
 
     /**
      * Returns string literal element that represents the request string itself,
@@ -148,7 +172,7 @@ class FormRequest(
      * enum that this request points to, or null if it cannot be resolved
      */
     val referencedDropdown by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        if(!isDropdownRequest) {
+        if (!isDropdownRequest) {
             return@lazy null
         }
         val dropdownModule = requestData?.module?.text ?: return@lazy null
@@ -179,8 +203,10 @@ class FormRequest(
         true
     }
 
-    private fun findApplicableService(possibleServices: Collection<PsiClass>,
-                                      requiredServiceName: String): PsiClass? {
+    private fun findApplicableService(
+        possibleServices: Collection<PsiClass>,
+        requiredServiceName: String,
+    ): PsiClass? {
         return possibleServices.find {
             it.serviceSolarName == requiredServiceName
         }
@@ -190,7 +216,7 @@ class FormRequest(
         val module: RangeSplitEntry?,
         val clazz: RangeSplitEntry?,
         val method: RangeSplitEntry?,
-        val service: RangeSplitEntry?
+        val service: RangeSplitEntry?,
     )
 
     /**
@@ -214,7 +240,7 @@ class FormRequest(
      */
     enum class RequestType(
         val requestLiteral: String,
-        val canBeInlineAction: Boolean
+        val canBeInlineAction: Boolean,
     ) {
 
         SOURCE("source", false),
