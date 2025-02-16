@@ -1,10 +1,13 @@
 package com.solanteq.solar.plugin.element
 
 import com.intellij.json.psi.JsonObject
+import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.element.creator.FormArrayElementCreator
 import com.solanteq.solar.plugin.element.expression.ExpressionAware
 import com.solanteq.solar.plugin.element.expression.ExpressionAwareImpl
+import com.solanteq.solar.plugin.util.FormPsiUtils
+import com.solanteq.solar.plugin.util.asList
 import com.solanteq.solar.plugin.util.valueAsIntOrNull
 
 /**
@@ -17,6 +20,38 @@ class FormGroup(
     sourceElement: JsonObject,
 ) : FormLocalizableElement<JsonObject>(sourceElement, sourceElement),
     ExpressionAware by ExpressionAwareImpl(sourceElement) {
+
+    override val parents by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        val containingGroupRows = containingGroupRows
+        if (containingGroupRows.isNotEmpty()) {
+            return@lazy containingGroupRows
+        }
+
+        return@lazy containingRootForms as List<FormElement<*>>
+    }
+
+    override val children by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        val inline = inline
+        if (inline != null) {
+            return@lazy inline.asList()
+        }
+
+        rows ?: emptyList()
+    }
+
+    /**
+     * All groups rows that contain this row.
+     *
+     * Multiple containing group rows can exist if this row is in included form.
+     *
+     * Returns empty list if `groups` property is at top-level object
+     * of a root form (so that `groupRows` does not exist).
+     */
+    val containingGroupRows: List<FormGroupRow> by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        FormPsiUtils.firstParentsOfType(sourceElement, JsonObject::class).mapNotNull {
+            FormGroupRow.createFrom(it)
+        }
+    }
 
     override val l10nKeys: List<String> by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val groupName = name ?: return@lazy emptyList()

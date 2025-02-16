@@ -8,6 +8,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.*
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.TypeConversionUtil
+import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.element.base.FormFile
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.element.creator.FormElementCreator
@@ -45,6 +46,17 @@ class FormRootFile(
     ExpressionAware by ExpressionAwareImpl(topLevelObject) {
 
     override val containingForm = this
+
+    override val parents: List<FormElement<*>> = emptyList()
+
+    override val children by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        listOfNotNull(
+            requests,
+            groups,
+            groupRows,
+            expressions
+        ).flatten()
+    }
 
     /**
      * The short name of this form.

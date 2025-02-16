@@ -5,6 +5,7 @@ import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import com.solanteq.solar.plugin.element.base.AbstractFormElement
+import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.element.creator.FormElementCreator
 import com.solanteq.solar.plugin.search.FormSearch
 import com.solanteq.solar.plugin.util.RangeSplit
@@ -23,6 +24,9 @@ class FormJsonInclude(
     sourceElement: JsonStringLiteral,
     val type: JsonIncludeType
 ) : AbstractFormElement<JsonStringLiteral>(sourceElement) {
+
+    override val parents: List<FormElement<*>> = emptyList()
+    override val children: List<FormElement<*>> = emptyList()
 
     /**
      * Path after "json://includes/forms/" ("json-flat://includes/forms/") prefix

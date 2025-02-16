@@ -10,6 +10,7 @@ import com.intellij.psi.PsiReference
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.solanteq.solar.plugin.element.base.AbstractFormElement
+import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.element.base.FormFile
 import com.solanteq.solar.plugin.element.creator.FormElementCreator
 import com.solanteq.solar.plugin.file.IncludedFormFileType
@@ -30,6 +31,12 @@ import org.jetbrains.kotlin.idea.util.application.executeOnPooledThread
 class FormIncludedFile(
     sourceElement: JsonFile
 ) : AbstractFormElement<JsonFile>(sourceElement), FormFile {
+
+    // Included form is not actually a real element since it is only used to help traverse form structure,
+    // so it does not have any parents or children
+
+    override val parents: List<FormElement<*>> = emptyList()
+    override val children: List<FormElement<*>> = emptyList()
 
     override val containingForm = this
 

@@ -1,6 +1,7 @@
 package com.solanteq.solar.plugin.element.expression
 
 import com.intellij.json.psi.JsonObject
+import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.element.base.FormNamedElement
 import com.solanteq.solar.plugin.element.creator.FormArrayElementCreator
 import com.solanteq.solar.plugin.util.valueAsStringOrNull
@@ -11,6 +12,12 @@ import com.solanteq.solar.plugin.util.valueAsStringOrNull
 class FormExpression(
     sourceElement: JsonObject
 ) : FormNamedElement<JsonObject>(sourceElement, sourceElement) {
+
+    override val parents by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        containingRootForms
+    }
+
+    override val children: List<FormElement<*>> = emptyList()
 
     val valueProperty by lazy(LazyThreadSafetyMode.PUBLICATION) {
         sourceElement.findProperty("value")

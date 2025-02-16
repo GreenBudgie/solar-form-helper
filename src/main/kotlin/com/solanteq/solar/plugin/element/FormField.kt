@@ -5,6 +5,7 @@ import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiField
 import com.intellij.psi.PsiType
+import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.element.creator.FormArrayElementCreator
 import com.solanteq.solar.plugin.element.expression.ExpressionAware
@@ -47,6 +48,12 @@ class FormField private constructor(
     sourceElement: JsonObject,
 ) : FormLocalizableElement<JsonObject>(sourceElement, sourceElement),
     ExpressionAware by ExpressionAwareImpl(sourceElement) {
+
+    override val parents by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        containingRows
+    }
+
+    override val children: List<FormElement<*>> = emptyList()
 
     override val l10nKeys: List<String> by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val containingGroups = containingGroups
