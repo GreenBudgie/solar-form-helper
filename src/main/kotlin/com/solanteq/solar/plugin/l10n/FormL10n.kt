@@ -53,21 +53,21 @@ class FormL10n private constructor(
      *
      * "**module**.form.formName.group.field1.field2"
      */
-    val moduleName = chain.getOrNull(moduleNameChainIndex)?.text
+    val moduleName = chain.getOrNull(MODULE_NAME_CHAIN_INDEX)?.text
 
     /**
      * Form name in l10n chain. Provided as is. May be named as non-existing form.
      *
      * "module.form.**formName**.group.field1.field2"
      */
-    val formName = chain.getOrNull(formNameChainIndex)?.text
+    val formName = chain.getOrNull(FORM_NAME_CHAIN_INDEX)?.text
 
     /**
      * Group name in l10n chain. Provided as is. May be named as non-existing group.
      *
      * "module.form.formName.**group**.field1.field2"
      */
-    val groupName = chain.getOrNull(groupNameChainIndex)?.text
+    val groupName = chain.getOrNull(GROUP_NAME_CHAIN_INDEX)?.text
 
     /**
      * Text range of the module in l10n chain.
@@ -75,7 +75,7 @@ class FormL10n private constructor(
      * "**module**.form.formName.group.field1.field2"
      */
     val moduleTextRange by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        chain.getOrNull(moduleNameChainIndex)?.range
+        chain.getOrNull(MODULE_NAME_CHAIN_INDEX)?.range
     }
 
     /**
@@ -133,7 +133,7 @@ class FormL10n private constructor(
      * "module.form.**formName**.group.field1.field2"
      */
     val formTextRange by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        chain.getOrNull(formNameChainIndex)?.range
+        chain.getOrNull(FORM_NAME_CHAIN_INDEX)?.range
     }
 
     /**
@@ -160,7 +160,7 @@ class FormL10n private constructor(
      * "module.form.formName.**group**.field1.field2"
      */
     val groupTextRange by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        chain.getOrNull(groupNameChainIndex)?.range
+        chain.getOrNull(GROUP_NAME_CHAIN_INDEX)?.range
     }
 
     /**
@@ -169,7 +169,7 @@ class FormL10n private constructor(
      * "module.form.formName.group.**field1**.**field2**"
      */
     val fieldChain by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        val fieldChainIndexRange = fieldChainStartIndex until chain.size
+        val fieldChainIndexRange = FIELD_CHAIN_START_INDEX until chain.size
         return@lazy fieldChainIndexRange.map { chain[it] }.convert()
     }
 
@@ -196,9 +196,9 @@ class FormL10n private constructor(
      */
     val type by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val chainLength = chain.size
-        if(chainLength == formNameChainIndex) return@lazy L10nType.FORM
-        if(chainLength == groupNameChainIndex) return@lazy L10nType.GROUP
-        if(chainLength >= fieldChainStartIndex) return@lazy L10nType.FIELD
+        if(chainLength == FORM_NAME_CHAIN_INDEX) return@lazy L10nType.FORM
+        if(chainLength == GROUP_NAME_CHAIN_INDEX) return@lazy L10nType.GROUP
+        if(chainLength >= FIELD_CHAIN_START_INDEX) return@lazy L10nType.FIELD
         return@lazy null
     }
 
@@ -210,10 +210,34 @@ class FormL10n private constructor(
 
     companion object {
 
-        private const val moduleNameChainIndex = 0
-        private const val formNameChainIndex = 2
-        private const val groupNameChainIndex = 3
-        private const val fieldChainStartIndex = 4
+        private const val MODULE_NAME_CHAIN_INDEX = 0
+        private const val L10N_TYPE_CHAIN_INDEX = 1
+        private const val FORM_NAME_CHAIN_INDEX = 2
+        private const val GROUP_NAME_CHAIN_INDEX = 3
+        private const val FIELD_CHAIN_START_INDEX = 4
+
+        /**
+         * Retrieves form l10n key from provided [key].
+         * Returns null if [key] is not a form l10n or has invalid format.
+         *
+         * Examples:
+         * - `"bo.form.txn.details.id"` -> `"bo.form.txn"`
+         * - `"bo.form.txn.details"` -> `"bo.form.txn"`
+         * - `"bo.form.txn"` -> `"bo.form.txn"`
+         * - `"bo.form"` -> `null`
+         */
+        fun retrieveFormL10nKey(key: String): String? {
+            val textSplit = key.split('.')
+            val module = textSplit.getOrNull(MODULE_NAME_CHAIN_INDEX) ?: return null
+            val l10nType = textSplit.getOrNull(L10N_TYPE_CHAIN_INDEX) ?: return null
+            val name = textSplit.getOrNull(FORM_NAME_CHAIN_INDEX) ?: return null
+
+            if (l10nType != "form") {
+                return null
+            }
+
+            return "$module.form.$name"
+        }
 
         /**
          * Whether this property can be considered a form localization.
@@ -233,7 +257,7 @@ class FormL10n private constructor(
          */
         fun isFormL10n(key: String): Boolean {
             val textSplit = key.split('.')
-            val l10nType = textSplit.getOrNull(1)
+            val l10nType = textSplit.getOrNull(L10N_TYPE_CHAIN_INDEX)
             return l10nType == "form"
         }
 

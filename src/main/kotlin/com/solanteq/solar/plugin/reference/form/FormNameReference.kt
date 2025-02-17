@@ -33,7 +33,7 @@ class FormNameReference(
     override fun getVariants(): Array<Any> {
         val currentFile = element.containingFile.originalFile.virtualFile ?: return emptyArray()
         val project = element.project
-        return FormSearch.findRootFormsInModule(project.allScope(), moduleName)
+        return FormSearch.findRootFormsInModules(project.allScope(), moduleName)
             .filter {
                 it != currentFile
             }.map {

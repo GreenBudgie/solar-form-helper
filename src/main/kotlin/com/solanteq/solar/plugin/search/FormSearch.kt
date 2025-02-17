@@ -34,10 +34,12 @@ object FormSearch {
         )
     }
 
-    fun findRootFormsInModule(scope: GlobalSearchScope, moduleName: String): Collection<VirtualFile> {
-        if(moduleName.isBlank()) return emptySet()
+    fun findRootFormsInModules(scope: GlobalSearchScope, vararg moduleNames: String): Collection<VirtualFile> {
+        if(moduleNames.isEmpty()) {
+            return emptySet()
+        }
         return findRootForms(scope).filter {
-            it.getFormModuleName() == moduleName
+            it.getFormModuleName() in moduleNames
         }
     }
 

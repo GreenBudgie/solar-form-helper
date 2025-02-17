@@ -6,10 +6,10 @@ import com.intellij.json.psi.JsonProperty
 import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.platform.ide.progress.ModalTaskOwner.project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.indexing.FileBasedIndex
 import com.intellij.util.indexing.ID
+import com.solanteq.solar.plugin.element.FormRootFile
 import com.solanteq.solar.plugin.file.L10nFileType
 import com.solanteq.solar.plugin.index.l10n.L10nIndexKey
 import com.solanteq.solar.plugin.l10n.FormL10n
@@ -36,6 +36,7 @@ abstract class L10nSearchBase<T : L10n>(
         return search(project)
             .byKey(entry.key)
             .withLocale(entry.locale)
+            .byRootForm(entry.rootForm)
     }
 
     /**
@@ -54,6 +55,7 @@ abstract class L10nSearchBase<T : L10n>(
         private var keys: List<String> = emptyList()
         private var scope: GlobalSearchScope = project.allScope()
         private var locale: L10nLocale? = null
+        private var rootForm: FormRootFile? = null
 
         /**
          * Search by specific key.
@@ -87,6 +89,14 @@ abstract class L10nSearchBase<T : L10n>(
          */
         fun withLocale(locale: L10nLocale): L10nSearchQuery {
             this.locale = locale
+            return this
+        }
+
+        /**
+         * Filter out localizations that do not refer to the provided [rootForm]
+         */
+        fun byRootForm(rootForm: FormRootFile): L10nSearchQuery {
+            this.rootForm = rootForm
             return this
         }
 
@@ -142,12 +152,27 @@ abstract class L10nSearchBase<T : L10n>(
         private fun <T> mapIndexKeys(mapper: (L10nIndexKey) -> Collection<T>): List<T> {
             validateHasKey()
             val localeList = locale?.asList() ?: L10nLocale.entries
-            val indexKeys = keys.flatMap { key ->
+
+            val rootForm = rootForm
+            val effectiveKeys = if (rootForm != null) {
+                retrieveKeysByRootForm(rootForm)
+            } else {
+                keys
+            }
+
+            val indexKeys = effectiveKeys.flatMap { key ->
                 localeList.map { locale ->
                     L10nIndexKey(key, locale)
                 }
             }
             return indexKeys.flatMap { mapper(it) }
+        }
+
+        private fun retrieveKeysByRootForm(rootForm: FormRootFile): List<String> {
+            val rootFormKey = rootForm.l10nKeys.firstOrNull() ?: return keys
+            return keys.filter {
+                FormL10n.retrieveFormL10nKey(it) == rootFormKey
+            }
         }
 
         private fun validateHasKey() {

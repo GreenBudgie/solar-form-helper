@@ -32,7 +32,7 @@ object L10nGenerator {
     ) {
         val topLevelObject = getOrCreateTopLevelObject(file, generator)
 
-        val addedProperty = if (placement.property == null) {
+        val addedProperty = if (placement.anchorProperty == null) {
             JsonPsiUtil.addProperty(
                 topLevelObject,
                 newProperty,
@@ -43,7 +43,7 @@ object L10nGenerator {
                 placement,
                 topLevelObject,
                 newProperty,
-                placement.property,
+                placement.anchorProperty,
                 generator
             )
         }
