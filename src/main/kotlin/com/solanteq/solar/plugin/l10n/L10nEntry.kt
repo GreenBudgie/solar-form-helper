@@ -34,3 +34,7 @@ fun List<L10nEntry>.append(postfix: String): List<L10nEntry> = map {
 fun List<L10nEntry>.withSameFormAndLocaleAs(otherEntry: L10nEntry): L10nEntry? = find {
     it.rootForm == otherEntry.rootForm && it.locale == otherEntry.locale
 }
+
+fun List<L10nEntry>.withLocale(locale: L10nLocale): List<L10nEntry> = filter {
+    it.locale == locale
+}

@@ -26,7 +26,7 @@ class L10nFormPsiReference(
     override fun getVariants(): Array<Any> {
         l10nChain.moduleName ?: return emptyArray()
         return FormSearch
-            .findRootFormsInModule(element.project.projectScope(), l10nChain.moduleName)
+            .findRootFormsInModules(element.project.projectScope(), l10nChain.moduleName)
             .map {
                 LookupElementBuilder
                     .create(it.nameWithoutExtension)

@@ -17,7 +17,6 @@ import com.solanteq.solar.plugin.element.expression.ExpressionAwareImpl
 import com.solanteq.solar.plugin.element.expression.FormExpression
 import com.solanteq.solar.plugin.file.RootFormFileType
 import com.solanteq.solar.plugin.l10n.L10nEntry
-import com.solanteq.solar.plugin.l10n.L10nLocale
 import com.solanteq.solar.plugin.reference.form.FormNameReference
 import com.solanteq.solar.plugin.util.FormPsiUtils
 import com.solanteq.solar.plugin.util.asList
@@ -96,7 +95,7 @@ class FormRootFile(
     }
 
     /**
-     * Fully-qualified SOLAR form name
+     * Fully-qualified SOLAR form name, like `bo.txn`
      */
     val fullName by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val name = name ?: return@lazy null
