@@ -15,7 +15,7 @@ import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.util.minimumHeight
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.file.L10nFileType
-import com.solanteq.solar.plugin.l10n.L10nKey
+import com.solanteq.solar.plugin.l10n.L10nEntry
 import com.solanteq.solar.plugin.l10n.L10nLocale
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 import java.awt.Component
@@ -29,7 +29,7 @@ class EditFormL10nDialog(
     private val element: FormLocalizableElement<*>,
 ) : DialogWrapper(project) {
 
-    private val l10nData = mutableMapOf<L10nKey, L10nData>()
+    private val l10nData = mutableMapOf<L10nEntry, L10nData>()
 
     init {
         title = "Edit Localization"
@@ -44,7 +44,7 @@ class EditFormL10nDialog(
                         label(key).bold()
                     }
                     L10nLocale.entries.forEach { locale ->
-                        val key = L10nKey(key, locale)
+                        val key = L10nEntry(element.containingRootForms.first(), key, locale)
                         row(locale.displayName) {
                             icon(locale.icon)
 

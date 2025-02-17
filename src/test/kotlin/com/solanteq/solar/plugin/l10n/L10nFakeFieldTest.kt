@@ -523,14 +523,14 @@ class L10nFakeFieldTest : LightPluginTestBase() {
         configureByRootForms("test", "testForm1.json")
         createL10nFile(
             "l10n",
+            L10nLocale.RU,
             "test.form.testForm1.group1.field1" to "Field Name!",
-            locale = L10nLocale.RU
         )
         createL10nFile(
             "l10n",
+            L10nLocale.EN,
             "test.form.testForm1.group1.field2" to "Field Name!",
             "test.form.testForm1.group2.field.nestedField" to "Field Name!",
-            locale = L10nLocale.EN
         )
 
         assertContainsLineMarkersAtLinesAndNoMore(10, 13, 25)

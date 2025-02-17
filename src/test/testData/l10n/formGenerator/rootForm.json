@@ -1,0 +1,39 @@
+{
+  "name": "rootForm",
+  "module": "test",
+  "groups": [
+    {
+      "name": "group1",
+      "rows": [
+        {
+          "fields": [
+            {
+              "name": "field1"
+            },
+            {
+              "name": "field2"
+            },
+            {
+              "name": "field3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "group2",
+      "rows": [
+        {
+          "fields": [
+            {
+              "name": "field1"
+            },
+            {
+              "name": "field2"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

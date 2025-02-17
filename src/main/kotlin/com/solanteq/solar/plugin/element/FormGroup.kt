@@ -6,6 +6,8 @@ import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.element.creator.FormArrayElementCreator
 import com.solanteq.solar.plugin.element.expression.ExpressionAware
 import com.solanteq.solar.plugin.element.expression.ExpressionAwareImpl
+import com.solanteq.solar.plugin.l10n.L10nEntry
+import com.solanteq.solar.plugin.l10n.append
 import com.solanteq.solar.plugin.util.FormPsiUtils
 import com.solanteq.solar.plugin.util.asList
 import com.solanteq.solar.plugin.util.valueAsIntOrNull
@@ -53,10 +55,10 @@ class FormGroup(
         }
     }
 
-    override val l10nKeys: List<String> by lazy(LazyThreadSafetyMode.PUBLICATION) {
+    override val l10nEntries by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val groupName = name ?: return@lazy emptyList()
         containingRootForms.flatMap {
-            it.l10nKeys.map { key -> "$key.$groupName" }
+            it.l10nEntries.append(".$groupName")
         }
     }
 
