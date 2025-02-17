@@ -4,6 +4,7 @@ import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonObject
 import com.solanteq.solar.plugin.element.FormGroup
 import com.solanteq.solar.plugin.l10n.FormL10n
+import com.solanteq.solar.plugin.l10n.L10nEntry
 import com.solanteq.solar.plugin.l10n.L10nLocale
 import com.solanteq.solar.plugin.l10n.search.FormL10nSearch
 import com.solanteq.solar.plugin.l10n.search.L10nSearchBase
@@ -17,6 +18,11 @@ abstract class FormLocalizableElement<T : JsonElement>(
 ) : FormNamedElement<T>(sourceElement, objectWithNameProperty) {
 
     /**
+     * A list of fully unique [l10nEntries].
+     */
+    abstract val l10nEntries: List<L10nEntry>
+
+    /**
      * A list of localization keys for this [AbstractFormElement].
      *
      * For example, [FormGroup] in the root form can have the following localization key:
@@ -25,7 +31,9 @@ abstract class FormLocalizableElement<T : JsonElement>(
      * If [AbstractFormElement] is placed in included form, it can have multiple localization keys
      * based on root forms that contain this included form.
      */
-    abstract val l10nKeys: List<String>
+    val l10nKeys by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        return@lazy l10nEntries.map { it.key }.distinct()
+    }
 
     fun getL10nValues(locale: L10nLocale? = null): List<String> {
         l10nKeys.ifEmpty { return emptyList() }

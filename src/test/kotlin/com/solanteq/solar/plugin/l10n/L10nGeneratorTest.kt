@@ -1,23 +1,21 @@
 package com.solanteq.solar.plugin.l10n
 
-import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonObject
 import com.intellij.testFramework.PsiTestUtil
 import com.intellij.testFramework.fixtures.JavaCodeInsightTestFixture
 import com.solanteq.solar.plugin.base.LightPluginTestBase
 import com.solanteq.solar.plugin.l10n.generator.L10nGenerator
+import com.solanteq.solar.plugin.l10n.generator.L10nPlacement
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.EnumSource
 
 class L10nGeneratorTest : LightPluginTestBase() {
 
     @Test
     fun `generate l10n - empty file`() = with(fixture) {
-        val file = createL10nFileAndConfigure("l10n", "")
+        val file = createL10nFileWithTextAndConfigure("l10n", "")
 
         generateAndCheck(
-            file, """
+            L10nPlacement.endOfFile(file), """
             {
               "key": "value"
             }
@@ -27,10 +25,10 @@ class L10nGeneratorTest : LightPluginTestBase() {
 
     @Test
     fun `generate l10n - empty file with top-level object`() = with(fixture) {
-        val file = createL10nFileAndConfigure("l10n", "{}")
+        val file = createL10nFileWithTextAndConfigure("l10n", "{}")
 
         generateAndCheck(
-            file, """
+            L10nPlacement.endOfFile(file), """
             {
               "key": "value"
             }
@@ -40,7 +38,7 @@ class L10nGeneratorTest : LightPluginTestBase() {
 
     @Test
     fun `generate l10n - file with one property, insert at the end`() = with(fixture) {
-        val file = createL10nFileAndConfigure(
+        val file = createL10nFileWithTextAndConfigure(
             "l10n", """
             {
               "key1": "value1"
@@ -49,9 +47,7 @@ class L10nGeneratorTest : LightPluginTestBase() {
         )
 
         generateAndCheck(
-            file,
-            placement = L10nGenerator.Placement.endOfFile(),
-            expectedText = """
+            L10nPlacement.endOfFile(file), """
             {
               "key1": "value1",
               "key": "value"
@@ -62,7 +58,7 @@ class L10nGeneratorTest : LightPluginTestBase() {
 
     @Test
     fun `generate l10n - file with one property, insert at the start`() = with(fixture) {
-        val file = createL10nFileAndConfigure(
+        val file = createL10nFileWithTextAndConfigure(
             "l10n", """
             {
               "key1": "value1"
@@ -71,9 +67,7 @@ class L10nGeneratorTest : LightPluginTestBase() {
         )
 
         generateAndCheck(
-            file,
-            placement = L10nGenerator.Placement.startOfFile(),
-            expectedText = """
+            L10nPlacement.startOfFile(file), """
             {
               "key": "value",
               "key1": "value1"
@@ -84,7 +78,7 @@ class L10nGeneratorTest : LightPluginTestBase() {
 
     @Test
     fun `generate l10n - file with one property, insert after first`() = with(fixture) {
-        val file = createL10nFileAndConfigure(
+        val file = createL10nFileWithTextAndConfigure(
             "l10n", """
             {
               "key1": "value1"
@@ -96,9 +90,7 @@ class L10nGeneratorTest : LightPluginTestBase() {
         val firstProperty = topLevelObject.propertyList.first()
 
         generateAndCheck(
-            file,
-            placement = L10nGenerator.Placement.after(firstProperty),
-            expectedText = """
+            L10nPlacement.after(file, firstProperty), """
             {
               "key1": "value1",
               "key": "value"
@@ -109,7 +101,7 @@ class L10nGeneratorTest : LightPluginTestBase() {
 
     @Test
     fun `generate l10n - file with one property, insert before first`() = with(fixture) {
-        val file = createL10nFileAndConfigure(
+        val file = createL10nFileWithTextAndConfigure(
             "l10n", """
             {
               "key1": "value1"
@@ -121,9 +113,7 @@ class L10nGeneratorTest : LightPluginTestBase() {
         val firstProperty = topLevelObject.propertyList.first()
 
         generateAndCheck(
-            file,
-            placement = L10nGenerator.Placement.before(firstProperty),
-            expectedText = """
+            L10nPlacement.before(file, firstProperty), """
             {
               "key": "value",
               "key1": "value1"
@@ -134,7 +124,7 @@ class L10nGeneratorTest : LightPluginTestBase() {
 
     @Test
     fun `generate l10n - file with two properties, insert at the end`() = with(fixture) {
-        val file = createL10nFileAndConfigure(
+        val file = createL10nFileWithTextAndConfigure(
             "l10n", """
             {
               "key1": "value1",
@@ -144,7 +134,7 @@ class L10nGeneratorTest : LightPluginTestBase() {
         )
 
         generateAndCheck(
-            file, """
+            L10nPlacement.endOfFile(file), """
             {
               "key1": "value1",
               "key2": "value2",
@@ -156,7 +146,7 @@ class L10nGeneratorTest : LightPluginTestBase() {
 
     @Test
     fun `generate l10n - file with two properties, insert after first`() = with(fixture) {
-        val file = createL10nFileAndConfigure(
+        val file = createL10nFileWithTextAndConfigure(
             "l10n", """
             {
               "key1": "value1",
@@ -169,9 +159,7 @@ class L10nGeneratorTest : LightPluginTestBase() {
         val firstProperty = topLevelObject.propertyList.first()
 
         generateAndCheck(
-            file,
-            placement = L10nGenerator.Placement.after(firstProperty),
-            expectedText = """
+            L10nPlacement.after(file, firstProperty), """
             {
               "key1": "value1",
               "key": "value",
@@ -183,7 +171,7 @@ class L10nGeneratorTest : LightPluginTestBase() {
 
     @Test
     fun `generate l10n - file with two properties, insert after last`() = with(fixture) {
-        val file = createL10nFileAndConfigure(
+        val file = createL10nFileWithTextAndConfigure(
             "l10n", """
             {
               "key1": "value1",
@@ -196,9 +184,7 @@ class L10nGeneratorTest : LightPluginTestBase() {
         val lastProperty = topLevelObject.propertyList.last()
 
         generateAndCheck(
-            file,
-            placement = L10nGenerator.Placement.after(lastProperty),
-            expectedText = """
+            L10nPlacement.after(file, lastProperty), """
             {
               "key1": "value1",
               "key2": "value2",
@@ -210,7 +196,7 @@ class L10nGeneratorTest : LightPluginTestBase() {
 
     @Test
     fun `generate l10n - file with two properties, insert before first`() = with(fixture) {
-        val file = createL10nFileAndConfigure(
+        val file = createL10nFileWithTextAndConfigure(
             "l10n", """
             {
               "key1": "value1",
@@ -223,9 +209,7 @@ class L10nGeneratorTest : LightPluginTestBase() {
         val firstProperty = topLevelObject.propertyList.first()
 
         generateAndCheck(
-            file,
-            placement = L10nGenerator.Placement.before(firstProperty),
-            expectedText = """
+            L10nPlacement.before(file, firstProperty), """
             {
               "key": "value",
               "key1": "value1",
@@ -237,7 +221,7 @@ class L10nGeneratorTest : LightPluginTestBase() {
 
     @Test
     fun `generate l10n - file with two properties, insert before last`() = with(fixture) {
-        val file = createL10nFileAndConfigure(
+        val file = createL10nFileWithTextAndConfigure(
             "l10n", """
             {
               "key1": "value1",
@@ -250,9 +234,7 @@ class L10nGeneratorTest : LightPluginTestBase() {
         val lastProperty = topLevelObject.propertyList.last()
 
         generateAndCheck(
-            file,
-            placement = L10nGenerator.Placement.before(lastProperty),
-            expectedText = """
+            L10nPlacement.before(file, lastProperty), """
             {
               "key1": "value1",
               "key": "value",
@@ -263,14 +245,12 @@ class L10nGeneratorTest : LightPluginTestBase() {
     }
 
     private fun JavaCodeInsightTestFixture.generateAndCheck(
-        file: JsonFile,
+        placement: L10nPlacement,
         expectedText: String,
-        placement: L10nGenerator.Placement = L10nGenerator.Placement.endOfFile()
     ) {
         L10nGenerator.generateL10n(
             key = "key",
             value = "value",
-            file,
             placement
         )
 

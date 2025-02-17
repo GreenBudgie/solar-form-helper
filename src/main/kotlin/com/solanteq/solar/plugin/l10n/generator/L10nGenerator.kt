@@ -12,22 +12,21 @@ object L10nGenerator {
     fun generateL10n(
         key: String,
         value: String,
-        file: JsonFile,
-        placement: Placement,
+        placement: L10nPlacement,
     ) {
-        val project = file.project
+        val project = placement.file.project
         val generator = JsonElementGenerator(project)
         val generatedL10nProperty = generator.createProperty(key, "\"$value\"")
 
         runUndoTransparentWriteAction {
-            writeL10n(file, generatedL10nProperty, placement, project, generator)
+            writeL10n(placement.file, generatedL10nProperty, placement, project, generator)
         }
     }
 
     private fun writeL10n(
         file: JsonFile,
         newProperty: JsonProperty,
-        placement: Placement,
+        placement: L10nPlacement,
         project: Project,
         generator: JsonElementGenerator,
     ) {
@@ -67,7 +66,7 @@ object L10nGenerator {
     }
 
     private fun addPropertyWithAnchor(
-        placement: Placement,
+        placement: L10nPlacement,
         topLevelObject: JsonObject,
         newProperty: JsonProperty,
         anchorProperty: JsonProperty,
@@ -87,7 +86,7 @@ object L10nGenerator {
         newProperty: JsonProperty,
         anchorProperty: JsonProperty,
         topLevelObject: JsonObject,
-        placement: Placement,
+        placement: L10nPlacement,
         generator: JsonElementGenerator,
     ): PsiElement {
         if (placement.position == PlacementPosition.BEFORE) {
@@ -100,30 +99,6 @@ object L10nGenerator {
         } else comma
 
         return topLevelObject.addAfter(newProperty, effectiveComma)
-    }
-
-    class Placement private constructor(
-        val property: JsonProperty?,
-        val position: PlacementPosition,
-    ) {
-
-        companion object {
-
-            fun before(property: JsonProperty) = Placement(property, PlacementPosition.BEFORE)
-
-            fun after(property: JsonProperty) = Placement(property, PlacementPosition.AFTER)
-
-            fun endOfFile() = Placement(null, PlacementPosition.AFTER)
-
-            fun startOfFile() = Placement(null, PlacementPosition.BEFORE)
-
-        }
-
-    }
-
-    enum class PlacementPosition {
-        BEFORE,
-        AFTER
     }
 
 }

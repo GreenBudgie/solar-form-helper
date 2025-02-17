@@ -6,12 +6,15 @@ import com.intellij.json.psi.JsonProperty
 import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.platform.ide.progress.ModalTaskOwner.project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.indexing.FileBasedIndex
 import com.intellij.util.indexing.ID
 import com.solanteq.solar.plugin.file.L10nFileType
 import com.solanteq.solar.plugin.index.l10n.L10nIndexKey
+import com.solanteq.solar.plugin.l10n.FormL10n
 import com.solanteq.solar.plugin.l10n.L10n
+import com.solanteq.solar.plugin.l10n.L10nEntry
 import com.solanteq.solar.plugin.l10n.L10nLocale
 import com.solanteq.solar.plugin.util.asList
 import org.jetbrains.kotlin.idea.base.util.allScope
@@ -27,6 +30,12 @@ abstract class L10nSearchBase<T : L10n>(
         if(file.fileType != L10nFileType) return emptyList()
         val topLevelObject = file.topLevelValue as? JsonObject ?: return emptyList()
         return topLevelObject.propertyList
+    }
+
+    fun search(project: Project, entry: L10nEntry): L10nSearchQuery {
+        return search(project)
+            .byKey(entry.key)
+            .withLocale(entry.locale)
     }
 
     /**

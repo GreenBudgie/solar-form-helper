@@ -28,10 +28,10 @@ fun generateL10nFileText(vararg l10ns: Pair<String, String>): String {
  * @param text Text to insert into l10n file
  * @param locale Whether to create this file in ru-RU directory
  */
-fun CodeInsightTestFixture.createL10nFile(
+fun CodeInsightTestFixture.createL10nFileWithText(
     fileName: String,
+    locale: L10nLocale,
     text: String,
-    locale: L10nLocale = L10nLocale.RU,
 ): JsonFile {
     return addL10nFileToProject(
         fileName,
@@ -40,16 +40,39 @@ fun CodeInsightTestFixture.createL10nFile(
     )
 }
 
-fun CodeInsightTestFixture.createL10nFileAndConfigure(
+fun CodeInsightTestFixture.createL10nFileWithTextAndConfigure(
     fileName: String,
     text: String,
-    locale: L10nLocale = L10nLocale.RU,
 ): JsonFile {
-    val psiL10nFile = createL10nFile(fileName, text, locale)
+    return createL10nFileWithTextAndConfigure(fileName, L10nLocale.RU, text)
+}
+
+fun CodeInsightTestFixture.createL10nFileWithTextAndConfigure(
+    fileName: String,
+    locale: L10nLocale,
+    text: String,
+): JsonFile {
+    val psiL10nFile = createL10nFileWithText(fileName, locale, text)
     configureFromExistingVirtualFile(psiL10nFile.virtualFile)
     return file as JsonFile
 }
 
+/**
+ * Creates a new localization file with specified l10n entries and places it into a proper directory
+ *
+ * @param fileName name of a file without `json` extension
+ * @param l10ns Key and value of localization without quotes, e.g. ("test.form.group.field", "A field!")
+ */
+fun CodeInsightTestFixture.createL10nFile(
+    fileName: String,
+    vararg l10ns: Pair<String, String>,
+): JsonFile {
+    return createL10nFile(
+        fileName,
+        L10nLocale.RU,
+        *l10ns
+    )
+}
 
 /**
  * Creates a new localization file with specified l10n entries and places it into a proper directory
@@ -60,8 +83,8 @@ fun CodeInsightTestFixture.createL10nFileAndConfigure(
  */
 fun CodeInsightTestFixture.createL10nFile(
     fileName: String,
+    locale: L10nLocale,
     vararg l10ns: Pair<String, String>,
-    locale: L10nLocale = L10nLocale.RU,
 ): JsonFile {
     return addL10nFileToProject(
         fileName,
@@ -73,9 +96,16 @@ fun CodeInsightTestFixture.createL10nFile(
 fun CodeInsightTestFixture.createL10nFileAndConfigure(
     fileName: String,
     vararg l10ns: Pair<String, String>,
-    locale: L10nLocale = L10nLocale.RU,
 ): JsonFile {
-    val psiL10nFile = createL10nFile(fileName, *l10ns, locale = locale)
+    return createL10nFileAndConfigure(fileName, L10nLocale.RU, *l10ns)
+}
+
+fun CodeInsightTestFixture.createL10nFileAndConfigure(
+    fileName: String,
+    locale: L10nLocale,
+    vararg l10ns: Pair<String, String>,
+): JsonFile {
+    val psiL10nFile = createL10nFile(fileName, locale, *l10ns)
     configureFromExistingVirtualFile(psiL10nFile.virtualFile)
     return file as JsonFile
 }

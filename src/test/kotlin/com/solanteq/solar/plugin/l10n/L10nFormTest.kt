@@ -56,13 +56,13 @@ class L10nFormTest : LightPluginTestBase() {
         configureByRootForms("test", "testForm1.json")
         createL10nFile(
             "l10n",
-            "test.form.testForm1" to "Form Name!",
-            locale = L10nLocale.RU
+            L10nLocale.RU,
+            "test.form.testForm1" to "Form Name!"
         )
         createL10nFile(
             "l10n",
-            "test.form.testForm1" to "Form Name!",
-            locale = L10nLocale.EN
+            L10nLocale.EN,
+            "test.form.testForm1" to "Form Name!"
         )
 
         assertContainsLineMarkersAtLinesAndNoMore(2)
