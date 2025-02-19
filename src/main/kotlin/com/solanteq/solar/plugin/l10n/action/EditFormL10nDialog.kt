@@ -8,11 +8,14 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.ui.GuiUtils
 import com.intellij.ui.TextFieldWithHistory
+import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.fields.ExpandableTextField
 import com.intellij.ui.dsl.builder.COLUMNS_LARGE
 import com.intellij.ui.dsl.builder.columns
 import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.util.minimumHeight
+import com.solanteq.solar.plugin.asset.Icons
+import com.solanteq.solar.plugin.element.FormRootFile
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.file.L10nFileType
 import com.solanteq.solar.plugin.l10n.L10nEntry
@@ -23,6 +26,7 @@ import java.awt.Dimension
 import javax.swing.DefaultListCellRenderer
 import javax.swing.JComponent
 import javax.swing.JList
+import javax.swing.SwingConstants
 
 class EditFormL10nDialog(
     private val project: Project,
@@ -37,17 +41,25 @@ class EditFormL10nDialog(
     }
 
     override fun createCenterPanel(): JComponent {
+        val entriesWithAllLocales = element.l10nEntries
+            .groupBy { it.key }
+            .map { (key, entries) ->
+                L10nEntryAllLocales(
+                    entries.first().rootForm,
+                    key,
+                    entries.map { it.locale }
+                )
+            }
         return panel {
-            element.l10nKeys.forEach { key ->
-                group {
+            entriesWithAllLocales.forEach { (rootForm, key, locales) ->
+                val formFullName = rootForm.fullName ?: "Unknown form"
+                group(JBLabel(formFullName, Icons.ROOT_FORM_ICON, SwingConstants.LEFT)) {
                     row("Key: ") {
                         label(key).bold()
                     }
-                    L10nLocale.entries.forEach { locale ->
+                    locales.forEach { locale ->
                         val key = L10nEntry(element.containingRootForms.first(), key, locale)
                         row(locale.displayName) {
-                            icon(locale.icon)
-
                             val fileChooserField = TextFieldWithHistory()
                             fileChooserField.setHistorySize(-1)
                             fileChooserField.setEditable(false)
@@ -126,6 +138,12 @@ class EditFormL10nDialog(
     private data class L10nData(
         var fileChooserField: TextFieldWithHistory,
         var valueField: ExpandableTextField,
+    )
+
+    private data class L10nEntryAllLocales(
+        val rootForm: FormRootFile,
+        val key: String,
+        val locales: List<L10nLocale>
     )
 
 }

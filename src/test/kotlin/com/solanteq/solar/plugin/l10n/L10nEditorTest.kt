@@ -4,11 +4,11 @@ import com.intellij.json.psi.JsonObject
 import com.intellij.testFramework.PsiTestUtil
 import com.intellij.testFramework.fixtures.JavaCodeInsightTestFixture
 import com.solanteq.solar.plugin.base.LightPluginTestBase
-import com.solanteq.solar.plugin.l10n.generator.L10nGenerator
-import com.solanteq.solar.plugin.l10n.generator.L10nPlacement
+import com.solanteq.solar.plugin.l10n.editor.L10nEditor
+import com.solanteq.solar.plugin.l10n.editor.L10nPlacement
 import org.junit.jupiter.api.Test
 
-class L10nGeneratorTest : LightPluginTestBase() {
+class L10nEditorTest : LightPluginTestBase() {
 
     @Test
     fun `generate l10n - empty file`() = with(fixture) {
@@ -248,7 +248,7 @@ class L10nGeneratorTest : LightPluginTestBase() {
         placement: L10nPlacement,
         expectedText: String,
     ) {
-        L10nGenerator.generateL10n(
+        L10nEditor.generateL10n(
             key = "key",
             value = "value",
             placement

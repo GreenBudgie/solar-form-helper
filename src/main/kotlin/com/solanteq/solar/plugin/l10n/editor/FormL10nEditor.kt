@@ -1,4 +1,4 @@
-package com.solanteq.solar.plugin.l10n.generator
+package com.solanteq.solar.plugin.l10n.editor
 
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonProperty
@@ -21,9 +21,9 @@ import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 import org.jetbrains.kotlin.idea.util.projectStructure.getModule
 
-object FormL10nGenerator {
+object FormL10nEditor {
 
-    private val logger = logger<FormL10nGenerator>()
+    private val logger = logger<FormL10nEditor>()
 
     /**
      * Finds best placement for [element] localization.

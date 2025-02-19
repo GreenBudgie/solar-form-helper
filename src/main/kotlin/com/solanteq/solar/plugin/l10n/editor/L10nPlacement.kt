@@ -1,4 +1,4 @@
-package com.solanteq.solar.plugin.l10n.generator
+package com.solanteq.solar.plugin.l10n.editor
 
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonProperty
