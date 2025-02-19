@@ -1,0 +1,8 @@
+{
+  "name": "group2",
+  "rows": [
+    {
+      "fields": "json://includes/forms/test/includedFields.json"
+    }
+  ]
+}

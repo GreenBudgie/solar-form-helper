@@ -2,11 +2,15 @@ package com.solanteq.solar.plugin.l10n.generator
 
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonProperty
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.search.GlobalSearchScope
 import com.solanteq.solar.plugin.element.FormRootFile
 import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
+import com.solanteq.solar.plugin.file.L10nFileType
 import com.solanteq.solar.plugin.l10n.L10nEntry
+import com.solanteq.solar.plugin.l10n.L10nLocale
 import com.solanteq.solar.plugin.l10n.search.FormL10nSearch
 import com.solanteq.solar.plugin.l10n.withSameFormAndLocaleAs
 import com.solanteq.solar.plugin.search.FormSearch
@@ -32,6 +36,7 @@ object FormL10nGenerator {
      * - If file is still not found, we try to find a file by its name. We search for files that contain the form
      * `module` in its name, and prioritize files with `form(s)` in name.
      * New localization property will be placed at the end of the file.
+     * - If nothing found, try to find **any** l10n file in the same module as the current file or all root forms.
      * - At last, if still nothing is found, returns the placement at the end of [preferredL10nFile]. If it is not
      * provided, returns null.
      *
@@ -59,7 +64,47 @@ object FormL10nGenerator {
             return placementByRelatedElements
         }
 
-        return null
+        return findPlacementByL10nFileName(element, entry)
+    }
+
+    private fun findPlacementByL10nFileName(element: FormLocalizableElement<*>, entry: L10nEntry): L10nPlacement? {
+        val moduleNames = element.containingRootForms.mapNotNull { it.moduleName }
+        val rootFormArtifacts = element.containingRootForms
+            .mapNotNull { it.virtualFile }
+            .mapNotNull { it.getModule(element.project) }
+        val allModulesScope = rootFormArtifacts
+            .map { it.moduleScope }
+            .reduce { prevModuleScope, currentModuleScope -> prevModuleScope.uniteWith(currentModuleScope) }
+
+        val relevantL10nFiles = FileTypeIndex.getFiles(L10nFileType, allModulesScope).filterOutWrongLocale(entry)
+
+        if (relevantL10nFiles.isEmpty()) {
+            return null
+        }
+
+        if (relevantL10nFiles.size == 1) {
+            val file = relevantL10nFiles.first().toPsiFile(element.project) as? JsonFile ?: return null
+            return L10nPlacement.endOfFile(file)
+        }
+
+        val l10nFileByModuleName = relevantL10nFiles.firstOrNull { file ->
+            moduleNames.any { moduleName -> file.name.startsWith(moduleName) }
+        }?.toPsiFile(element.project) as? JsonFile
+
+        if (l10nFileByModuleName != null) {
+            return L10nPlacement.endOfFile(l10nFileByModuleName)
+        }
+
+        val l10nFileByFormStringInName = relevantL10nFiles.firstOrNull { file ->
+            moduleNames.any { moduleName -> file.name.contains("form") }
+        }?.toPsiFile(element.project) as? JsonFile
+
+        if (l10nFileByFormStringInName != null) {
+            return L10nPlacement.endOfFile(l10nFileByFormStringInName)
+        }
+
+        val file = relevantL10nFiles.first().toPsiFile(element.project) as? JsonFile ?: return null
+        return L10nPlacement.endOfFile(file)
     }
 
     private fun findPlacementByFormsInSameModule(
@@ -76,7 +121,8 @@ object FormL10nGenerator {
         val formsWithSameModule = FormSearch.findRootFormsInModules(
             projectScopeWithoutContainingForms,
             *elementFormModules.toTypedArray()
-        )
+        ).filterOutWrongLocale(entry)
+
         val formsWithSameModulePrioritizedByArtifact = formsWithSameModule.prioritizeBy {
             it.getModule(project) in elementArtifacts
         }
@@ -92,47 +138,78 @@ object FormL10nGenerator {
         return null
     }
 
+    private fun Collection<VirtualFile>.filterOutWrongLocale(entry: L10nEntry) = filter {
+        L10nLocale.getByFile(it) == entry.locale
+    }
+
     private fun tryFindPlacementForParent(
         originalElement: FormLocalizableElement<*>,
         element: FormElement<*>,
         originalEntry: L10nEntry,
         preferredL10nFile: JsonFile?,
+        processedElements: MutableSet<FormElement<*>> = mutableSetOf()
     ): L10nPlacement? {
-        if (originalElement != element) {
+        if (element in processedElements) {
+            return null
+        }
+        processedElements += element
+
+        val isOriginalElement = originalElement == element
+        if (!isOriginalElement) {
             val l10nProperty = tryFindL10nProperty(element, originalEntry, preferredL10nFile)
             if (l10nProperty != null) {
                 return L10nPlacement.after(l10nProperty.containingFile as JsonFile, l10nProperty)
             }
         }
 
-        element.parents.forEach { parent ->
+        var processingElementWithNoParents = false
+        val elementsToProcess = if (element.parents.isEmpty() && isOriginalElement) {
+            processingElementWithNoParents = true
+            listOf(element)
+        } else {
+            element.parents
+        }
+
+        elementsToProcess.forEach { parent ->
             val children = parent.children
             val indexOfCurrentElement = children.indexOf(element)
-            if (indexOfCurrentElement == -1) {
+            if (!processingElementWithNoParents && indexOfCurrentElement == -1) {
                 return@forEach
             }
 
             // Reverse the list since we should search from bottom to top. Bottom elements are closer to the current
             // element, so we consider them first
-            val childrenBeforeElement = children.subList(0, indexOfCurrentElement).reversed()
+            val childrenBeforeElement = if (processingElementWithNoParents) {
+                emptyList()
+            } else {
+                children.subList(0, indexOfCurrentElement).reversed()
+            }
             childrenBeforeElement.forEach { child ->
                 val placement =
-                    tryFindPlacementForChild(child, originalEntry, preferredL10nFile, searchingAfterParent = false)
+                    tryFindPlacementForChild(child, originalEntry, preferredL10nFile, searchingAfterParent = false, processedElements)
                 if (placement != null) {
                     return placement
                 }
             }
 
-            val childrenAfterElement = children.subList(indexOfCurrentElement + 1, children.size)
+            val childrenAfterElement = if (processingElementWithNoParents) {
+                children
+            } else {
+                children.subList(indexOfCurrentElement + 1, children.size)
+            }
             childrenAfterElement.forEach { child ->
                 val placement =
-                    tryFindPlacementForChild(child, originalEntry, preferredL10nFile, searchingAfterParent = true)
+                    tryFindPlacementForChild(child, originalEntry, preferredL10nFile, searchingAfterParent = true, processedElements)
                 if (placement != null) {
                     return placement
                 }
             }
 
-            val placement = tryFindPlacementForParent(originalElement, parent, originalEntry, preferredL10nFile)
+            if (processingElementWithNoParents) {
+                return null
+            }
+
+            val placement = tryFindPlacementForParent(originalElement, parent, originalEntry, preferredL10nFile, processedElements)
             if (placement != null) {
                 return placement
             }
@@ -146,7 +223,13 @@ object FormL10nGenerator {
         originalEntry: L10nEntry,
         preferredL10nFile: JsonFile?,
         searchingAfterParent: Boolean,
+        processedElements: MutableSet<FormElement<*>>
     ): L10nPlacement? {
+        if (element in processedElements) {
+            return null
+        }
+        processedElements += element
+
         if (searchingAfterParent) {
             val l10nProperty = tryFindL10nProperty(element, originalEntry, preferredL10nFile)
             if (l10nProperty != null) {
@@ -161,7 +244,7 @@ object FormL10nGenerator {
         }
 
         childrenInCorrectOrder.forEach { child ->
-            val placement = tryFindPlacementForChild(child, originalEntry, preferredL10nFile, searchingAfterParent)
+            val placement = tryFindPlacementForChild(child, originalEntry, preferredL10nFile, searchingAfterParent, processedElements)
             if (placement != null) {
                 return placement
             }

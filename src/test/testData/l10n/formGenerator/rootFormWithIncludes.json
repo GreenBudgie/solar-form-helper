@@ -1,0 +1,15 @@
+{
+  "name": "rootFormWithIncludes",
+  "module": "test",
+  "groups": [
+    {
+      "name": "group1",
+      "rows": [
+        {
+          "fields": "json://includes/forms/test/includedFields.json"
+        }
+      ]
+    },
+    "json://includes/forms/test/includedGroup.json"
+  ]
+}
