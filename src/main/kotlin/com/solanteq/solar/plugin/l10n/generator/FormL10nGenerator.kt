@@ -2,6 +2,7 @@ package com.solanteq.solar.plugin.l10n.generator
 
 import com.intellij.json.psi.JsonFile
 import com.intellij.json.psi.JsonProperty
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.search.GlobalSearchScope
@@ -21,6 +22,8 @@ import org.jetbrains.kotlin.idea.core.util.toPsiFile
 import org.jetbrains.kotlin.idea.util.projectStructure.getModule
 
 object FormL10nGenerator {
+
+    private val logger = logger<FormL10nGenerator>()
 
     /**
      * Finds best placement for [element] localization.
@@ -59,11 +62,13 @@ object FormL10nGenerator {
             return L10nPlacement.endOfFile(preferredL10nFile)
         }
 
+        logger.debug("Finding best placement in same module for: $element")
         val placementByFormsInSameModule = findPlacementByFormsInSameModule(element, entry)
         if (placementByFormsInSameModule != null) {
             return placementByRelatedElements
         }
 
+        logger.debug("Finding best placement by l10n file name for: $element")
         return findPlacementByL10nFileName(element, entry)
     }
 
@@ -147,9 +152,11 @@ object FormL10nGenerator {
         element: FormElement<*>,
         originalEntry: L10nEntry,
         preferredL10nFile: JsonFile?,
-        processedElements: MutableSet<FormElement<*>> = mutableSetOf()
+        processedElements: MutableSet<FormElement<*>> = mutableSetOf(),
     ): L10nPlacement? {
+        logger.debug("Finding best placement for parent: $element")
         if (element in processedElements) {
+            logger.debug("Element is already processed: $element")
             return null
         }
         processedElements += element
@@ -167,7 +174,7 @@ object FormL10nGenerator {
             processingElementWithNoParents = true
             listOf(element)
         } else {
-            element.parents
+            element.parents.filterOutParentsWithDifferentL10nKey(originalEntry)
         }
 
         elementsToProcess.forEach { parent ->
@@ -186,7 +193,13 @@ object FormL10nGenerator {
             }
             childrenBeforeElement.forEach { child ->
                 val placement =
-                    tryFindPlacementForChild(child, originalEntry, preferredL10nFile, searchingAfterParent = false, processedElements)
+                    tryFindPlacementForChild(
+                        child,
+                        originalEntry,
+                        preferredL10nFile,
+                        searchingAfterParent = false,
+                        processedElements
+                    )
                 if (placement != null) {
                     return placement
                 }
@@ -199,7 +212,13 @@ object FormL10nGenerator {
             }
             childrenAfterElement.forEach { child ->
                 val placement =
-                    tryFindPlacementForChild(child, originalEntry, preferredL10nFile, searchingAfterParent = true, processedElements)
+                    tryFindPlacementForChild(
+                        child,
+                        originalEntry,
+                        preferredL10nFile,
+                        searchingAfterParent = true,
+                        processedElements
+                    )
                 if (placement != null) {
                     return placement
                 }
@@ -209,7 +228,8 @@ object FormL10nGenerator {
                 return null
             }
 
-            val placement = tryFindPlacementForParent(originalElement, parent, originalEntry, preferredL10nFile, processedElements)
+            val placement =
+                tryFindPlacementForParent(originalElement, parent, originalEntry, preferredL10nFile, processedElements)
             if (placement != null) {
                 return placement
             }
@@ -223,9 +243,11 @@ object FormL10nGenerator {
         originalEntry: L10nEntry,
         preferredL10nFile: JsonFile?,
         searchingAfterParent: Boolean,
-        processedElements: MutableSet<FormElement<*>>
+        processedElements: MutableSet<FormElement<*>>,
     ): L10nPlacement? {
+        logger.debug("Finding best placement for child: $element")
         if (element in processedElements) {
+            logger.debug("Element is already processed: $element")
             return null
         }
         processedElements += element
@@ -244,7 +266,13 @@ object FormL10nGenerator {
         }
 
         childrenInCorrectOrder.forEach { child ->
-            val placement = tryFindPlacementForChild(child, originalEntry, preferredL10nFile, searchingAfterParent, processedElements)
+            val placement = tryFindPlacementForChild(
+                child,
+                originalEntry,
+                preferredL10nFile,
+                searchingAfterParent,
+                processedElements
+            )
             if (placement != null) {
                 return placement
             }
@@ -269,18 +297,55 @@ object FormL10nGenerator {
             return null
         }
 
-        val entry = element.l10nEntries.withSameFormAndLocaleAs(originalEntry) ?: return null
-        val searchQuery = FormL10nSearch.search(element.project, entry)
+        val entries = element.l10nEntries.withSameFormAndLocaleAs(originalEntry)
+        if (entries.isEmpty()) {
+            return null
+        }
+
+        logger.debug("Searching l10n for $element by $entries")
+        val searchQuery = FormL10nSearch.search(element.project, entries)
         if (preferredL10nFile != null) {
             searchQuery.inScope(preferredL10nFile.fileScope())
         }
 
-        return searchQuery.findFirstProperty()
+        val property = searchQuery.findFirstProperty()
+        if (property != null) {
+            logger.debug("Found property for $element: $property")
+        }
+        return property
     }
 
     private fun <T> Collection<T>.prioritizeBy(condition: (T) -> Boolean): List<T> {
         val (trueList, falseList) = partition(condition)
         return trueList + falseList
+    }
+
+    /**
+     * An element can have multiple parents if it's placed into an included form. If it contains multiple parents,
+     * only one of them directly represents the parent for [originalEntry].
+     *
+     * For example, if `field1` is included into multiple groups, it will have these l10n keys:
+     * - `test.form.rootForm.group1.field1`
+     * - `test.form.rootForm.group2.field1`
+     *
+     * If [originalEntry] has the first key (`test.form.rootForm.group1.field1`), then we shouldn't consider `group2`
+     * as our direct parent. But we will still process it as a child if needed! (yes, these cases with json includes are
+     * very difficult to explain).
+     */
+    private fun List<FormElement<*>>.filterOutParentsWithDifferentL10nKey(originalEntry: L10nEntry) = filter { parent ->
+        if (parent !is FormLocalizableElement<*>) {
+            return@filter true
+        }
+
+        parent.l10nKeys.any { parentL10nKey ->
+            val similarKey = originalEntry.key.startsWith(parentL10nKey)
+            if (similarKey) {
+                logger.debug("$parent has similar l10n key to original element, so it will be processed")
+            } else {
+                logger.debug("$parent IS FILTERED OUT. Original key ${originalEntry.key} does not start with $parentL10nKey")
+            }
+            similarKey
+        }
     }
 
 }

@@ -31,7 +31,7 @@ fun List<L10nEntry>.append(postfix: String): List<L10nEntry> = map {
     it.copy(key = it.key + postfix)
 }
 
-fun List<L10nEntry>.withSameFormAndLocaleAs(otherEntry: L10nEntry): L10nEntry? = find {
+fun List<L10nEntry>.withSameFormAndLocaleAs(otherEntry: L10nEntry): List<L10nEntry> = filter {
     it.rootForm == otherEntry.rootForm && it.locale == otherEntry.locale
 }
 

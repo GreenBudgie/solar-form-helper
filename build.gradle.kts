@@ -128,6 +128,8 @@ tasks {
             listOf("-Didea.kotlin.plugin.use.k2=true")
         }
 
+        systemProperty("idea.log.debug.categories", "com.solanteq.solar.plugin")
+
         fun buildDirPath(relativePath: String) = layout.buildDirectory.dir(relativePath).get().asFile.absolutePath
 
         // Download Intellij CE sources from GitHub and change the path to their location
