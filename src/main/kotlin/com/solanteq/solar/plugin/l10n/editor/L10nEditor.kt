@@ -1,4 +1,4 @@
-package com.solanteq.solar.plugin.l10n.generator
+package com.solanteq.solar.plugin.l10n.editor
 
 import com.intellij.json.JsonElementTypes
 import com.intellij.json.psi.*
@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.codeStyle.CodeStyleManager
 
-object L10nGenerator {
+object L10nEditor {
 
     fun generateL10n(
         key: String,
