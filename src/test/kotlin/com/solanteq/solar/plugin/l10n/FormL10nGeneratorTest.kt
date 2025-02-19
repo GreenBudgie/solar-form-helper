@@ -358,6 +358,81 @@ class FormL10nGeneratorTest : LightPluginTestBase() {
         }
 
     @RepeatedTest(10)
+    fun `find best placement - included form with several parents - place before second group`(): Unit =
+        with(fixture) {
+            setUpIncludedForms("test", "includedFields.json", "includedGroup.json")
+            val rootFormWithIncludesFile = configureByRootForms(
+                "test",
+                "rootFormWithIncludes.json",
+                "rootFormWithIncludes2.json"
+            )
+            val l10nFile = createL10nFile(
+                "l10n_2",
+                L10nLocale.EN,
+                "test.form.rootFormWithIncludes2" to "value",
+                "test.form.rootFormWithIncludes2.group1" to "value",
+                "test.form.rootFormWithIncludes.group2" to "value",
+                "test.form.rootFormWithIncludes2.group2" to "value",
+                "test.form.rootFormWithIncludes" to "value",
+                "test.form.rootFormWithIncludes.group2.field1" to "value",
+            )
+
+            val rootFormWithIncludes = FormRootFile.createFromOrThrow(rootFormWithIncludesFile)
+            val field = rootFormWithIncludes.allGroups.first().fields.first()
+            val l10nEntry = L10nEntry(
+                rootFormWithIncludes,
+                "test.form.rootFormWithIncludes.group1.field1",
+                L10nLocale.EN
+            )
+
+            val placement = FormL10nGenerator.findBestPlacement(field, l10nEntry)
+            assertEquals(
+                L10nPlacement.before(l10nFile, FormL10nSearch.findL10nPropertiesInFile(l10nFile)[2]),
+                placement
+            )
+        }
+
+    @Test
+    fun `find best placement - included form with several parents - place before second group (different files)`(): Unit =
+        with(fixture) {
+            setUpIncludedForms("test", "includedFields.json", "includedGroup.json")
+            val rootFormWithIncludesFile = configureByRootForms(
+                "test",
+                "rootFormWithIncludes.json",
+                "rootFormWithIncludes2.json"
+            )
+            val l10nFile = createL10nFile(
+                "l10n_2",
+                L10nLocale.EN,
+                "test.form.rootFormWithIncludes2" to "value",
+                "test.form.rootFormWithIncludes.group2" to "value",
+                "test.form.rootFormWithIncludes.group2.field1" to "value",
+            )
+            createL10nFile(
+                "l10n",
+                L10nLocale.EN,
+                "test.form.rootFormWithIncludes2.group1" to "value",
+                "test.form.rootFormWithIncludes2.group2" to "value",
+                "test.form.rootFormWithIncludes" to "value",
+            )
+
+
+            val rootFormWithIncludes = FormRootFile.createFromOrThrow(rootFormWithIncludesFile)
+            val field = rootFormWithIncludes.allGroups.first().fields.first()
+            val l10nEntry = L10nEntry(
+                rootFormWithIncludes,
+                "test.form.rootFormWithIncludes.group1.field1",
+                L10nLocale.EN
+            )
+
+            val placement = FormL10nGenerator.findBestPlacement(field, l10nEntry)
+            assertEquals(
+                L10nPlacement.before(l10nFile, FormL10nSearch.findL10nPropertiesInFile(l10nFile)[1]),
+                placement
+            )
+        }
+
+    @RepeatedTest(10)
     fun `find best placement - included form with several parents - place before correct field`(): Unit =
         with(fixture) {
             setUpIncludedForms("test", "includedFields.json", "includedGroup.json")

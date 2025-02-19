@@ -39,6 +39,13 @@ abstract class L10nSearchBase<T : L10n>(
             .byRootForm(entry.rootForm)
     }
 
+    fun search(project: Project, entries: List<L10nEntry>): L10nSearchQuery {
+        return search(project)
+            .byKeys(entries.map { it.key }.distinct())
+            .withLocales(entries.map { it.locale }.distinct())
+            .byRootForms(entries.map { it.rootForm }.distinct())
+    }
+
     /**
      * Constructs the query to search localizations.
      * Important notes:
@@ -54,8 +61,8 @@ abstract class L10nSearchBase<T : L10n>(
 
         private var keys: List<String> = emptyList()
         private var scope: GlobalSearchScope = project.allScope()
-        private var locale: L10nLocale? = null
-        private var rootForm: FormRootFile? = null
+        private var locales: List<L10nLocale>? = null
+        private var rootForms: List<FormRootFile>? = null
 
         /**
          * Search by specific key.
@@ -88,7 +95,15 @@ abstract class L10nSearchBase<T : L10n>(
          * Only localizations with this locale will be found.
          */
         fun withLocale(locale: L10nLocale): L10nSearchQuery {
-            this.locale = locale
+            this.locales = locale.asList()
+            return this
+        }
+
+        /**
+         * Search for localizations with any provided locale.
+         */
+        fun withLocales(locales: List<L10nLocale>): L10nSearchQuery {
+            this.locales = locales
             return this
         }
 
@@ -96,7 +111,15 @@ abstract class L10nSearchBase<T : L10n>(
          * Filter out localizations that do not refer to the provided [rootForm]
          */
         fun byRootForm(rootForm: FormRootFile): L10nSearchQuery {
-            this.rootForm = rootForm
+            this.rootForms = rootForm.asList()
+            return this
+        }
+
+        /**
+         * Filter out localizations that do not refer to the provided [rootForms]
+         */
+        fun byRootForms(rootForms: List<FormRootFile>): L10nSearchQuery {
+            this.rootForms = rootForms
             return this
         }
 
@@ -151,11 +174,11 @@ abstract class L10nSearchBase<T : L10n>(
 
         private fun <T> mapIndexKeys(mapper: (L10nIndexKey) -> Collection<T>): List<T> {
             validateHasKey()
-            val localeList = locale?.asList() ?: L10nLocale.entries
+            val localeList = locales ?: L10nLocale.entries
 
-            val rootForm = rootForm
-            val effectiveKeys = if (rootForm != null) {
-                retrieveKeysByRootForm(rootForm)
+            val rootForms = rootForms
+            val effectiveKeys = if (rootForms != null) {
+                retrieveKeysByRootForm(rootForms)
             } else {
                 keys
             }
@@ -168,10 +191,10 @@ abstract class L10nSearchBase<T : L10n>(
             return indexKeys.flatMap { mapper(it) }
         }
 
-        private fun retrieveKeysByRootForm(rootForm: FormRootFile): List<String> {
-            val rootFormKey = rootForm.l10nKeys.firstOrNull() ?: return keys
+        private fun retrieveKeysByRootForm(rootForms: List<FormRootFile>): List<String> {
+            val rootFormKeys = rootForms.flatMap { it.l10nKeys }.distinct()
             return keys.filter {
-                FormL10n.retrieveFormL10nKey(it) == rootFormKey
+                FormL10n.retrieveFormL10nKey(it) in rootFormKeys
             }
         }
 

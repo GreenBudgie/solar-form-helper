@@ -50,6 +50,10 @@ abstract class FormNamedElement<T : JsonElement>(
         nameProperty.valueAsStringOrNull()
     }
 
+    override fun toString(): String {
+        return "${this::class.simpleName} (${name})"
+    }
+
     companion object {
 
         const val NAME_PROPERTY = "name"
