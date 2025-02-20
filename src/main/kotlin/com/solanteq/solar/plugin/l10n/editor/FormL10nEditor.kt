@@ -10,7 +10,7 @@ import com.solanteq.solar.plugin.element.FormRootFile
 import com.solanteq.solar.plugin.element.base.FormElement
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.file.L10nFileType
-import com.solanteq.solar.plugin.l10n.L10nEntry
+import com.solanteq.solar.plugin.l10n.FormL10nEntry
 import com.solanteq.solar.plugin.l10n.L10nLocale
 import com.solanteq.solar.plugin.l10n.search.FormL10nSearch
 import com.solanteq.solar.plugin.l10n.withSameFormAndLocaleAs
@@ -50,7 +50,7 @@ object FormL10nEditor {
      */
     fun findBestPlacement(
         element: FormLocalizableElement<*>,
-        entry: L10nEntry,
+        entry: FormL10nEntry,
         preferredL10nFile: JsonFile? = null,
     ): L10nPlacement? {
         val placementByRelatedElements = tryFindPlacementForParent(element, element, entry, preferredL10nFile)
@@ -72,13 +72,14 @@ object FormL10nEditor {
         return findPlacementByL10nFileName(element, entry)
     }
 
-    private fun findPlacementByL10nFileName(element: FormLocalizableElement<*>, entry: L10nEntry): L10nPlacement? {
+    private fun findPlacementByL10nFileName(element: FormLocalizableElement<*>, entry: FormL10nEntry): L10nPlacement? {
         val moduleNames = element.containingRootForms.mapNotNull { it.moduleName }
         val rootFormArtifacts = element.containingRootForms
             .mapNotNull { it.virtualFile }
             .mapNotNull { it.getModule(element.project) }
+            .distinct()
         val allModulesScope = rootFormArtifacts
-            .map { it.moduleScope }
+            .map { it.moduleContentScope }
             .reduce { prevModuleScope, currentModuleScope -> prevModuleScope.uniteWith(currentModuleScope) }
 
         val relevantL10nFiles = FileTypeIndex.getFiles(L10nFileType, allModulesScope).filterOutWrongLocale(entry)
@@ -114,11 +115,11 @@ object FormL10nEditor {
 
     private fun findPlacementByFormsInSameModule(
         element: FormLocalizableElement<*>,
-        entry: L10nEntry,
+        entry: FormL10nEntry,
     ): L10nPlacement? {
         val project = element.project
-        val elementFormModules = element.containingRootForms.mapNotNull { it.moduleName }
-        val elementArtifacts = element.containingRootForms.mapNotNull { it.virtualFile?.getModule(project) }
+        val elementFormModules = element.containingRootForms.mapNotNull { it.moduleName }.distinct()
+        val elementArtifacts = element.containingRootForms.mapNotNull { it.virtualFile?.getModule(project) }.distinct()
         val containingFormsVirtualFiles = element.containingRootForms.mapNotNull { it.virtualFile }
         val containingFormsScope = GlobalSearchScope.filesScope(project, containingFormsVirtualFiles)
         val projectScopeWithoutContainingForms = project.projectScope().minus(containingFormsScope)
@@ -126,7 +127,7 @@ object FormL10nEditor {
         val formsWithSameModule = FormSearch.findRootFormsInModules(
             projectScopeWithoutContainingForms,
             *elementFormModules.toTypedArray()
-        ).filterOutWrongLocale(entry)
+        )
 
         val formsWithSameModulePrioritizedByArtifact = formsWithSameModule.prioritizeBy {
             it.getModule(project) in elementArtifacts
@@ -143,14 +144,14 @@ object FormL10nEditor {
         return null
     }
 
-    private fun Collection<VirtualFile>.filterOutWrongLocale(entry: L10nEntry) = filter {
+    private fun Collection<VirtualFile>.filterOutWrongLocale(entry: FormL10nEntry) = filter {
         L10nLocale.getByFile(it) == entry.locale
     }
 
     private fun tryFindPlacementForParent(
         originalElement: FormLocalizableElement<*>,
         element: FormElement<*>,
-        originalEntry: L10nEntry,
+        originalEntry: FormL10nEntry,
         preferredL10nFile: JsonFile?,
         processedElements: MutableSet<FormElement<*>> = mutableSetOf(),
     ): L10nPlacement? {
@@ -240,7 +241,7 @@ object FormL10nEditor {
 
     private fun tryFindPlacementForChild(
         element: FormElement<*>,
-        originalEntry: L10nEntry,
+        originalEntry: FormL10nEntry,
         preferredL10nFile: JsonFile?,
         searchingAfterParent: Boolean,
         processedElements: MutableSet<FormElement<*>>,
@@ -290,7 +291,7 @@ object FormL10nEditor {
 
     private fun tryFindL10nProperty(
         element: FormElement<*>,
-        originalEntry: L10nEntry,
+        originalEntry: FormL10nEntry,
         preferredL10nFile: JsonFile?,
     ): JsonProperty? {
         if (element !is FormLocalizableElement<*>) {
@@ -303,7 +304,7 @@ object FormL10nEditor {
         }
 
         logger.debug("Searching l10n for $element by $entries")
-        val searchQuery = FormL10nSearch.search(element.project, entries)
+        val searchQuery = FormL10nSearch.search(element.project, entries).inScope(element.project.projectScope())
         if (preferredL10nFile != null) {
             searchQuery.inScope(preferredL10nFile.fileScope())
         }
@@ -332,7 +333,7 @@ object FormL10nEditor {
      * as our direct parent. But we will still process it as a child if needed! (yes, these cases with json includes are
      * very difficult to explain).
      */
-    private fun List<FormElement<*>>.filterOutParentsWithDifferentL10nKey(originalEntry: L10nEntry) = filter { parent ->
+    private fun List<FormElement<*>>.filterOutParentsWithDifferentL10nKey(originalEntry: FormL10nEntry) = filter { parent ->
         if (parent !is FormLocalizableElement<*>) {
             return@filter true
         }

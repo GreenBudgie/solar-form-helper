@@ -4,7 +4,7 @@ import com.intellij.json.psi.JsonElement
 import com.intellij.json.psi.JsonObject
 import com.solanteq.solar.plugin.element.FormGroup
 import com.solanteq.solar.plugin.l10n.FormL10n
-import com.solanteq.solar.plugin.l10n.L10nEntry
+import com.solanteq.solar.plugin.l10n.FormL10nEntry
 import com.solanteq.solar.plugin.l10n.L10nLocale
 import com.solanteq.solar.plugin.l10n.search.FormL10nSearch
 import com.solanteq.solar.plugin.l10n.search.L10nSearchBase
@@ -20,7 +20,7 @@ abstract class FormLocalizableElement<T : JsonElement>(
     /**
      * A list of fully unique [l10nEntries].
      */
-    abstract val l10nEntries: List<L10nEntry>
+    abstract val l10nEntries: List<FormL10nEntry>
 
     /**
      * A list of localization keys for this [AbstractFormElement].

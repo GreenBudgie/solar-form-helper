@@ -7,33 +7,37 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.ui.GuiUtils
+import com.intellij.ui.JBColor
 import com.intellij.ui.TextFieldWithHistory
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.fields.ExpandableTextField
 import com.intellij.ui.dsl.builder.COLUMNS_LARGE
 import com.intellij.ui.dsl.builder.columns
 import com.intellij.ui.dsl.builder.panel
+import com.intellij.ui.dsl.builder.text
 import com.intellij.ui.util.minimumHeight
 import com.solanteq.solar.plugin.asset.Icons
 import com.solanteq.solar.plugin.element.FormRootFile
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.file.L10nFileType
-import com.solanteq.solar.plugin.l10n.L10nEntry
+import com.solanteq.solar.plugin.l10n.FormL10n
+import com.solanteq.solar.plugin.l10n.FormL10nEntry
 import com.solanteq.solar.plugin.l10n.L10nLocale
+import com.solanteq.solar.plugin.l10n.editor.FormL10nEditor
+import com.solanteq.solar.plugin.l10n.editor.L10nPlacement
+import com.solanteq.solar.plugin.l10n.search.FormL10nSearch
+import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 import java.awt.Component
 import java.awt.Dimension
-import javax.swing.DefaultListCellRenderer
-import javax.swing.JComponent
-import javax.swing.JList
-import javax.swing.SwingConstants
+import javax.swing.*
 
 class EditFormL10nDialog(
     private val project: Project,
     private val element: FormLocalizableElement<*>,
 ) : DialogWrapper(project) {
 
-    private val l10nData = mutableMapOf<L10nEntry, L10nData>()
+    private val l10nData = mutableMapOf<FormL10nEntry, L10nData>()
 
     init {
         title = "Edit Localization"
@@ -58,11 +62,26 @@ class EditFormL10nDialog(
                         label(key).bold()
                     }
                     locales.forEach { locale ->
-                        val key = L10nEntry(element.containingRootForms.first(), key, locale)
+                        val l10nEntry = FormL10nEntry(rootForm, key, locale)
+                        val l10n = FormL10nSearch.search(project, l10nEntry)
+                            .inScope(project.projectScope())
+                            .findFirstObject()
+                        var initialL10nFile = l10n?.file
+                        val l10nPlacement = if (initialL10nFile == null) {
+                            val bestPlacement = FormL10nEditor.findBestPlacement(element, l10nEntry)
+                            initialL10nFile = bestPlacement?.file
+                            bestPlacement
+                        } else null
                         row(locale.displayName) {
                             val fileChooserField = TextFieldWithHistory()
                             fileChooserField.setHistorySize(-1)
                             fileChooserField.setEditable(false)
+                            if (initialL10nFile != null) {
+                                val selectedPath = FileUtil.toSystemDependentName(initialL10nFile.virtualFile.path)
+                                fileChooserField.text = selectedPath
+                                fileChooserField.selectedItem = selectedPath
+                                fileChooserField.addCurrentTextToHistory()
+                            }
                             fileChooserField.renderer = object : DefaultListCellRenderer() {
 
                                 override fun getListCellRendererComponent(
@@ -80,7 +99,7 @@ class EditFormL10nDialog(
                                         cellHasFocus
                                     )
 
-                                    val file = getFile(fileChooserField)
+                                    val file = getFile(value as String?)
                                     if (file == null) {
                                         text = "No file selected"
                                         return this
@@ -97,7 +116,7 @@ class EditFormL10nDialog(
                             val fileBrowser = GuiUtils.constructFieldWithBrowseButton(fileChooserField) {
                                 val fileChooser = TreeFileChooserFactory.getInstance(project).createFileChooser(
                                     "Choose Localization File",
-                                    getFile(fileChooserField),
+                                    getFile(fileChooserField) ?: initialL10nFile,
                                     L10nFileType
                                 ) { file -> L10nLocale.getByFile(file) == locale }
                                 fileChooser.showDialog()
@@ -116,12 +135,53 @@ class EditFormL10nDialog(
                                 .widthGroup("fileBrowser")
 
                             val valueField = expandableTextField({ mutableListOf(it) })
+                                .onChanged {
+                                    val data = l10nData[l10nEntry] ?: return@onChanged
+                                    var updatedStatus = data.currentStatus
+                                    if (it.text.isBlank()) {
+                                        updatedStatus = if (data.originalL10n != null) {
+                                            L10nEntryStatus.DELETED
+                                        } else {
+                                            L10nEntryStatus.ABSENT
+                                        }
+                                    } else {
+                                        updatedStatus = if (data.originalL10n != null) {
+                                            if (it.text == data.originalL10n.value) {
+                                                L10nEntryStatus.PRESENT
+                                            } else {
+                                                L10nEntryStatus.MODIFIED
+                                            }
+                                        } else {
+                                            L10nEntryStatus.NEW
+                                        }
+                                    }
+                                    if (updatedStatus != data.currentStatus) {
+                                        setStatus(data, updatedStatus)
+                                    }
+                                }
                                 .columns(COLUMNS_LARGE * 2)
-                                .component
+                            val initialValue = l10n?.value
+                            if (initialValue != null) {
+                                valueField.text(initialValue)
+                            }
 
-                            l10nData += key to L10nData(
-                                fileChooserField,
-                                valueField
+                            val status = if (l10n != null) {
+                                L10nEntryStatus.PRESENT
+                            } else {
+                                L10nEntryStatus.ABSENT
+                            }
+
+                            val statusLabel = label(status.text)
+                            statusLabel.component.foreground = status.color
+
+                            l10nData += l10nEntry to L10nData(
+                                fileChooserField = fileChooserField,
+                                valueField = valueField.component,
+                                statusLabel = statusLabel.component,
+                                originalL10n = l10n,
+                                originalStatus = status,
+                                currentStatus = status,
+                                placement = l10nPlacement
                             )
                         }
                     }
@@ -130,14 +190,30 @@ class EditFormL10nDialog(
         }
     }
 
+    private fun setStatus(data: L10nData, newStatus: L10nEntryStatus) {
+        data.statusLabel.text = newStatus.text
+        data.statusLabel.foreground = newStatus.color
+        data.currentStatus = newStatus
+    }
+
     private fun getFile(fileChooserField: TextFieldWithHistory): JsonFile? {
         val path = fileChooserField.selectedItem as String? ?: return null
+        return getFile(path)
+    }
+
+    private fun getFile(path: String?): JsonFile? {
+        path ?: return null
         return LocalFileSystem.getInstance().findFileByPath(path)?.toPsiFile(project) as? JsonFile
     }
 
     private data class L10nData(
-        var fileChooserField: TextFieldWithHistory,
-        var valueField: ExpandableTextField,
+        val fileChooserField: TextFieldWithHistory,
+        val valueField: ExpandableTextField,
+        val statusLabel: JLabel,
+        val originalL10n: FormL10n?,
+        val originalStatus: L10nEntryStatus,
+        var currentStatus: L10nEntryStatus,
+        var placement: L10nPlacement?
     )
 
     private data class L10nEntryAllLocales(
@@ -145,5 +221,15 @@ class EditFormL10nDialog(
         val key: String,
         val locales: List<L10nLocale>
     )
+
+    private enum class L10nEntryStatus(val text: String, val color: JBColor) {
+
+        PRESENT("present", JBColor.BLACK),
+        ABSENT("absent", JBColor.DARK_GRAY),
+        NEW("new", JBColor.GREEN),
+        DELETED("deleted", JBColor.RED),
+        MODIFIED("modified", JBColor.BLUE),
+
+    }
 
 }

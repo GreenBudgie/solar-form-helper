@@ -309,7 +309,7 @@ class FormL10nEditorTest : LightPluginTestBase() {
 
             val rootFormWithIncludes = FormRootFile.createFromOrThrow(rootFormWithIncludesFile)
             val field = rootFormWithIncludes.allGroups.first().fields.first()
-            val l10nEntry = L10nEntry(
+            val l10nEntry = FormL10nEntry(
                 rootFormWithIncludes,
                 "test.form.rootFormWithIncludes.group1.field1",
                 L10nLocale.EN
@@ -344,7 +344,7 @@ class FormL10nEditorTest : LightPluginTestBase() {
 
             val rootFormWithIncludes = FormRootFile.createFromOrThrow(rootFormWithIncludesFile)
             val field = rootFormWithIncludes.allGroups.first().fields.first()
-            val l10nEntry = L10nEntry(
+            val l10nEntry = FormL10nEntry(
                 rootFormWithIncludes,
                 "test.form.rootFormWithIncludes.group1.field1",
                 L10nLocale.EN
@@ -379,7 +379,7 @@ class FormL10nEditorTest : LightPluginTestBase() {
 
             val rootFormWithIncludes = FormRootFile.createFromOrThrow(rootFormWithIncludesFile)
             val field = rootFormWithIncludes.allGroups.first().fields.first()
-            val l10nEntry = L10nEntry(
+            val l10nEntry = FormL10nEntry(
                 rootFormWithIncludes,
                 "test.form.rootFormWithIncludes.group1.field1",
                 L10nLocale.EN
@@ -419,7 +419,7 @@ class FormL10nEditorTest : LightPluginTestBase() {
 
             val rootFormWithIncludes = FormRootFile.createFromOrThrow(rootFormWithIncludesFile)
             val field = rootFormWithIncludes.allGroups.first().fields.first()
-            val l10nEntry = L10nEntry(
+            val l10nEntry = FormL10nEntry(
                 rootFormWithIncludes,
                 "test.form.rootFormWithIncludes.group1.field1",
                 L10nLocale.EN
@@ -450,7 +450,7 @@ class FormL10nEditorTest : LightPluginTestBase() {
 
             val rootFormWithIncludes = FormRootFile.createFromOrThrow(rootFormWithIncludesFile)
             val field = rootFormWithIncludes.allGroups.first().fields.first()
-            val l10nEntry = L10nEntry(
+            val l10nEntry = FormL10nEntry(
                 rootFormWithIncludes,
                 "test.form.rootFormWithIncludes.group1.field1",
                 L10nLocale.EN
@@ -485,7 +485,7 @@ class FormL10nEditorTest : LightPluginTestBase() {
 
             val rootFormWithIncludes = FormRootFile.createFromOrThrow(rootFormWithIncludesFile)
             val field = rootFormWithIncludes.allGroups.first().fields.first()
-            val l10nEntry = L10nEntry(
+            val l10nEntry = FormL10nEntry(
                 rootFormWithIncludes,
                 "test.form.rootFormWithIncludes.group1.field1",
                 L10nLocale.EN
