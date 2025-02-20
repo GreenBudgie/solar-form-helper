@@ -10,7 +10,6 @@ import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.element.creator.FormArrayElementCreator
 import com.solanteq.solar.plugin.element.expression.ExpressionAware
 import com.solanteq.solar.plugin.element.expression.ExpressionAwareImpl
-import com.solanteq.solar.plugin.l10n.L10nEntry
 import com.solanteq.solar.plugin.l10n.append
 import com.solanteq.solar.plugin.symbol.FormSymbol
 import com.solanteq.solar.plugin.symbol.FormSymbolType

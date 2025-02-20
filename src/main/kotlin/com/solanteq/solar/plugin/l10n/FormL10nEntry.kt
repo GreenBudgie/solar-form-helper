@@ -3,9 +3,9 @@ package com.solanteq.solar.plugin.l10n
 import com.solanteq.solar.plugin.element.FormRootFile
 
 /**
- * A completely unique l10n entry by which you can identify the origin of this localization - its root form
+ * A completely unique l10n entry by which you can also identify the origin of this localization - its root form
  */
-data class L10nEntry(
+data class FormL10nEntry(
     val rootForm: FormRootFile,
     val key: String,
     val locale: L10nLocale
@@ -13,9 +13,9 @@ data class L10nEntry(
 
     companion object {
 
-        fun withAllLocales(rootForm: FormRootFile, key: String): List<L10nEntry> {
+        fun withAllLocales(rootForm: FormRootFile, key: String): List<FormL10nEntry> {
             return L10nLocale.entries.map { locale ->
-                L10nEntry(
+                FormL10nEntry(
                     rootForm = rootForm,
                     key = key,
                     locale = locale
@@ -27,14 +27,14 @@ data class L10nEntry(
 
 }
 
-fun List<L10nEntry>.append(postfix: String): List<L10nEntry> = map {
+fun List<FormL10nEntry>.append(postfix: String): List<FormL10nEntry> = map {
     it.copy(key = it.key + postfix)
 }
 
-fun List<L10nEntry>.withSameFormAndLocaleAs(otherEntry: L10nEntry): List<L10nEntry> = filter {
+fun List<FormL10nEntry>.withSameFormAndLocaleAs(otherEntry: FormL10nEntry): List<FormL10nEntry> = filter {
     it.rootForm == otherEntry.rootForm && it.locale == otherEntry.locale
 }
 
-fun List<L10nEntry>.withLocale(locale: L10nLocale): List<L10nEntry> = filter {
+fun List<FormL10nEntry>.withLocale(locale: L10nLocale): List<FormL10nEntry> = filter {
     it.locale == locale
 }

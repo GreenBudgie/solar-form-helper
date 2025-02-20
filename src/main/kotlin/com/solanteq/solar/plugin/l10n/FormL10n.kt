@@ -34,6 +34,7 @@ import org.jetbrains.kotlin.idea.core.util.toPsiFile
  * - 1 reference to `name` field in `details` group
  *
  * TODO for now, only supports form -> group -> field l10ns
+ * TODO CAN_BE_OPTIMIZED chain can be formed lazily (not always needed)
  */
 class FormL10n private constructor(
     file: JsonFile,
@@ -215,29 +216,6 @@ class FormL10n private constructor(
         private const val FORM_NAME_CHAIN_INDEX = 2
         private const val GROUP_NAME_CHAIN_INDEX = 3
         private const val FIELD_CHAIN_START_INDEX = 4
-
-        /**
-         * Retrieves form l10n key from provided [key].
-         * Returns null if [key] is not a form l10n or has invalid format.
-         *
-         * Examples:
-         * - `"bo.form.txn.details.id"` -> `"bo.form.txn"`
-         * - `"bo.form.txn.details"` -> `"bo.form.txn"`
-         * - `"bo.form.txn"` -> `"bo.form.txn"`
-         * - `"bo.form"` -> `null`
-         */
-        fun retrieveFormL10nKey(key: String): String? {
-            val textSplit = key.split('.')
-            val module = textSplit.getOrNull(MODULE_NAME_CHAIN_INDEX) ?: return null
-            val l10nType = textSplit.getOrNull(L10N_TYPE_CHAIN_INDEX) ?: return null
-            val name = textSplit.getOrNull(FORM_NAME_CHAIN_INDEX) ?: return null
-
-            if (l10nType != "form") {
-                return null
-            }
-
-            return "$module.form.$name"
-        }
 
         /**
          * Whether this property can be considered a form localization.

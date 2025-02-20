@@ -9,12 +9,9 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.indexing.FileBasedIndex
 import com.intellij.util.indexing.ID
-import com.solanteq.solar.plugin.element.FormRootFile
 import com.solanteq.solar.plugin.file.L10nFileType
 import com.solanteq.solar.plugin.index.l10n.L10nIndexKey
-import com.solanteq.solar.plugin.l10n.FormL10n
 import com.solanteq.solar.plugin.l10n.L10n
-import com.solanteq.solar.plugin.l10n.L10nEntry
 import com.solanteq.solar.plugin.l10n.L10nLocale
 import com.solanteq.solar.plugin.util.asList
 import org.jetbrains.kotlin.idea.base.util.allScope
@@ -30,20 +27,6 @@ abstract class L10nSearchBase<T : L10n>(
         if(file.fileType != L10nFileType) return emptyList()
         val topLevelObject = file.topLevelValue as? JsonObject ?: return emptyList()
         return topLevelObject.propertyList
-    }
-
-    fun search(project: Project, entry: L10nEntry): L10nSearchQuery {
-        return search(project)
-            .byKey(entry.key)
-            .withLocale(entry.locale)
-            .byRootForm(entry.rootForm)
-    }
-
-    fun search(project: Project, entries: List<L10nEntry>): L10nSearchQuery {
-        return search(project)
-            .byKeys(entries.map { it.key }.distinct())
-            .withLocales(entries.map { it.locale }.distinct())
-            .byRootForms(entries.map { it.rootForm }.distinct())
     }
 
     /**
@@ -62,7 +45,6 @@ abstract class L10nSearchBase<T : L10n>(
         private var keys: List<String> = emptyList()
         private var scope: GlobalSearchScope = project.allScope()
         private var locales: List<L10nLocale>? = null
-        private var rootForms: List<FormRootFile>? = null
 
         /**
          * Search by specific key.
@@ -104,22 +86,6 @@ abstract class L10nSearchBase<T : L10n>(
          */
         fun withLocales(locales: List<L10nLocale>): L10nSearchQuery {
             this.locales = locales
-            return this
-        }
-
-        /**
-         * Filter out localizations that do not refer to the provided [rootForm]
-         */
-        fun byRootForm(rootForm: FormRootFile): L10nSearchQuery {
-            this.rootForms = rootForm.asList()
-            return this
-        }
-
-        /**
-         * Filter out localizations that do not refer to the provided [rootForms]
-         */
-        fun byRootForms(rootForms: List<FormRootFile>): L10nSearchQuery {
-            this.rootForms = rootForms
             return this
         }
 
@@ -176,26 +142,12 @@ abstract class L10nSearchBase<T : L10n>(
             validateHasKey()
             val localeList = locales ?: L10nLocale.entries
 
-            val rootForms = rootForms
-            val effectiveKeys = if (rootForms != null) {
-                retrieveKeysByRootForm(rootForms)
-            } else {
-                keys
-            }
-
-            val indexKeys = effectiveKeys.flatMap { key ->
+            val indexKeys = keys.flatMap { key ->
                 localeList.map { locale ->
                     L10nIndexKey(key, locale)
                 }
             }
             return indexKeys.flatMap { mapper(it) }
-        }
-
-        private fun retrieveKeysByRootForm(rootForms: List<FormRootFile>): List<String> {
-            val rootFormKeys = rootForms.flatMap { it.l10nKeys }.distinct()
-            return keys.filter {
-                FormL10n.retrieveFormL10nKey(it) in rootFormKeys
-            }
         }
 
         private fun validateHasKey() {

@@ -1,12 +1,14 @@
 package com.solanteq.solar.plugin.l10n.search
 
 import com.intellij.json.psi.JsonProperty
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.indexing.FileBasedIndex
 import com.solanteq.solar.plugin.element.FormRootFile
 import com.solanteq.solar.plugin.index.l10n.FORM_L10N_INDEX_NAME
 import com.solanteq.solar.plugin.index.l10n.FORM_L10N_SHORT_INDEX_NAME
 import com.solanteq.solar.plugin.l10n.FormL10n
+import com.solanteq.solar.plugin.l10n.FormL10nEntry
 import com.solanteq.solar.plugin.l10n.L10nLocale
 import com.solanteq.solar.plugin.l10n.withLocale
 import org.jetbrains.kotlin.idea.base.util.projectScope
@@ -17,6 +19,18 @@ import org.jetbrains.kotlin.idea.base.util.projectScope
 object FormL10nSearch : L10nSearchBase<FormL10n>(FORM_L10N_INDEX_NAME) {
 
     override fun createL10n(property: JsonProperty) = FormL10n.fromElement(property)
+
+    fun search(project: Project, entry: FormL10nEntry): L10nSearchQuery {
+        return search(project)
+            .byKey(entry.key)
+            .withLocale(entry.locale)
+    }
+
+    fun search(project: Project, entries: List<FormL10nEntry>): L10nSearchQuery {
+        return search(project)
+            .byKeys(entries.map { it.key }.distinct())
+            .withLocales(entries.map { it.locale }.distinct())
+    }
 
     fun findFileContainingFormL10n(
         form: FormRootFile,

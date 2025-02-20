@@ -16,7 +16,7 @@ import com.solanteq.solar.plugin.element.expression.ExpressionAware
 import com.solanteq.solar.plugin.element.expression.ExpressionAwareImpl
 import com.solanteq.solar.plugin.element.expression.FormExpression
 import com.solanteq.solar.plugin.file.RootFormFileType
-import com.solanteq.solar.plugin.l10n.L10nEntry
+import com.solanteq.solar.plugin.l10n.FormL10nEntry
 import com.solanteq.solar.plugin.reference.form.FormNameReference
 import com.solanteq.solar.plugin.util.FormPsiUtils
 import com.solanteq.solar.plugin.util.asList
@@ -91,7 +91,7 @@ class FormRootFile(
         val name = name ?: return@lazy emptyList()
         val key = "$module.form.$name"
 
-        L10nEntry.withAllLocales(this, key)
+        FormL10nEntry.withAllLocales(this, key)
     }
 
     /**
