@@ -83,7 +83,6 @@ object FormL10nEditor {
             .reduce { prevModuleScope, currentModuleScope -> prevModuleScope.uniteWith(currentModuleScope) }
 
         val relevantL10nFiles = FileTypeIndex.getFiles(L10nFileType, allModulesScope).filterOutWrongLocale(entry)
-
         if (relevantL10nFiles.isEmpty()) {
             return null
         }
@@ -96,7 +95,6 @@ object FormL10nEditor {
         val l10nFileByModuleName = relevantL10nFiles.firstOrNull { file ->
             moduleNames.any { moduleName -> file.name.startsWith(moduleName) }
         }?.toPsiFile(element.project) as? JsonFile
-
         if (l10nFileByModuleName != null) {
             return L10nPlacement.endOfFile(l10nFileByModuleName)
         }
@@ -104,7 +102,6 @@ object FormL10nEditor {
         val l10nFileByFormStringInName = relevantL10nFiles.firstOrNull { file ->
             moduleNames.any { moduleName -> file.name.contains("form") }
         }?.toPsiFile(element.project) as? JsonFile
-
         if (l10nFileByFormStringInName != null) {
             return L10nPlacement.endOfFile(l10nFileByFormStringInName)
         }
