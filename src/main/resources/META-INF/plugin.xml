@@ -150,6 +150,8 @@
         <intentionAction>
             <language>JSON</language>
             <className>com.solanteq.solar.plugin.l10n.action.EditFormL10nAction</className>
+            <skipBeforeAfter>true</skipBeforeAfter>
+            <category>SOLAR form intentions</category>
         </intentionAction>
 
         <!-- UI -->

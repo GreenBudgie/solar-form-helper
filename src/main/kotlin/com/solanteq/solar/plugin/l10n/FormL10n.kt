@@ -85,10 +85,14 @@ class FormL10n private constructor(
      */
     val referencedModuleDirectory by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val directory = referencedFormVirtualFile?.getFormModuleDirectory() ?: return@lazy null
-        if(moduleName != directory.name) {
+        if (moduleName != directory.name) {
             return@lazy null
         }
         return@lazy directory
+    }
+
+    val fullFormName by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        "$moduleName.$formName"
     }
 
     /**
@@ -103,7 +107,7 @@ class FormL10n private constructor(
      * Only exists if valid [moduleName] and [formName] are provided.
      */
     val referencedFormVirtualFile by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        if(moduleName == null || formName == null) {
+        if (moduleName == null || formName == null) {
             return@lazy null
         }
         return@lazy FormSearch.findRootFormByModuleAndName(
@@ -182,7 +186,7 @@ class FormL10n private constructor(
      */
     val referencedFieldElement by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val l10nFieldNameChain = fieldChain.strings
-        if(l10nFieldNameChain.isEmpty()) {
+        if (l10nFieldNameChain.isEmpty()) {
             return@lazy null
         }
         val group = referencedGroupElement ?: return@lazy null
@@ -197,9 +201,9 @@ class FormL10n private constructor(
      */
     val type by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val chainLength = chain.size
-        if(chainLength == FORM_NAME_CHAIN_INDEX) return@lazy L10nType.FORM
-        if(chainLength == GROUP_NAME_CHAIN_INDEX) return@lazy L10nType.GROUP
-        if(chainLength >= FIELD_CHAIN_START_INDEX) return@lazy L10nType.FIELD
+        if (chainLength == FORM_NAME_CHAIN_INDEX) return@lazy L10nType.FORM
+        if (chainLength == GROUP_NAME_CHAIN_INDEX) return@lazy L10nType.GROUP
+        if (chainLength >= FIELD_CHAIN_START_INDEX) return@lazy L10nType.FIELD
         return@lazy null
     }
 
@@ -267,9 +271,9 @@ class FormL10n private constructor(
             val keyElement = property.nameElement as? JsonStringLiteral ?: return null
             val valueElement = property.value as? JsonStringLiteral ?: return null
             val rangeSplit = RangeSplit.from(keyElement)
-            if(rangeSplit.size < 3) return null
+            if (rangeSplit.size < 3) return null
             val l10nType = rangeSplit[1].text
-            if(l10nType != "form") return null
+            if (l10nType != "form") return null
             val file = property.containingFile?.originalFile as? JsonFile ?: return null
             val parentDirectory = file.parent ?: return null
             val locale = L10nLocale.getByDirectoryName(parentDirectory.name) ?: return null

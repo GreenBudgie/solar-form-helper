@@ -15,6 +15,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.ui.awt.RelativePoint
 import com.solanteq.solar.plugin.asset.Icons
+import com.solanteq.solar.plugin.bundle.SolarBundle
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.element.creator.FormElementFactory
 import com.solanteq.solar.plugin.l10n.action.EditFormL10nAction
@@ -33,30 +34,46 @@ class L10nLineMarkerProvider : LineMarkerProvider {
         if (!element.containingFile.isForm()) {
             return null
         }
+
         val formElement = FormElementFactory.createLocalizableElement(element) ?: return null
-        if (formElement.getL10nValues().isEmpty()) {
-            return null
-        }
         val registerForElement = formElement.namePropertyValue?.firstChild ?: return null
+
+        if (formElement.getL10nValues().isEmpty()) {
+            return LineMarkerInfo(
+                registerForElement,
+                registerForElement.textRange,
+                Icons.NEW_L10N_ACTION,
+                { SolarBundle.message("tooltip.create.localizations") },
+                { _, _ -> createElementL10n(formElement) },
+                GutterIconRenderer.Alignment.LEFT,
+                { SolarBundle.message("tooltip.create.localizations") }
+            )
+        }
+
         return LineMarkerInfo(
             registerForElement,
             registerForElement.textRange,
-            Icons.L10N_FILE_ICON,
-            { "Navigate to localizations" },
-            { event, _ -> navigateToL10ns(event, formElement) },
+            Icons.VIEW_L10N_ACTION,
+            { SolarBundle.message("tooltip.view.or.edit.localizations") },
+            { event, _ -> viewOrEditElementL10n(event, formElement) },
             GutterIconRenderer.Alignment.LEFT,
-            { "Navigate to localizations" }
+            { SolarBundle.message("tooltip.view.or.edit.localizations") }
         )
     }
 
-    private fun navigateToL10ns(event: MouseEvent, formElement: FormLocalizableElement<*>) {
-        val containingFile = formElement.containingFile ?: return
-        val editor = containingFile.findExistingEditor() ?: return
-        val localizationsGotoHandler = LocalizationsGotoHandler(formElement)
-        localizationsGotoHandler.navigateToLocalizations(formElement.project, editor, containingFile, event)
+    private fun createElementL10n(element: FormLocalizableElement<*>) {
+        val action = EditFormL10nAction()
+        action.invokeOnLocalizableElement(element.project, element)
     }
 
-    class LocalizationsGotoHandler(private val formElement: FormLocalizableElement<*>) : GotoTargetHandler() {
+    private fun viewOrEditElementL10n(event: MouseEvent, formElement: FormLocalizableElement<*>) {
+        val containingFile = formElement.containingFile ?: return
+        val editor = containingFile.findExistingEditor() ?: return
+        val viewOrEditL10nHandler = ViewOrEditL10nHandler(formElement)
+        viewOrEditL10nHandler.navigateToLocalizations(formElement.project, editor, containingFile, event)
+    }
+
+    class ViewOrEditL10nHandler(private val formElement: FormLocalizableElement<*>) : GotoTargetHandler() {
 
         override fun getFeatureUsedKey() = null
 
@@ -76,21 +93,21 @@ class L10nLineMarkerProvider : LineMarkerProvider {
             val source = formElement.namePropertyValue ?: return null
             val l10ns = getDistinctL10ns(formElement.getL10ns())
             val targets = l10ns.map { it.property }
-            val createL10nAdditionalAction = AddL10nAdditionalAction(
+            val editL10nAdditionalAction = EditL10nAdditionalAction(
                 formElement.project,
                 editor,
                 formElement.sourceElement
             )
-            return GotoData(source, targets.toTypedArray(), createL10nAdditionalAction.asList())
+            return GotoData(source, targets.toTypedArray(), editL10nAdditionalAction.asList())
         }
 
         override fun getNotFoundMessage(project: Project, editor: Editor, file: PsiFile): String {
-           return "No localizations found"
+            return SolarBundle.message("hint.text.no.localizations.found")
         }
 
         override fun getChooserTitle(sourceElement: PsiElement, name: String?, length: Int, finished: Boolean): String {
             sourceElement as JsonStringLiteral
-            return "Localizations for ${sourceElement.value} ($length found)"
+            return SolarBundle.message("popup.title.localizations.found", sourceElement.value, length)
         }
 
         /**
@@ -107,20 +124,21 @@ class L10nLineMarkerProvider : LineMarkerProvider {
 
     }
 
-    private class AddL10nAdditionalAction(
+    private class EditL10nAdditionalAction(
         private val project: Project,
         private val editor: Editor,
         private val element: JsonElement,
     ) : AdditionalAction {
 
-        override fun getText() = "Add Localization"
+        override fun getText() = SolarBundle.message("action.edit.localizations.text")
 
-        override fun getIcon() = Icons.NEW_L10N_ACTION
+        override fun getIcon() = Icons.EDIT_L10N_ACTION
 
         override fun execute() {
             val action = EditFormL10nAction()
-            if (action.isAvailable(project, editor, element)) {
-                action.invoke(project, editor, element)
+            val localizableElement = FormElementFactory.createLocalizableElement(element)
+            if (localizableElement != null) {
+                action.invokeOnLocalizableElement(project, localizableElement)
             }
         }
 
