@@ -8,6 +8,7 @@ import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.DumbAwareToggleAction
 import com.intellij.psi.PsiDocumentManager
+import com.solanteq.solar.plugin.bundle.SolarBundle
 import com.solanteq.solar.plugin.l10n.L10nLocale
 import com.solanteq.solar.plugin.util.isForm
 
@@ -42,7 +43,7 @@ class LocaleToggleAction : DumbAwareToggleAction() {
 
         val locale = service<SolarProjectConfiguration>().state.locale
         e.presentation.icon = locale.icon
-        e.presentation.text = "Locale: ${locale.directoryName}"
+        e.presentation.text = SolarBundle.message("action.toggle.locale.tooltip", locale.directoryName)
     }
 
 }

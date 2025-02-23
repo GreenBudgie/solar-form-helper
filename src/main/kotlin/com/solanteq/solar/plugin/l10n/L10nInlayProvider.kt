@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
+import com.solanteq.solar.plugin.bundle.SolarBundle
 import com.solanteq.solar.plugin.element.base.FormLocalizableElement
 import com.solanteq.solar.plugin.element.creator.FormElementFactory
 import com.solanteq.solar.plugin.settings.SolarProjectConfiguration
@@ -21,7 +22,7 @@ class L10nInlayProvider : InlayHintsProvider<NoSettings> {
 
     override val key = SettingsKey<NoSettings>("solar.l10n.inlayHint")
 
-    override val name = "Form element localization"
+    override val name = SolarBundle.message("l10.inlay.provider.name")
 
     override val previewText = null
 
@@ -61,17 +62,17 @@ class L10nInlayProvider : InlayHintsProvider<NoSettings> {
                 return
             }
             val locale = service<SolarProjectConfiguration>().state.locale
-            val allL10nValues = formElement.getL10nValues(locale)
-            if (allL10nValues.isEmpty()) {
+            val distinctL10nValues = formElement.getL10nValues(locale).distinct()
+            if (distinctL10nValues.isEmpty()) {
                 return
             }
-            val l10nNumber = allL10nValues.size
+            val l10nNumber = distinctL10nValues.size
             val l10nNumberInfo = if (l10nNumber == 1) {
                 ""
             } else {
                 " +${l10nNumber - 1}"
             }
-            val l10nValue = allL10nValues.first()
+            val l10nValue = distinctL10nValues.first()
             val l10nInfo = l10nValue + l10nNumberInfo
             val valueElement = formElement.namePropertyValue ?: return
             val offset = valueElement.textRange.endOffset
