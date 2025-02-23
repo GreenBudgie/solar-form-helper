@@ -2,10 +2,12 @@ package com.solanteq.solar.plugin.l10n.action
 
 import com.intellij.ide.util.TreeFileChooserFactory
 import com.intellij.json.psi.JsonFile
+import com.intellij.openapi.application.readAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.platform.ide.progress.runWithModalProgressBlocking
 import com.intellij.psi.PsiFile
 import com.intellij.ui.GuiUtils
 import com.intellij.ui.JBColor
@@ -37,10 +39,40 @@ class EditFormL10nDialog(
 
     val l10nData = mutableMapOf<FormL10nEntry, L10nData>()
 
+    private val preparedL10nFiles: Map<FormL10nEntry, FileWithIcon?>
+
     init {
         title = SolarBundle.message("dialog.l10n.edit.title")
+
+        preparedL10nFiles = runWithModalProgressBlocking(
+            project,
+            SolarBundle.message("dialog.l10n.edit.finding.files")
+        ) {
+            readAction { prepareInitialFiles() }
+        }
+
         init()
     }
+
+    private fun prepareInitialFiles(): Map<FormL10nEntry, FileWithIcon?> {
+        return element.l10nEntries.associateWith {
+            val originalL10n = FormL10nSearch.search(project, it)
+                .inScope(project.projectScope())
+                .findFirstObject()
+
+            val initialL10nFile = if (originalL10n?.file == null) {
+                val bestPlacement = FormL10nEditor.findBestPlacement(element, it)
+                bestPlacement?.file
+            } else {
+                originalL10n.file
+            }
+
+            initialL10nFile?.let {
+                FileWithIcon(it, it.getIcon(0))
+            }
+        }
+    }
+
 
     fun getFile(fileChooserField: TextFieldWithHistory): JsonFile? {
         val path = fileChooserField.selectedItem as String? ?: return null
@@ -94,16 +126,11 @@ class EditFormL10nDialog(
         val originalL10n = FormL10nSearch.search(project, l10nEntry)
             .inScope(project.projectScope())
             .findFirstObject()
-        val initialL10nFile = if (originalL10n?.file == null) {
-            val bestPlacement = FormL10nEditor.findBestPlacement(element, l10nEntry)
-            bestPlacement?.file
-        } else {
-            originalL10n.file
-        }
+        val initialL10nFile = preparedL10nFiles.getValue(l10nEntry)
 
         row(locale.displayName) {
-            val fileChooserField = constructFileChooserField(originalL10n, initialL10nFile)
-            val fileBrowser = constructFileBrowser(fileChooserField, initialL10nFile, locale, originalL10n)
+            val fileChooserField = constructFileChooserField(originalL10n, initialL10nFile?.file)
+            val fileBrowser = constructFileBrowser(fileChooserField, initialL10nFile?.file, locale, originalL10n)
             cell(fileBrowser)
 
             val valueField = constructL10nValueField(l10nEntry, originalL10n)
@@ -276,8 +303,10 @@ class EditFormL10nDialog(
                 return this
             }
 
+            val preparedIcon = preparedL10nFiles.values.find { it?.file == file }
+
             text = file.name
-            icon = file.getIcon(0)
+            icon = preparedIcon?.icon ?: file.getIcon(0)
 
             return this
         }
@@ -307,6 +336,12 @@ class EditFormL10nDialog(
         val rootForm: FormRootFile,
         val key: String,
         val locales: List<L10nLocale>,
+    )
+
+    // If we don't compute file icon beforehand, we get slow operations exception
+    private data class FileWithIcon(
+        val file: JsonFile,
+        val icon: Icon,
     )
 
 }
