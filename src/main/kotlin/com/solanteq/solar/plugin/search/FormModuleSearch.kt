@@ -43,7 +43,7 @@ object FormModuleSearch {
         }
 
     fun findLibrariesIncludedFormDirectories(project: Project) =
-        cacheByKey(project, LIBRARY_INCLUDED_BASE_DIRECTORIES_KEY, ) {
+        cacheByKey(project, LIBRARY_INCLUDED_BASE_DIRECTORIES_KEY) {
             getLibrariesConfigDirectories(project).getIncludedFormModulesInConfigDirectories()
         }
 
@@ -97,8 +97,8 @@ object FormModuleSearch {
     private inline fun <T> cacheByKey(
         project: Project,
         key: Key<CachedValue<T>>,
-        crossinline computation: () -> T
-    ) : T {
+        crossinline computation: () -> T,
+    ): T {
         return CachedValuesManager.getManager(project).getCachedValue(
             project,
             key,
