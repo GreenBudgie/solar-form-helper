@@ -47,7 +47,6 @@ class EditFormL10nAction : PsiElementBaseIntentionAction() {
 
     fun invokeOnLocalizableElement(project: Project, localizableElement: FormLocalizableElement<*>) {
         val dialog = EditFormL10nDialog(project, localizableElement)
-        // TODO run with progress bar, now we get slow operations for large forms
         if (!dialog.showAndGet()) {
             return
         }
