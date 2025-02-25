@@ -8,6 +8,7 @@ import com.solanteq.solar.plugin.l10n.FormL10nEntry
 import com.solanteq.solar.plugin.l10n.L10nLocale
 import com.solanteq.solar.plugin.l10n.search.FormL10nSearch
 import com.solanteq.solar.plugin.l10n.search.L10nSearchBase
+import org.jetbrains.kotlin.idea.base.util.projectScope
 
 /**
  * Represents a json element with `name` property that can be localized
@@ -35,24 +36,27 @@ abstract class FormLocalizableElement<T : JsonElement>(
         return@lazy l10nEntries.map { it.key }.distinct()
     }
 
-    fun getL10nValues(locale: L10nLocale? = null): List<String> {
+    fun getL10nValues(locale: L10nLocale? = null, projectOnly: Boolean = false): List<String> {
         l10nKeys.ifEmpty { return emptyList() }
-        return buildL10nSearcher(locale).findValues()
+        return buildL10nQuery(locale, projectOnly).findValues()
     }
 
-    fun getL10nValue(locale: L10nLocale? = null): String? {
-        return getL10nValues(locale).firstOrNull()
+    fun getL10nValue(locale: L10nLocale? = null, projectOnly: Boolean = false): String? {
+        return getL10nValues(locale, projectOnly).firstOrNull()
     }
 
-    fun getL10ns(locale: L10nLocale? = null): List<FormL10n> {
+    fun getL10ns(locale: L10nLocale? = null, projectOnly: Boolean = false): List<FormL10n> {
         l10nKeys.ifEmpty { return emptyList() }
-        return buildL10nSearcher(locale).findObjects()
+        return buildL10nQuery(locale, projectOnly).findObjects()
     }
 
-    private fun buildL10nSearcher(locale: L10nLocale?): L10nSearchBase<FormL10n>.L10nSearchQuery {
+    private fun buildL10nQuery(locale: L10nLocale?, projectOnly: Boolean): L10nSearchBase<FormL10n>.L10nSearchQuery {
         val l10nSearcher = FormL10nSearch.search(project).byKeys(l10nKeys)
         if (locale != null) {
             l10nSearcher.withLocale(locale)
+        }
+        if (projectOnly) {
+            l10nSearcher.inScope(project.projectScope())
         }
         return l10nSearcher
     }
