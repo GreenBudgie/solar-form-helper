@@ -11,6 +11,10 @@ data class FormL10nEntry(
     val locale: L10nLocale
 ) {
 
+    override fun toString(): String {
+        return "$key (${locale.displayName})"
+    }
+
     companion object {
 
         fun withAllLocales(rootForm: FormRootFile, key: String): List<FormL10nEntry> {

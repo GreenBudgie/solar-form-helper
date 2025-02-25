@@ -3,11 +3,13 @@ package com.solanteq.solar.plugin.l10n.action
 import com.intellij.ide.util.TreeFileChooserFactory
 import com.intellij.json.psi.JsonFile
 import com.intellij.openapi.application.readAction
+import com.intellij.openapi.progress.checkCanceled
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.platform.ide.progress.runWithModalProgressBlocking
+import com.intellij.platform.util.progress.reportProgress
 import com.intellij.psi.PsiFile
 import com.intellij.ui.GuiUtils
 import com.intellij.ui.JBColor
@@ -47,28 +49,34 @@ class EditFormL10nDialog(
         preparedL10nFiles = runWithModalProgressBlocking(
             project,
             SolarBundle.message("dialog.l10n.edit.finding.files")
-        ) {
-            readAction { prepareInitialFiles() }
-        }
+        ) { prepareInitialFiles() }
 
         init()
     }
 
-    private fun prepareInitialFiles(): Map<FormL10nEntry, FileWithIcon?> {
-        return element.l10nEntries.associateWith {
-            val originalL10n = FormL10nSearch.search(project, it)
-                .inScope(project.projectScope())
-                .findFirstObject()
+    private suspend fun prepareInitialFiles(): Map<FormL10nEntry, FileWithIcon?> {
+        val l10nEntries = readAction { element.l10nEntries }
+        return reportProgress(l10nEntries.size) { reporter ->
+            l10nEntries.associateWith {
+                checkCanceled()
+                reporter.itemStep(SolarBundle.message("dialog.l10n.edit.processing.l10n.entry", it.toString())) {
+                    readAction {
+                        val originalL10n = FormL10nSearch.search(project, it)
+                            .inScope(project.projectScope())
+                            .findFirstObject()
 
-            val initialL10nFile = if (originalL10n?.file == null) {
-                val bestPlacement = FormL10nEditor.findBestPlacement(element, it)
-                bestPlacement?.file
-            } else {
-                originalL10n.file
-            }
+                        val initialL10nFile = if (originalL10n?.file == null) {
+                            val bestPlacement = FormL10nEditor.findBestPlacement(element, it)
+                            bestPlacement?.file
+                        } else {
+                            originalL10n.file
+                        }
 
-            initialL10nFile?.let {
-                FileWithIcon(it, it.getIcon(0))
+                        initialL10nFile?.let {
+                            FileWithIcon(it, it.getIcon(0))
+                        }
+                    }
+                }
             }
         }
     }

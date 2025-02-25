@@ -4,10 +4,12 @@ import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.json.psi.JsonObject
 import com.intellij.openapi.application.writeAction
+import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.command.executeCommand
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.progress.runBlockingCancellable
 import com.intellij.openapi.project.Project
+import com.intellij.platform.ide.progress.runWithModalProgressBlocking
+import com.intellij.platform.util.progress.reportProgress
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.findParentOfType
@@ -51,15 +53,7 @@ class EditFormL10nAction : PsiElementBaseIntentionAction() {
             return
         }
 
-        runBlockingCancellable {
-            writeAction {
-                executeCommand(project, SolarBundle.message("command.name.edit.localizations")) {
-                    dialog.l10nData.forEach { l10nEntry, l10nData ->
-                        editL10n(l10nEntry, l10nData, localizableElement, dialog)
-                    }
-                }
-            }
-        }
+        editL10n(project, localizableElement, dialog)
     }
 
     /**
@@ -72,7 +66,27 @@ class EditFormL10nAction : PsiElementBaseIntentionAction() {
         return FormElementFactory.createLocalizableElement(firstParentObject)
     }
 
-    private fun editL10n(
+    private fun editL10n(project: Project, localizableElement: FormLocalizableElement<*>, dialog: EditFormL10nDialog) {
+        executeCommand(project, SolarBundle.message("command.name.edit.localizations")) {
+            CommandProcessor.getInstance().markCurrentCommandAsGlobal(project)
+            runWithModalProgressBlocking(project, SolarBundle.message("dialog.l10n.edit.editing.l10n")) {
+                reportProgress(dialog.l10nData.size) { reporter ->
+                    dialog.l10nData.forEach { (l10nEntry, l10nData) ->
+                        reporter.itemStep(
+                            SolarBundle.message(
+                                "dialog.l10n.edit.editing.l10n.entry",
+                                l10nEntry.toString()
+                            )
+                        ) {
+                            writeAction { editL10nEntry(l10nEntry, l10nData, localizableElement, dialog) }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun editL10nEntry(
         l10nEntry: FormL10nEntry,
         l10nData: EditFormL10nDialog.L10nData,
         formElement: FormLocalizableElement<*>,

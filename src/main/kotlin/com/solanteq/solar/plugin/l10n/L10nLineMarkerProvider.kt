@@ -21,7 +21,6 @@ import com.solanteq.solar.plugin.element.creator.FormElementFactory
 import com.solanteq.solar.plugin.l10n.action.EditFormL10nAction
 import com.solanteq.solar.plugin.util.asList
 import com.solanteq.solar.plugin.util.isForm
-import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.kotlin.idea.codeinsight.utils.findExistingEditor
 import java.awt.event.MouseEvent
 
@@ -38,7 +37,7 @@ class L10nLineMarkerProvider : LineMarkerProvider {
         val formElement = FormElementFactory.createLocalizableElement(element) ?: return null
         val registerForElement = formElement.namePropertyValue?.firstChild ?: return null
 
-        if (formElement.getL10nValues().isEmpty()) {
+        if (formElement.getL10nValues(projectOnly = true).isEmpty()) {
             return LineMarkerInfo(
                 registerForElement,
                 registerForElement.textRange,
@@ -91,11 +90,10 @@ class L10nLineMarkerProvider : LineMarkerProvider {
 
         override fun getSourceAndTargetElements(editor: Editor, file: PsiFile): GotoData? {
             val source = formElement.namePropertyValue ?: return null
-            val l10ns = getDistinctL10ns(formElement.getL10ns())
-            val targets = l10ns.map { it.property }
+            val l10nInProjectScope = formElement.getL10ns(projectOnly = true)
+            val targets = l10nInProjectScope.map { it.property }
             val editL10nAdditionalAction = EditL10nAdditionalAction(
                 formElement.project,
-                editor,
                 formElement.sourceElement
             )
             return GotoData(source, targets.toTypedArray(), editL10nAdditionalAction.asList())
@@ -110,23 +108,10 @@ class L10nLineMarkerProvider : LineMarkerProvider {
             return SolarBundle.message("popup.title.localizations.found", sourceElement.value, length)
         }
 
-        /**
-         * Sometimes there are multiple identical l10ns in libraries (if multiple versions of the same
-         * artifact are present in project). This method will hide these l10ns from libraries, so only
-         * project l10ns remain.
-         */
-        private fun getDistinctL10ns(l10ns: List<L10n>): List<L10n> {
-            val projectScope = formElement.project.projectScope()
-            val (l10nsInProject, l10nsInLibraries) = l10ns.partition { it.file.virtualFile in projectScope }
-            val distinctL10nsInLibraries = l10nsInLibraries.filter { it !in l10nsInProject }
-            return l10nsInProject + distinctL10nsInLibraries
-        }
-
     }
 
     private class EditL10nAdditionalAction(
         private val project: Project,
-        private val editor: Editor,
         private val element: JsonElement,
     ) : AdditionalAction {
 
