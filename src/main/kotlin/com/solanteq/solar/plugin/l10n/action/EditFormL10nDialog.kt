@@ -41,40 +41,44 @@ class EditFormL10nDialog(
 
     val l10nData = mutableMapOf<FormL10nEntry, L10nData>()
 
-    private val preparedL10nFiles: Map<FormL10nEntry, FileWithIcon?>
+    private val preparedData: Map<FormL10nEntry, PreparedL10nData>
+
+    private var synchronizeL10nsCheckbox: JCheckBox? = null
 
     init {
         title = SolarBundle.message("dialog.l10n.edit.title")
 
-        preparedL10nFiles = runWithModalProgressBlocking(
+        preparedData = runWithModalProgressBlocking(
             project,
             SolarBundle.message("dialog.l10n.edit.finding.files")
-        ) { prepareInitialFiles() }
+        ) { prepareData() }
 
         init()
     }
 
-    private suspend fun prepareInitialFiles(): Map<FormL10nEntry, FileWithIcon?> {
+    private suspend fun prepareData(): Map<FormL10nEntry, PreparedL10nData> {
         val l10nEntries = readAction { element.l10nEntries }
         return reportProgress(l10nEntries.size) { reporter ->
-            l10nEntries.associateWith {
+            l10nEntries.associateWith { entry ->
                 checkCanceled()
-                reporter.itemStep(SolarBundle.message("dialog.l10n.edit.processing.l10n.entry", it.toString())) {
+                reporter.itemStep(SolarBundle.message("dialog.l10n.edit.processing.l10n.entry", entry.toString())) {
                     readAction {
-                        val originalL10n = FormL10nSearch.search(project, it)
+                        val originalL10n = FormL10nSearch.search(project, entry)
                             .inScope(project.projectScope())
                             .findFirstObject()
 
                         val initialL10nFile = if (originalL10n?.file == null) {
-                            val bestPlacement = FormL10nEditor.findBestPlacement(element, it)
+                            val bestPlacement = FormL10nEditor.findBestPlacement(element, entry)
                             bestPlacement?.file
                         } else {
                             originalL10n.file
                         }
 
-                        initialL10nFile?.let {
-                            FileWithIcon(it, it.getIcon(0))
-                        }
+                        PreparedL10nData(
+                            initialL10nFile,
+                            initialL10nFile?.getIcon(0),
+                            originalL10n
+                        )
                     }
                 }
             }
@@ -102,14 +106,67 @@ class EditFormL10nDialog(
                     entries.map { it.locale }
                 )
             }
-        return panel {
-            entriesWithAllLocales.forEach { (rootForm, key, locales) ->
-                val formFullName = rootForm.fullName ?: SolarBundle.message("dialog.l10n.edit.unknown.form")
-                group(JBLabel(formFullName, Icons.ROOT_FORM_ICON, SwingConstants.LEFT)) {
-                    l10nEntryGroup(rootForm, key, locales)
-                }
+        return panel { constructPanel(entriesWithAllLocales) }
+    }
+
+    private fun Panel.constructPanel(entriesWithAllLocales: List<L10nEntryAllLocales>) {
+        if (entriesWithAllLocales.size > 1) {
+            row {
+                synchronizeL10nsCheckbox = checkBox(SolarBundle.message("dialog.l10n.edit.synchronize.l10ns"))
+                    .onChanged { checkbox ->
+                        l10nData.ifEmpty { return@onChanged }
+
+                        if (!checkbox.isSelected) {
+                            return@onChanged
+                        }
+
+                        val entry = entriesWithAllLocales.first()
+                        entry.locales.forEach { locale ->
+                            synchronizeLocalizations(FormL10nEntry(entry.rootForm, entry.key, locale))
+                        }
+                    }.selected(areAllL10nValuesEqual())
+                    .component
             }
         }
+
+        entriesWithAllLocales.forEach { (rootForm, key, locales) ->
+            val formFullName = rootForm.fullName ?: SolarBundle.message("dialog.l10n.edit.unknown.form")
+            group(JBLabel(formFullName, Icons.ROOT_FORM_ICON, SwingConstants.LEFT)) {
+                l10nEntryGroup(rootForm, key, locales)
+            }
+        }
+    }
+
+    private fun areAllL10nValuesEqual(): Boolean {
+        val l10nEntriesByLocale = preparedData.keys.groupBy { it.locale }
+        return l10nEntriesByLocale.values.all { keysByLocale ->
+            val l10nValues = keysByLocale.map { keyByLocale ->
+                preparedData.getValue(keyByLocale).originalL10n?.value
+            }
+
+            l10nValues.distinct().size <= 1
+        }
+    }
+
+    private var synchronizingEntry: FormL10nEntry? = null
+
+    private fun synchronizeLocalizations(withEntry: FormL10nEntry) {
+        if (synchronizingEntry == withEntry) {
+            // Prevents infinite recursion, since setting the text fires onChange event
+            // If you stumble upon this code and know a better solution - please fix it
+            return
+        }
+
+        val l10nDataToSynchronize = l10nData[withEntry] ?: return
+        val valueToSynchronize = l10nDataToSynchronize.valueField.text
+        l10nData
+            .filterKeys { it != withEntry }
+            .filterKeys { it.locale == withEntry.locale }
+            .forEach {
+                synchronizingEntry = it.key
+                it.value.valueField.text = valueToSynchronize
+                synchronizingEntry = null
+            }
     }
 
     private fun Panel.l10nEntryGroup(
@@ -131,14 +188,12 @@ class EditFormL10nDialog(
         locale: L10nLocale,
     ) {
         val l10nEntry = FormL10nEntry(rootForm, key, locale)
-        val originalL10n = FormL10nSearch.search(project, l10nEntry)
-            .inScope(project.projectScope())
-            .findFirstObject()
-        val initialL10nFile = preparedL10nFiles.getValue(l10nEntry)
+        val preparedL10nData = preparedData.getValue(l10nEntry)
+        val originalL10n = preparedL10nData.originalL10n
 
         row(locale.displayName) {
-            val fileChooserField = constructFileChooserField(originalL10n, initialL10nFile?.file)
-            val fileBrowser = constructFileBrowser(fileChooserField, initialL10nFile?.file, locale, originalL10n)
+            val fileChooserField = constructFileChooserField(originalL10n, preparedL10nData.file)
+            val fileBrowser = constructFileBrowser(fileChooserField, preparedL10nData.file, locale, originalL10n)
             cell(fileBrowser)
 
             val valueField = constructL10nValueField(l10nEntry, originalL10n)
@@ -169,7 +224,9 @@ class EditFormL10nDialog(
         originalL10n: FormL10n?,
     ): Cell<ExpandableTextField> {
         val valueField = expandableTextField({ mutableListOf(it) })
-            .onChanged { handleL10nValueTextChange(l10nEntry, it.text) }
+            .onChanged {
+                handleL10nValueTextChange(l10nEntry, it.text)
+            }
             .columns(COLUMNS_LARGE * 2)
 
         val initialValue = originalL10n?.value
@@ -185,6 +242,10 @@ class EditFormL10nDialog(
         text: String,
     ) {
         val data = l10nData[l10nEntry] ?: return
+
+        if (synchronizeL10nsCheckbox?.isSelected == true) {
+            synchronizeLocalizations(l10nEntry)
+        }
 
         if (text.isBlank()) {
             if (data.originalL10n != null) {
@@ -259,10 +320,7 @@ class EditFormL10nDialog(
         ) { L10nLocale.getByFile(it) == locale }
         fileChooser.showDialog()
 
-        val selectedFile = fileChooser.selectedFile
-        if (selectedFile == null) {
-            return
-        }
+        val selectedFile = fileChooser.selectedFile ?: return
 
         selectPath(selectedFile, fileChooserField)
     }
@@ -296,7 +354,7 @@ class EditFormL10nDialog(
             index: Int,
             isSelected: Boolean,
             cellHasFocus: Boolean,
-        ): Component? {
+        ): Component {
             super.getListCellRendererComponent(
                 list,
                 value,
@@ -311,10 +369,10 @@ class EditFormL10nDialog(
                 return this
             }
 
-            val preparedIcon = preparedL10nFiles.values.find { it?.file == file }
+            val preparedData = preparedData.values.find { it.file == file }
 
             text = file.name
-            icon = preparedIcon?.icon ?: file.getIcon(0)
+            icon = preparedData?.fileIcon ?: file.getIcon(0)
 
             return this
         }
@@ -346,10 +404,11 @@ class EditFormL10nDialog(
         val locales: List<L10nLocale>,
     )
 
-    // If we don't compute file icon beforehand, we get slow operations exception
-    private data class FileWithIcon(
-        val file: JsonFile,
-        val icon: Icon,
+    private data class PreparedL10nData(
+        val file: JsonFile?,
+        // If we don't compute file icon beforehand, we get slow operations exception
+        val fileIcon: Icon?,
+        val originalL10n: FormL10n?,
     )
 
 }
