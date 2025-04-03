@@ -63,6 +63,7 @@
                          implementationClass="com.solanteq.solar.plugin.inspection.InvalidRequestInspection"/>
 
         <fileBasedIndex implementation="com.solanteq.solar.plugin.index.JsonIncludeDeclarationIndex"/>
+        <fileBasedIndex implementation="com.solanteq.solar.plugin.index.RootFormDeclarationIndex"/>
         <fileBasedIndex implementation="com.solanteq.solar.plugin.index.IncludedFormIndex"/>
         <fileBasedIndex implementation="com.solanteq.solar.plugin.index.CallableServiceImplIndex"/>
         <fileBasedIndex implementation="com.solanteq.solar.plugin.index.DropdownIndex"/>

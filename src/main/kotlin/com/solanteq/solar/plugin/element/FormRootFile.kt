@@ -6,6 +6,7 @@ import com.intellij.json.psi.JsonProperty
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.*
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.TypeConversionUtil
 import com.solanteq.solar.plugin.element.base.FormElement
@@ -16,11 +17,11 @@ import com.solanteq.solar.plugin.element.expression.ExpressionAware
 import com.solanteq.solar.plugin.element.expression.ExpressionAwareImpl
 import com.solanteq.solar.plugin.element.expression.FormExpression
 import com.solanteq.solar.plugin.file.RootFormFileType
+import com.solanteq.solar.plugin.index.RootFormDeclarationSearch
 import com.solanteq.solar.plugin.l10n.FormL10nEntry
 import com.solanteq.solar.plugin.reference.form.FormNameReference
 import com.solanteq.solar.plugin.util.FormPsiUtils
 import com.solanteq.solar.plugin.util.asList
-import com.solanteq.solar.plugin.util.restrictedByFormFiles
 import com.solanteq.solar.plugin.util.valueAsStringOrNull
 import org.jetbrains.kotlin.idea.base.util.allScope
 
@@ -188,8 +189,6 @@ class FormRootFile(
 
     /**
      * All requests from inline elements that reference this form
-     *
-     * TODO CAN_BE_OPTIMIZED it uses all scope references search - use root form declaration index instead
      */
     val inlineRequests: List<FormRequest> by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val formPropertyValueElements = formReferences.filterIsInstance<FormNameReference>().map { it.element }
@@ -279,8 +278,13 @@ class FormRootFile(
     }
 
     private val formReferences by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        val virtualFile = virtualFile ?: return@lazy emptyList()
         val containingFile = containingFile ?: return@lazy emptyList()
-        val searchScope = project.allScope().restrictedByFormFiles()
+        val containingFiles = RootFormDeclarationSearch.getFilesContainingDeclaration(
+            virtualFile,
+            project.allScope()
+        )
+        val searchScope = GlobalSearchScope.filesScope(project, containingFiles)
         return@lazy ProgressManager.getInstance().runProcess<Collection<PsiReference>>({
             ReferencesSearch.search(containingFile, searchScope).findAll()
         }, EmptyProgressIndicator())
