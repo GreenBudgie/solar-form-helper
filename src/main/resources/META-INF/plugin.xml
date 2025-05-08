@@ -46,21 +46,21 @@
                          groupName="SOLAR form"
                          enabledByDefault="true"
                          level="ERROR"
-                         implementationClass="com.solanteq.solar.plugin.inspection.InvalidFormModuleDeclarationInspection"/>
+                         implementationClass="com.solanteq.solar.plugin.inspection.form.InvalidFormModuleDeclarationInspection"/>
 
         <localInspection language="JSON"
                          displayName="Invalid form name declaration"
                          groupName="SOLAR form"
                          enabledByDefault="true"
                          level="ERROR"
-                         implementationClass="com.solanteq.solar.plugin.inspection.InvalidFormNameDeclarationInspection"/>
+                         implementationClass="com.solanteq.solar.plugin.inspection.form.InvalidFormNameDeclarationInspection"/>
 
         <localInspection language="JSON"
                          displayName="Invalid request"
                          groupName="SOLAR form"
                          enabledByDefault="true"
                          level="ERROR"
-                         implementationClass="com.solanteq.solar.plugin.inspection.InvalidRequestInspection"/>
+                         implementationClass="com.solanteq.solar.plugin.inspection.form.InvalidRequestInspection"/>
 
         <fileBasedIndex implementation="com.solanteq.solar.plugin.index.JsonIncludeDeclarationIndex"/>
         <fileBasedIndex implementation="com.solanteq.solar.plugin.index.RootFormDeclarationIndex"/>
@@ -141,10 +141,7 @@
         
         <iw.actionProvider implementation="com.solanteq.solar.plugin.settings.LocaleActionProvider"/>
 
-        <!--
-        For now, L10nIndex is disabled as it is unused
-        <fileBasedIndex implementation="com.solanteq.solar.plugin.settings.LocaleActionProvider.solanteq.solar.plugin.index.l10n.L10nIndex" />
-        -->
+        <fileBasedIndex implementation="com.solanteq.solar.plugin.index.l10n.L10nIndex" />
         <fileBasedIndex implementation="com.solanteq.solar.plugin.index.l10n.FormL10nIndex"/>
         <fileBasedIndex implementation="com.solanteq.solar.plugin.index.l10n.FormNameL10nShortIndex"/>
 
@@ -154,6 +151,13 @@
             <skipBeforeAfter>true</skipBeforeAfter>
             <category>SOLAR form intentions</category>
         </intentionAction>
+
+        <localInspection language="UAST"
+                         displayName="TODO"
+                         groupName="SOLAR"
+                         enabledByDefault="true"
+                         level="WARNING"
+                         implementationClass="com.solanteq.solar.plugin.inspection.UpgradeConverterMissingL10nInspection"/>
 
         <!-- UI -->
         <fileEditorProvider implementation="com.solanteq.solar.plugin.ui.editor.FormEditorProvider"/>

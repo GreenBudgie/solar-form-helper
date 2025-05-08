@@ -1,8 +1,8 @@
 package com.solanteq.solar.plugin
 
 import com.solanteq.solar.plugin.base.*
-import com.solanteq.solar.plugin.inspection.InvalidFormModuleDeclarationInspection
-import com.solanteq.solar.plugin.inspection.InvalidFormNameDeclarationInspection
+import com.solanteq.solar.plugin.inspection.form.InvalidFormModuleDeclarationInspection
+import com.solanteq.solar.plugin.inspection.form.InvalidFormNameDeclarationInspection
 import org.junit.jupiter.api.Test
 
 class RootFormBasePropertiesTest : LightPluginTestBase() {

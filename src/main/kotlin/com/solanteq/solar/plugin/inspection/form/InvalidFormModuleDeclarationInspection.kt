@@ -1,4 +1,4 @@
-package com.solanteq.solar.plugin.inspection
+package com.solanteq.solar.plugin.inspection.form
 
 import com.intellij.codeInspection.LocalQuickFix
 import com.intellij.codeInspection.ProblemDescriptor
@@ -13,7 +13,7 @@ import com.intellij.psi.ElementManipulators
 import com.solanteq.solar.plugin.util.FormPsiUtils
 import com.solanteq.solar.plugin.util.textRangeWithoutQuotes
 
-class InvalidFormNameDeclarationInspection : FormInspection() {
+class InvalidFormModuleDeclarationInspection : FormInspection() {
 
     override fun buildVisitor(holder: ProblemsHolder) = Visitor(holder)
 
@@ -21,33 +21,33 @@ class InvalidFormNameDeclarationInspection : FormInspection() {
 
         override fun visitProperty(property: JsonProperty) {
             if(!FormPsiUtils.isAtTopLevelObject(property)) return
-            if(property.name != "name") return
+            if(property.name != "module") return
 
             val propertyValue = property.value as? JsonStringLiteral ?: return
-            val formFileName = property.containingFile?.originalFile?.virtualFile?.nameWithoutExtension ?: return
-            val declaredFormName = propertyValue.value
+            val realModuleName = property.containingFile?.originalFile?.parent?.name ?: return
+            val declaredModuleName = propertyValue.value
 
-            if(formFileName == declaredFormName) return
+            if(realModuleName == declaredModuleName) return
 
             holder.registerProblem(
                 propertyValue,
-                "Declared form name and form file name are not the same",
+                "Module name and form file directory name are not the same",
                 ProblemHighlightType.ERROR,
                 propertyValue.textRangeWithoutQuotes,
-                RenameFormNameDeclarationFix(formFileName)
+                RenameModuleFix(realModuleName)
             )
         }
 
     }
 
-    class RenameFormNameDeclarationFix(private val formFileName: String) : LocalQuickFix {
+    class RenameModuleFix(private val realModuleName: String) : LocalQuickFix {
 
         override fun getFamilyName() = "Rename element"
 
         override fun applyFix(project: Project, descriptor: ProblemDescriptor) {
             val element = descriptor.psiElement
             runWriteAction {
-                ElementManipulators.handleContentChange(element, formFileName)
+                ElementManipulators.handleContentChange(element, realModuleName)
             }
         }
 

@@ -3,7 +3,7 @@ package com.solanteq.solar.plugin
 import com.intellij.json.psi.JsonProperty
 import com.solanteq.solar.plugin.base.*
 import com.solanteq.solar.plugin.element.FormRequest
-import com.solanteq.solar.plugin.inspection.InvalidRequestInspection
+import com.solanteq.solar.plugin.inspection.form.InvalidRequestInspection
 import com.solanteq.solar.plugin.reference.request.CallableMethodReference
 import com.solanteq.solar.plugin.reference.request.CallableServiceReference
 import org.junit.jupiter.api.Assertions.assertFalse

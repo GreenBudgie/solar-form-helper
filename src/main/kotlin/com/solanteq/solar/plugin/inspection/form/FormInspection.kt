@@ -1,4 +1,4 @@
-package com.solanteq.solar.plugin.inspection
+package com.solanteq.solar.plugin.inspection.form
 
 import com.intellij.codeInspection.InspectionManager
 import com.intellij.codeInspection.LocalInspectionTool
