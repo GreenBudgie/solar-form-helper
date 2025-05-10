@@ -6,13 +6,17 @@ import com.intellij.testFramework.junit5.RunInEdt
 /**
  * JUnit5 tests runner base class for tests that require interaction with java code.
  *
- * Adds `spring` and `SOLAR Platform` dependencies.
+ * Adds `Spring` and `SOLAR Platform` dependencies.
  *
  * Tests pass much slower than in [LightPluginTestBase], so consider using it only when
  * java code interaction is necessary.
+ *
+ * @param dependencies a list of additional [SolarDependency] for this test
  */
 @RunInEdt(writeIntent = true)
-abstract class JavaPluginTestBase : LightJavaCodeInsightFixtureTestCase5(SolarJavaProjectDescriptor) {
+abstract class JavaPluginTestBase(vararg dependencies: SolarDependency) : LightJavaCodeInsightFixtureTestCase5(
+    SolarJavaProjectDescriptor(dependencies.toSet())
+) {
 
     open fun getTestDataSuffix() = ""
 

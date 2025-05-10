@@ -9,6 +9,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.JavaPsiFacade
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiClassType
+import com.intellij.psi.PsiJavaCodeReferenceElement
+import com.solanteq.solar.plugin.bundle.SolarBundle
+import com.solanteq.solar.plugin.l10n.L10nLocale
 import com.solanteq.solar.plugin.l10n.search.L10nSearch
 import org.jetbrains.uast.*
 
@@ -39,30 +42,47 @@ class UpgradeConverterMissingL10nInspection : AbstractBaseUastLocalInspectionToo
 
         val versionTo = findFieldOrMethodValue(javaClass, "versionTo", "getVersionTo") ?: return null
         val module = findFieldOrMethodValue(javaClass, "module", "getModule") ?: return null
+        val tableName = findTableName(manager.project, javaClass, abstractEntityUpgradeConverter) ?: return null
+
+        val l10nVersionTo = versionTo.replace('.', '_')
+        val l10nKey = "${module}.upg.${tableName}.${l10nVersionTo}.job_name"
+        val classDeclaration = aClass.uastAnchor?.sourcePsi ?: return null
+        val foundL10ns = L10nSearch.search(manager.project).byKey(l10nKey).findObjects()
+        val foundL10nLocales = foundL10ns.map { it.locale }.toSet()
+        val missingL10nLocales = L10nLocale.entries - foundL10nLocales
+        if (missingL10nLocales.isEmpty()) {
+            return null
+        }
+
+        val missingLocalesInfo = missingL10nLocales.joinToString(", ") { it.displayName }
+        return arrayOf(
+            manager.createProblemDescriptor(
+                classDeclaration,
+                SolarBundle.message("inspection.message.upgrade.converter.missing.l10n", missingLocalesInfo),
+                emptyArray(),
+                ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
+                isOnTheFly,
+                false
+            )
+        )
+    }
+
+    private fun findTableName(
+        project: Project,
+        javaClass: PsiClass,
+        abstractEntityUpgradeConverter: PsiJavaCodeReferenceElement,
+    ): String? {
+        val declaredTableName = findFieldOrMethodValue(javaClass, "tableName", "getTableName")
+
+        if (declaredTableName != null) {
+            return declaredTableName
+        }
 
         val entityClassTypeParameter = abstractEntityUpgradeConverter
             .typeParameters
             .firstOrNull() as? PsiClassType ?: return null
         val entityClass = entityClassTypeParameter.resolve() ?: return null
-        val tableName = findTableNameRecursively(entityClass, manager.project) ?: return null
-
-        val l10nVersionTo = versionTo.replace('.', '_')
-        val l10nKey = "${module}.upg.${tableName}.${l10nVersionTo}.job_name"
-        val foundL10ns = L10nSearch.search(manager.project).byKey(l10nKey).findFiles()
-        if (foundL10ns.isEmpty()) {
-            return arrayOf(
-                manager.createProblemDescriptor(
-                    aClass.sourcePsi!!,
-                    "L10n not found!",
-                    emptyArray(),
-                    ProblemHighlightType.WARNING,
-                    isOnTheFly,
-                    false
-                )
-            )
-        }
-
-        return null
+        return findTableNameRecursively(entityClass, project)
     }
 
     private fun findFieldOrMethodValue(javaClass: PsiClass, fieldName: String, methodName: String): String? {
@@ -79,8 +99,7 @@ class UpgradeConverterMissingL10nInspection : AbstractBaseUastLocalInspectionToo
         val returnExpression = methodBody.expressions
             .filterIsInstance<UReturnExpression>()
             .firstOrNull() ?: return null
-        val literalExpression = returnExpression.returnExpression as? ULiteralExpression ?: return null
-        return literalExpression.evaluateString()
+        return returnExpression.returnExpression?.evaluateString()
     }
 
     private tailrec fun findTableNameRecursively(psiClass: PsiClass, project: Project): String? {

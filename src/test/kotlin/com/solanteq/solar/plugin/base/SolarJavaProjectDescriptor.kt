@@ -16,11 +16,17 @@ import com.solanteq.solar.plugin.util.asList
  * @author nbundin
  * @since %CURRENT_VERSION%
  */
-object SolarJavaProjectDescriptor : DefaultLightProjectDescriptor() {
+class SolarJavaProjectDescriptor(
+    private val dependencies: Set<SolarDependency>
+) : DefaultLightProjectDescriptor() {
 
     override fun configureModule(module: Module, model: ModifiableRootModel, contentEntry: ContentEntry) {
-        MavenDependencyUtil.addFromMaven(model, "org.springframework:spring-context:5.3.23")
-        withSolarDependency(model, "com.solanteq.solar:solar-commons:3.3.5.1.RELEASE")
+        withSolarDependency(model, "com.solanteq.solar:solar-commons:$PLATFORM_VERSION")
+
+        dependencies.forEach {
+            withSolarDependency(model, it.mavenCoordinates)
+        }
+
         super.configureModule(module, model, contentEntry)
     }
 
