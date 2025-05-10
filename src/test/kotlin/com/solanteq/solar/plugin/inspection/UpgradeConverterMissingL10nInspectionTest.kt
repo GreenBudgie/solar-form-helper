@@ -4,7 +4,6 @@ import com.solanteq.solar.plugin.base.JavaPluginTestBase
 import com.solanteq.solar.plugin.base.SolarDependency
 import com.solanteq.solar.plugin.l10n.L10nLocale
 import com.solanteq.solar.plugin.l10n.createL10nFile
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
@@ -18,6 +17,60 @@ class UpgradeConverterMissingL10nInspectionTest : JavaPluginTestBase(
 ) {
 
     override fun getTestDataSuffix() = "inspection/converter"
+
+    @ParameterizedTest
+    @ValueSource(booleans = [true, false])
+    fun `test converter l10n highlighting - java, no abstraction`(includeL10n: Boolean) =
+        converterL10nInspectionTest {
+            files("TestEntity.java")
+            includeL10n(includeL10n)
+            converter {
+                """
+            import com.solanteq.solar.commons.upgrade.converter.AbstractEntityUpgradeConverter;
+            
+            public class $className extends AbstractEntityUpgradeConverter<TestEntity, TestEntity> {
+
+                public String getModule() {
+                    return "$MODULE_NAME";
+                }
+                
+                public String getVersionTo() {
+                    return "$VERSION_TO";
+                }
+                
+            }
+            """.trimIndent()
+            }
+        }
+
+    @ParameterizedTest
+    @ValueSource(booleans = [true, false])
+    fun `test converter l10n highlighting - java with explicit tableName declaration, no abstraction`(includeL10n: Boolean) =
+        converterL10nInspectionTest {
+            files("TestEntity.java")
+            includeL10n(includeL10n)
+            converter {
+                """
+            import com.solanteq.solar.commons.upgrade.converter.AbstractEntityUpgradeConverter;
+            
+            public class $className extends AbstractEntityUpgradeConverter<TestEntity, TestEntity> {
+
+                public String getModule() {
+                    return "$MODULE_NAME";
+                }
+                
+                public String getVersionTo() {
+                    return "$VERSION_TO";
+                }
+                
+                public String getTableName() {
+                    return "$TABLE_NAME";
+                }
+                
+            }
+            """.trimIndent()
+            }
+        }
 
     @ParameterizedTest
     @ValueSource(booleans = [true, false])
@@ -41,74 +94,217 @@ class UpgradeConverterMissingL10nInspectionTest : JavaPluginTestBase(
             }
         }
 
-    @Test
-    fun `test present l10n - kotlin, no abstraction`(): Unit = with(fixture) {
-        configureByFiles("TestEntity.kt")
-
-        configureByText(
-            "TestConverter.kt", """
+    @ParameterizedTest
+    @ValueSource(booleans = [true, false])
+    fun `test converter l10n highlighting - kotlin with val getters, no abstraction`(includeL10n: Boolean) =
+        converterL10nInspectionTest {
+            files("TestEntity.kt")
+            kotlin()
+            includeL10n(includeL10n)
+            converter {
+                """
             import com.solanteq.solar.commons.upgrade.converter.AbstractEntityUpgradeConverter
             
-            class <warning>TestConverter</warning> : 
-                AbstractEntityUpgradeConverter<TestEntity, TestEntity>() {
-
-                override val module = "test"
-                    
-                override val versionTo = "1.0.0"
-
-            }
-        """.trimIndent()
-        )
-
-        enableInspections(UpgradeConverterMissingL10nInspection::class.java)
-        checkHighlighting()
-    }
-
-    @Test
-    fun `test missing l10n - kotlin, no abstraction, with getter`(): Unit = with(fixture) {
-        configureByFiles("TestEntity.kt")
-
-        configureByText(
-            "TestConverter.kt", """
-            import com.solanteq.solar.commons.upgrade.converter.AbstractEntityUpgradeConverter
-            
-            class <warning>TestConverter</warning> : 
-                AbstractEntityUpgradeConverter<TestEntity, TestEntity>() {
+            class $className : AbstractEntityUpgradeConverter<TestEntity, TestEntity>() {
 
                 override val module
-                    get() = "test"
+                    get() = "$MODULE_NAME"
                     
-                override val versionTo = "1.0.0"
+                override val versionTo
+                    get() = "$VERSION_TO"
 
             }
-        """.trimIndent()
-        )
+            """.trimIndent()
+            }
+        }
 
-        enableInspections(UpgradeConverterMissingL10nInspection::class.java)
-        checkHighlighting()
-    }
-
-    @Test
-    fun `test missing l10n - kotlin, no abstraction, with overloaded table name`(): Unit = with(fixture) {
-        configureByFiles("TestEntity.kt")
-
-        configureByText(
-            "TestConverter.kt", """
+    @ParameterizedTest
+    @ValueSource(booleans = [true, false])
+    fun `test converter l10n highlighting - kotlin with explicit tableName declaration, no abstraction`(includeL10n: Boolean) =
+        converterL10nInspectionTest {
+            files("TestEntity.kt")
+            kotlin()
+            includeL10n(includeL10n)
+            converter {
+                """
             import com.solanteq.solar.commons.upgrade.converter.AbstractEntityUpgradeConverter
             
-            class <warning>TestConverter</warning> : 
-                AbstractEntityUpgradeConverter<TestEntity, TestEntity>() {
+            class $className : AbstractEntityUpgradeConverter<TestEntity, TestEntity>() {
 
-                override val module = "test"
-                
-                override val tableName = "test_table"
+                override val module = "$MODULE_NAME"
                     
-                override val versionTo = "1.0.0"
+                override val versionTo = "$VERSION_TO"
+                    
+                override val tableName = "$TABLE_NAME"
 
             }
-        """.trimIndent()
-        )
-    }
+            """.trimIndent()
+            }
+        }
+
+    @ParameterizedTest
+    @ValueSource(booleans = [true, false])
+    fun `test converter l10n highlighting - java, with abstract converter`(includeL10n: Boolean) =
+        converterL10nInspectionTest {
+            files("TestEntity.java", "AbstractTestConverter.java")
+            includeL10n(includeL10n)
+            converter {
+                """
+            public class $className extends AbstractTestConverter {
+
+                public String getVersionTo() {
+                    return "$VERSION_TO";
+                }
+                
+            }
+            """.trimIndent()
+            }
+        }
+
+    @ParameterizedTest
+    @ValueSource(booleans = [true, false])
+    fun `test converter l10n highlighting - kotlin, with abstract converter`(includeL10n: Boolean) =
+        converterL10nInspectionTest {
+            files("TestEntity.kt", "AbstractTestConverter.kt")
+            kotlin()
+            includeL10n(includeL10n)
+            converter {
+                """
+            class $className : AbstractTestConverter() {
+
+                override val versionTo = "$VERSION_TO"
+
+            }
+            """.trimIndent()
+            }
+        }
+
+    @ParameterizedTest
+    @ValueSource(booleans = [true, false])
+    fun `test converter l10n highlighting - java, with abstract entity`(includeL10n: Boolean) =
+        converterL10nInspectionTest {
+            files("TestAbstractEntity.java", "TestInheritedEntity.java")
+            includeL10n(includeL10n)
+            converter {
+                """
+            import com.solanteq.solar.commons.upgrade.converter.AbstractEntityUpgradeConverter;
+            
+            public class $className extends AbstractEntityUpgradeConverter<TestInheritedEntity, TestInheritedEntity> {
+
+                public String getModule() {
+                    return "$MODULE_NAME";
+                }
+                
+                public String getVersionTo() {
+                    return "$VERSION_TO";
+                }
+                
+            }
+            """.trimIndent()
+            }
+        }
+
+    @ParameterizedTest
+    @ValueSource(booleans = [true, false])
+    fun `test converter l10n highlighting - kotlin, with abstract entity`(includeL10n: Boolean) =
+        converterL10nInspectionTest {
+            files("TestAbstractEntity.kt", "TestInheritedEntity.kt")
+            kotlin()
+            includeL10n(includeL10n)
+            converter {
+                """
+            import com.solanteq.solar.commons.upgrade.converter.AbstractEntityUpgradeConverter
+            
+            class $className : AbstractEntityUpgradeConverter<TestInheritedEntity, TestInheritedEntity>() {
+
+                override val module = "$MODULE_NAME"
+                    
+                override val versionTo = "$VERSION_TO"
+
+            }
+            """.trimIndent()
+            }
+        }
+
+    @ParameterizedTest
+    @ValueSource(booleans = [true, false])
+    fun `test converter l10n highlighting - java, with two overloads`(includeL10n: Boolean) =
+        converterL10nInspectionTest {
+            files("TestEntity.java", "AbstractTestConverterDifferentModule.java")
+            includeL10n(includeL10n)
+            converter {
+                """
+            public class $className extends AbstractTestConverterDifferentModule {
+
+                public String getModule() {
+                    return "$MODULE_NAME";
+                }
+
+                public String getVersionTo() {
+                    return "$VERSION_TO";
+                }
+                
+            }
+            """.trimIndent()
+            }
+        }
+
+    @ParameterizedTest
+    @ValueSource(booleans = [true, false])
+    fun `test converter l10n highlighting - kotlin, with two overloads`(includeL10n: Boolean) =
+        converterL10nInspectionTest {
+            files("TestEntity.kt", "AbstractTestConverterDifferentModule.kt")
+            kotlin()
+            includeL10n(includeL10n)
+            converter {
+                """
+            class $className : AbstractTestConverterDifferentModule() {
+
+                override val module = "$MODULE_NAME"
+
+                override val versionTo = "$VERSION_TO"
+
+            }
+            """.trimIndent()
+            }
+        }
+
+    @ParameterizedTest
+    @ValueSource(booleans = [true, false])
+    fun `test converter l10n highlighting - java, with kotlin abstraction`(includeL10n: Boolean) =
+        converterL10nInspectionTest {
+            files("TestEntity.kt", "AbstractTestConverter.kt")
+            includeL10n(includeL10n)
+            converter {
+                """
+            public class $className extends AbstractTestConverter {
+
+                public String getVersionTo() {
+                    return "$VERSION_TO";
+                }
+                
+            }
+            """.trimIndent()
+            }
+        }
+
+    @ParameterizedTest
+    @ValueSource(booleans = [true, false])
+    fun `test converter l10n highlighting - kotlin, with java abstraction`(includeL10n: Boolean) =
+        converterL10nInspectionTest {
+            files("TestEntity.java", "AbstractTestConverter.java")
+            kotlin()
+            includeL10n(includeL10n)
+            converter {
+                """
+            class $className : AbstractTestConverter() {
+
+                override val versionTo = "$VERSION_TO"
+
+            }
+            """.trimIndent()
+            }
+        }
 
     private fun converterL10nInspectionTest(
         configuration: ConverterL10nInspectionTest.() -> Unit,
@@ -163,6 +359,7 @@ class UpgradeConverterMissingL10nInspectionTest : JavaPluginTestBase(
                 true -> L10nLocale.entries.forEach {
                     fixture.createL10nFile("l10n", it, L10N_KEY to "value")
                 }
+
                 false -> return
             }
         }

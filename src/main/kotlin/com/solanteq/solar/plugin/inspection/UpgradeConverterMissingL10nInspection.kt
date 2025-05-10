@@ -10,6 +10,7 @@ import com.intellij.psi.JavaPsiFacade
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiJavaCodeReferenceElement
+import com.intellij.psi.util.InheritanceUtil
 import com.solanteq.solar.plugin.bundle.SolarBundle
 import com.solanteq.solar.plugin.l10n.L10nLocale
 import com.solanteq.solar.plugin.l10n.search.L10nSearch
@@ -36,13 +37,17 @@ class UpgradeConverterMissingL10nInspection : AbstractBaseUastLocalInspectionToo
             return null
         }
 
-        val abstractEntityUpgradeConverter = javaClass.extendsList?.referenceElements?.find {
-            it.qualifiedName == ABSTRACT_ENTITY_UPGRADE_CONVERTER_FQ_NAME
-        } ?: return null
+        var foundExtendedConverter: PsiJavaCodeReferenceElement? = null
+        InheritanceUtil.processSupers(javaClass, true) { superclass ->
+            foundExtendedConverter = findExtendedAbstractConverter(superclass)
+            return@processSupers foundExtendedConverter == null
+        }
+
+        val extendedConverter = foundExtendedConverter ?: return null
 
         val versionTo = findFieldOrMethodValue(javaClass, "versionTo", "getVersionTo") ?: return null
         val module = findFieldOrMethodValue(javaClass, "module", "getModule") ?: return null
-        val tableName = findTableName(manager.project, javaClass, abstractEntityUpgradeConverter) ?: return null
+        val tableName = findTableName(manager.project, javaClass, extendedConverter) ?: return null
 
         val l10nVersionTo = versionTo.replace('.', '_')
         val l10nKey = "${module}.upg.${tableName}.${l10nVersionTo}.job_name"
@@ -65,6 +70,12 @@ class UpgradeConverterMissingL10nInspection : AbstractBaseUastLocalInspectionToo
                 false
             )
         )
+    }
+
+    private fun findExtendedAbstractConverter(javaClass: PsiClass): PsiJavaCodeReferenceElement? {
+        return javaClass.extendsList?.referenceElements?.find {
+            it.qualifiedName == ABSTRACT_ENTITY_UPGRADE_CONVERTER_FQ_NAME
+        }
     }
 
     private fun findTableName(
