@@ -1,7 +1,6 @@
 package com.solanteq.solar.plugin.l10n
 
 import com.solanteq.solar.plugin.base.*
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class L10nFormTest : LightPluginTestBase() {
@@ -49,30 +48,6 @@ class L10nFormTest : LightPluginTestBase() {
 
         renameElementAtCaretUsingHandler("renamed.json")
         assertJsonStringLiteralValueEquals("test.form.renamed")
-    }
-
-    @Test
-    fun `test l10n line marker for form`() = with(fixture) {
-        configureByRootForms("test", "testForm1.json")
-        createL10nFile(
-            "l10n",
-            L10nLocale.RU,
-            "test.form.testForm1" to "Form Name!"
-        )
-        createL10nFile(
-            "l10n",
-            L10nLocale.EN,
-            "test.form.testForm1" to "Form Name!"
-        )
-
-        assertContainsLineMarkersAtLinesAndNoMore(2)
-    }
-
-    @Test
-    fun `test no l10n line markers for form if not l10ns exist`() = with(fixture) {
-        configureByRootForms("test", "testForm1.json")
-
-        assertEquals(0, getLineMarkers().size)
     }
 
 }

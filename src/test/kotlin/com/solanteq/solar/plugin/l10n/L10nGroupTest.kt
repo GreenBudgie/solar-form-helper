@@ -221,21 +221,4 @@ class L10nGroupTest : LightPluginTestBase() {
         )
     }
 
-    @Test
-    fun `test l10n line marker for groups`() = with(fixture) {
-        configureByRootForms("test", "testForm1.json")
-        createL10nFile(
-            "l10n",
-            L10nLocale.RU,
-            "test.form.testForm1.group2" to "Group Name!"
-        )
-        createL10nFile(
-            "l10n",
-            L10nLocale.EN,
-            "test.form.testForm1.group1" to "Group Name!"
-        )
-
-        assertContainsLineMarkersAtLinesAndNoMore(5, 20)
-    }
-
 }

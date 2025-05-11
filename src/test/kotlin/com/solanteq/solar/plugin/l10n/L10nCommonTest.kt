@@ -10,6 +10,8 @@ import org.junit.jupiter.params.provider.ValueSource
 
 class L10nCommonTest : LightPluginTestBase() {
 
+    override fun getTestDataSuffix() = "l10n"
+
     @Test
     fun `test l10n module reference`() = with(fixture) {
         createForm("testForm", "test", "{}")
@@ -43,8 +45,6 @@ class L10nCommonTest : LightPluginTestBase() {
 
         assertCompletionsContainsExact("test", "test2", "test3")
     }
-
-    // Type
 
     @ParameterizedTest
     @ValueSource(
@@ -119,5 +119,24 @@ class L10nCommonTest : LightPluginTestBase() {
 
         Assertions.assertTrue(rootFormElement.getL10nValues().isEmpty())
     }
+
+
+    @Test
+    fun `test l10n line markers`() = with(fixture) {
+        configureByRootForms("test", "testForm1.json")
+        createL10nFile(
+            "l10n",
+            L10nLocale.RU,
+            "test.form.testForm1.group2" to "Group Name!"
+        )
+        createL10nFile(
+            "l10n",
+            L10nLocale.EN,
+            "test.form.testForm1.group1" to "Group Name!"
+        )
+
+        assertContainsLineMarkersAtLinesAndNoMore(2, 5, 10, 13, 20, 25)
+    }
+
 
 }

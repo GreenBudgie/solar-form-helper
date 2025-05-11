@@ -133,7 +133,7 @@ class RequestTest : JavaPluginTestBase() {
         configureByFiles("TestService.kt", "TestServiceImpl.kt")
         createFormAndConfigure("testForm", "abc", """
                 {
-                  "source": "test.testService.<error>nonExistentMethod</error>"
+                  "source": "test.testService.<warning>nonExistentMethod</warning>"
                 }
             """.trimIndent())
 
@@ -198,7 +198,7 @@ class RequestTest : JavaPluginTestBase() {
         configureByFiles("TestServiceNonCallable.kt", "TestServiceNonCallableImpl.kt")
         createFormAndConfigure("testForm", "abc", """
                 {
-                  "source": "<warning>test.testServiceNonCallable</warning>.<error>nonExistentMethod</error>"
+                  "source": "<warning>test.testServiceNonCallable</warning>.<warning>nonExistentMethod</warning>"
                 }
             """.trimIndent())
 
