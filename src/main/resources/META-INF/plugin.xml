@@ -153,11 +153,11 @@
         </intentionAction>
 
         <localInspection language="UAST"
-                         displayName="TODO"
+                         displayName="Upgrade converter is missing localization"
                          groupName="SOLAR"
                          enabledByDefault="true"
                          level="WARNING"
-                         implementationClass="com.solanteq.solar.plugin.inspection.UpgradeConverterMissingL10nInspection"/>
+                         implementationClass="com.solanteq.solar.plugin.upgradeConverter.inspection.UpgradeConverterMissingL10nInspection"/>
 
         <!-- UI -->
         <fileEditorProvider implementation="com.solanteq.solar.plugin.ui.editor.FormEditorProvider"/>

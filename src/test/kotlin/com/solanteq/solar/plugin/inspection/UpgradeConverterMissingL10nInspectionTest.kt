@@ -4,6 +4,7 @@ import com.solanteq.solar.plugin.base.JavaPluginTestBase
 import com.solanteq.solar.plugin.base.SolarDependency
 import com.solanteq.solar.plugin.l10n.L10nLocale
 import com.solanteq.solar.plugin.l10n.createL10nFile
+import com.solanteq.solar.plugin.upgradeConverter.inspection.UpgradeConverterMissingL10nInspection
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
