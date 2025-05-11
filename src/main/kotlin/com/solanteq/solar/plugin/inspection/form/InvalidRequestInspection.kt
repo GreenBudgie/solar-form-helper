@@ -4,6 +4,7 @@ import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.json.psi.JsonElementVisitor
 import com.intellij.json.psi.JsonProperty
+import com.solanteq.solar.plugin.bundle.SolarBundle
 import com.solanteq.solar.plugin.element.FormRequest
 import com.solanteq.solar.plugin.util.isCallableServiceClassImpl
 import com.solanteq.solar.plugin.util.textRangeWithoutQuotes
@@ -20,8 +21,8 @@ class InvalidRequestInspection : FormInspection() {
             if (!requestElement.isValid) {
                 holder.registerProblem(
                     element,
-                    "Request has invalid format",
-                    ProblemHighlightType.ERROR,
+                    SolarBundle.message("inspection.message.request.has.invalid.format"),
+                    ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
                     element.textRangeWithoutQuotes
                 )
                 return
@@ -35,8 +36,8 @@ class InvalidRequestInspection : FormInspection() {
             if (!referencedService.isCallableServiceClassImpl()) {
                 holder.registerProblem(
                     element,
-                    "$serviceName is not @Callable",
-                    ProblemHighlightType.WARNING,
+                    SolarBundle.message("inspection.message.request.class.not.callable", serviceName),
+                    ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
                     serviceNameData.range
                 )
             }
@@ -46,8 +47,8 @@ class InvalidRequestInspection : FormInspection() {
             if (referencedMethod == null) {
                 holder.registerProblem(
                     element,
-                    "Method \"$methodName\" is not found in $serviceName",
-                    ProblemHighlightType.LIKE_UNKNOWN_SYMBOL,
+                    SolarBundle.message("inspection.message.request.method.not.found", methodName, serviceName),
+                    ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
                     methodData.range
                 )
                 return
@@ -56,8 +57,8 @@ class InvalidRequestInspection : FormInspection() {
             if (callableMethod == null) {
                 holder.registerProblem(
                     element,
-                    "Method \"$methodName\" in $serviceName is not @Callable",
-                    ProblemHighlightType.WARNING,
+                    SolarBundle.message("inspection.message.request.method.not.callable", methodName, serviceName),
+                    ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
                     methodData.range
                 )
             }

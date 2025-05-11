@@ -10,6 +10,7 @@ import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.project.Project
 import com.intellij.psi.ElementManipulators
+import com.solanteq.solar.plugin.bundle.SolarBundle
 import com.solanteq.solar.plugin.util.FormPsiUtils
 import com.solanteq.solar.plugin.util.textRangeWithoutQuotes
 
@@ -31,8 +32,8 @@ class InvalidFormModuleDeclarationInspection : FormInspection() {
 
             holder.registerProblem(
                 propertyValue,
-                "Module name and form file directory name are not the same",
-                ProblemHighlightType.ERROR,
+                SolarBundle.message("inspection.message.invalid.module.name.declaration"),
+                ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
                 propertyValue.textRangeWithoutQuotes,
                 RenameModuleFix(realModuleName)
             )
@@ -42,7 +43,7 @@ class InvalidFormModuleDeclarationInspection : FormInspection() {
 
     class RenameModuleFix(private val realModuleName: String) : LocalQuickFix {
 
-        override fun getFamilyName() = "Rename element"
+        override fun getFamilyName() = SolarBundle.message("intention.family.name.rename.form.module")
 
         override fun applyFix(project: Project, descriptor: ProblemDescriptor) {
             val element = descriptor.psiElement

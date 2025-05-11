@@ -59,7 +59,7 @@
                          displayName="Invalid request"
                          groupName="SOLAR form"
                          enabledByDefault="true"
-                         level="ERROR"
+                         level="WARNING"
                          implementationClass="com.solanteq.solar.plugin.inspection.form.InvalidRequestInspection"/>
 
         <fileBasedIndex implementation="com.solanteq.solar.plugin.index.JsonIncludeDeclarationIndex"/>
