@@ -58,7 +58,7 @@ class FormGroup(
         val groupName = name ?: return@lazy emptyList()
         containingRootForms.flatMap {
             it.l10nEntries.append(".$groupName")
-        }
+        }.distinct()
     }
 
     /**

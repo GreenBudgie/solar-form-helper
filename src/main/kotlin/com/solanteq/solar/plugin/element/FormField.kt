@@ -60,7 +60,7 @@ class FormField private constructor(
         val fieldName = name ?: return@lazy emptyList()
         containingGroups.flatMap {
             it.l10nEntries.append(".$fieldName")
-        }
+        }.distinct()
     }
 
     val fieldSize by lazy(LazyThreadSafetyMode.PUBLICATION) {

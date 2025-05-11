@@ -10,6 +10,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.platform.ide.progress.runWithModalProgressBlocking
 import com.intellij.platform.util.progress.reportProgress
+import com.intellij.profile.codeInspection.ui.addScrollPaneIfNecessary
 import com.intellij.psi.PsiFile
 import com.intellij.ui.GuiUtils
 import com.intellij.ui.JBColor
@@ -106,7 +107,7 @@ class EditFormL10nDialog(
                     entries.map { it.locale }
                 )
             }
-        return panel { constructPanel(entriesWithAllLocales) }
+        return addScrollPaneIfNecessary(panel { constructPanel(entriesWithAllLocales) })
     }
 
     private fun Panel.constructPanel(entriesWithAllLocales: List<L10nEntryAllLocales>) {
